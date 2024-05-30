@@ -1,6 +1,5 @@
 package org.digidoc4j.main.xades;
 
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 

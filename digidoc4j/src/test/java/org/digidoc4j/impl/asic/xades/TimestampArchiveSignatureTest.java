@@ -31,7 +31,7 @@ public class TimestampArchiveSignatureTest extends AbstractTest {
     public void getProfile_returnsLTA() throws IOException {
         Container container = TestDataBuilderUtil.createContainerWithFile(tmpDir, Container.DocumentType.ASICE);
         AsicESignature asiceSignature = (AsicESignature) TestDataBuilderUtil.signContainer(container, SignatureProfile.LTA);
-        TimestampArchiveSignature timestampArchiveSignature = (TimestampArchiveSignature) asiceSignature.getOrigin();
+        LongTermArchiveSignature timestampArchiveSignature = (LongTermArchiveSignature) asiceSignature.getOrigin();
 
         SignatureProfile profile = timestampArchiveSignature.getProfile();
 

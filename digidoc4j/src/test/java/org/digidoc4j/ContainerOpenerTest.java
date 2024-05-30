@@ -77,7 +77,7 @@ public class ContainerOpenerTest extends AbstractTest {
     assertBDocContainer(container);
     Assert.assertSame(2, container.getSignatures().size());
     assertTimemarkSignature(container.getSignatures().get(0));
-    assertTimestampSignature(container.getSignatures().get(1));
+    assertLtSignature(container.getSignatures().get(1));
     TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
   }
 
@@ -97,7 +97,7 @@ public class ContainerOpenerTest extends AbstractTest {
     Container container = ContainerOpener.open(stream, this.configuration);
     assertAsicEContainer(container);
     Assert.assertSame(1, container.getSignatures().size());
-    assertTimestampSignature(container.getSignatures().get(0));
+    assertLtSignature(container.getSignatures().get(0));
     TestAssert.assertContainerIsOpened(container, Container.DocumentType.ASICE);
   }
 

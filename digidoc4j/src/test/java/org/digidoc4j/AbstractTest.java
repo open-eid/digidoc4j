@@ -597,10 +597,16 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     Assert.assertEquals(SignatureProfile.LT_TM, signature.getProfile());
   }
 
-  protected void assertTimestampSignature(Signature signature) {
+  protected void assertLtSignature(Signature signature) {
     Assert.assertNotNull(signature);
     Assert.assertTrue(signature instanceof AsicESignature);
     Assert.assertEquals(SignatureProfile.LT, signature.getProfile());
+  }
+
+  protected void assertTimestampSignature(Signature signature) {
+    Assert.assertNotNull(signature);
+    Assert.assertTrue(signature instanceof AsicESignature);
+    Assert.assertEquals(SignatureProfile.T, signature.getProfile());
   }
 
   protected void assertArchiveTimestampSignature(Signature signature) {

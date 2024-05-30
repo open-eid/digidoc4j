@@ -50,7 +50,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
 
     byte[] signatureValue = pkcs12EccSignatureToken.sign(deserializedDataToSign.getDigestAlgorithm(), deserializedDataToSign.getDataToSign());
     Signature signature = dataToSign.finalize(signatureValue);
-    assertTimestampSignature(signature);
+    assertLtSignature(signature);
     assertValidSignature(signature);
   }
 
@@ -65,7 +65,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
             .withSignatureToken(pkcs12EccSignatureToken)
             .invokeSigning();
 
-    assertTimestampSignature(signature);
+    assertLtSignature(signature);
     assertValidSignature(signature);
   }
 
@@ -80,7 +80,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
             .withSignatureToken(pkcs12SignatureToken)
             .invokeSigning();
 
-    assertTimestampSignature(signature);
+    assertLtSignature(signature);
     assertValidSignature(signature);
   }
 
@@ -99,7 +99,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
             .withSignatureToken(pkcs12EccSignatureToken)
             .invokeSigning();
 
-    assertTimestampSignature(signature);
+    assertLtSignature(signature);
     assertValidSignature(signature);
   }
 
@@ -113,7 +113,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
             .withSignatureToken(pkcs12EccSignatureToken)
             .invokeSigning();
 
-    assertTimestampSignature(signature);
+    assertLtSignature(signature);
     assertValidSignature(signature);
   }
 
@@ -256,7 +256,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
             .withSignatureProfile(SignatureProfile.LT)
             .invokeSigning();
 
-    assertTimestampSignature(signature);
+    assertLtSignature(signature);
     assertValidSignature(signature);
   }
 
@@ -308,7 +308,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
     Assert.assertEquals(1, signature.getSignerRoles().size());
     Assert.assertEquals("myRole / myResolution", signature.getSignerRoles().get(0));
     Assert.assertEquals("SIGNATURE-1", signature.getId());
-    assertTimestampSignature(signature);
+    assertLtSignature(signature);
     assertValidSignature(signature);
   }
 
@@ -325,7 +325,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
             .withDataFile(digestDataFile)
             .openAdESSignature(xadesSignature);
 
-    assertTimestampSignature(signature);
+    assertLtSignature(signature);
     assertValidSignatureWithWarnings(signature);
   }
 
@@ -384,7 +384,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
     Assert.assertEquals(EncryptionAlgorithm.ECDSA, dataToSign.getSignatureParameters().getEncryptionAlgorithm());
     byte[] signatureValue = pkcs12EccSignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign());
     Signature signature = dataToSign.finalize(signatureValue);
-    assertTimestampSignature(signature);
+    assertLtSignature(signature);
   }
 
   @Test
@@ -401,7 +401,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
 
     Signature signature = dataToSign.finalize(pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
     Assert.assertSame(Constant.Default.SIGNATURE_PROFILE, signature.getProfile());
-    assertTimestampSignature(signature);
+    assertLtSignature(signature);
     assertValidSignature(signature);
   }
 
@@ -469,7 +469,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
             .withSignatureToken(pkcs12EccSignatureToken)
             .invokeSigning();
 
-    assertTimestampSignature(signature);
+    assertLtSignature(signature);
     assertValidSignature(signature);
   }
 
@@ -487,7 +487,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
             .withSignatureProfile(SignatureProfile.LT)
             .invokeSigning();
 
-    assertTimestampSignature(signature);
+    assertLtSignature(signature);
     assertValidSignature(signature);
 
     Container container = ContainerOpener.open(BDOC_WITH_TM_SIG, configuration);
@@ -510,7 +510,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
             .withSignatureProfile(SignatureProfile.LT)
             .invokeSigningProcess();
 
-    assertTimestampSignature(signature);
+    assertLtSignature(signature);
     assertValidSignature(signature);
 
     Container container = ContainerOpener.open(BDOC_WITH_TM_SIG, configuration);

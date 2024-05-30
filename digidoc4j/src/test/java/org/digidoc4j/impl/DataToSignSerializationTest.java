@@ -55,7 +55,7 @@ public class DataToSignSerializationTest extends AbstractTest {
       Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC).build();
       container.addDataFile("src/test/resources/testFiles/helper-files/sized-files/" + fileSize + "KB.txt", "text/plain");
       Signature signature = finalizeAndValidateContainerSignature(container, 0);
-      assertTimestampSignature(signature);
+      assertLtSignature(signature);
       container.addSignature(signature);
       assertTrue(container.validate().isValid());
     }
@@ -67,7 +67,7 @@ public class DataToSignSerializationTest extends AbstractTest {
       Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICE).build();
       container.addDataFile("src/test/resources/testFiles/helper-files/sized-files/" + fileSize + "KB.txt", "text/plain");
       Signature signature = finalizeAndValidateContainerSignature(container, 0);
-      assertTimestampSignature(signature);
+      assertLtSignature(signature);
       container.addSignature(signature);
       assertTrue(container.validate().isValid());
     }
@@ -92,7 +92,7 @@ public class DataToSignSerializationTest extends AbstractTest {
       String fileName = fileSize + "KB.txt";
       container.addDataFile(new FileInputStream("src/test/resources/testFiles/helper-files/sized-files/" + fileName), fileName, "text/plain");
       Signature signature = finalizeAndValidateContainerSignature(container, fileSize * 1000);
-      assertTimestampSignature(signature);
+      assertLtSignature(signature);
       container.addSignature(signature);
       assertTrue(container.validate().isValid());
     }
@@ -105,7 +105,7 @@ public class DataToSignSerializationTest extends AbstractTest {
       String fileName = fileSize + "KB.txt";
       container.addDataFile(new FileInputStream("src/test/resources/testFiles/helper-files/sized-files/" + fileName), fileName, "text/plain");
       Signature signature = finalizeAndValidateContainerSignature(container, fileSize * 1000);
-      assertTimestampSignature(signature);
+      assertLtSignature(signature);
       container.addSignature(signature);
       assertTrue(container.validate().isValid());
     }
@@ -134,7 +134,7 @@ public class DataToSignSerializationTest extends AbstractTest {
     container.addDataFile(new FileInputStream("src/test/resources/testFiles/helper-files/sized-files/" + dataFile1Size + "KB.txt"), dataFile1Name, "text/plain");
     container.addDataFile(new FileInputStream("src/test/resources/testFiles/helper-files/sized-files/" + dataFile2Size + "KB.txt"), dataFile2Name, "text/plain");
     Signature signature = finalizeAndValidateContainerSignature(container, (dataFile1Size * 1000) + (dataFile2Size * 1000));
-    assertTimestampSignature(signature);
+    assertLtSignature(signature);
     container.addSignature(signature);
     assertTrue(container.validate().isValid());
   }
@@ -181,7 +181,7 @@ public class DataToSignSerializationTest extends AbstractTest {
       String fileName = fileSize + "KB.txt";
       DataFile dataFile = new DataFile(new FileInputStream("src/test/resources/testFiles/helper-files/sized-files/" + fileName), fileName, "text/plain");
       Signature signature = finalizeAndValidateDetachedSignature(dataFile, SignatureProfile.LT, fileSize * 1000);
-      assertTimestampSignature(signature);
+      assertLtSignature(signature);
     }
   }
 

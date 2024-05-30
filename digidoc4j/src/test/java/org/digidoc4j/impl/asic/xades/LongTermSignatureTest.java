@@ -28,25 +28,25 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
-public class TimestampSignatureTest extends AbstractTest {
+public class LongTermSignatureTest extends AbstractTest {
 
     @Rule
     public TemporaryFolder tmpDir = new TemporaryFolder();
 
     @Test
     public void getProfile_returnsLT() throws IOException {
-        TimestampSignature timestampSignature = createTimestampSignature();
+        LongTermSignature longTermSignature = createTimestampSignature();
 
-        SignatureProfile profile = timestampSignature.getProfile();
+        SignatureProfile profile = longTermSignature.getProfile();
 
         Assert.assertEquals(SignatureProfile.LT, profile);
     }
 
     @Test
     public void getTimeStampTokenCertificate_certificateExists_ReturnsCertificate() throws IOException {
-        TimestampSignature timestampSignature = createTimestampSignature();
+        LongTermSignature longTermSignature = createTimestampSignature();
 
-        X509Cert timeStampTokenCertificate = timestampSignature.getTimeStampTokenCertificate();
+        X509Cert timeStampTokenCertificate = longTermSignature.getTimeStampTokenCertificate();
 
         Assert.assertEquals("C=EE, O=SK ID Solutions AS, OID.2.5.4.97=NTREE-10747013, CN=DEMO SK TIMESTAMPING AUTHORITY 2023E", timeStampTokenCertificate.getSubjectName());
     }
@@ -54,16 +54,16 @@ public class TimestampSignatureTest extends AbstractTest {
     @Test
     public void getTimeStampCreationTime_timeStampInfoExists_creationTimeIsRecent() throws IOException {
         Instant startTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
-        TimestampSignature timestampSignature = createTimestampSignature();
+        LongTermSignature longTermSignature = createTimestampSignature();
 
-        Date timeStampCreationTime = timestampSignature.getTimeStampCreationTime();
+        Date timeStampCreationTime = longTermSignature.getTimeStampCreationTime();
 
         TestAssert.assertTimeBetweenNotBeforeAndNow(timeStampCreationTime, startTime, Duration.ofMinutes(1));
     }
 
-    private TimestampSignature createTimestampSignature() throws IOException {
+    private LongTermSignature createTimestampSignature() throws IOException {
         Container container = TestDataBuilderUtil.createContainerWithFile(tmpDir, Container.DocumentType.ASICE);
         AsicESignature asiceSignature = (AsicESignature) TestDataBuilderUtil.signContainer(container, SignatureProfile.LT);
-        return (TimestampSignature) asiceSignature.getOrigin();
+        return (LongTermSignature) asiceSignature.getOrigin();
     }
 }

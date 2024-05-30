@@ -42,20 +42,22 @@ import static org.digidoc4j.SignatureProfile.B_EPES;
 import static org.digidoc4j.SignatureProfile.LT;
 import static org.digidoc4j.SignatureProfile.LTA;
 import static org.digidoc4j.SignatureProfile.LT_TM;
+import static org.digidoc4j.SignatureProfile.T;
 
 public class SignatureExtender {
 
   private static final Logger logger = LoggerFactory.getLogger(SignatureExtender.class);
-  private static final Map<SignatureProfile, Set<SignatureProfile>> possibleExtensions = new HashMap<>(5);
+  private static final Map<SignatureProfile, Set<SignatureProfile>> possibleExtensions = new HashMap<>(6);
 
   private final Configuration configuration;
   private final List<DSSDocument> detachedContents;
   private final XadesSigningDssFacade extendingFacade;
 
-  static {
-    possibleExtensions.put(B_BES, new HashSet<>(asList(LT, LTA)));
+  static { //TODO DD4J-1042
+    possibleExtensions.put(B_BES, new HashSet<>(asList(T, LT, LTA)));
     possibleExtensions.put(B_EPES, emptySet());
     possibleExtensions.put(LT, singleton(LTA));
+    possibleExtensions.put(T, new HashSet<>(asList(LT, LTA)));
     possibleExtensions.put(LT_TM, emptySet());
     possibleExtensions.put(LTA, singleton(LTA));
   }
@@ -112,6 +114,9 @@ public class SignatureExtender {
   }
 
   private SignatureLevel getSignatureLevel(SignatureProfile profile) {
+    if (profile == SignatureProfile.T) {
+      return SignatureLevel.XAdES_BASELINE_T;
+    }
     if (profile == SignatureProfile.LT) {
       return SignatureLevel.XAdES_BASELINE_LT;
     }

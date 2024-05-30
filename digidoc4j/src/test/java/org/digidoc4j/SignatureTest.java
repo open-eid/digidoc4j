@@ -11,12 +11,12 @@
 package org.digidoc4j;
 
 import eu.europa.esig.dss.enumerations.Indication;
+import eu.europa.esig.dss.enumerations.SignatureLevel;
 import eu.europa.esig.dss.enumerations.SignatureQualification;
 import eu.europa.esig.dss.enumerations.SubIndication;
 import eu.europa.esig.dss.simplereport.SimpleReport;
 import org.apache.commons.codec.binary.Base64;
 import org.custommonkey.xmlunit.XMLAssert;
-import org.digidoc4j.exceptions.CertificateNotFoundException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.impl.Certificates;
@@ -29,6 +29,7 @@ import org.digidoc4j.test.util.TestTSLUtil;
 import org.digidoc4j.utils.DateUtils;
 import org.digidoc4j.utils.Helper;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.nio.file.Paths;
@@ -49,6 +50,7 @@ import static org.hamcrest.Matchers.matchesRegex;
 public class SignatureTest extends AbstractTest {
 
   @Test
+  @Ignore("DD4J-978 Lithuanian trusted list is temporarily unusable")
   public void findOcspCertificateByHashkey() {
     Container container = openContainerByConfiguration(
         Paths.get("src/test/resources/testFiles/valid-containers/OCSPRigaTest.asice"), configuration);
@@ -98,12 +100,13 @@ public class SignatureTest extends AbstractTest {
     Assert.assertNull(signature.getTimeStampTokenCertificate());
   }
 
-  @Test(expected = CertificateNotFoundException.class)
-  public void testGetSignerRolesForBDoc_OCSP_Exception() {
+  @Test
+  public void testGetOCSPCertificate_TProfileSignature_isNull() {
     Container container = ContainerOpener.open(
         "src/test/resources/testFiles/invalid-containers/ocsp_cert_is_not_in_tsl.bdoc");
-    List<Signature> signatures = container.getSignatures();
-    Assert.assertNull(signatures.get(0).getOCSPCertificate());
+    Signature signature = container.getSignatures().get(0);
+    Assert.assertEquals(SignatureProfile.T, signature.getProfile());
+    Assert.assertNull(signature.getOCSPCertificate());
   }
 
   @Test
@@ -192,8 +195,8 @@ public class SignatureTest extends AbstractTest {
   @Test
   public void testGetProducedAtForBDoc() throws ParseException {
     Container container = ContainerOpener.open(
-        "src/test/resources/testFiles/invalid-containers/ocsp_cert_is_not_in_tsl.bdoc");
-    Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z").parse("2014-07-08 12:51:16 +0000");
+        "src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc");
+    Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z").parse("2016-03-14 14:13:49 +0000");
     Assert.assertEquals(date, container.getSignatures().get(0).getOCSPResponseCreationTime());
   }
 
@@ -275,7 +278,7 @@ public class SignatureTest extends AbstractTest {
   public void testGetProfileForBDoc_TS() {
     Container container = ContainerOpener.open(
         "src/test/resources/testFiles/invalid-containers/ocsp_cert_is_not_in_tsl.bdoc");
-    Assert.assertEquals(SignatureProfile.LT, container.getSignatures().get(0).getProfile());
+    Assert.assertEquals(SignatureProfile.T, container.getSignatures().get(0).getProfile());
   }
 
   @Test
@@ -283,6 +286,15 @@ public class SignatureTest extends AbstractTest {
     Container container = ContainerOpener.open(
         "src/test/resources/testFiles/invalid-containers/asics_for_testing.bdoc");
     Assert.assertEquals(SignatureProfile.B_BES, container.getSignatures().get(0).getProfile());
+  }
+
+  @Test
+  public void testGetProfileForAsice_TS() {
+    Container container = ContainerOpener.open(
+        "src/test/resources/testFiles/valid-containers/signature-level-T.asice");
+    ContainerValidationResult validationResult = container.validate();
+    Assert.assertEquals(SignatureProfile.T, container.getSignatures().get(0).getProfile());
+    Assert.assertEquals(SignatureLevel.XAdES_BASELINE_T, validationResult.getReports().get(0).getSignatureFormat());
   }
 
   @Test(expected = NotYetImplementedException.class)

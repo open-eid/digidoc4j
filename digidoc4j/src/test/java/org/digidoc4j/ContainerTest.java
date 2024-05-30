@@ -10,6 +10,7 @@
 
 package org.digidoc4j;
 
+import eu.europa.esig.dss.enumerations.SignatureLevel;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.DataFileNotFoundException;
@@ -474,6 +475,19 @@ public class ContainerTest extends AbstractTest {
     container = ContainerOpener.open(file);
     Assert.assertEquals("http://www.w3.org/2001/04/xmldsig-more#rsa-sha224",
         container.getSignatures().get(0).getSignatureMethod());
+  }
+
+  @Test
+  public void mustBePossibleToCreateContainerWithTSignatureProfile() {
+    this.configuration = new Configuration(Configuration.Mode.TEST);
+    Container container = ContainerBuilder
+            .aContainer(Container.DocumentType.ASICE)
+            .withConfiguration(this.configuration)
+            .withDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain").build();
+    this.createSignatureBy(container, SignatureProfile.T, pkcs12SignatureToken);
+    ContainerValidationResult validationResult = container.validate();
+    Assert.assertEquals(SignatureLevel.XAdES_BASELINE_T, validationResult.getReports().get(0).getSignatureFormat());
+    Assert.assertEquals(SignatureProfile.T, container.getSignatures().get(0).getProfile());
   }
 
   @Test

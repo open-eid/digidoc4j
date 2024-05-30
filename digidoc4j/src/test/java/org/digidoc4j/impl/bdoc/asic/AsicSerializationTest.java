@@ -32,7 +32,7 @@ public class AsicSerializationTest extends AbstractTest {
     container = serializeAndAddSignature(container, SignatureProfile.LT);
     assertTrue(container.validate().isValid());
     assertEquals(1, container.getSignatures().size());
-    assertTimestampSignature(container.getSignatures().get(0));
+    assertLtSignature(container.getSignatures().get(0));
     assertBDocContainer(container);
   }
 
@@ -44,7 +44,7 @@ public class AsicSerializationTest extends AbstractTest {
     container = serializeAndAddSignature(container, SignatureProfile.LT);
     assertTrue(container.validate().isValid());
     assertEquals(1, container.getSignatures().size());
-    assertTimestampSignature(container.getSignatures().get(0));
+    assertLtSignature(container.getSignatures().get(0));
     assertAsicEContainer(container);
   }
 

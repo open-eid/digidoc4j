@@ -50,6 +50,7 @@ import java.util.List;
 import static eu.europa.esig.dss.enumerations.SignatureLevel.XAdES_BASELINE_B;
 import static eu.europa.esig.dss.enumerations.SignatureLevel.XAdES_BASELINE_LT;
 import static eu.europa.esig.dss.enumerations.SignatureLevel.XAdES_BASELINE_LTA;
+import static eu.europa.esig.dss.enumerations.SignatureLevel.XAdES_BASELINE_T;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
@@ -62,7 +63,7 @@ public abstract class AsicSignatureFinalizer extends SignatureFinalizer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AsicSignatureFinalizer.class);
 
-  private boolean isLTorLTAProfile = false;
+  private boolean isTorLTorLTAProfile = false;
 
   protected AsicSignatureFinalizer(List<DataFile> dataFilesToSign, SignatureParameters signatureParameters, Configuration configuration) {
     super(dataFilesToSign, signatureParameters, configuration);
@@ -97,6 +98,8 @@ public abstract class AsicSignatureFinalizer extends SignatureFinalizer {
     List<DSSDocument> detachedContents = detachedContentCreator.getDetachedContentList();
     XadesSignatureWrapper signatureWrapper = parseSignatureWrapper(signedDocument, detachedContents);
     AsicSignature signature = asAsicSignature(signatureWrapper);
+
+    warnIfIntendedAndDetectedProfileMismatch(signature);
 
     validateOcspResponse(signature.getOrigin());
     validateTimestampResponse(signature.getOrigin());
@@ -148,8 +151,16 @@ public abstract class AsicSignatureFinalizer extends SignatureFinalizer {
     return new XadesSignatureWrapper(xadesSignature, signatureDocument);
   }
 
+  private void warnIfIntendedAndDetectedProfileMismatch(AsicSignature signature) {
+    SignatureProfile intendedProfile = signatureParameters.getSignatureProfile();
+    SignatureProfile detectedProfile  = signature.getOrigin().getProfile();
+    if (detectedProfile != intendedProfile) {
+      LOGGER.warn("Mismatch: intended signature profile: {}, detected profile: {}", intendedProfile, detectedProfile);
+    }
+  }
+
   private void validateOcspResponse(XadesSignature xadesSignature) {
-    if (isBaselineSignatureProfile()) {
+    if (isSignatureProfileLevelWeakerThanLT()) {
       return;
     }
     List<BasicOCSPResp> ocspResponses = xadesSignature.getOcspResponses();
@@ -169,10 +180,11 @@ public abstract class AsicSignatureFinalizer extends SignatureFinalizer {
     }
   }
 
-  private boolean isBaselineSignatureProfile() {
+  private boolean isSignatureProfileLevelWeakerThanLT() {
     return signatureParameters.getSignatureProfile() != null
             && (SignatureProfile.B_BES == signatureParameters.getSignatureProfile()
-            || SignatureProfile.B_EPES == signatureParameters.getSignatureProfile());
+            || SignatureProfile.B_EPES == signatureParameters.getSignatureProfile()
+            || SignatureProfile.T == signatureParameters.getSignatureProfile());
   }
 
   private void initSigningFacade() {
@@ -229,12 +241,16 @@ public abstract class AsicSignatureFinalizer extends SignatureFinalizer {
       case B_BES:
         facade.setSignatureLevel(XAdES_BASELINE_B);
         break;
+      case T:
+        isTorLTorLTAProfile = true;
+        facade.setSignatureLevel(XAdES_BASELINE_T);
+        break;
       case LT:
-        isLTorLTAProfile = true;
+        isTorLTorLTAProfile = true;
         facade.setSignatureLevel(XAdES_BASELINE_LT);
         break;
       case LTA:
-        isLTorLTAProfile = true;
+        isTorLTorLTAProfile = true;
         facade.setSignatureLevel(XAdES_BASELINE_LTA);
         break;
       default:
@@ -292,7 +308,7 @@ public abstract class AsicSignatureFinalizer extends SignatureFinalizer {
   }
 
   private String getTspSource(Configuration configuration) {
-    if (isLTorLTAProfile) {
+    if (isTorLTorLTAProfile) {
       X509Cert x509Cert = new X509Cert(signatureParameters.getSigningCertificate());
       String certCountry = x509Cert.getSubjectName(X509Cert.SubjectName.C);
       String tspSourceByCountry = configuration.getTspSourceByCountry(certCountry);

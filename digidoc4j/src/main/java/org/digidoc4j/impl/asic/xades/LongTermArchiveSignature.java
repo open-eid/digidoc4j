@@ -12,9 +12,9 @@ package org.digidoc4j.impl.asic.xades;
 
 import org.digidoc4j.SignatureProfile;
 
-public class TimestampArchiveSignature extends TimestampSignature {
+public class LongTermArchiveSignature extends LongTermSignature {
 
-  public TimestampArchiveSignature(XadesValidationReportGenerator xadesReportGenerator) {
+  public LongTermArchiveSignature(XadesValidationReportGenerator xadesReportGenerator) {
     super(xadesReportGenerator);
   }
 

@@ -78,7 +78,7 @@ public class ContainerSigningWithOutDataToSignSerializationTest extends Abstract
     Signature signature = signatureFinalizer.finalizeSignature(signatureValue);
 
     container.addSignature(signature);
-    assertTimestampSignature(signature);
+    assertLtSignature(signature);
     assertValidSignature(signature);
 
     SignatureValidationResult validationResult = container.validate();
@@ -113,7 +113,7 @@ public class ContainerSigningWithOutDataToSignSerializationTest extends Abstract
     Signature signature = signatureFinalizer.finalizeSignature(signatureValue);
 
     container.addSignature(signature);
-    assertTimestampSignature(signature);
+    assertLtSignature(signature);
     assertValidSignature(signature);
 
     SignatureValidationResult validationResult = container.validate();
@@ -144,7 +144,7 @@ public class ContainerSigningWithOutDataToSignSerializationTest extends Abstract
     Signature signature = signatureFinalizer.finalizeSignature(signatureValue);
 
     container.addSignature(signature);
-    assertTimestampSignature(signature);
+    assertLtSignature(signature);
     assertValidSignature(signature);
 
     SignatureValidationResult validationResult = container.validate();
@@ -175,7 +175,7 @@ public class ContainerSigningWithOutDataToSignSerializationTest extends Abstract
     Signature signature = signatureFinalizer.finalizeSignature(signatureValue);
 
     container.addSignature(signature);
-    assertTimestampSignature(signature);
+    assertLtSignature(signature);
     assertValidSignature(signature);
 
     SignatureValidationResult validationResult = container.validate();

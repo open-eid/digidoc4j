@@ -47,7 +47,7 @@ public class AsicSignatureFinalizerTest extends AbstractTest {
 
     SignatureFinalizer signatureFinalizer = SignatureFinalizerBuilder.aFinalizer(container, dataToSign.getSignatureParameters());
     Signature signature = signatureFinalizer.finalizeSignature(signatureDigest);
-    assertTimestampSignature(signature);
+    assertLtSignature(signature);
     assertValidSignature(signature);
   }
 
@@ -103,7 +103,7 @@ public class AsicSignatureFinalizerTest extends AbstractTest {
     assertThat(dataToSignBytes, equalTo(signatureFinalizer.getDataToBeSigned()));
 
     Signature signature = signatureFinalizer.finalizeSignature(signatureDigest);
-    assertTimestampSignature(signature);
+    assertLtSignature(signature);
     assertValidSignature(signature);
 
     assertThat(dataToSignBytes, equalTo(signatureFinalizer.getDataToBeSigned()));

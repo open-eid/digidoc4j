@@ -113,6 +113,24 @@ public class DigiDoc4JTest extends AbstractTest {
   }
 
   @Test
+  public void createsContainerWithSignatureProfileIsTForAsice() {
+    String fileName = this.getFileBy("asice");
+    String[] params = new String[]{"-in", fileName,
+            "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain",
+            "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD,
+            "-profile", "T"};
+    System.setProperty("digidoc4j.mode", "TEST");
+    int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(params);
+    assertEquals(0, caughtExitStatus);
+    Container container = ContainerOpener.open(fileName);
+    assertEquals(SignatureProfile.T, container.getSignatures().get(0).getProfile());
+    this.clearGlobalMode();
+    container.validate();
+    assertThat(stdOut.getLog(), containsString("The certificate validation is not conclusive!"));
+    assertThat(stdOut.getLog(), containsString("No revocation data found for the certificate!"));
+  }
+
+  @Test
   public void createsContainerWithSignatureProfileIsBESForBDoc() {
     String file = this.getFileBy("bdoc");
     String[] parameters = new String[]{"-in", file, "-type", "BDOC",
@@ -402,6 +420,19 @@ public class DigiDoc4JTest extends AbstractTest {
             "src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc", "-verify");
     assertEquals(0, caughtExitStatus);
     assertThat(stdOut.getLog(), containsString("Signature S0 is valid"));
+  }
+
+  @Test
+  public void verifyTSignatureProfileAsice() {
+    this.configuration = Configuration.of(Configuration.Mode.TEST);
+    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
+    int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus("-in",
+            "src/test/resources/testFiles/valid-containers/signature-level-T.asice", "-verify");
+    assertEquals(1, caughtExitStatus);
+    assertThat(stdOut.getLog(), containsString("Signature has 2 validation errors and 1 warnings"));
+    assertThat(stdOut.getLog(), containsString("The certificate validation is not conclusive!"));
+    assertThat(stdOut.getLog(), containsString("No revocation data found for the certificate!"));
+    assertThat(stdOut.getLog(), containsString("The signature/seal is an INDETERMINATE AdES digital signature!"));
   }
 
   @Test

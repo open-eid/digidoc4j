@@ -19,13 +19,17 @@ public enum SignatureProfile {
    */
   LT_TM,
   /**
-   * Time-stamp and OCSP confirmation (ASIC-E format)
+   * Signature with Long Term Data - Timestamp and OCSP confirmation (ASIC-E format)
    */
   LT,
   /**
    * Archive timestamp, same as XAdES LTA (Long Term Archive time-stamp)
    */
   LTA,
+  /**
+   * Signature with a timestamp - Timestamp without OCSP confirmation
+   */
+  T,
   /**
    * no profile (baseline)
    */

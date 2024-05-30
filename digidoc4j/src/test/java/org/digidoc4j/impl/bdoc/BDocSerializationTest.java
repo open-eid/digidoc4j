@@ -285,7 +285,7 @@ public class BDocSerializationTest extends AbstractTest {
 
     byte[] signatureValue = this.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
     Signature signature = dataToSign.finalize(signatureValue);
-    assertTimestampSignature(signature);
+    assertLtSignature(signature);
     assertValidSignature(signature);
 
     container.addSignature(signature);

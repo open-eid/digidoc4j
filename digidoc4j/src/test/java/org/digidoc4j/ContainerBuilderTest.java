@@ -341,7 +341,7 @@ public class ContainerBuilderTest extends AbstractTest {
       assertBDocContainer(container);
       Assert.assertSame(2, container.getSignatures().size());
       assertTimemarkSignature(container.getSignatures().get(0));
-      assertTimestampSignature(container.getSignatures().get(1));
+      assertLtSignature(container.getSignatures().get(1));
       TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
     }
   }
@@ -377,7 +377,7 @@ public class ContainerBuilderTest extends AbstractTest {
       Container container = ContainerBuilder.aContainer(ASICE).fromStream(stream).build();
       assertAsicEContainer(container);
       Assert.assertSame(1, container.getSignatures().size());
-      assertTimestampSignature(container.getSignatures().get(0));
+      assertLtSignature(container.getSignatures().get(0));
     }
   }
 
@@ -435,7 +435,7 @@ public class ContainerBuilderTest extends AbstractTest {
       Container container = ContainerBuilder.aContainer().fromStream(stream).build();
       assertAsicEContainer(container);
       Assert.assertSame(1, container.getSignatures().size());
-      assertTimestampSignature(container.getSignatures().get(0));
+      assertLtSignature(container.getSignatures().get(0));
       TestAssert.assertContainerIsOpened(container, ASICE);
     }
   }
@@ -494,7 +494,7 @@ public class ContainerBuilderTest extends AbstractTest {
       Container container = ContainerBuilder.aContainer(BDOC).fromStream(stream).build();
       assertAsicEContainer(container);
       Assert.assertSame(1, container.getSignatures().size());
-      assertTimestampSignature(container.getSignatures().get(0));
+      assertLtSignature(container.getSignatures().get(0));
     }
   }
 

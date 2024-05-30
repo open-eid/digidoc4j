@@ -226,10 +226,6 @@ public class BesSignature extends DssXadesSignature {
     return signatureElement;
   }
 
-  protected XAdESPath getxPathQueryHolder() {
-    return xAdESPaths;
-  }
-
   protected Set<CertificateToken> getEncapsulatedCertificates() {
     if (encapsulatedCertificates == null) {
       logger.debug("Finding encapsulated certificates");

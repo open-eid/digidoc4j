@@ -41,23 +41,27 @@ public class XadesSignatureParser {
     assertNoExcessEncapsulatedTimeStamps(xAdESSignature);
     logger.debug("Signature profile is " + signatureLevel);
     if (isEpesSignature(signatureLevel, xAdESSignature)) {
-      logger.debug("Using EPES signature");
+      logger.debug("Using EPES signature (B_EPES)");
       return new EpesSignature(xadesReportGenerator);
     }
     if (isBesSignature(signatureLevel)) {
-      logger.debug("Using BES signature");
+      logger.debug("Using BES signature (B_BES)");
       return new BesSignature(xadesReportGenerator);
     }
     if (isTimeMarkSignature(xAdESSignature)) {
-      logger.debug("Using Time Mark signature");
+      logger.debug("Using Time Mark signature (LT_TM)");
       return new TimemarkSignature(xadesReportGenerator);
     }
     if (isTimestampArchiveSignature(signatureLevel)) {
-      logger.debug("Using Time Stamp Archive signature");
-      return new TimestampArchiveSignature(xadesReportGenerator);
+      logger.debug("Using Signature with Long Term Data and Archive timestamp (LTA)");
+      return new LongTermArchiveSignature(xadesReportGenerator);
     }
-    logger.debug("Using Timestamp signature");
-    return new TimestampSignature(xadesReportGenerator);
+    if (isTimestampSignature(signatureLevel)) {
+      logger.debug("Using Signature with a timestamp (T)");
+      return new TimestampSignature(xadesReportGenerator);
+    }
+    logger.debug("Using Signature with Long Term Data (LT)");
+    return new LongTermSignature(xadesReportGenerator);
   }
 
   private boolean isEpesSignature(SignatureLevel signatureLevel, XAdESSignature xAdESSignature) {
@@ -70,6 +74,10 @@ public class XadesSignatureParser {
 
   private boolean isTimestampArchiveSignature(SignatureLevel signatureLevel) {
     return signatureLevel == SignatureLevel.XAdES_BASELINE_LTA || signatureLevel == SignatureLevel.XAdES_A;
+  }
+
+  private boolean isTimestampSignature(SignatureLevel signatureLevel) {
+    return signatureLevel == SignatureLevel.XAdES_BASELINE_T;
   }
 
   private boolean containsPolicyId(XAdESSignature xAdESSignature) {

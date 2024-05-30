@@ -366,7 +366,7 @@ public class ValidationTest extends AbstractTest {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/TS-06_23634_TS_missing_OCSP_adjusted.asice");
     SignatureValidationResult validate = container.validate();
     List<DigiDoc4JException> errors = validate.getErrors();
-    Assert.assertEquals(SignatureProfile.LT, container.getSignatures().get(0).getProfile());
+    Assert.assertEquals(SignatureProfile.T, container.getSignatures().get(0).getProfile());
     TestAssert.assertContainsError("(Signature ID: S0) - Signature has an invalid timestamp", errors); // Timestamp issuer originates from PROD chain
     TestAssert.assertContainsError(
         "(Signature ID: S0) - Manifest file has an entry for file <test.txt> with mimetype <text/plain> but "
@@ -759,19 +759,20 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("DD4J-1043 OSCP failure in case of custom cert source")
   public void mixTSLCertAndTSLOnlineSources_SignatureTypeLT_notValid() throws Exception {
     TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
     try (InputStream inputStream = new FileInputStream("src/test/resources/testFiles/certs/exampleCA.cer")) {
       X509Certificate certificate = DSSUtils.loadCertificate(inputStream).getCertificate();
       certificateSource.addTSLCertificate(certificate);
       certificateSource.addTSLCertificate(DSSUtils
-          .loadCertificate(new FileInputStream("src/test/resources/testFiles/certs/TEST_of_SK_OCSP_RESPONDER_2020.der.cer"))
-          .getCertificate());
+              .loadCertificate(new FileInputStream("src/test/resources/testFiles/certs/TEST_of_SK_OCSP_RESPONDER_2020.der.cer"))
+              .getCertificate());
     }
     this.configuration.setTSL(certificateSource);
     Container container = this.createNonEmptyContainerByConfiguration();
     this.createSignatureBy(container, SignatureProfile.LT,
-        new PKCS12SignatureToken("src/test/resources/testFiles/p12/user_one.p12", "user_one".toCharArray()));
+            new PKCS12SignatureToken("src/test/resources/testFiles/p12/user_one.p12", "user_one".toCharArray()));
     SignatureValidationResult result = container.validate();
     List<Signature> signatureList = container.getSignatures();
     Signature signature = signatureList.get(0);

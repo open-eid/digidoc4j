@@ -15,17 +15,17 @@ import org.digidoc4j.X509Cert;
 
 import java.util.Date;
 
-public class TimestampSignature extends BesSignature {
+public class LongTermSignature extends TimemarkSignature {
 
   private transient TimestampSignatureComponent timestampComponent;
 
-  public TimestampSignature(XadesValidationReportGenerator xadesReportGenerator) {
+  public LongTermSignature(XadesValidationReportGenerator xadesReportGenerator) {
     super(xadesReportGenerator);
   }
 
   @Override
   public SignatureProfile getProfile() {
-    return SignatureProfile.T;
+    return SignatureProfile.LT;
   }
 
   @Override
