@@ -29,7 +29,6 @@ import org.digidoc4j.test.util.TestTSLUtil;
 import org.digidoc4j.utils.DateUtils;
 import org.digidoc4j.utils.Helper;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.nio.file.Paths;
@@ -49,9 +48,14 @@ import static org.hamcrest.Matchers.matchesRegex;
 
 public class SignatureTest extends AbstractTest {
 
-  @Test
-  @Ignore("DD4J-978 Lithuanian trusted list is temporarily unusable")
+  @Test // TODO DD4J-978 Lithuanian trusted list is temporarily unusable
   public void findOcspCertificateByHashkey() {
+    Configuration configuration = Configuration.of(Configuration.Mode.PROD);
+    configuration.setSslTruststorePathFor(ExternalConnectionType.TSL, "src/test/resources/testFiles/truststores/ee-lt-lv.p12");
+    configuration.setSslTruststorePasswordFor(ExternalConnectionType.TSL, "digidoc4j-password");
+    configuration.setSslTruststoreTypeFor(ExternalConnectionType.TSL, "PKCS12");
+    configuration.setTrustedTerritories("EE", "LT");
+
     Container container = openContainerByConfiguration(
         Paths.get("src/test/resources/testFiles/valid-containers/OCSPRigaTest.asice"), configuration);
     Signature signature = container.getSignatures().get(0);

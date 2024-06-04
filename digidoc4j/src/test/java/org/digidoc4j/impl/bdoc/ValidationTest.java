@@ -21,6 +21,7 @@ import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.DataToSign;
+import org.digidoc4j.ExternalConnectionType;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
@@ -67,12 +68,17 @@ public class ValidationTest extends AbstractTest {
     PROD_CONFIGURATION_WITH_TEST_POLICY.setValidationPolicy("conf/test_constraint.xml");
   }
 
-  @Test
-  @Ignore("DD4J-978 Lithuanian trusted list is temporarily unusable")
+  @Test // TODO DD4J-978 Lithuanian trusted list is temporarily unusable
   public void validateProdBDocContainer_isValid() {
+    Configuration configuration = Configuration.of(Configuration.Mode.PROD);
+    configuration.setSslTruststorePathFor(ExternalConnectionType.TSL, "src/test/resources/testFiles/truststores/ee-lt-lv.p12");
+    configuration.setSslTruststorePasswordFor(ExternalConnectionType.TSL, "digidoc4j-password");
+    configuration.setSslTruststoreTypeFor(ExternalConnectionType.TSL, "PKCS12");
+    configuration.setTrustedTerritories("EE", "LT", "LV");
+
     Container container = ContainerBuilder.aContainer().
         fromExistingFile("src/test/resources/prodFiles/valid-containers/Baltic MoU digital signing_EST_LT_LV.bdoc").
-        withConfiguration(Configuration.of(Configuration.Mode.PROD)).build();
+        withConfiguration(configuration).build();
     TestAssert.assertContainerIsValid(container);
   }
 
@@ -860,12 +866,17 @@ public class ValidationTest extends AbstractTest {
     conf.setAllowASN1UnsafeInteger(false);
   }
 
-  @Test
-  @Ignore("DD4J-978 Lithuanian trusted list is temporarily unusable")
+  @Test // TODO DD4J-978 Lithuanian trusted list is temporarily unusable
   public void prodContainerWithSignatureWarningOfTrustedCertificateNotMatchingWithTrustService_warningIsRemoved() {
+    Configuration configuration = Configuration.of(Configuration.Mode.PROD);
+    configuration.setSslTruststorePathFor(ExternalConnectionType.TSL, "src/test/resources/testFiles/truststores/ee-lt-lv.p12");
+    configuration.setSslTruststorePasswordFor(ExternalConnectionType.TSL, "digidoc4j-password");
+    configuration.setSslTruststoreTypeFor(ExternalConnectionType.TSL, "PKCS12");
+    configuration.setTrustedTerritories("EE", "LT", "LV");
+
     Container container = ContainerBuilder.aContainer().
             fromExistingFile("src/test/resources/prodFiles/valid-containers/Baltic MoU digital signing_EST_LT_LV.bdoc").
-            withConfiguration(PROD_CONFIGURATION).build();
+            withConfiguration(configuration).build();
     ContainerValidationResult validationResult = container.validate();
     TestAssert.assertContainerIsValid(validationResult);
     I18nProvider i18nProvider = new I18nProvider();
