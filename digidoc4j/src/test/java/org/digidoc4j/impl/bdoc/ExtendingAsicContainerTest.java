@@ -20,6 +20,7 @@ import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerOpener;
+import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.NotSupportedException;
@@ -52,6 +53,43 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   private static final String ASICE_LTA_2_SIGNATURES_CONTAINER_PATH = "src/test/resources/testFiles/valid-containers/2_signatures_duplicate_id_lta.asice";
 
   private String containerLocation;
+
+  @Test
+  @Ignore("DD4J-1063 Enable when this functionality has been fixed")
+  public void extendNonEstonianSignatureFromTToLT_After24h_ExtensionAndValidationSucceed() {
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/latvian_T_signature.asice",
+            createLatvianSignatureConfiguration());
+
+    container.extendSignatureProfile(SignatureProfile.LT);
+
+    Assert.assertEquals(1, container.getSignatures().size());
+    Signature signature = container.getSignatures().get(0);
+
+    Assert.assertNotNull(signature.getOCSPCertificate());
+    Assert.assertEquals(SignatureProfile.LT, signature.getProfile());
+    ContainerValidationResult validationResult = container.validate();
+    Assert.assertTrue(validationResult.isValid());
+    Assert.assertEquals(0, validationResult.getErrors().size());
+    Assert.assertEquals(0, validationResult.getWarnings().size());
+  }
+
+  @Test
+  public void extendEstonianSignatureFromTToLT_After24h_ExtensionSucceedsButValidationFails() {
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/signature-level-T.asice",
+            Configuration.of(Configuration.Mode.TEST));
+
+    container.extendSignatureProfile(SignatureProfile.LT);
+
+    Assert.assertEquals(1, container.getSignatures().size());
+    Signature signature = container.getSignatures().get(0);
+    Assert.assertNotNull(signature.getOCSPCertificate());
+    Assert.assertEquals(SignatureProfile.LT, signature.getProfile());
+    ContainerValidationResult validationResult = container.validate();
+    Assert.assertFalse(validationResult.isValid());
+    Assert.assertEquals(0, validationResult.getWarnings().size());
+    Assert.assertEquals(1, validationResult.getErrors().size());
+    Assert.assertEquals("(Signature ID: id-aa0954fdd331fdf45324f117e2453a1e) - The difference between the OCSP response time and the signature timestamp is too large", validationResult.getErrors().get(0).toString());
+  }
 
   @Test
   public void extendFromB_BESToLT() {

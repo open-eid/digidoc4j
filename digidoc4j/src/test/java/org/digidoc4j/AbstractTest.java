@@ -467,6 +467,15 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     return fileName;
   }
 
+  protected Configuration createLatvianSignatureConfiguration() {
+    X509Certificate issuerCertificate = openX509Certificate(Paths.get("src/test/resources/testFiles/certs/DEMO_LV_eID_ICA_2021.pem"));
+    Configuration configuration = Configuration.of(Configuration.Mode.TEST);
+    configuration.getTSL().refresh();
+    configuration.getTSL().addTSLCertificate(issuerCertificate);
+    configuration.setAiaSourceFactory(() -> null);
+    return configuration;
+  }
+
   public <T> void serialize(T object, String filename) {
     Helper.serialize(object, new File(filename));
   }
