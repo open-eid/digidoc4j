@@ -10,6 +10,11 @@
 
 package org.digidoc4j.impl.bdoc;
 
+import eu.europa.esig.dss.enumerations.ASiCContainerType;
+import eu.europa.esig.dss.enumerations.MimeTypeEnum;
+import eu.europa.esig.dss.enumerations.SignatureLevel;
+import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.InMemoryDocument;
 import eu.europa.esig.dss.spi.x509.tsp.TimestampToken;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
@@ -20,11 +25,15 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.asic.AsicSignature;
 import org.digidoc4j.test.TestAssert;
+import org.digidoc4j.test.util.DssContainerSigner;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static java.lang.Thread.sleep;
@@ -388,6 +397,34 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
     assertThat(caughtException.getMessage(), containsString(
             "It is not possible to extend LT signature to LT"
+    ));
+  }
+
+  @Test
+  @Ignore("DD4J-1062 Currently ASIC-S containers can be extended and the resulting ASIC-S with LTA signature validates in SiVa. Enable and/or update the test when this has been fixed.")
+  public void extensionNotPossibleForAsicsContainer() {
+    Configuration configuration = Configuration.of(Configuration.Mode.TEST);
+    DssContainerSigner containerSigner = new DssContainerSigner(configuration);
+    DSSDocument dataFile = new InMemoryDocument(
+            "This is a test file.".getBytes(StandardCharsets.UTF_8),
+            "test.txt",
+            MimeTypeEnum.TEXT
+    );
+    DSSDocument dssContainer = containerSigner.createSignedContainer(
+            ASiCContainerType.ASiC_S,
+            Collections.singletonList(dataFile),
+            SignatureLevel.XAdES_BASELINE_LT,
+            pkcs12Esteid2018SignatureToken
+    );
+    Container container = ContainerOpener.open(dssContainer.openStream(), configuration);
+
+    NotSupportedException caughtException = assertThrows(
+            NotSupportedException.class,
+            () -> container.extendSignatureProfile(SignatureProfile.LTA)
+    );
+
+    assertThat(caughtException.getMessage(), containsString(
+            "It is not possible to extend signatures in ASIC-S container."
     ));
   }
 
