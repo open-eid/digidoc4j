@@ -35,11 +35,11 @@ public class AiaOcspTest extends AbstractTest {
                 .withDataFile(testFile1.getPath(), "text/plain")
                 .withConfiguration(configuration)
                 .build();
-        this.createSignatureBy(container, pkcs12SignatureToken);
+        this.createSignatureBy(container, pkcs12Esteid2018SignatureToken);
         assertContainerIsValid(container);
         assertThat(
                 container.getSignatures().get(0).getOCSPCertificate().getSubjectName(X509Cert.SubjectName.CN),
-                matchesRegex("TEST of ESTEID-SK 2015 AIA OCSP RESPONDER 202[3-9][0-1][0-9]")
+                matchesRegex("TEST of ESTEID-SK 2018 AIA OCSP RESPONDER 202[3-9][0-1][0-9]")
         );
     }
 
