@@ -125,7 +125,7 @@ public class AsicSignatureFinalizerTest extends AbstractTest {
     Mockito.doReturn(dataLoaderSpy).when(dataLoaderFactory).create();
     configuration.setOcspDataLoaderFactory(dataLoaderFactory);
 
-    Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), pkcs12SignatureToken);
+    Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), pkcs12Esteid2018SignatureToken);
     assertValidSignature(signature);
 
     Mockito.verify(dataLoaderFactory, Mockito.times(1)).create();
