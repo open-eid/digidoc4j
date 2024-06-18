@@ -40,6 +40,7 @@ import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.digidoc4j.test.util.TestSigningUtil;
 import org.digidoc4j.test.util.TestTSLUtil;
+import org.digidoc4j.utils.Helper;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -759,15 +760,10 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  public void mixTSLCertAndTSLOnlineSources_SignatureTypeLT_notValid() throws Exception {
+  public void mixTSLCertAndTSLOnlineSources_SignatureTypeLT_notValid() {
     TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
-    try (InputStream inputStream = new FileInputStream("src/test/resources/testFiles/certs/exampleCA.cer")) {
-      X509Certificate certificate = DSSUtils.loadCertificate(inputStream).getCertificate();
-      certificateSource.addTSLCertificate(certificate);
-      certificateSource.addTSLCertificate(DSSUtils
-          .loadCertificate(new FileInputStream("src/test/resources/testFiles/certs/TEST_of_SK_OCSP_RESPONDER_2020.der.cer"))
-          .getCertificate());
-    }
+    certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/exampleCA.cer"));
+    certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/DEMO_of_KLASS3-SK_2016_SSL_OCSP_RESPONDER_2018.der.cer"));
     this.configuration.setTSL(certificateSource);
     Container container = this.createNonEmptyContainerByConfiguration();
     this.createSignatureBy(container, SignatureProfile.LT,
