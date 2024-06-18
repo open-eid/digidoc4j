@@ -86,16 +86,27 @@ public class TimestampSignatureValidator extends XadesSignatureValidator {
       addValidationError(new TimestampAfterOCSPResponseTimeException());
       return;
     }
-    int deltaLimit = this.configuration.getRevocationAndTimestampDeltaInMinutes();
-    long differenceInMinutes = DateUtils.differenceInMinutes(timestamp, ocspTime);
-    log.debug("Difference in minutes: <{}>", differenceInMinutes);
-    if (!DateUtils.isInRangeMinutes(timestamp, ocspTime, deltaLimit)) {
-      log.error("The difference between the OCSP response production time and the signature timestamp is too large <{} minutes>", differenceInMinutes);
-      this.addValidationError(new TimestampAndOcspResponseTimeDeltaTooLargeException());
-    } else if (this.configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes() < differenceInMinutes && differenceInMinutes < deltaLimit) {
-      log.warn("The difference (in minutes) between the OCSP response production time and the signature timestamp is in allowable range (<{}>, allowed maximum <{}>)", differenceInMinutes, deltaLimit);
-      this.addValidationWarning(new DigiDoc4JException("The difference between the OCSP response time and the signature timestamp is in allowable range"));
+    if (isSigningCertificateSuspendable()) {
+      int deltaLimit = this.configuration.getRevocationAndTimestampDeltaInMinutes();
+      long differenceInMinutes = DateUtils.differenceInMinutes(timestamp, ocspTime);
+      log.debug("Difference in minutes: <{}>", differenceInMinutes);
+      // In some countries (e.g. Estonia), the signer's certificate can be temporarily suspended (REVOKED) and later
+      // activated again. In this case, OCSP response time cannot differ too much from signature timestamp, because
+      // the signature created during suspended certificate must not be valid, even if OCSP response is taken for that
+      // signature later, when the certificate has been re-activated.
+      if (!DateUtils.isInRangeMinutes(timestamp, ocspTime, deltaLimit)) {
+        log.error("The difference between the OCSP response production time and the signature timestamp is too large <{} minutes>", differenceInMinutes);
+        this.addValidationError(new TimestampAndOcspResponseTimeDeltaTooLargeException());
+      } else if (this.configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes() < differenceInMinutes && differenceInMinutes < deltaLimit) {
+        log.warn("The difference (in minutes) between the OCSP response production time and the signature timestamp is in allowable range (<{}>, allowed maximum <{}>)", differenceInMinutes, deltaLimit);
+        this.addValidationWarning(new DigiDoc4JException("The difference between the OCSP response time and the signature timestamp is in allowable range"));
+      }
     }
+  }
+
+  private boolean isSigningCertificateSuspendable() {
+    String country = this.signature.getSigningCertificate().getSubjectName(X509Cert.SubjectName.C);
+    return "EE".equals(country);
   }
 
   private void addRevocationErrors() {

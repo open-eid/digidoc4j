@@ -290,8 +290,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-1063 Enable when this functionality has been fixed")
-  public void revocationAndTimeStampOver24hDifferenceAllowedForLatvianSignature() {
+  public void moreThan24hDifferenceBetweenTimeStampAndRevocationAllowedForLatvianSignature() {
     Configuration configuration = createLatvianSignatureConfiguration();
     Container container = ContainerOpener
         .open("src/test/resources/testFiles/valid-containers/latvian_LT_signature_with_44h_difference_between_TS_and_OCSP.asice", configuration);
@@ -302,8 +301,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-1063 Enable when this functionality has been fixed")
-  public void revocationAndTimeStampOver15minDifferenceAllowedForLatvianSignature() {
+  public void moreThan15minDifferenceBetweenTimeStampAndRevocationAllowedForLatvianSignature() {
     Configuration configuration = createLatvianSignatureConfiguration();
     Container container = ContainerOpener
         .open("src/test/resources/testFiles/valid-containers/latvian_LT_signature_with_22h_difference_between_TS_and_OCSP.asice", configuration);
@@ -314,7 +312,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  public void revocationAndTimeStampUnder15minDifferenceAllowedForLatvianSignature() {
+  public void lessThan15minDifferenceBetweenTimeStampAndRevocationAllowedForLatvianSignature() {
     Configuration configuration = createLatvianSignatureConfiguration();
     Container container = ContainerOpener
         .open("src/test/resources/testFiles/valid-containers/latvian_LT_signature_with_7min_difference_between_TS_and_OCSP.asice", configuration);

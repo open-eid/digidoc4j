@@ -55,7 +55,6 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   private String containerLocation;
 
   @Test
-  @Ignore("DD4J-1063 Enable when this functionality has been fixed")
   public void extendNonEstonianSignatureFromTToLT_After24h_ExtensionAndValidationSucceed() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/latvian_T_signature.asice",
             createLatvianSignatureConfiguration());
