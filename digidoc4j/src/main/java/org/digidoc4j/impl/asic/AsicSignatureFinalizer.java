@@ -20,7 +20,6 @@ import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.EncryptionAlgorithm;
-import org.digidoc4j.OCSPSourceBuilder;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureParameters;
 import org.digidoc4j.SignatureProfile;
@@ -31,8 +30,8 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.impl.AiaSourceFactory;
-import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.SignatureFinalizer;
+import org.digidoc4j.impl.SigningOcspSourceFactory;
 import org.digidoc4j.impl.TspDataLoaderFactory;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
@@ -78,7 +77,7 @@ public abstract class AsicSignatureFinalizer extends SignatureFinalizer {
               signatureValue);
     }
     LOGGER.debug("Finalizing signature XmlDSig: {} [{}]", Helper.bytesToHex(signatureValue, HEX_MAX_LENGTH), signatureValue.length);
-    populateParametersForFinalizingSignature(signatureValue);
+    populateParametersForFinalizingSignature();
     validateSignatureCompatibility();
     validateDataFilesToSign(dataFiles);
     DSSDocument signedDocument = facade.signDocument(signatureValue, dataFiles);
@@ -123,19 +122,10 @@ public abstract class AsicSignatureFinalizer extends SignatureFinalizer {
 
   protected abstract void validateSignatureCompatibility();
 
-  private void populateParametersForFinalizingSignature(byte[] signatureValueBytes) {
+  private void populateParametersForFinalizingSignature() {
     initSigningFacade();
     facade.setCertificateSource(configuration.getTSL());
-    setOcspSource(signatureValueBytes);
-  }
-
-  private void setOcspSource(byte[] signatureValueBytes) {
-    SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().
-            withSignatureProfile(this.signatureParameters.getSignatureProfile()).
-            withSignatureValue(signatureValueBytes).
-            withConfiguration(configuration).
-            build();
-    this.facade.setOcspSource(ocspSource);
+    facade.setOcspSource(new SigningOcspSourceFactory(configuration).create());
   }
 
   private void validateDataFilesToSign(Collection<DataFile> dataFilesToSign) {

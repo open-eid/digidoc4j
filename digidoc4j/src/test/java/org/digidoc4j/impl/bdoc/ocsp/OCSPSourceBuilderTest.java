@@ -30,7 +30,7 @@ public class OCSPSourceBuilderTest extends AbstractTest {
   @Test
   public void buildTimestampOCSPSource_whenProfileIsNotSet() throws Exception {
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withConfiguration(
-        this.configuration).build();
+            this.configuration).build();
     Assert.assertEquals(CommonOCSPSource.class, source.getClass());
     TestAssert.assertOCSPSource(this.configuration, source, Constant.USER_AGENT_STRING);
   }
@@ -38,7 +38,7 @@ public class OCSPSourceBuilderTest extends AbstractTest {
   @Test
   public void buildTimestampOCSPSource() throws Exception {
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withSignatureProfile(
-        SignatureProfile.LT).withConfiguration(this.configuration).build();
+            SignatureProfile.LT).withConfiguration(this.configuration).build();
     Assert.assertEquals(CommonOCSPSource.class, source.getClass());
     TestAssert.assertOCSPSource(this.configuration, source, Constant.USER_AGENT_STRING);
   }
@@ -46,7 +46,7 @@ public class OCSPSourceBuilderTest extends AbstractTest {
   @Test
   public void buildTimemarkOCSPSource() throws Exception {
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withSignatureProfile(
-        SignatureProfile.LT_TM).withSignatureValue(new byte[]{1, 2, 3}).withConfiguration(this.configuration).build();
+            SignatureProfile.LT_TM).withSignatureValue(new byte[]{1, 2, 3}).withConfiguration(this.configuration).build();
     Assert.assertEquals(BDocTMOcspSource.class, source.getClass());
     TestAssert.assertOCSPSource(this.configuration, source, Constant.USER_AGENT_STRING);
   }

@@ -31,7 +31,9 @@ import java.security.cert.X509Certificate;
 
 /**
  * BDocTMOcspSource is class for creating BDoc TM specific NONCE.
+ * @deprecated Deprecated for removal. Time-mark OCSP responders are obsolete.
  */
+@Deprecated
 public class BDocTMOcspSource extends SKOnlineOCSPSource {
 
   private final Logger LOGGER = LoggerFactory.getLogger(BDocTMOcspSource.class);

@@ -97,6 +97,10 @@ public class TestDataBuilderUtil {
     return builder.buildDataToSign();
   }
 
+  public static Container open(String path, Configuration configuration) {
+    return ContainerBuilder.aContainer().fromExistingFile(path).withConfiguration(configuration).build();
+  }
+
   public static Container open(String path) {
     return ContainerBuilder.aContainer().fromExistingFile(path).build();
   }

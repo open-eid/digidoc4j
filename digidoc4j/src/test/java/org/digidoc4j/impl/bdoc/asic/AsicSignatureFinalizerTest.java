@@ -10,6 +10,7 @@
 
 package org.digidoc4j.impl.bdoc.asic;
 
+import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
 import org.digidoc4j.AbstractTest;
@@ -17,10 +18,14 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.DataLoaderFactory;
 import org.digidoc4j.DataToSign;
+import org.digidoc4j.OCSPSourceFactory;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureFinalizerBuilder;
 import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.impl.CommonOCSPSource;
+import org.digidoc4j.impl.OcspDataLoaderFactory;
+import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.SignatureFinalizer;
 import org.digidoc4j.impl.SkOCSPDataLoader;
 import org.digidoc4j.impl.SkTimestampDataLoader;
@@ -30,6 +35,7 @@ import org.mockito.Mockito;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 
 public class AsicSignatureFinalizerTest extends AbstractTest {
 
@@ -164,5 +170,25 @@ public class AsicSignatureFinalizerTest extends AbstractTest {
     Mockito.verify(dataLoaderFactory, Mockito.atLeast(1)).create();
     Mockito.verify(dataLoaderSpy, Mockito.times(1)).get("http://www.sk.ee/certs/TEST_of_EE_Certification_Centre_Root_CA.der.crt");
     Mockito.verifyNoMoreInteractions(dataLoaderFactory);
+  }
+
+  @Test
+  public void testCustomOcspSourceUsedForSigning() {
+    configuration = Configuration.of(Configuration.Mode.TEST);
+    SKOnlineOCSPSource source = new CommonOCSPSource(configuration);
+    DataLoader dataLoader = new OcspDataLoaderFactory(configuration).create();
+    source.setDataLoader(dataLoader);
+    SKOnlineOCSPSource sourceSpy = Mockito.spy(source);
+    OCSPSourceFactory ocspSourceFactoryMock = Mockito.mock(OCSPSourceFactory.class);
+    Mockito.doReturn(sourceSpy).when(ocspSourceFactoryMock).create();
+    configuration.setSigningOcspSourceFactory(ocspSourceFactoryMock);
+
+    Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), pkcs12SignatureToken);
+
+    assertValidSignature(signature);
+    Mockito.verify(ocspSourceFactoryMock, Mockito.times(1)).create();
+    Mockito.verifyNoMoreInteractions(ocspSourceFactoryMock);
+    Mockito.verify(sourceSpy, Mockito.atLeast(1))
+            .getRevocationToken(any(CertificateToken.class), any(CertificateToken.class));
   }
 }

@@ -11,6 +11,7 @@
 package org.digidoc4j;
 
 import eu.europa.esig.dss.enumerations.SignatureLevel;
+import eu.europa.esig.dss.spi.client.http.DataLoader;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.DataFileNotFoundException;
@@ -18,6 +19,9 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.RemovingDataFileException;
+import org.digidoc4j.impl.CommonOCSPSource;
+import org.digidoc4j.impl.OcspDataLoaderFactory;
+import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainerBuilder;
 import org.digidoc4j.impl.asic.manifest.AsicManifest;
@@ -416,7 +420,14 @@ public class ContainerTest extends AbstractTest {
 
   @Test
   public void testExtendSignatureProfileForBDOC() {
-    Container container = this.createEmptyContainer();
+    configuration = Configuration.of(Configuration.Mode.TEST);
+
+    SKOnlineOCSPSource source = new CommonOCSPSource(configuration);
+    DataLoader loader = new OcspDataLoaderFactory(configuration).create();
+    source.setDataLoader(loader);
+    configuration.setExtendingOcspSourceFactory(() -> source);
+
+    Container container = this.createEmptyContainer(configuration);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     Signature signature = SignatureBuilder.aSignature(container).withSignatureProfile(SignatureProfile.B_BES).
         withSignatureToken(pkcs12SignatureToken).invokeSigning();

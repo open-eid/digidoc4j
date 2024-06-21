@@ -201,6 +201,8 @@ public class Configuration implements Serializable {
   private String configurationInputSourceName;
 
   private AIASourceFactory aiaSourceFactory;
+  private OCSPSourceFactory extendingOcspSourceFactory;
+  private OCSPSourceFactory signingOcspSourceFactory;
   private DataLoaderFactory aiaDataLoaderFactory;
   private DataLoaderFactory ocspDataLoaderFactory;
   private DataLoaderFactory tspDataLoaderFactory;
@@ -681,6 +683,38 @@ public class Configuration implements Serializable {
    */
   public AIASourceFactory getAiaSourceFactory() {
     return aiaSourceFactory;
+  }
+
+  /**
+   * Set an OCSP source factory that manages the creation of custom OCSP sources to be used for extending signatures.
+   * @param extendingOcspSourceFactory OCSP source factory
+   */
+  public void setExtendingOcspSourceFactory(OCSPSourceFactory extendingOcspSourceFactory) {
+    this.extendingOcspSourceFactory = extendingOcspSourceFactory;
+  }
+
+  /**
+   * Returns the currently set OCSP source factory or {@code null} if no custom OCSP source factory is set.
+   * @return OCSP source factory
+   */
+  public OCSPSourceFactory getExtendingOcspSourceFactory() {
+    return extendingOcspSourceFactory;
+  }
+
+  /**
+   * Set an OCSP source factory that manages the creation of custom OCSP sources to be used for signing.
+   * @param signingOcspSourceFactory OCSP source factory
+   */
+  public void setSigningOcspSourceFactory(OCSPSourceFactory signingOcspSourceFactory) {
+    this.signingOcspSourceFactory = signingOcspSourceFactory;
+  }
+
+  /**
+   * Returns the currently set OCSP source factory for signing or {@code null} if no custom OCSP source factory is set.
+   * @return OCSP source factory
+   */
+  public OCSPSourceFactory getSigningOcspSourceFactory() {
+    return signingOcspSourceFactory;
   }
 
   /**

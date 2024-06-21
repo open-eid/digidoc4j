@@ -46,7 +46,9 @@ public class OCSPSourceBuilder {
 
   /**
    * @return OCSPSourceBuilder
+   * @deprecated Deprecated for removal. Time-mark OCSP responders are obsolete.
    */
+  @Deprecated
   public static OCSPSourceBuilder anOcspSource() {
     return new OCSPSourceBuilder(false);
   }
@@ -81,7 +83,9 @@ public class OCSPSourceBuilder {
   /**
    * @param signatureValue signature bytes
    * @return OCSPSourceBuilder
+   * @deprecated Deprecated for removal. Time-mark OCSP responders are obsolete.
    */
+  @Deprecated
   public OCSPSourceBuilder withSignatureValue(byte[] signatureValue) {
     if (this.defaultOCSPSource) {
       throw new IllegalStateException("Not applicable for default OCSP source");
@@ -93,7 +97,9 @@ public class OCSPSourceBuilder {
   /**
    * @param signatureProfile signature profile
    * @return OCSPSourceBuilder
+   * @deprecated Deprecated for removal. Time-mark OCSP responders are obsolete.
    */
+  @Deprecated
   public OCSPSourceBuilder withSignatureProfile(SignatureProfile signatureProfile) {
     if (this.defaultOCSPSource) {
       throw new IllegalStateException("Not applicable for default OCSP source");

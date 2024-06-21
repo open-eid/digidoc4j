@@ -14,13 +14,12 @@ import eu.europa.esig.dss.enumerations.SignatureLevel;
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
-import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.OCSPSourceBuilder;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.AiaSourceFactory;
+import org.digidoc4j.impl.ExtendingOcspSourceFactory;
 import org.digidoc4j.impl.TspDataLoaderFactory;
 import org.digidoc4j.impl.asic.AsicSignature;
 import org.slf4j.Logger;
@@ -78,7 +77,7 @@ public class SignatureExtender {
     prepareExtendingFacade(profile);
     List<DSSDocument> extendedSignatures = new ArrayList<>();
     for (Signature signature : signaturesToExtend) {
-      DSSDocument extendedSignature = extendSignature(signature, profile);
+      DSSDocument extendedSignature = extendSignature(signature);
       extendedSignatures.add(extendedSignature);
     }
     logger.debug("Finished extending signatures");
@@ -92,18 +91,12 @@ public class SignatureExtender {
     SignatureLevel signatureLevel = getSignatureLevel(profile);
     extendingFacade.setSignatureLevel(signatureLevel);
     extendingFacade.setAiaSource(new AiaSourceFactory(configuration).create());
+    extendingFacade.setOcspSource(new ExtendingOcspSourceFactory(configuration).create());
   }
 
-  private DSSDocument extendSignature(Signature signature, SignatureProfile profile) {
-    OCSPSource ocspSource = createOcspSource(profile, ((AsicSignature) signature).getOrigin().getSignatureValue());
-    extendingFacade.setOcspSource(ocspSource);
+  private DSSDocument extendSignature(Signature signature) {
     DSSDocument signatureDocument = ((AsicSignature) signature).getSignatureDocument();
     return extendingFacade.extendSignature(signatureDocument, detachedContents);
-  }
-
-  private OCSPSource createOcspSource(SignatureProfile profile, byte[] signatureValue) {
-    return OCSPSourceBuilder.anOcspSource().withSignatureProfile(profile).withSignatureValue(signatureValue).
-        withConfiguration(this.configuration).build();
   }
 
   private OnlineTSPSource createTimeStampProviderSource() {

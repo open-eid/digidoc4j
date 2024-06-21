@@ -162,7 +162,7 @@ public class ContainerVerifier {
     DSSDocument document = new InMemoryDocument(container.saveAsStream());
     SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(document);
     SKCommonCertificateVerifier verifier = new SKCommonCertificateVerifier();
-    verifier.setOcspSource(OCSPSourceBuilder.anOcspSource().withConfiguration(configuration).build());
+    verifier.setOcspSource(OCSPSourceBuilder.defaultOCSPSource().withConfiguration(configuration).build());
     verifier.setTrustedCertSources(configuration.getTSL());
     verifier.setAIASource(new AiaSourceFactory(configuration).create());
     validator.setCertificateVerifier(verifier);

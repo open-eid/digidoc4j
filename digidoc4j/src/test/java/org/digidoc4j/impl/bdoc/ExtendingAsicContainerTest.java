@@ -15,15 +15,23 @@ import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 import eu.europa.esig.dss.enumerations.SignatureLevel;
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.InMemoryDocument;
+import eu.europa.esig.dss.model.x509.CertificateToken;
+import eu.europa.esig.dss.spi.client.http.DataLoader;
+import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 import eu.europa.esig.dss.spi.x509.tsp.TimestampToken;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.ContainerValidationResult;
+import org.digidoc4j.OCSPSourceFactory;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.exceptions.NotSupportedException;
+import org.digidoc4j.impl.CommonOCSPSource;
+import org.digidoc4j.impl.OcspDataLoaderFactory;
+import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.asic.AsicSignature;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.DssContainerSigner;
@@ -31,6 +39,7 @@ import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -43,6 +52,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 
 public class ExtendingAsicContainerTest extends AbstractTest {
 
@@ -56,8 +66,11 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
   @Test
   public void extendNonEstonianSignatureFromTToLT_After24h_ExtensionAndValidationSucceed() {
+    configuration = createLatvianSignatureConfiguration();
+    configuration.setExtendingOcspSourceFactory(this::getOcspSource);
+
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/latvian_T_signature.asice",
-            createLatvianSignatureConfiguration());
+            configuration);
 
     container.extendSignatureProfile(SignatureProfile.LT);
 
@@ -74,8 +87,10 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
   @Test
   public void extendEstonianSignatureFromTToLT_After24h_ExtensionSucceedsButValidationFails() {
+    setupCustomConfigurationWithExtendingOcspSourceFactory();
+
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/signature-level-T.asice",
-            Configuration.of(Configuration.Mode.TEST));
+            configuration);
 
     container.extendSignatureProfile(SignatureProfile.LT);
 
@@ -91,7 +106,9 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extendFromB_BESToLT() {
+  public void extendFromB_BESToLT_OcspSourceFactoryDefinedInConf_Success() {
+    setupCustomConfigurationWithExtendingOcspSourceFactory();
+
     Container container = createNonEmptyContainer();
     createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
     container.saveAsFile(containerLocation);
@@ -99,7 +116,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     Assert.assertEquals(1, container.getSignatures().size());
     Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
 
-    container = TestDataBuilderUtil.open(containerLocation);
+    container = TestDataBuilderUtil.open(containerLocation, configuration);
     container.extendSignatureProfile(SignatureProfile.LT);
     container.saveAsFile(getFileBy("bdoc"));
 
@@ -112,7 +129,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extendFromB_BESToLTA() {
+  public void extendFromB_BESToLT_OcspSourceFactoryDefinedInConf_OcspUnset() {
     Container container = createNonEmptyContainer();
     createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
     container.saveAsFile(containerLocation);
@@ -120,7 +137,33 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     Assert.assertEquals(1, container.getSignatures().size());
     Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
 
-    container = TestDataBuilderUtil.open(containerLocation);
+    container = TestDataBuilderUtil.open(containerLocation, configuration);
+    container.extendSignatureProfile(SignatureProfile.LT);
+    container.saveAsFile(getFileBy("bdoc"));
+
+    Assert.assertEquals(1, container.getSignatures().size());
+    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
+
+    SignatureValidationResult result = container.validate();
+    Assert.assertFalse(result.isValid());
+    TestAssert.assertContainsErrors(result.getErrors(),
+            "The certificate validation is not conclusive!",
+            "No revocation data found for the certificate!"
+    );
+  }
+
+  @Test
+  public void extendFromB_BESToLTA_OcspSourceFactoryDefinedInConf_Success() {
+    setupCustomConfigurationWithExtendingOcspSourceFactory();
+
+    Container container = createNonEmptyContainer();
+    createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
+    container.saveAsFile(containerLocation);
+
+    Assert.assertEquals(1, container.getSignatures().size());
+    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
+
+    container = TestDataBuilderUtil.open(containerLocation, configuration);
     container.extendSignatureProfile(SignatureProfile.LTA);
     container.saveAsFile(getFileBy("bdoc"));
 
@@ -128,6 +171,77 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
     List<TimestampToken> archiveTimestamps = getSignatureArchiveTimestamps(container, 0);
     assertEquals("The signature must contain 1 archive timestamp", 1, archiveTimestamps.size());
+  }
+
+  @Test
+  public void extendFromB_BESToLTA_OcspSourceFactoryDefinedInConf_OcspUnset() {
+    Container container = createNonEmptyContainer();
+    createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
+    container.saveAsFile(containerLocation);
+
+    Assert.assertEquals(1, container.getSignatures().size());
+    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
+
+    container = TestDataBuilderUtil.open(containerLocation, configuration);
+    container.extendSignatureProfile(SignatureProfile.LTA);
+    container.saveAsFile(getFileBy("bdoc"));
+
+    Assert.assertEquals(1, container.getSignatures().size());
+    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
+
+    SignatureValidationResult result = container.validate();
+    Assert.assertFalse(result.isValid());
+    TestAssert.assertContainsErrors(result.getErrors(),
+            "The certificate validation is not conclusive!",
+            "No revocation data found for the certificate!"
+    );
+  }
+
+  @Test
+  public void extendFromTToLT_OcspSourceFactoryDefinedInConf_Success() {
+    setupCustomConfigurationWithExtendingOcspSourceFactory();
+
+    Container container = createNonEmptyContainer();
+    createSignatureBy(container, SignatureProfile.T, pkcs12SignatureToken);
+    container.saveAsFile(containerLocation);
+
+    Assert.assertEquals(1, container.getSignatures().size());
+    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
+
+    container = TestDataBuilderUtil.open(containerLocation, configuration);
+    container.extendSignatureProfile(SignatureProfile.LT);
+    container.saveAsFile(getFileBy("bdoc"));
+
+    Assert.assertEquals(1, container.getSignatures().size());
+    Signature signature = container.getSignatures().get(0);
+
+    Assert.assertNotNull(signature.getOCSPCertificate());
+    Assert.assertEquals(SignatureProfile.LT, signature.getProfile());
+    Assert.assertTrue(container.validate().isValid());
+  }
+
+  @Test
+  public void extendFromTToLT_OcspSourceFactoryUnsetInConf_OcspUnset() {
+    Container container = createNonEmptyContainer();
+    createSignatureBy(container, SignatureProfile.T, pkcs12SignatureToken);
+    container.saveAsFile(containerLocation);
+
+    Assert.assertEquals(1, container.getSignatures().size());
+    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
+
+    container = TestDataBuilderUtil.open(containerLocation);
+    container.extendSignatureProfile(SignatureProfile.LT);
+    container.saveAsFile(getFileBy("bdoc"));
+
+    Assert.assertEquals(1, container.getSignatures().size());
+    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
+
+    SignatureValidationResult result = container.validate();
+    Assert.assertFalse(result.isValid());
+    TestAssert.assertContainsErrors(result.getErrors(),
+        "The certificate validation is not conclusive!",
+        "No revocation data found for the certificate!"
+    );
   }
 
   @Test
@@ -277,6 +391,8 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
   @Test
   public void extendToWhenConfirmationAlreadyExists() {
+    setupCustomConfigurationWithExtendingOcspSourceFactory();
+
     Container initialContainer = createNonEmptyContainer();
     createSignatureBy(initialContainer, SignatureProfile.B_BES, pkcs12SignatureToken);
     initialContainer.saveAsFile(containerLocation);
@@ -284,7 +400,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     Assert.assertEquals(1, initialContainer.getSignatures().size());
     Assert.assertNull(initialContainer.getSignatures().get(0).getOCSPCertificate());
 
-    Container deserializedContainer = TestDataBuilderUtil.open(containerLocation);
+    Container deserializedContainer = TestDataBuilderUtil.open(containerLocation, configuration);
     deserializedContainer.extendSignatureProfile(SignatureProfile.LT);
 
     NotSupportedException caughtException = assertThrows(
@@ -299,6 +415,8 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
   @Test
   public void extendToWithMultipleSignatures() {
+    setupCustomConfigurationWithExtendingOcspSourceFactory();
+
     Container container = createNonEmptyContainer();
     createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
     createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
@@ -308,7 +426,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
     Assert.assertNull(container.getSignatures().get(1).getOCSPCertificate());
 
-    container = TestDataBuilderUtil.open(containerLocation);
+    container = TestDataBuilderUtil.open(containerLocation, configuration);
     container.extendSignatureProfile(SignatureProfile.LT);
     String containerPath = getFileBy("bdoc");
     container.saveAsFile(containerPath);
@@ -323,6 +441,8 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
   @Test
   public void extendToWithMultipleSignaturesAndMultipleFiles() {
+    setupCustomConfigurationWithExtendingOcspSourceFactory();
+
     Container container = createNonEmptyContainer();
     container.addDataFile("src/test/resources/testFiles/helper-files/test.xml", "text/xml");
     createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
@@ -334,7 +454,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
     Assert.assertNull(container.getSignatures().get(1).getOCSPCertificate());
 
-    container = TestDataBuilderUtil.open(containerLocation);
+    container = TestDataBuilderUtil.open(containerLocation, configuration);
     container.extendSignatureProfile(SignatureProfile.LT);
     container.saveAsFile(getFileBy("bdoc"));
 
@@ -438,6 +558,25 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
+  public void testCustomOcspSourceUsedForExtendingSignature() {
+    configuration = Configuration.of(Configuration.Mode.TEST);
+    SKOnlineOCSPSource sourceSpy = (SKOnlineOCSPSource) Mockito.spy(getOcspSource());
+    OCSPSourceFactory ocspSourceFactoryMock = Mockito.mock(OCSPSourceFactory.class);
+    Mockito.doReturn(sourceSpy).when(ocspSourceFactoryMock).create();
+    configuration.setExtendingOcspSourceFactory(ocspSourceFactoryMock);
+
+    Container container = createNonEmptyContainerByConfiguration();
+    createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
+    container.extendSignatureProfile(SignatureProfile.LT);
+
+    assertValidSignature(container.getSignatures().get(0));
+    Mockito.verify(ocspSourceFactoryMock, Mockito.times(1)).create();
+    Mockito.verifyNoMoreInteractions(ocspSourceFactoryMock);
+    Mockito.verify(sourceSpy, Mockito.atLeast(1))
+            .getRevocationToken(any(CertificateToken.class), any(CertificateToken.class));
+  }
+
+  @Test
   @Ignore("DD4J-1062 Currently ASIC-S containers can be extended and the resulting ASIC-S with LTA signature validates in SiVa. Enable and/or update the test when this has been fixed.")
   public void extensionNotPossibleForAsicsContainer() {
     Configuration configuration = Configuration.of(Configuration.Mode.TEST);
@@ -471,7 +610,20 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
   @Override
   protected void before() {
-     containerLocation = getFileBy("bdoc");
+    containerLocation = getFileBy("bdoc");
+  }
+
+  private void setupCustomConfigurationWithExtendingOcspSourceFactory() {
+    Configuration configuration = Configuration.of(Configuration.Mode.TEST);
+    configuration.setExtendingOcspSourceFactory(this::getOcspSource);
+    this.configuration = configuration;
+  }
+
+  private OCSPSource getOcspSource() {
+    SKOnlineOCSPSource source = new CommonOCSPSource(configuration);
+    DataLoader loader = new OcspDataLoaderFactory(configuration).create();
+    source.setDataLoader(loader);
+    return source;
   }
 
   private List<TimestampToken> getSignatureArchiveTimestamps(Container container, int signatureIndex) {

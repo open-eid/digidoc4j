@@ -110,9 +110,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
     CertificateToken issuerCertificateToken = getIssuerCertificateToken(subjectCertificate, certificateSource);
 
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
-    SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) OCSPSourceBuilder.defaultOCSPSource()
-            .withConfiguration(configuration)
-            .build();
+    SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) new SigningOcspSourceFactory(configuration).create();
     try {
       ocspSource.getRevocationToken(new CertificateToken(subjectCertificate), issuerCertificateToken);
       fail("Expected to throw CertificateValidationException");
@@ -131,9 +129,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
     configuration.setOCSPAccessCertificateFileName(TestSigningUtil.TEST_PKI_CONTAINER);
     configuration.setOCSPAccessCertificatePassword(TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD.toCharArray());
 
-    SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) OCSPSourceBuilder.defaultOCSPSource()
-            .withConfiguration(configuration)
-            .build();
+    SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) new SigningOcspSourceFactory(configuration).create();
 
     CommonOCSPCertificateSource certificateSource = new CommonOCSPCertificateSource();
     certificateSource.addCertificate(new CertificateToken(openX509Certificate(Paths.get("src/test/resources/testFiles/certs/TESTofEECertificationCentreRootCA.crt"))));
@@ -318,9 +314,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
 
     X509Certificate subjectCertificate = openX509Certificate(Paths.get("src/test/resources/testFiles/certs/SK-OCSP-RESPONDER-2011_test.cer"));
     Configuration configuration = Configuration.of(Configuration.Mode.TEST);
-    SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) OCSPSourceBuilder.defaultOCSPSource()
-            .withConfiguration(configuration)
-            .build();
+    SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) new SigningOcspSourceFactory(configuration).create();
 
     Date producedAt = this.dateFormat.parse("08.09.2024");
     ocspSource.verifyValidityDate(new CertificateToken(subjectCertificate), producedAt);
@@ -333,9 +327,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
 
     X509Certificate subjectCertificate = openX509Certificate(Paths.get("src/test/resources/testFiles/certs/SK-OCSP-RESPONDER-2011_test.cer"));
     Configuration configuration = Configuration.of(Configuration.Mode.TEST);
-    SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) OCSPSourceBuilder.defaultOCSPSource()
-            .withConfiguration(configuration)
-            .build();
+    SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) new SigningOcspSourceFactory(configuration).create();
 
     Date producedAt = this.dateFormat.parse("06.03.2011");
     ocspSource.verifyValidityDate(new CertificateToken(subjectCertificate), producedAt);
@@ -385,9 +377,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
   }
 
   private SKOnlineOCSPSource constructOCSPSource() {
-    return (SKOnlineOCSPSource) OCSPSourceBuilder.defaultOCSPSource()
-            .withConfiguration(configuration)
-            .build();
+    return (SKOnlineOCSPSource) new SigningOcspSourceFactory(configuration).create();
   }
 
   private CertificateToken getIssuerCertificateToken(X509Certificate subjectCertificate, CertificateSource certificateSource) throws CertificateEncodingException {
