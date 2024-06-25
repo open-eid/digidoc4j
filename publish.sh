@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version="5.3.1-SNAPSHOT"
+version="5.3.1"
 staging_url="https://oss.sonatype.org/service/local/staging/deploy/maven2/"
 repositoryId="ossrh"
 
