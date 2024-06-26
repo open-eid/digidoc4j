@@ -1,6 +1,20 @@
 DigiDoc4J Java library release notes
 ------------------------------------
 
+Release 5.3.1
+------------------
+Summary of the major changes since 5.3.0
+------------------------------------------
+* Updated DSS to 6.0.d4j.2 in order to fix memory leak issue in XAdESSignature
+* Updated Bouncy Castle to 1.78.1
+* Fixed/updated unit tests
+
+Known issues
+------------
+* We have noticed a slight increase in TSL loading times due to pivot LOTL support
+* We have noticed a decrease in performance with the introduction of properly accessing AIA certificate resources
+* Opening a container that contains signatures, triggers TSL loading (TSL lazy loading does not work as expected)
+
 Release 5.3.0
 ------------------
 Summary of the major changes since 5.2.0
@@ -20,6 +34,7 @@ Summary of the major changes since 5.2.0
 
 Known issues
 ------------
+* EDIT 10.06.2024: NB! Underlying DSS library version used in this release has memory leak since DSS 5.13.RC1.
 * At the time of release, the newest supported Bouncy Castle version is 1.76
   Bouncy Castle version 1.77 causes OCSP response parsing to fail
 * We have noticed a slight increase in TSL loading times due to pivot LOTL support
