@@ -25,12 +25,14 @@ import org.digidoc4j.ExternalConnectionType;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.SignatureToken;
 import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.TSLCertificateSource;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateDataFileException;
 import org.digidoc4j.exceptions.InvalidTimestampException;
+import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
 import org.digidoc4j.exceptions.UnsupportedFormatException;
@@ -50,7 +52,6 @@ import org.junit.Test;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.Paths;
-import java.security.cert.X509Certificate;
 import java.util.List;
 
 import static org.digidoc4j.test.matcher.IsDigiDoc4JException.digiDoc4JExceptionMessageContainsString;
@@ -785,39 +786,92 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  public void mixTSLCertAndTSLOnlineSources_SignatureTypeLT_valid() throws Exception {
-    try (InputStream caStream = new FileInputStream("src/test/resources/testFiles/certs/exampleCA.cer")) {
-      this.configuration.getTSL().addTSLCertificate(DSSUtils.loadCertificate(caStream).getCertificate());
-      this.configuration.getTSL().addTSLCertificate(DSSUtils
-          .loadCertificate(new FileInputStream("src/test/resources/testFiles/certs/SK-OCSP-RESPONDER-2011_test.cer"))
-          .getCertificate());
-    }
+  public void mixTSLCertAndTSLOnlineSources_SignatureTypeLT_valid() {
+    this.configuration.getTSL().addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/exampleCA.cer"));
+    this.configuration.getTSL().addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/SK-OCSP-RESPONDER-2011_test.cer"));
+
     Container container = this.createNonEmptyContainerByConfiguration();
     this.createSignatureBy(container, SignatureProfile.LT,
         new PKCS12SignatureToken("src/test/resources/testFiles/p12/user_one.p12", "user_one".toCharArray()));
+
     TestAssert.assertContainerIsValid(container);
   }
 
   @Test
-  @Ignore("DD4J-1043 OSCP failure in case of custom cert source")
-  public void mixTSLCertAndTSLOnlineSources_SignatureTypeLT_notValid() {
+  public void loadCustomTslCerts_SignatureTypeTWithoutOcspResponderCert_notValid() {
     TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
     certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/exampleCA.cer"));
-    certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/DEMO_of_KLASS3-SK_2016_SSL_OCSP_RESPONDER_2018.der.cer"));
     this.configuration.setTSL(certificateSource);
+
     Container container = this.createNonEmptyContainerByConfiguration();
-    this.createSignatureBy(container, SignatureProfile.LT,
+    this.createSignatureBy(container, SignatureProfile.T,
             new PKCS12SignatureToken("src/test/resources/testFiles/p12/user_one.p12", "user_one".toCharArray()));
     SignatureValidationResult result = container.validate();
     List<Signature> signatureList = container.getSignatures();
     Signature signature = signatureList.get(0);
     String signatureId = signature.getId();
+
     Assert.assertFalse(result.isValid());
     TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
+            "(Signature ID: " + signatureId + ") - The certificate validation is not conclusive!",
+            "(Signature ID: " + signatureId + ") - No revocation data found for the certificate!",
             "(Signature ID: " + signatureId + ") - The certificate chain for time-stamp is not trusted, it does not contain a trust anchor.",
             "(Signature ID: " + signatureId + ") - Unable to build a certificate chain up to a trusted list!",
             "(Signature ID: " + signatureId + ") - Signature has an invalid timestamp"
     );
+  }
+
+  @Test
+  public void loadCustomTslCerts_SignatureTypeLTWithOcspCert_signatureCreationFails() {
+    TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
+    certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/exampleCA.cer"));
+    certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/DEMO_of_KLASS3-SK_2016_SSL_OCSP_RESPONDER_2018.der.cer"));
+    this.configuration.setTSL(certificateSource);
+
+    Container container = this.createNonEmptyContainerByConfiguration();
+    SignatureToken signatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/user_one.p12", "user_one".toCharArray());
+
+    assertThrows(
+            OCSPRequestFailedException.class,
+            () -> createSignatureBy(container, SignatureProfile.LT, signatureToken)
+    );
+  }
+
+  @Test
+  public void loadCustomTslCerts_SignatureTypeTWithoutOcspCertWithTsaCert_notValid() {
+    TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
+    certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/exampleCA.cer"));
+    certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/DEMO_SK_TIMESTAMPING_AUTHORITY_2023E.der.crt"));
+    this.configuration.setTSL(certificateSource);
+
+    Container container = this.createNonEmptyContainerByConfiguration();
+    this.createSignatureBy(container, SignatureProfile.T,
+            new PKCS12SignatureToken("src/test/resources/testFiles/p12/user_one.p12", "user_one".toCharArray()));
+    SignatureValidationResult result = container.validate();
+    List<Signature> signatureList = container.getSignatures();
+    Signature signature = signatureList.get(0);
+    String signatureId = signature.getId();
+
+    Assert.assertFalse(result.isValid());
+    TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
+            "(Signature ID: " + signatureId + ") - The certificate validation is not conclusive!",
+            "(Signature ID: " + signatureId + ") - No revocation data found for the certificate!"
+    );
+  }
+
+  @Test
+  public void loadCustomTslCerts_SignatureTypeLTWithOcspAndTsaCerts_valid() {
+    TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
+    certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/exampleCA.cer"));
+    certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/DEMO_of_KLASS3-SK_2016_SSL_OCSP_RESPONDER_2018.der.cer"));
+    certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/DEMO_SK_TIMESTAMPING_AUTHORITY_2023E.der.crt"));
+    this.configuration.setTSL(certificateSource);
+
+    Container container = this.createNonEmptyContainerByConfiguration();
+    this.createSignatureBy(container, SignatureProfile.LT,
+            new PKCS12SignatureToken("src/test/resources/testFiles/p12/user_one.p12", "user_one".toCharArray()));
+
+    TestAssert.assertContainerIsValid(container);
   }
 
   @Test
