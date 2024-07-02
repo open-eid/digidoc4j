@@ -26,10 +26,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
@@ -88,6 +90,8 @@ public class SignatureExtender {
     extendingFacade.setCertificateSource(configuration.getTSL());
     extendingFacade.setAiaSource(new AiaSourceFactory(configuration).create());
     extendingFacade.setOcspSource(new ExtendingOcspSourceFactory(configuration).create());
+    Optional.ofNullable(configuration.getArchiveTimestampDigestAlgorithm())
+            .ifPresent(extendingFacade::setArchiveTimestampDigestAlgorithm);
   }
 
   private void prepareExtendingFacade(SignatureProfile profile) {
@@ -96,14 +100,21 @@ public class SignatureExtender {
   }
 
   private DSSDocument extendSignature(Signature signature, SignatureProfile targetProfile) {
-    List<SignatureProfile> intermediateProfiles = signature.getProfile().getExtensionOrder(targetProfile);
+    List<SignatureProfile> targetProfileSequence = getExtensionOrder(signature.getProfile(), targetProfile);
     DSSDocument result = null;
-    for (SignatureProfile intermediateProfile : intermediateProfiles) {
-      prepareExtendingFacade(intermediateProfile);
+    for (SignatureProfile p : targetProfileSequence) {
+      prepareExtendingFacade(p);
       DSSDocument signatureDocument = ((AsicSignature) signature).getSignatureDocument();
       result = extendingFacade.extendSignature(signatureDocument, detachedContents);
     }
     return result;
+  }
+
+  private List<SignatureProfile> getExtensionOrder(SignatureProfile curr, SignatureProfile target) {
+    if (curr.getExtensionOrder() < LT.getExtensionOrder() || target.getExtensionOrder() > LT.getExtensionOrder()) {
+      return curr.getExtensionOrder(target);
+    }
+    return Collections.singletonList(target);
   }
 
   private OnlineTSPSource createTimeStampProviderSource(SignatureProfile profile) {

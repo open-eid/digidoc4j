@@ -45,6 +45,7 @@ import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static eu.europa.esig.dss.enumerations.SignatureLevel.XAdES_BASELINE_B;
 import static eu.europa.esig.dss.enumerations.SignatureLevel.XAdES_BASELINE_LT;
@@ -196,6 +197,7 @@ public abstract class AsicSignatureFinalizer extends SignatureFinalizer {
     setClaimedSigningDate();
     setTimeStampProviderSource();
     setCustomDataLoader();
+    setArchiveTimestampDigestAlgorithm();
   }
 
   private void setSignatureDigestAlgorithm() {
@@ -311,5 +313,10 @@ public abstract class AsicSignatureFinalizer extends SignatureFinalizer {
 
   private void setCustomDataLoader() {
     this.facade.setAiaSource(new AiaSourceFactory(configuration).create());
+  }
+
+  private void setArchiveTimestampDigestAlgorithm() {
+    Optional.ofNullable(configuration.getArchiveTimestampDigestAlgorithm())
+            .ifPresent(facade::setArchiveTimestampDigestAlgorithm);
   }
 }
