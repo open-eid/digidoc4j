@@ -74,36 +74,49 @@ public class SignatureExtender {
   public List<DSSDocument> extend(List<Signature> signaturesToExtend, SignatureProfile profile) {
     logger.debug("Extending signatures to {}", profile);
     validatePossibilityToExtendTo(signaturesToExtend, profile);
-    prepareExtendingFacade(profile);
+    prepareExtendingFacade();
     List<DSSDocument> extendedSignatures = new ArrayList<>();
     for (Signature signature : signaturesToExtend) {
-      DSSDocument extendedSignature = extendSignature(signature);
+      DSSDocument extendedSignature = extendSignature(signature, profile);
       extendedSignatures.add(extendedSignature);
     }
     logger.debug("Finished extending signatures");
     return extendedSignatures;
   }
 
-  private void prepareExtendingFacade(SignatureProfile profile) {
+  private void prepareExtendingFacade() {
     extendingFacade.setCertificateSource(configuration.getTSL());
-    OnlineTSPSource tspSource = createTimeStampProviderSource();
-    extendingFacade.setTspSource(tspSource);
-    SignatureLevel signatureLevel = getSignatureLevel(profile);
-    extendingFacade.setSignatureLevel(signatureLevel);
     extendingFacade.setAiaSource(new AiaSourceFactory(configuration).create());
     extendingFacade.setOcspSource(new ExtendingOcspSourceFactory(configuration).create());
   }
 
-  private DSSDocument extendSignature(Signature signature) {
-    DSSDocument signatureDocument = ((AsicSignature) signature).getSignatureDocument();
-    return extendingFacade.extendSignature(signatureDocument, detachedContents);
+  private void prepareExtendingFacade(SignatureProfile profile) {
+    extendingFacade.setTspSource(createTimeStampProviderSource(profile));
+    extendingFacade.setSignatureLevel(getSignatureLevel(profile));
   }
 
-  private OnlineTSPSource createTimeStampProviderSource() {
-    OnlineTSPSource source = new OnlineTSPSource(this.configuration.getTspSource());
+  private DSSDocument extendSignature(Signature signature, SignatureProfile targetProfile) {
+    List<SignatureProfile> intermediateProfiles = signature.getProfile().getExtensionOrder(targetProfile);
+    DSSDocument result = null;
+    for (SignatureProfile intermediateProfile : intermediateProfiles) {
+      prepareExtendingFacade(intermediateProfile);
+      DSSDocument signatureDocument = ((AsicSignature) signature).getSignatureDocument();
+      result = extendingFacade.extendSignature(signatureDocument, detachedContents);
+    }
+    return result;
+  }
+
+  private OnlineTSPSource createTimeStampProviderSource(SignatureProfile profile) {
+    OnlineTSPSource source = new OnlineTSPSource(getTspSourceForProfile(profile));
     DataLoader loader = new TspDataLoaderFactory(this.configuration).create();
     source.setDataLoader(loader);
     return source;
+  }
+
+  private String getTspSourceForProfile(SignatureProfile profile) {
+    return profile == SignatureProfile.LTA
+            ? this.configuration.getTspSourceForArchiveTimestamps()
+            : this.configuration.getTspSource();
   }
 
   private SignatureLevel getSignatureLevel(SignatureProfile profile) {
