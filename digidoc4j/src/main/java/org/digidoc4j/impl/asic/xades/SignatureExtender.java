@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
@@ -42,6 +43,7 @@ import static org.digidoc4j.SignatureProfile.LT;
 import static org.digidoc4j.SignatureProfile.LTA;
 import static org.digidoc4j.SignatureProfile.LT_TM;
 import static org.digidoc4j.SignatureProfile.T;
+import static org.digidoc4j.utils.ExtensionOrderUtils.getExtensionOrder;
 
 public class SignatureExtender {
 
@@ -74,36 +76,61 @@ public class SignatureExtender {
   public List<DSSDocument> extend(List<Signature> signaturesToExtend, SignatureProfile profile) {
     logger.debug("Extending signatures to {}", profile);
     validatePossibilityToExtendTo(signaturesToExtend, profile);
-    prepareExtendingFacade(profile);
+    prepareExtendingFacade();
     List<DSSDocument> extendedSignatures = new ArrayList<>();
     for (Signature signature : signaturesToExtend) {
-      DSSDocument extendedSignature = extendSignature(signature);
+      DSSDocument extendedSignature = extendSignature(signature, profile);
       extendedSignatures.add(extendedSignature);
     }
     logger.debug("Finished extending signatures");
     return extendedSignatures;
   }
 
-  private void prepareExtendingFacade(SignatureProfile profile) {
+  private void prepareExtendingFacade() {
     extendingFacade.setCertificateSource(configuration.getTSL());
-    OnlineTSPSource tspSource = createTimeStampProviderSource();
-    extendingFacade.setTspSource(tspSource);
-    SignatureLevel signatureLevel = getSignatureLevel(profile);
-    extendingFacade.setSignatureLevel(signatureLevel);
     extendingFacade.setAiaSource(new AiaSourceFactory(configuration).create());
     extendingFacade.setOcspSource(new ExtendingOcspSourceFactory(configuration).create());
+    Optional.ofNullable(configuration.getArchiveTimestampDigestAlgorithm())
+            .ifPresent(extendingFacade::setArchiveTimestampDigestAlgorithm);
   }
 
-  private DSSDocument extendSignature(Signature signature) {
+  private void prepareExtendingFacade(SignatureProfile profile) {
+    extendingFacade.setTspSource(createTimeStampProviderSource(profile));
+    extendingFacade.setSignatureLevel(getSignatureLevel(profile));
+  }
+
+  private DSSDocument extendSignature(Signature signature, SignatureProfile targetProfile) {
+    List<SignatureProfile> intermediateProfiles = getExtensionOrder(signature.getProfile(), targetProfile);
+    if (signature.getProfile() != LTA) {
+      intermediateProfiles.remove(signature.getProfile());
+    }
+
     DSSDocument signatureDocument = ((AsicSignature) signature).getSignatureDocument();
-    return extendingFacade.extendSignature(signatureDocument, detachedContents);
+    for (SignatureProfile intermediateProfile : intermediateProfiles) {
+      prepareExtendingFacade(intermediateProfile);
+      signatureDocument = extendingFacade.extendSignature(signatureDocument, detachedContents);
+    }
+    return signatureDocument;
   }
 
-  private OnlineTSPSource createTimeStampProviderSource() {
-    OnlineTSPSource source = new OnlineTSPSource(this.configuration.getTspSource());
-    DataLoader loader = new TspDataLoaderFactory(this.configuration).create();
-    source.setDataLoader(loader);
-    return source;
+  private OnlineTSPSource createTimeStampProviderSource(SignatureProfile profile) {
+    switch (profile) {
+      case T:
+      case LT:
+      case LTA:
+        OnlineTSPSource source = new OnlineTSPSource(getTspSourceForProfile(profile));
+        DataLoader loader = new TspDataLoaderFactory(this.configuration).create();
+        source.setDataLoader(loader);
+        return source;
+      default:
+        return null;
+    }
+  }
+
+  private String getTspSourceForProfile(SignatureProfile profile) {
+    return profile == SignatureProfile.LTA
+            ? this.configuration.getTspSourceForArchiveTimestamps()
+            : this.configuration.getTspSource();
   }
 
   private SignatureLevel getSignatureLevel(SignatureProfile profile) {

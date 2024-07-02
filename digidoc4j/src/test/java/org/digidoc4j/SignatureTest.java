@@ -20,6 +20,7 @@ import org.custommonkey.xmlunit.XMLAssert;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.impl.Certificates;
+import org.digidoc4j.impl.asic.AsicSignature;
 import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
 import org.digidoc4j.impl.ddoc.ConfigManagerInitializer;
 import org.digidoc4j.impl.ddoc.DDocOpener;
@@ -496,6 +497,38 @@ public class SignatureTest extends AbstractTest {
     Assert.assertEquals(Indication.TOTAL_PASSED, result.getIndication(null));
     Assert.assertNull(result.getSubIndication(null));
     Assert.assertEquals(SignatureQualification.QESIG.getLabel(), result.getSignatureQualification(null).getLabel());
+  }
+
+  @Test
+  public void createSignature_CustomArchiveTimestampDigestAlgorithmConfigured_AlgorithmFromConfUsed() {
+    this.configuration = Configuration.of(Configuration.Mode.TEST);
+    this.configuration.setArchiveTimestampDigestAlgorithm(DigestAlgorithm.SHA384);
+
+    Container container = createNonEmptyContainerByConfiguration();
+    Signature signature = createSignatureBy(container, SignatureProfile.LTA, pkcs12SignatureToken);
+
+    assertValidSignature(signature);
+    Assert.assertEquals(
+            DigestAlgorithm.SHA384.getDssDigestAlgorithm(),
+            ((AsicSignature) signature).getOrigin().getDssSignature().getArchiveTimestamps().get(0).getDigestAlgorithm()
+    );
+  }
+
+  @Test
+  public void createSignature_CustomTspSourceForArchiveTimestampsConfigured_ValueFromConfUsed() {
+    this.configuration = Configuration.of(Configuration.Mode.TEST);
+    this.configuration.setTspSourceForArchiveTimestamps("http://tsa.demo.sk.ee/tsarsa");
+
+    Container container = createNonEmptyContainerByConfiguration();
+    Signature signature = createSignatureBy(container, SignatureProfile.LTA, pkcs12SignatureToken);
+    String tsCN = signature.getTimeStampTokenCertificate().getSubjectName(X509Cert.SubjectName.CN);
+    String archiveTsCN = new X509Cert(((AsicSignature) signature).getOrigin().getDssSignature().getArchiveTimestamps()
+            .get(0).getCertificateSource().getCertificates().get(0).getCertificate())
+            .getSubjectName(X509Cert.SubjectName.CN);
+
+    assertValidSignature(signature);
+    Assert.assertEquals("DEMO SK TIMESTAMPING AUTHORITY 2023E", tsCN);
+    Assert.assertEquals("DEMO SK TIMESTAMPING AUTHORITY 2023R", archiveTsCN);
   }
 
   /*

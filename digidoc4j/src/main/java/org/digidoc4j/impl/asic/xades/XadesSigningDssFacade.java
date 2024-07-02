@@ -36,6 +36,7 @@ import eu.europa.esig.dss.xades.DSSXMLUtils;
 import eu.europa.esig.dss.xades.XAdESSignatureParameters;
 import eu.europa.esig.dss.xades.signature.XAdESService;
 import eu.europa.esig.dss.xml.utils.DomUtils;
+import org.digidoc4j.Constant;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.TechnicalException;
@@ -133,6 +134,10 @@ public class XadesSigningDssFacade {
     logger.debug("Extending signature with DSS");
     xAdESSignatureParameters.setDetachedContents(detachedContents);
     DSSDocument extendedSignature = xAdESService.extendDocument(xadesSignature, xAdESSignatureParameters);
+
+    extendedSignature.setName(xadesSignature.getName());
+    extendedSignature.setMimeType(xadesSignature.getMimeType());
+
     logger.debug("Finished extending signature with DSS");
     return extendedSignature;
   }
@@ -160,6 +165,10 @@ public class XadesSigningDssFacade {
 
   public void setDataFileDigestAlgorithm(org.digidoc4j.DigestAlgorithm digestAlgorithm) {
     xAdESSignatureParameters.setReferenceDigestAlgorithm(digestAlgorithm.getDssDigestAlgorithm());
+  }
+
+  public void setArchiveTimestampDigestAlgorithm(org.digidoc4j.DigestAlgorithm algorithm) {
+    xAdESSignatureParameters.getArchiveTimestampParameters().setDigestAlgorithm(algorithm.getDssDigestAlgorithm());
   }
 
   public void setEncryptionAlgorithm(EncryptionAlgorithm encryptionAlgorithm) {
@@ -234,6 +243,8 @@ public class XadesSigningDssFacade {
     xAdESSignatureParameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
     xAdESSignatureParameters.setSigningCertificateDigestMethod(DigestAlgorithm.SHA256);
     xAdESSignatureParameters.setEn319132(false);
+    xAdESSignatureParameters.getArchiveTimestampParameters()
+            .setDigestAlgorithm(Constant.Default.ARCHIVE_TIMESTAMP_DIGEST_ALGORITHM.getDssDigestAlgorithm());
   }
 
   private void initCertificateVerifier() {

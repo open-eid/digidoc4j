@@ -129,7 +129,7 @@ public class AsicSignatureFinalizerTest extends AbstractTest {
     Signature signature = createSignatureBy(createNonEmptyContainerByConfiguration(), pkcs12SignatureToken);
     assertValidSignature(signature);
 
-    Mockito.verify(dataLoaderFactory, Mockito.times(1)).create();
+    Mockito.verify(dataLoaderFactory, Mockito.atLeastOnce()).create();
     Mockito.verify(dataLoaderSpy, Mockito.times(1)).post(Mockito.eq(configuration.getTspSource()), Mockito.any(byte[].class));
     Mockito.verifyNoMoreInteractions(dataLoaderFactory);
   }

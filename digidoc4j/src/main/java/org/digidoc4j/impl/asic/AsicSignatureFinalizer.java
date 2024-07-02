@@ -11,6 +11,7 @@
 package org.digidoc4j.impl.asic;
 
 import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.model.SignerLocation;
 import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
 import eu.europa.esig.dss.spi.DSSASN1Utils;
@@ -29,6 +30,7 @@ import org.digidoc4j.exceptions.ContainerWithoutFilesException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
+import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.AiaSourceFactory;
 import org.digidoc4j.impl.SignatureFinalizer;
 import org.digidoc4j.impl.SigningOcspSourceFactory;
@@ -45,12 +47,14 @@ import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static eu.europa.esig.dss.enumerations.SignatureLevel.XAdES_BASELINE_B;
 import static eu.europa.esig.dss.enumerations.SignatureLevel.XAdES_BASELINE_LT;
 import static eu.europa.esig.dss.enumerations.SignatureLevel.XAdES_BASELINE_LTA;
 import static eu.europa.esig.dss.enumerations.SignatureLevel.XAdES_BASELINE_T;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.digidoc4j.utils.ExtensionOrderUtils.getExtensionOrder;
 
 /**
  * Asic signature finalizer for datafiles signing process.
@@ -61,8 +65,6 @@ public abstract class AsicSignatureFinalizer extends SignatureFinalizer {
   protected transient XadesSigningDssFacade facade;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AsicSignatureFinalizer.class);
-
-  private boolean isTorLTorLTAProfile = false;
 
   protected AsicSignatureFinalizer(List<DataFile> dataFilesToSign, SignatureParameters signatureParameters, Configuration configuration) {
     super(dataFilesToSign, signatureParameters, configuration);
@@ -80,8 +82,34 @@ public abstract class AsicSignatureFinalizer extends SignatureFinalizer {
     populateParametersForFinalizingSignature();
     validateSignatureCompatibility();
     validateDataFilesToSign(dataFiles);
+
+    setSignatureProfile(SignatureProfile.B_BES);
     DSSDocument signedDocument = facade.signDocument(signatureValue, dataFiles);
+
+    List<SignatureProfile> intermediateProfiles = getExtensionOrder(SignatureProfile.B_BES, signatureParameters.getSignatureProfile());
+    intermediateProfiles.remove(SignatureProfile.B_BES);
+
+    for (SignatureProfile intermediateProfile : intermediateProfiles) {
+      setSignatureProfile(intermediateProfile);
+      setTimeStampProviderSource(intermediateProfile);
+      try {
+        signedDocument = facade.extendSignature(signedDocument, getDetachedContentList());
+      } catch (DSSException e) {
+        LOGGER.warn("Signing document in DSS failed: {}", e.getMessage());
+        throw new TechnicalException("Got error in signing process: " + e.getMessage(), e);
+      }
+    }
+
     return createSignature(signedDocument);
+  }
+
+  private List<DSSDocument> getDetachedContentList() {
+    try {
+      return new DetachedContentCreator().populate(dataFiles).getDetachedContentList();
+    } catch (Exception e) {
+      LOGGER.error("Error in datafiles processing: {}", e.getMessage());
+      throw new DigiDoc4JException(e);
+    }
   }
 
   @Override
@@ -189,13 +217,12 @@ public abstract class AsicSignatureFinalizer extends SignatureFinalizer {
     setDataFileDigestAlgorithm();
     setSigningCertificate();
     setEncryptionAlgorithm();
-    setSignatureProfile();
     setSignerInformation();
     setSignatureId();
     setSignaturePolicy();
     setClaimedSigningDate();
-    setTimeStampProviderSource();
     setCustomDataLoader();
+    setArchiveTimestampDigestAlgorithm();
   }
 
   private void setSignatureDigestAlgorithm() {
@@ -222,25 +249,18 @@ public abstract class AsicSignatureFinalizer extends SignatureFinalizer {
     }
   }
 
-  private void setSignatureProfile() {
-    setSignatureProfile(signatureParameters.getSignatureProfile());
-  }
-
   private void setSignatureProfile(SignatureProfile profile) {
     switch (profile) {
       case B_BES:
         facade.setSignatureLevel(XAdES_BASELINE_B);
         break;
       case T:
-        isTorLTorLTAProfile = true;
         facade.setSignatureLevel(XAdES_BASELINE_T);
         break;
       case LT:
-        isTorLTorLTAProfile = true;
         facade.setSignatureLevel(XAdES_BASELINE_LT);
         break;
       case LTA:
-        isTorLTorLTAProfile = true;
         facade.setSignatureLevel(XAdES_BASELINE_LTA);
         break;
       default:
@@ -290,15 +310,23 @@ public abstract class AsicSignatureFinalizer extends SignatureFinalizer {
     LOGGER.debug("Claimed signing date is going to be {}", claimedSigningDate);
   }
 
-  private void setTimeStampProviderSource() {
-    OnlineTSPSource tspSource = new OnlineTSPSource(this.getTspSource(configuration));
-    DataLoader dataLoader = new TspDataLoaderFactory(configuration).create();
-    tspSource.setDataLoader(dataLoader);
-    this.facade.setTspSource(tspSource);
+  private void setTimeStampProviderSource(SignatureProfile profile) {
+    switch (profile) {
+      case T:
+      case LT:
+      case LTA:
+        OnlineTSPSource tspSource = new OnlineTSPSource(getTspSource(configuration, profile));
+        DataLoader dataLoader = new TspDataLoaderFactory(configuration).create();
+        tspSource.setDataLoader(dataLoader);
+        this.facade.setTspSource(tspSource);
+        break;
+      default:
+        this.facade.setTspSource(null);
+    }
   }
 
-  private String getTspSource(Configuration configuration) {
-    if (isTorLTorLTAProfile) {
+  private String getTspSource(Configuration configuration, SignatureProfile profile) {
+    if (profile == SignatureProfile.T) {
       X509Cert x509Cert = new X509Cert(signatureParameters.getSigningCertificate());
       String certCountry = x509Cert.getSubjectName(X509Cert.SubjectName.C);
       String tspSourceByCountry = configuration.getTspSourceByCountry(certCountry);
@@ -306,10 +334,17 @@ public abstract class AsicSignatureFinalizer extends SignatureFinalizer {
         return tspSourceByCountry;
       }
     }
-    return configuration.getTspSource();
+    return profile == SignatureProfile.LTA
+            ? configuration.getTspSourceForArchiveTimestamps()
+            : configuration.getTspSource();
   }
 
   private void setCustomDataLoader() {
     this.facade.setAiaSource(new AiaSourceFactory(configuration).create());
+  }
+
+  private void setArchiveTimestampDigestAlgorithm() {
+    Optional.ofNullable(configuration.getArchiveTimestampDigestAlgorithm())
+            .ifPresent(facade::setArchiveTimestampDigestAlgorithm);
   }
 }
