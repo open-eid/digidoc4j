@@ -10,37 +10,24 @@
 
 package org.digidoc4j.main;
 
-import eu.europa.esig.dss.model.DSSDocument;
-import eu.europa.esig.dss.model.InMemoryDocument;
-import eu.europa.esig.dss.spi.DSSUtils;
-import eu.europa.esig.dss.validation.SignedDocumentValidator;
-import eu.europa.esig.dss.validation.reports.Reports;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.lang3.StringUtils;
-import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerValidationResult;
-import org.digidoc4j.OCSPSourceBuilder;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureValidationResult;
-import org.digidoc4j.TSLCertificateSource;
 import org.digidoc4j.ddoc.CertValue;
 import org.digidoc4j.ddoc.DigiDocException;
 import org.digidoc4j.ddoc.SignedDoc;
 import org.digidoc4j.ddoc.factory.DigiDocGenFactory;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
-import org.digidoc4j.impl.AiaSourceFactory;
-import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
-import org.digidoc4j.impl.asic.tsl.TslManager;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.impl.ddoc.DDocSignature;
 import org.digidoc4j.impl.ddoc.DDocSignatureValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -140,66 +127,6 @@ public class ContainerVerifier {
       }
     }
     return containerValidationResult;
-  }
-
-  /**
-   * Method for validation directly with DSS classes (option -v2).
-   * The goal is to generate DSS reports.
-   *
-   * @param container Validation object.
-   * @param reportsDir Directory where to save reports.
-   */
-  public void verifyDirectDss(Container container, Path reportsDir) {
-    boolean isDDoc = StringUtils.equalsIgnoreCase("DDOC", container.getType());
-    if (isDDoc) {
-      logger.info("Validation canceled. Option -v2 is not working with DDOC container.");
-      throw new DigiDoc4JException("Option -v2 is not working with DDOC container");
-    }
-    Configuration configuration = Configuration.getInstance();
-    TslManager tslManager = new TslManager(configuration);
-    TSLCertificateSource certificateSource = tslManager.getTsl();
-    configuration.setTSL(certificateSource);
-    DSSDocument document = new InMemoryDocument(container.saveAsStream());
-    SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(document);
-    SKCommonCertificateVerifier verifier = new SKCommonCertificateVerifier();
-    verifier.setOcspSource(OCSPSourceBuilder.defaultOCSPSource().withConfiguration(configuration).build());
-    verifier.setTrustedCertSources(configuration.getTSL());
-    verifier.setAIASource(new AiaSourceFactory(configuration).create());
-    validator.setCertificateVerifier(verifier);
-    Reports reports = validator.validateDocument();
-    if (reportsDir != null) {
-      try {
-        byte[] bytes = reports.getXmlDiagnosticData().getBytes("UTF-8");
-        DSSUtils.saveToFile(bytes, new File(reportsDir + File.separator + "validationDiagnosticData.xml"));
-        logger.info("Validation diagnostic data report is generated");
-      } catch (UnsupportedEncodingException e) {
-        logger.info(e.getMessage());
-      }
-      try {
-        byte[] bytes = reports.getXmlSimpleReport().getBytes("UTF-8");
-        DSSUtils.saveToFile(bytes, new File(reportsDir + File.separator + "validationSimpleReport.xml"));
-        logger.info("Validation simple report is generated");
-      } catch (UnsupportedEncodingException e) {
-        logger.info(e.getMessage());
-      }
-      try {
-        byte[] bytes = reports.getXmlDetailedReport().getBytes("UTF-8");
-        DSSUtils.saveToFile(bytes, new File(reportsDir + File.separator + "validationDetailReport.xml"));
-        logger.info("Validation detailed report is generated");
-      } catch (UnsupportedEncodingException e) {
-        logger.info(e.getMessage());
-      }
-    }
-    boolean isValid = true;
-    for (String signatureId : reports.getSimpleReport().getSignatureIdList()) {
-      isValid = isValid && reports.getSimpleReport().isValid(signatureId);
-    }
-    if (isValid) {
-      logger.info("Validation was successful. Container is valid");
-    } else {
-      logger.info("Validation finished. Container is NOT valid!");
-      throw new DigiDoc4JException("Container is NOT valid");
-    }
   }
 
   private void verboseMessage(String message) {
