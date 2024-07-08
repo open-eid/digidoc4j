@@ -280,8 +280,7 @@ public class SimpleHttpGetDataLoaderTest {
     );
     assertLogInOrder(
             Matchers.matchesPattern("Received HTTP 3[0-9]{2} from 'http://www.sk.ee/certs/EE_Certification_Centre_Root_CA.der.crt', redirecting to 'https://www.sk.ee/certs/EE_Certification_Centre_Root_CA.der.crt'"),
-            Matchers.matchesPattern("Received HTTP 3[0-9]{2} from 'https://www.sk.ee/certs/EE_Certification_Centre_Root_CA.der.crt', redirecting to 'http://www.sk.ee/upload/files/EE_Certification_Centre_Root_CA.der.crt'"),
-            Matchers.matchesPattern("Received HTTP 3[0-9]{2} from 'http://www.sk.ee/upload/files/EE_Certification_Centre_Root_CA.der.crt', redirecting to 'https://www.sk.ee/upload/files/EE_Certification_Centre_Root_CA.der.crt'"),
+            Matchers.matchesPattern("Received HTTP 3[0-9]{2} from 'https://www.sk.ee/certs/EE_Certification_Centre_Root_CA.der.crt', redirecting to 'https://www.sk.ee/upload/files/EE_Certification_Centre_Root_CA.der.crt'"),
             Matchers.matchesPattern("Reading response of specific size: [0-9]+")
     );
   }
