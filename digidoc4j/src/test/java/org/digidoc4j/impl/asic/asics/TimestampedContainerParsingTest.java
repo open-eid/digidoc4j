@@ -82,13 +82,13 @@ public class TimestampedContainerParsingTest extends AbstractTest {
     assertThat(container.getDataFiles().get(0).getMediaType(), equalTo(MimeTypeEnum.TEXT.getMimeTypeString()));
     assertThat(container.getTimestamps(), hasSize(3));
     assertThat(container.getTimestamps().get(0), instanceOf(AsicSContainerTimestamp.class));
-    assertThat(container.getTimestamps().get(0).getCreationTime(), equalTo(Date.from(Instant.parse("2024-05-20T07:58:12Z"))));
+    assertThat(container.getTimestamps().get(0).getCreationTime(), equalTo(Date.from(Instant.parse("2024-07-05T08:42:57Z"))));
     AsicSContainerTimestamp asicsTimestamp1 = (AsicSContainerTimestamp) container.getTimestamps().get(0);
     assertThat(asicsTimestamp1.getCadesTimestamp().getTimestampDocument().getName(), equalTo("META-INF/timestamp.tst"));
     assertThat(asicsTimestamp1.getCadesTimestamp().getTimestampDocument().getMimeType(), equalTo(MimeTypeEnum.TST));
     assertThat(asicsTimestamp1.getArchiveManifest(), nullValue());
     assertThat(container.getTimestamps().get(1), instanceOf(AsicSContainerTimestamp.class));
-    assertThat(container.getTimestamps().get(1).getCreationTime(), equalTo(Date.from(Instant.parse("2024-05-20T07:59:20Z"))));
+    assertThat(container.getTimestamps().get(1).getCreationTime(), equalTo(Date.from(Instant.parse("2024-07-05T08:44:04Z"))));
     AsicSContainerTimestamp asicsTimestamp2 = (AsicSContainerTimestamp) container.getTimestamps().get(1);
     assertThat(asicsTimestamp2.getCadesTimestamp().getTimestampDocument().getName(), equalTo("META-INF/timestamp002.tst"));
     assertThat(asicsTimestamp2.getCadesTimestamp().getTimestampDocument().getMimeType(), equalTo(MimeTypeEnum.TST));
@@ -100,7 +100,7 @@ public class TimestampedContainerParsingTest extends AbstractTest {
             "test.txt", "META-INF/timestamp.tst"
     ))));
     assertThat(container.getTimestamps().get(2), instanceOf(AsicSContainerTimestamp.class));
-    assertThat(container.getTimestamps().get(2).getCreationTime(), equalTo(Date.from(Instant.parse("2024-05-20T08:00:25Z"))));
+    assertThat(container.getTimestamps().get(2).getCreationTime(), equalTo(Date.from(Instant.parse("2024-07-05T08:45:10Z"))));
     AsicSContainerTimestamp asicsTimestamp3 = (AsicSContainerTimestamp) container.getTimestamps().get(2);
     assertThat(asicsTimestamp3.getCadesTimestamp().getTimestampDocument().getName(), equalTo("META-INF/timestamp003.tst"));
     assertThat(asicsTimestamp3.getCadesTimestamp().getTimestampDocument().getMimeType(), equalTo(MimeTypeEnum.TST));

@@ -33,7 +33,7 @@ public abstract class AsicContainerTimestamp implements Timestamp, TimestampAndM
 
   @Override
   public String getUniqueId() {
-    return ""; // TODO (DD4J-1044): implement
+    return ""; // TODO (DD4J-1076): implement
   }
 
   @Override
@@ -48,7 +48,7 @@ public abstract class AsicContainerTimestamp implements Timestamp, TimestampAndM
 
   @Override
   public DigestAlgorithm getDigestAlgorithm() {
-    return null; // TODO (DD4J-1044): implement
+    return null; // TODO (DD4J-1076): implement
   }
 
   @Override

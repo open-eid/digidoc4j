@@ -16,6 +16,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Constant;
+import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
 import org.digidoc4j.Timestamp;
@@ -219,6 +220,15 @@ public class AsicSContainer extends AsicContainer {
   protected AsicSignatureOpener getSignatureOpener() {
     return new AsicSSignatureOpener(getConfiguration());
   }
+
+  /* TODO (DD4J-1074): @Override
+  protected ContainerValidationResult validateContainer() {
+    if (CollectionUtils.isNotEmpty(timestamps)) {
+      return new AsicSTimestampedContainerValidator(this).validate();
+    } else {
+      return super.validateContainer();
+    }
+  }*/
 
   @Override
   protected AsicContainerValidator getContainerValidator(AsicParseResult containerParseResult, boolean dataFilesHaveChanged) {

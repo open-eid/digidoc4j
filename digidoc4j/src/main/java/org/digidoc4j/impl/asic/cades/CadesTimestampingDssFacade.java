@@ -18,20 +18,13 @@ import eu.europa.esig.dss.asic.cades.timestamp.ASiCWithCAdESTimestampService;
 import eu.europa.esig.dss.asic.common.ASiCContent;
 import eu.europa.esig.dss.cades.CAdESSignatureParameters;
 import eu.europa.esig.dss.enumerations.ASiCContainerType;
-import eu.europa.esig.dss.enumerations.MimeTypeEnum;
+import eu.europa.esig.dss.enumerations.MimeType;
 import eu.europa.esig.dss.model.DSSDocument;
-import eu.europa.esig.dss.spi.x509.CertificateSource;
-import eu.europa.esig.dss.spi.x509.ListCertificateSource;
-import eu.europa.esig.dss.spi.x509.aia.AIASource;
 import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 import eu.europa.esig.dss.spi.x509.tsp.TSPSource;
-import eu.europa.esig.dss.validation.CertificateVerifier;
 import org.apache.commons.collections4.CollectionUtils;
-import org.digidoc4j.Container;
 import org.digidoc4j.DigestAlgorithm;
-import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.TechnicalException;
-import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,12 +43,11 @@ import java.util.stream.Collectors;
 /**
  * Facade class for DSS CAdES timestamping functionality for ASiC containers.
  */
-public class CadesTimestampingDssFacade {
+public class CadesTimestampingDssFacade extends AbstractCadesDssFacade {
 
   private static final String SOMETHING_WENT_WRONG_PREFIX = "Something went wrong with timestamping: ";
   private static final Logger log = LoggerFactory.getLogger(CadesTimestampingDssFacade.class);
 
-  private final CertificateVerifier certificateVerifier = new SKCommonCertificateVerifier();
   private final ASiCWithCAdESFilenameFactory filenameFactory = new DefaultASiCWithCAdESFilenameFactory();
   private final ASiCWithCAdESTimestampParameters timestampParameters = new ASiCWithCAdESTimestampParameters();
   private eu.europa.esig.dss.enumerations.DigestAlgorithm referenceDigestAlgorithm;
@@ -84,31 +76,6 @@ public class CadesTimestampingDssFacade {
   }
 
   /**
-   * Configures this facade to create timestamps for the specified container type.
-   * Supported container types:
-   * <ul>
-   *     <li>{@link Container.DocumentType#ASICE}</li>
-   *     <li>{@link Container.DocumentType#ASICS}</li>
-   * </ul>
-   *
-   * @param type container type to use
-   */
-  public void setContainerType(Container.DocumentType type) {
-    switch (type) {
-      case ASICE:
-        timestampParameters.aSiC().setContainerType(ASiCContainerType.ASiC_E);
-        timestampParameters.aSiC().setMimeType(MimeTypeEnum.ASICE.getMimeTypeString());
-        break;
-      case ASICS:
-        timestampParameters.aSiC().setContainerType(ASiCContainerType.ASiC_S);
-        timestampParameters.aSiC().setMimeType(MimeTypeEnum.ASICS.getMimeTypeString());
-        break;
-      default:
-        throw new NotSupportedException("Unsupported container type: " + type);
-    }
-  }
-
-  /**
    * Configures this facade to create timestamps using the specified digest algorithm.
    *
    * @param digestAlgorithm timestamp digest algorithm to use
@@ -127,28 +94,6 @@ public class CadesTimestampingDssFacade {
   }
 
   /**
-   * Configures this facade to use the specified {@link AIASource} for timestamping process.
-   *
-   * @param aiaSource an instance of {@link AIASource} to use
-   */
-  public void setAiaSource(AIASource aiaSource) {
-    certificateVerifier.setAIASource(aiaSource);
-  }
-
-  /**
-   * Configures this facade to use the specified {@link CertificateSource} as a trusted certificate source.
-   *
-   * @param certificateSource an instance of {@link CertificateSource} to use
-   */
-  public void setCertificateSource(CertificateSource certificateSource) {
-    if (certificateSource == null || certificateSource instanceof ListCertificateSource) {
-      certificateVerifier.setTrustedCertSources((ListCertificateSource) certificateSource);
-    } else {
-      certificateVerifier.setTrustedCertSources(certificateSource);
-    }
-  }
-
-  /**
    * Configures this facade to use the specified {@link OCSPSource} for timestamping process.
    *
    * @param ocspSource an instance of {@link OCSPSource} to use
@@ -164,6 +109,12 @@ public class CadesTimestampingDssFacade {
    */
   public void setTspSource(TSPSource tspSource) {
     this.tspSource = tspSource;
+  }
+
+  @Override
+  protected void setContainerType(ASiCContainerType containerType, MimeType mimeType) {
+    timestampParameters.aSiC().setContainerType(Objects.requireNonNull(containerType));
+    timestampParameters.aSiC().setMimeType(Objects.requireNonNull(mimeType).getMimeTypeString());
   }
 
   private ASiCContent createAsicContent() {
