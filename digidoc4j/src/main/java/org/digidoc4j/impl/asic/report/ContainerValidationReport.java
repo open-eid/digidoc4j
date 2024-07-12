@@ -27,6 +27,8 @@ public class ContainerValidationReport extends XmlSimpleReport {
 
   @XmlElement(name = "Signature")
   protected List<SignatureValidationReport> signatures;
+  @XmlElement(name = "TimestampToken")
+  protected List<TimestampValidationReport> timestampTokens;
   @XmlElement(name = "ContainerError")
   protected List<String> containerErrors;
 
@@ -40,12 +42,24 @@ public class ContainerValidationReport extends XmlSimpleReport {
 
   public List<SignatureValidationReport> getSignatures() {
     if (signatures == null) {
-      signatures = new ArrayList<SignatureValidationReport>();
+      signatures = new ArrayList<>();
     }
-    return this.signatures;
+    return signatures;
   }
 
   public void setSignatures(List<SignatureValidationReport> signatures) {
     this.signatures = signatures;
   }
+
+  public List<TimestampValidationReport> getTimestampTokens() {
+    if (timestampTokens == null) {
+      timestampTokens = new ArrayList<>();
+    }
+    return timestampTokens;
+  }
+
+  public void setTimestampTokens(List<TimestampValidationReport> timestampTokens) {
+    this.timestampTokens = timestampTokens;
+  }
+
 }

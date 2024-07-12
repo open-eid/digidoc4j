@@ -13,30 +13,24 @@ package org.digidoc4j.impl.asic.report;
 import eu.europa.esig.dss.enumerations.Indication;
 import eu.europa.esig.dss.enumerations.SignatureLevel;
 import eu.europa.esig.dss.simplereport.jaxb.XmlSignature;
-import eu.europa.esig.dss.simplereport.jaxb.XmlSimpleReport;
 import eu.europa.esig.dss.simplereport.jaxb.XmlToken;
-import eu.europa.esig.dss.validation.reports.Reports;
 import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.asic.xades.validation.SignatureValidationData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Optional;
 
-public class SignatureValidationReportCreator {
+public class SignatureValidationReportCreator extends TokenValidationReportCreator {
 
-  private final static Logger logger = LoggerFactory.getLogger(SignatureValidationReportCreator.class);
-  private SignatureValidationData validationData;
-  private Reports reports;
-  private XmlSimpleReport simpleReport;
+  private static final Logger log = LoggerFactory.getLogger(SignatureValidationReportCreator.class);
+
+  private final SignatureValidationData validationData;
   private SignatureValidationReport signatureValidationReport;
 
   public SignatureValidationReportCreator(SignatureValidationData validationData) {
+    super(validationData.getReport().getReports());
     this.validationData = validationData;
-    this.reports = validationData.getReport().getReports();
-    this.simpleReport = reports.getSimpleReportJaxb();
   }
 
   public static SignatureValidationReport create(SignatureValidationData validationData) {
@@ -45,7 +39,7 @@ public class SignatureValidationReportCreator {
 
   private SignatureValidationReport createSignatureValidationReport() {
     signatureValidationReport = cloneSignatureValidationReport();
-    updateMissingErrors();
+    updateMissingErrors(validationData.getValidationResult(), signatureValidationReport);
     updateDocumentName();
     updateIndication();
     updateSignatureFormat();
@@ -56,7 +50,7 @@ public class SignatureValidationReportCreator {
 
   private SignatureValidationReport cloneSignatureValidationReport() {
     if (simpleReport.getSignaturesCount() > 1) {
-      logger.warn("Simple report contains more than one signature: " + simpleReport.getSignaturesCount());
+      log.warn("Simple report contains more than one signature: {}", simpleReport.getSignaturesCount());
     }
     Optional<XmlToken> signatureXmlReport = simpleReport.getSignatureOrTimestampOrEvidenceRecord().stream()
             .filter(s -> s instanceof XmlSignature)
@@ -65,15 +59,6 @@ public class SignatureValidationReportCreator {
       return SignatureValidationReport.create((XmlSignature) signatureXmlReport.get());
     }
     throw new IllegalArgumentException("No signature found from simple report");
-  }
-
-  private void updateMissingErrors() {
-    List<String> errors = signatureValidationReport.getErrors();
-    for (DigiDoc4JException error : validationData.getValidationResult().getErrors()) {
-      if (!errors.contains(error.getMessage())) {
-        errors.add(error.getMessage());
-      }
-    }
   }
 
   private void updateDocumentName() {

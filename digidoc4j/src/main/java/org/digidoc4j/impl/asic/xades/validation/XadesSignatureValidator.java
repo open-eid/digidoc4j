@@ -14,13 +14,7 @@ import eu.europa.esig.dss.detailedreport.DetailedReport;
 import eu.europa.esig.dss.diagnostic.DiagnosticData;
 import eu.europa.esig.dss.enumerations.Indication;
 import eu.europa.esig.dss.enumerations.ObjectIdentifierQualifier;
-import eu.europa.esig.dss.i18n.I18nProvider;
-import eu.europa.esig.dss.i18n.MessageTag;
-import eu.europa.esig.dss.jaxb.object.Message;
 import eu.europa.esig.dss.simplereport.SimpleReport;
-import eu.europa.esig.dss.simplereport.jaxb.XmlDetails;
-import eu.europa.esig.dss.simplereport.jaxb.XmlMessage;
-import eu.europa.esig.dss.simplereport.jaxb.XmlToken;
 import eu.europa.esig.dss.validation.SignaturePolicy;
 import eu.europa.esig.dss.validation.reports.Reports;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
@@ -30,7 +24,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.ValidationResult;
-import org.digidoc4j.exceptions.CertificateRevokedException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidOcspNonceException;
 import org.digidoc4j.exceptions.InvalidOcspResponderException;
@@ -43,6 +36,7 @@ import org.digidoc4j.impl.SimpleValidationResult;
 import org.digidoc4j.impl.asic.OcspNonceValidator;
 import org.digidoc4j.impl.asic.OcspResponderValidator;
 import org.digidoc4j.impl.asic.TmSignaturePolicyType;
+import org.digidoc4j.impl.asic.validation.ReportedMessagesExtractor;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
@@ -55,8 +49,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
 /**
  * Signature validator for Xades signatures.
@@ -233,40 +225,21 @@ public class XadesSignatureValidator implements SignatureValidator {
   private void addReportedErrors() {
     LOGGER.debug("Extracting reported errors");
     if (this.simpleReport != null) {
-      I18nProvider i18nProvider = new I18nProvider();
-      Stream.concat(
-              Stream.concat(
-                      this.simpleReport.getAdESValidationErrors(this.signatureUniqueId).stream(),
-                      this.simpleReport.getQualificationErrors(this.signatureUniqueId).stream()
-              ).map(Message::getValue),
-              this.simpleReport.getSignatureTimestamps(this.signatureUniqueId).stream()
-                      .flatMap(timestamp -> getTokenMessages(timestamp, details -> details.getError().stream()))
-                      .map(XmlMessage::getValue)
-      ).distinct().forEach(errorMessage -> {
-        if (errorMessage.contains(i18nProvider.getMessage(MessageTag.BBB_XCV_ISCR_ANS))) {
-          this.addValidationError(new CertificateRevokedException(errorMessage));
-        } else if (errorMessage.contains(i18nProvider.getMessage(MessageTag.PSV_IPSVC_ANS))) {
-          this.addValidationError(new CertificateRevokedException(errorMessage));
-        } else {
-          this.addValidationError(new DigiDoc4JException(errorMessage, this.signatureId));
-        }
-      });
+      ReportedMessagesExtractor extractor = new ReportedMessagesExtractor(this.simpleReport);
+      ReportedMessagesExtractor.collectErrorsAsExceptions(
+              extractor.extractReportedTokenErrors(this.signatureUniqueId),
+              extractor.extractReportedSignatureTimestampErrors(this.signatureUniqueId)
+      ).forEach(this::addValidationError);
     }
   }
 
   private void addReportedWarnings() {
     if (this.simpleReport != null) {
-      Stream.concat(
-              Stream.concat(
-                      this.simpleReport.getAdESValidationWarnings(this.signatureUniqueId).stream(),
-                      this.simpleReport.getQualificationWarnings(this.signatureUniqueId).stream()
-              ).map(Message::getValue),
-              this.simpleReport.getSignatureTimestamps(this.signatureUniqueId).stream()
-                      .flatMap(timestamp -> getTokenMessages(timestamp, details -> details.getWarning().stream()))
-                      .map(XmlMessage::getValue)
-      ).distinct().forEach(warningMessage -> {
-        this.addValidationWarning(new DigiDoc4JException(warningMessage, this.signatureId));
-      });
+      ReportedMessagesExtractor extractor = new ReportedMessagesExtractor(this.simpleReport);
+      ReportedMessagesExtractor.collectWarningsAsExceptions(
+              extractor.extractReportedTokenWarnings(this.signatureUniqueId),
+              extractor.extractReportedSignatureTimestampWarnings(this.signatureUniqueId)
+      ).forEach(this::addValidationWarning);
     }
   }
 
@@ -319,13 +292,6 @@ public class XadesSignatureValidator implements SignatureValidator {
 
   private boolean isIndicationValid(Indication indication) {
     return Arrays.asList(Indication.PASSED, Indication.TOTAL_PASSED).contains(indication);
-  }
-
-  private static Stream<XmlMessage> getTokenMessages(XmlToken token, Function<XmlDetails, Stream<XmlMessage>> messageExtractor) {
-    return (token != null) ? Stream.concat(
-            Optional.ofNullable(token.getAdESValidationDetails()).map(messageExtractor).orElseGet(Stream::empty),
-            Optional.ofNullable(token.getQualificationDetails()).map(messageExtractor).orElseGet(Stream::empty)
-    ) : Stream.empty();
   }
 
 }

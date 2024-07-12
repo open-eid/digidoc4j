@@ -184,6 +184,23 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/Signature/SignatureScope/@name", report);
   }
 
+  @Test
+  public void validContainerWithOneTimestampToken() throws Exception {
+    Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/1xTST-text-data-file.asics");
+    String report = container.validate().getReport();
+    System.out.println(report);
+    TestAssert.assertXPathHasValue("0", "/SimpleReport/SignaturesCount", report);
+    TestAssert.assertXPathHasValue("0", "/SimpleReport/ValidSignaturesCount", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/TimestampToken)", report);
+    TestAssert.assertXPathHasValue("T-E55313866A885F31E979704B0771C4DE7A119441D4414B1BD827FDD8256913DD",
+            "/SimpleReport/TimestampToken/@Id", report);
+    TestAssert.assertXPathHasValue("PASSED", "/SimpleReport/TimestampToken/Indication", report);
+    TestAssert.assertXPathHasValue("2024-05-28T12:24:09Z", "/SimpleReport/TimestampToken/ProductionTime", report);
+    TestAssert.assertXPathHasValue("DEMO SK TIMESTAMPING AUTHORITY 2023E", "/SimpleReport/TimestampToken/ProducedBy", report);
+    TestAssert.assertXPathHasValue("QTSA", "/SimpleReport/TimestampToken/TimestampLevel", report);
+    TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/TimestampToken/TimestampScope/@name", report);
+  }
+
   /*
    * RESTRICTED METHODS
    */

@@ -221,14 +221,14 @@ public class AsicSContainer extends AsicContainer {
     return new AsicSSignatureOpener(getConfiguration());
   }
 
-  /* TODO (DD4J-1074): @Override
+  @Override
   protected ContainerValidationResult validateContainer() {
     if (CollectionUtils.isNotEmpty(timestamps)) {
       return new AsicSTimestampedContainerValidator(this).validate();
     } else {
       return super.validateContainer();
     }
-  }*/
+  }
 
   @Override
   protected AsicContainerValidator getContainerValidator(AsicParseResult containerParseResult, boolean dataFilesHaveChanged) {

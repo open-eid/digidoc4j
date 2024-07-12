@@ -17,12 +17,16 @@ import eu.europa.esig.dss.validation.reports.Reports;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
+import org.apache.commons.collections4.CollectionUtils;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.impl.asic.cades.TimestampValidationData;
 import org.digidoc4j.impl.asic.report.ContainerValidationReport;
 import org.digidoc4j.impl.asic.report.SignatureValidationReport;
 import org.digidoc4j.impl.asic.report.SignatureValidationReportCreator;
+import org.digidoc4j.impl.asic.report.TimestampValidationReport;
+import org.digidoc4j.impl.asic.report.TimestampValidationReportCreator;
 import org.digidoc4j.impl.asic.xades.validation.SignatureValidationData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,10 +36,13 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * ASIC validation report builder
@@ -43,19 +50,33 @@ import java.util.stream.Collectors;
 public class AsicValidationReportBuilder {
 
   private static final Logger logger = LoggerFactory.getLogger(AsicValidationReportBuilder.class);
-  private List<DigiDoc4JException> manifestErrors;
-  private List<SignatureValidationData> signatureValidationData;
+
+  private final List<DigiDoc4JException> manifestErrors;
+  private final List<SignatureValidationData> signatureValidationData;
+  private final List<TimestampValidationData> timestampValidationData;
+
   private String reportInXml;
 
   /**
    * @param signatureValidationData list of signature validation data
    * @param manifestErrors          list of manifest errors
    */
-  public AsicValidationReportBuilder(List<SignatureValidationData> signatureValidationData,
-                                     List<DigiDoc4JException> manifestErrors) {
+  public AsicValidationReportBuilder(
+          List<SignatureValidationData> signatureValidationData,
+          List<DigiDoc4JException> manifestErrors
+  ) {
+    this(signatureValidationData, Collections.emptyList(), manifestErrors);
+  }
+
+  public AsicValidationReportBuilder(
+          List<SignatureValidationData> signatureValidationData,
+          List<TimestampValidationData> timestampValidationData,
+          List<DigiDoc4JException> manifestErrors
+  ) {
     logger.debug("Initializing ASiC validation report builder");
-    this.manifestErrors = manifestErrors;
     this.signatureValidationData = signatureValidationData;
+    this.timestampValidationData = timestampValidationData;
+    this.manifestErrors = manifestErrors;
   }
 
   public String buildXmlReport() {
@@ -71,7 +92,16 @@ public class AsicValidationReportBuilder {
    * @return List<SignatureValidationReport>
    */
   public List<SignatureValidationReport> buildSignatureValidationReports() {
-    return createSignaturesValidationReport();
+    return createSignatureValidationReports();
+  }
+
+  /**
+   * Gets timestamp token Validation Reports.
+   *
+   * @return List<TimestampValidationReport>
+   */
+  public List<TimestampValidationReport> buildTimestampValidationReports() {
+    return createTimestampValidationReports();
   }
 
   /**
@@ -85,6 +115,32 @@ public class AsicValidationReportBuilder {
       signaturesReport.add(validationData.getReport().getReports().getSimpleReport());
     }
     return signaturesReport;
+  }
+
+  /**
+   * Gets timestamp token Simple Reports.
+   * Timestamp tokens may be covered by a single report and thus the list of reports might not correspond to the list
+   * of all timestamp tokens in the container.
+   *
+   * @return List<SimpleReport>
+   */
+  public List<eu.europa.esig.dss.simplereport.SimpleReport> buildTimestampSimpleReports() {
+    return timestampValidationData.stream()
+            .map(TimestampValidationData::getEncapsulatingReports)
+            .distinct()
+            .map(Reports::getSimpleReport)
+            .collect(Collectors.toCollection(ArrayList::new));
+  }
+
+  public List<eu.europa.esig.dss.simplereport.SimpleReport> buildAllSimpleReports() {
+    List<eu.europa.esig.dss.simplereport.SimpleReport> reports = new ArrayList<>();
+    if (CollectionUtils.isNotEmpty(signatureValidationData)) {
+      reports.addAll(buildSignatureSimpleReports());
+    }
+    if (CollectionUtils.isNotEmpty(timestampValidationData)) {
+      reports.addAll(buildTimestampSimpleReports());
+    }
+    return reports;
   }
 
   public Map<String, String> buildSignatureIdMap() {
@@ -148,27 +204,34 @@ public class AsicValidationReportBuilder {
     report.setValidationTime(new Date());
     report.setSignaturesCount(signatureValidationData.size());
     report.setValidSignaturesCount(extractValidSignaturesCount());
-    report.setSignatures(createSignaturesValidationReport());
+    report.setSignatures(createSignatureValidationReports());
+    report.setTimestampTokens(createTimestampValidationReports());
     report.setContainerErrors(createContainerErrors());
     return createFormattedXmlString(report);
   }
 
-  private List<SignatureValidationReport> createSignaturesValidationReport() {
-    List<SignatureValidationReport> signaturesReport = new ArrayList<>();
-    for (SignatureValidationData validationData : signatureValidationData) {
-      SignatureValidationReport signatureValidationReport = SignatureValidationReportCreator.create(validationData);
-      signaturesReport.add(signatureValidationReport);
-    }
-    return signaturesReport;
+  private List<SignatureValidationReport> createSignatureValidationReports() {
+    return signatureValidationData.stream()
+            .map(SignatureValidationReportCreator::create)
+            .collect(Collectors.toCollection(ArrayList::new));
+  }
+
+  private List<TimestampValidationReport> createTimestampValidationReports() {
+    return timestampValidationData.stream()
+            .map(TimestampValidationReportCreator::create)
+            .collect(Collectors.toCollection(ArrayList::new));
   }
 
   private XmlValidationPolicy extractValidationPolicy() {
-    if (signatureValidationData.isEmpty()) {
-      return null;
-    }
-    SignatureValidationData validationData = signatureValidationData.get(0);
-    XmlSimpleReport simpleReport = validationData.getReport().getReports().getSimpleReportJaxb();
-    return simpleReport.getValidationPolicy();
+    return Stream.concat(
+            signatureValidationData.stream().map(data -> data.getReport().getReports()),
+            timestampValidationData.stream().map(TimestampValidationData::getEncapsulatingReports)
+    )
+            .map(Reports::getSimpleReportJaxb)
+            .map(XmlSimpleReport::getValidationPolicy)
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
   }
 
   private int extractValidSignaturesCount() {

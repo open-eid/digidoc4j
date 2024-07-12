@@ -43,7 +43,9 @@ import eu.europa.esig.dss.enumerations.DigestAlgorithm;
  * A validator for generating a {@link ContainerValidationResult} based on the contents of an ASiC container containing
  * a single timestamp token and a single datafile.
  *
- * @deprecated Deprecated for removal. TODO (DD4J-1044): describe alternatives to use
+ * @deprecated Deprecated for removal. Instead, use standard {@link org.digidoc4j.Container#validate()} method to
+ * validate ASiC-S containers with timestamp tokens. Or if more precise control is needed, then
+ * {@link org.digidoc4j.impl.asic.asics.AsicSTimestampedContainerValidator}.
  */
 @Deprecated
 public class TimeStampTokenValidator {

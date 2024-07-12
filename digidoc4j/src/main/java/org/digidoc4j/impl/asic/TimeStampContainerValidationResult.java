@@ -1,14 +1,27 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.impl.asic;
 
 import eu.europa.esig.dss.enumerations.Indication;
 import org.bouncycastle.tsp.TimeStampToken;
 import org.digidoc4j.ContainerValidationResult;
-import org.digidoc4j.impl.AbstractContainerValidationResult;
 
 /**
- * Created by Andrei on 27.11.2017.
+ * Legacy validation result for ASiC-S containers with single timestamp token.
+ *
+ * @deprecated Deprecated for removal. Use {@link ContainerValidationResult} to gain access to validation results of
+ * ASiC-S containers with arbitrary amount of timestamp tokens.
  */
-public class TimeStampContainerValidationResult extends AbstractContainerValidationResult implements ContainerValidationResult {
+@Deprecated
+public class TimeStampContainerValidationResult extends AsicContainerValidationResult {
 
   private TimeStampToken timeStampToken;
   private String signedBy = "";

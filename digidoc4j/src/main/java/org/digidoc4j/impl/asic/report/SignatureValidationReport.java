@@ -10,12 +10,8 @@
 
 package org.digidoc4j.impl.asic.report;
 
-import eu.europa.esig.dss.enumerations.Indication;
 import eu.europa.esig.dss.enumerations.SignatureLevel;
-import eu.europa.esig.dss.enumerations.SubIndication;
 import eu.europa.esig.dss.jaxb.parsers.DateParser;
-import eu.europa.esig.dss.simplereport.jaxb.Adapter3;
-import eu.europa.esig.dss.simplereport.jaxb.Adapter4;
 import eu.europa.esig.dss.simplereport.jaxb.Adapter6;
 import eu.europa.esig.dss.simplereport.jaxb.XmlDetails;
 import eu.europa.esig.dss.simplereport.jaxb.XmlMessage;
@@ -23,7 +19,6 @@ import eu.europa.esig.dss.simplereport.jaxb.XmlSignature;
 import eu.europa.esig.dss.simplereport.jaxb.XmlSignatureLevel;
 import eu.europa.esig.dss.simplereport.jaxb.XmlSignatureScope;
 import eu.europa.esig.dss.simplereport.jaxb.XmlTimestamps;
-import eu.europa.esig.dss.simplereport.jaxb.XmlToken;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlAttribute;
@@ -32,24 +27,16 @@ import jakarta.xml.bind.annotation.XmlSchemaType;
 import jakarta.xml.bind.annotation.XmlType;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "certificateChain",
-    "indication",
-    "subIndication",
-    "errors",
-    "warnings",
-    "infos",
     "signingTime",
     "bestSignatureTime",
     "signedBy",
@@ -57,29 +44,9 @@ import java.util.stream.Stream;
     "signatureScope",
     "documentName"
 })
-public class SignatureValidationReport implements Serializable {
+public class SignatureValidationReport extends TokenValidationReport {
 
   private final static long serialVersionUID = 1L;
-
-  @XmlElement(name = "CertificateChain")
-  protected XmlCertificateChain certificateChain;
-
-  @XmlElement(name = "Indication", required = true, type = String.class)
-  @XmlJavaTypeAdapter(Adapter3.class)
-  protected Indication indication;
-
-  @XmlElement(name = "SubIndication", type = String.class)
-  @XmlJavaTypeAdapter(Adapter4.class)
-  protected SubIndication subIndication;
-
-  @XmlElement(name = "Errors")
-  protected List<String> errors;
-
-  @XmlElement(name = "Warnings")
-  protected List<String> warnings;
-
-  @XmlElement(name = "Infos")
-  protected List<String> infos;
 
   @XmlElement(name = "SigningTime", type = String.class)
   @XmlJavaTypeAdapter(DateParser.class)
@@ -107,9 +74,6 @@ public class SignatureValidationReport implements Serializable {
   @XmlJavaTypeAdapter(Adapter6.class)
   protected SignatureLevel signatureFormat;
 
-  @XmlAttribute(name = "Id", required = true)
-  protected String id;
-
   public static SignatureValidationReport create(XmlSignature xmlSignature) {
     SignatureValidationReport report = new SignatureValidationReport();
     report.setSigningTime(xmlSignature.getSigningTime());
@@ -118,79 +82,23 @@ public class SignatureValidationReport implements Serializable {
     report.setIndication(xmlSignature.getIndication());
     report.setSignatureLevel(xmlSignature.getSignatureLevel());
     report.setSubIndication(xmlSignature.getSubIndication());
-    report.getErrors().addAll(getAllMessages(xmlSignature, XmlDetails::getError));
-    report.getWarnings().addAll(getAllMessages(xmlSignature, XmlDetails::getWarning));
-    report.getInfos().addAll(getAllMessages(xmlSignature, XmlDetails::getInfo));
+    report.getErrors().addAll(getSignatureMessages(xmlSignature, XmlDetails::getError));
+    report.getWarnings().addAll(getSignatureMessages(xmlSignature, XmlDetails::getWarning));
+    report.getInfos().addAll(getSignatureMessages(xmlSignature, XmlDetails::getInfo));
     report.getSignatureScope().addAll(xmlSignature.getSignatureScope());
     report.setId(xmlSignature.getId());
     report.setSignatureFormat(xmlSignature.getSignatureFormat());
-    report.setCertificateChain(Optional
-            .ofNullable(xmlSignature.getCertificateChain())
-            .map(XmlCertificateChain::create)
-            .orElse(null));
+    report.setCertificateChain(getCertificateChain(xmlSignature));
     return report;
   }
 
-  static List<String> getAllMessages(XmlToken xmlToken, Function<XmlDetails, List<XmlMessage>> messageListExtractor) {
-    final Set<String> allMessages = new LinkedHashSet<>();
-    Stream.concat(
-            Optional.ofNullable(xmlToken.getAdESValidationDetails()).map(Stream::of).orElseGet(Stream::empty),
-            Optional.ofNullable(xmlToken.getQualificationDetails()).map(Stream::of).orElseGet(Stream::empty)
-    ).flatMap(xmlDetails -> Optional
-            .ofNullable(messageListExtractor.apply(xmlDetails)).map(List::stream).orElseGet(Stream::empty)
-    ).forEach(xmlMessage -> allMessages.add(xmlMessage.getValue()));
-    if (xmlToken instanceof XmlSignature) {
-      Optional.ofNullable(((XmlSignature) xmlToken).getTimestamps())
-              .map(XmlTimestamps::getTimestamp).map(List::stream).orElseGet(Stream::empty)
-              .map(xmlTimestamp -> getAllMessages(xmlTimestamp, messageListExtractor))
-              .forEach(allMessages::addAll);
-    }
-    return new ArrayList<>(allMessages);
-  }
-
-  public XmlCertificateChain getCertificateChain() {
-    return certificateChain;
-  }
-
-  public void setCertificateChain(XmlCertificateChain value) {
-    this.certificateChain = value;
-  }
-
-  public Indication getIndication() {
-    return indication;
-  }
-
-  public void setIndication(Indication value) {
-    this.indication = value;
-  }
-
-  public SubIndication getSubIndication() {
-    return subIndication;
-  }
-
-  public void setSubIndication(SubIndication value) {
-    this.subIndication = value;
-  }
-
-  public List<String> getErrors() {
-    if (errors == null) {
-      errors = new ArrayList<>();
-    }
-    return this.errors;
-  }
-
-  public List<String> getWarnings() {
-    if (warnings == null) {
-      warnings = new ArrayList<>();
-    }
-    return this.warnings;
-  }
-
-  public List<String> getInfos() {
-    if (infos == null) {
-      infos = new ArrayList<>();
-    }
-    return this.infos;
+  static Collection<String> getSignatureMessages(XmlSignature xmlSignature, Function<XmlDetails, List<XmlMessage>> messageListExtractor) {
+    final Collection<String> collectedMessages = getTokenMessages(xmlSignature, messageListExtractor);
+    Optional.ofNullable(xmlSignature.getTimestamps())
+            .map(XmlTimestamps::getTimestamp).map(List::stream).orElseGet(Stream::empty)
+            .map(xmlTimestamp -> getTokenMessages(xmlTimestamp, messageListExtractor))
+            .forEach(collectedMessages::addAll);
+    return collectedMessages;
   }
 
   public Date getSigningTime() {
@@ -246,14 +154,6 @@ public class SignatureValidationReport implements Serializable {
 
   public void setSignatureFormat(SignatureLevel value) {
     this.signatureFormat = value;
-  }
-
-  public String getId() {
-    return id;
-  }
-
-  public void setId(String value) {
-    this.id = value;
   }
 
 }

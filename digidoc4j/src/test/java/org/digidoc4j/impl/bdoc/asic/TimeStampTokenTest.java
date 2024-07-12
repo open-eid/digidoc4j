@@ -76,17 +76,29 @@ public class TimeStampTokenTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("TODO: DD4J-1044")
-  public void testOpenValidTimeStampContainer() {
-    Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(this.configuration).
+  public void testOpenWithdrawnTimeStampContainer() {
+    Configuration configuration = Configuration.of(Configuration.Mode.PROD);
+    Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(configuration).
         fromExistingFile("src/test/resources/testFiles/valid-containers/timestamptoken-ddoc.asics").build();
     TimeStampContainerValidationResult validate = (TimeStampContainerValidationResult) container.validate();
     Assert.assertEquals("SK TIMESTAMPING AUTHORITY", validate.getSignedBy());
-    Assert.assertEquals(Indication.TOTAL_PASSED, validate.getIndication());
-    Assert.assertTrue(validate.isValid());
+    Assert.assertEquals(Indication.TOTAL_FAILED, validate.getIndication());
+    TestAssert.assertContainerIsInvalid(validate);
+    TestAssert.assertContainsExactSetOfErrors(validate.getErrors(),
+            "The certificate is not related to a granted status at time-stamp lowest POE time!");
   }
 
-  @Ignore("TODO: DD4J-1044")
+  @Test
+  public void testOpenValidTimeStampContainer() {
+    Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(configuration).
+            fromExistingFile("src/test/resources/testFiles/valid-containers/1xTST-text-data-file.asics").build();
+    TimeStampContainerValidationResult validate = (TimeStampContainerValidationResult) container.validate();
+    Assert.assertEquals("DEMO SK TIMESTAMPING AUTHORITY 2023E", validate.getSignedBy());
+    Assert.assertEquals(Indication.TOTAL_PASSED, validate.getIndication());
+    TestAssert.assertContainerIsValid(validate);
+  }
+
+  @Ignore("TODO: DD4J-1076")
   @Test(expected = DigiDoc4JException.class)
   public void testOpenContainerTwoDataFiles() {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(this.configuration).
@@ -94,7 +106,7 @@ public class TimeStampTokenTest extends AbstractTest {
     container.validate();
   }
 
-  @Ignore("TODO: DD4J-1044")
+  @Ignore("TODO: DD4J-1076")
   @Test(expected = DigiDoc4JException.class)
   public void testOpenInvalidTimeStampContainer() {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(this.configuration).

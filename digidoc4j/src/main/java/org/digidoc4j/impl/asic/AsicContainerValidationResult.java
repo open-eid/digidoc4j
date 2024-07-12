@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.asic;
 
@@ -106,7 +106,7 @@ public class AsicContainerValidationResult extends AbstractContainerValidationRe
     if (this.validationReportBuilder != null) {
       this.report = this.validationReportBuilder.buildXmlReport();
       this.reports = this.validationReportBuilder.buildSignatureValidationReports();
-      this.simpleReports = this.validationReportBuilder.buildSignatureSimpleReports();
+      this.simpleReports = this.validationReportBuilder.buildAllSimpleReports();
       this.signatureIdMap = this.validationReportBuilder.buildSignatureIdMap();
     }
   }
