@@ -22,6 +22,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ValidationReportTest extends AbstractTest {
 
@@ -30,6 +32,7 @@ public class ValidationReportTest extends AbstractTest {
     Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"));
     Signature signature = this.createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
     String signatureId = signature.getId();
+    String signatureUniqueId = signature.getUniqueId();
     SignatureValidationResult result = container.validate();
     Assert.assertTrue(result.isValid());
     String report = result.getReport();
@@ -38,6 +41,7 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("1", "/SimpleReport/ValidSignaturesCount", report);
     TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature)", report);
     TestAssert.assertXPathHasValue(signatureId, "/SimpleReport/Signature/@Id", report);
+    TestAssert.assertXPathHasValue(signatureUniqueId, "/SimpleReport/Signature[@Id='" + signatureId + "']/*[position()=1][self::UniqueId]", report);
     TestAssert.assertXPathHasValue("XAdES-BASELINE-LT", "/SimpleReport/Signature/@SignatureFormat", report);
     TestAssert.assertXPathHasValue("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", "/SimpleReport/Signature[@Id='" + signatureId + "']/SignedBy", report);
     TestAssert.assertXPathHasValue("TOTAL_PASSED", "/SimpleReport/Signature[@Id='" + signatureId + "']/Indication", report);
@@ -55,9 +59,14 @@ public class ValidationReportTest extends AbstractTest {
   public void validContainerWithOneTmSignature() throws Exception {
     Container container = TestDataBuilderUtil.open(BDOC_WITH_TM_SIG);
     String report = container.validate().getReport();
+    Signature signature = container.getSignatures().get(0);
+    String signatureId = signature.getId();
+    String signatureUniqueId = signature.getUniqueId();
     TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
     TestAssert.assertXPathHasValue("1", "/SimpleReport/ValidSignaturesCount", report);
     TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature)", report);
+    TestAssert.assertXPathHasValue(signatureId, "/SimpleReport/Signature/@Id", report);
+    TestAssert.assertXPathHasValue(signatureUniqueId, "/SimpleReport/Signature[@Id='" + signatureId + "']/*[position()=1][self::UniqueId]", report);
     TestAssert.assertXPathHasValue("XAdES-BASELINE-LT-TM", "/SimpleReport/Signature/@SignatureFormat", report);
     TestAssert.assertXPathHasValue("TOTAL_PASSED", "/SimpleReport/Signature/Indication", report);
     TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/Signature/SignatureScope[1]/@name", report);
@@ -70,11 +79,15 @@ public class ValidationReportTest extends AbstractTest {
   @Test
   public void containerWithOneBesSignature() throws Exception {
     Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"));
-    this.createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
+    Signature signature = this.createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
+    String signatureId = signature.getId();
+    String signatureUniqueId = signature.getUniqueId();
     String report = container.validate().getReport();
     TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
     TestAssert.assertXPathHasValue("0", "/SimpleReport/ValidSignaturesCount", report);
     TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature)", report);
+    TestAssert.assertXPathHasValue(signatureId, "/SimpleReport/Signature/@Id", report);
+    TestAssert.assertXPathHasValue(signatureUniqueId, "/SimpleReport/Signature[@Id='" + signatureId + "']/*[position()=1][self::UniqueId]", report);
     TestAssert.assertXPathHasValue("XAdES-BASELINE-B", "/SimpleReport/Signature/@SignatureFormat", report);
     TestAssert.assertXPathHasValue("INDETERMINATE", "/SimpleReport/Signature/Indication", report);
     TestAssert.assertXPathHasValue("CERTIFICATE_CHAIN_GENERAL_FAILURE", "/SimpleReport/Signature/SubIndication", report);
@@ -86,10 +99,15 @@ public class ValidationReportTest extends AbstractTest {
   @Test
   public void containerWithOneEpesSignature() throws Exception {
     Container container = TestDataBuilderUtil.open(BDOC_WITH_B_EPES_SIG);
+    Signature signature = container.getSignatures().get(0);
+    String signatureId = signature.getId();
+    String signatureUniqueId = signature.getUniqueId();
     String report = container.validate().getReport();
     TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
     TestAssert.assertXPathHasValue("0", "/SimpleReport/ValidSignaturesCount", report);
     TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature)", report);
+    TestAssert.assertXPathHasValue(signatureId, "/SimpleReport/Signature/@Id", report);
+    TestAssert.assertXPathHasValue(signatureUniqueId, "/SimpleReport/Signature[@Id='" + signatureId + "']/*[position()=1][self::UniqueId]", report);
     TestAssert.assertXPathHasValue("XAdES-BASELINE-B-EPES", "/SimpleReport/Signature/@SignatureFormat", report);
     TestAssert.assertXPathHasValue("INDETERMINATE", "/SimpleReport/Signature/Indication", report);
     TestAssert.assertXPathHasValue("CERTIFICATE_CHAIN_GENERAL_FAILURE", "/SimpleReport/Signature/SubIndication", report);
@@ -102,6 +120,7 @@ public class ValidationReportTest extends AbstractTest {
   public void validContainerWithTwoSignatures() throws Exception {
     Container container = TestDataBuilderUtil.open(BDOC_WITH_TM_AND_TS_SIG);
     SignatureValidationResult result = container.validate();
+    List<String> signatureUniqueIds = container.getSignatures().stream().map(Signature::getUniqueId).collect(Collectors.toList());
     Assert.assertTrue(result.isValid());
     String report = result.getReport();
     TestAssert.assertXPathHasValue("2", "/SimpleReport/SignaturesCount", report);
@@ -109,6 +128,8 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("2", "count(/SimpleReport/Signature)", report);
     TestAssert.assertXPathHasValue("id-6a5d6671af7a9e0ab9a5e4d49d69800d", "/SimpleReport/Signature[1]/@Id", report);
     TestAssert.assertXPathHasValue("id-df8be709dc86f84f4eb34d4ed3a946c4", "/SimpleReport/Signature[2]/@Id", report);
+    TestAssert.assertXPathHasValue(signatureUniqueIds.get(0), "/SimpleReport/Signature[1]/*[position()=1][self::UniqueId]", report);
+    TestAssert.assertXPathHasValue(signatureUniqueIds.get(1), "/SimpleReport/Signature[2]/*[position()=1][self::UniqueId]", report);
     TestAssert.assertXPathHasValue("XAdES-BASELINE-LT-TM", "/SimpleReport/Signature[1]/@SignatureFormat", report);
     TestAssert.assertXPathHasValue("XAdES-BASELINE-LT", "/SimpleReport/Signature[2]/@SignatureFormat", report);
     TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/Signature[1]/SignatureScope/@name", report);
@@ -123,11 +144,13 @@ public class ValidationReportTest extends AbstractTest {
   public void invalidContainerWithOneSignature() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/invalid-containers/bdoc-tm-ocsp-revoked.bdoc");
     SignatureValidationResult result = container.validate();
+    String signatureUniqueId = container.getSignatures().get(0).getUniqueId();
     Assert.assertFalse(result.isValid());
     String report = result.getReport();
     TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
     TestAssert.assertXPathHasValue("0", "/SimpleReport/ValidSignaturesCount", report);
     TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature)", report);
+    TestAssert.assertXPathHasValue(signatureUniqueId, "/SimpleReport/Signature[1]/*[position()=1][self::UniqueId]", report);
     TestAssert.assertXPathHasValue("XAdES-BASELINE-LT-TM", "/SimpleReport/Signature/@SignatureFormat", report);
     TestAssert.assertXPathHasValue("ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ,11404176865", "/SimpleReport/Signature/SignedBy", report);
     TestAssert.assertXPathHasValue("INDETERMINATE", "/SimpleReport/Signature/Indication", report);
@@ -144,10 +167,12 @@ public class ValidationReportTest extends AbstractTest {
     Container container = TestDataBuilderUtil.open
         ("src/test/resources/prodFiles/invalid-containers/filename_mismatch_manifest.asice");
     SignatureValidationResult result = container.validate();
+    String signatureUniqueId = container.getSignatures().get(0).getUniqueId();
     Assert.assertFalse(result.isValid());
     String report = result.getReport();
     TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
     TestAssert.assertXPathHasValue("0", "/SimpleReport/ValidSignaturesCount", report);
+    TestAssert.assertXPathHasValue(signatureUniqueId, "/SimpleReport/Signature[1]/*[position()=1][self::UniqueId]", report);
     TestAssert.assertXPathHasValue("XAdES-BASELINE-T", "/SimpleReport/Signature/@SignatureFormat", report);
     TestAssert.assertXPathHasValue("INDETERMINATE", "/SimpleReport/Signature/Indication", report);
     TestAssert.assertXPathHasValue("NO_CERTIFICATE_CHAIN_FOUND", "/SimpleReport/Signature/SubIndication", report);
@@ -173,9 +198,11 @@ public class ValidationReportTest extends AbstractTest {
   @Test
   public void signatureContainsAdditionalErrors() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/invalid-containers/TS-08_23634_TS_OCSP_before_TS.asice");
+    String signatureUniqueId = container.getSignatures().get(0).getUniqueId();
     String report = container.validate().getReport();
     TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
     TestAssert.assertXPathHasValue("0", "/SimpleReport/ValidSignaturesCount", report);
+    TestAssert.assertXPathHasValue(signatureUniqueId, "/SimpleReport/Signature[1]/*[position()=1][self::UniqueId]", report);
     TestAssert.assertXPathHasValue("XAdES-BASELINE-T", "/SimpleReport/Signature/@SignatureFormat", report);
     TestAssert.assertXPathHasValue("ŽAIKOVSKI,IGOR,37101010021", "/SimpleReport/Signature/SignedBy", report);
     TestAssert.assertXPathHasValue("INDETERMINATE", "/SimpleReport/Signature/Indication", report);
@@ -188,12 +215,12 @@ public class ValidationReportTest extends AbstractTest {
   public void validContainerWithOneTimestampToken() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/1xTST-text-data-file.asics");
     String report = container.validate().getReport();
-    System.out.println(report);
+    String signatureUniqueId = "T-E55313866A885F31E979704B0771C4DE7A119441D4414B1BD827FDD8256913DD";
     TestAssert.assertXPathHasValue("0", "/SimpleReport/SignaturesCount", report);
     TestAssert.assertXPathHasValue("0", "/SimpleReport/ValidSignaturesCount", report);
     TestAssert.assertXPathHasValue("1", "count(/SimpleReport/TimestampToken)", report);
-    TestAssert.assertXPathHasValue("T-E55313866A885F31E979704B0771C4DE7A119441D4414B1BD827FDD8256913DD",
-            "/SimpleReport/TimestampToken/@Id", report);
+    TestAssert.assertXPathHasValue(signatureUniqueId, "/SimpleReport/TimestampToken/@Id", report);
+    TestAssert.assertXPathHasValue(signatureUniqueId,"/SimpleReport/TimestampToken/*[position()=1][self::UniqueId]", report);
     TestAssert.assertXPathHasValue("PASSED", "/SimpleReport/TimestampToken/Indication", report);
     TestAssert.assertXPathHasValue("2024-05-28T12:24:09Z", "/SimpleReport/TimestampToken/ProductionTime", report);
     TestAssert.assertXPathHasValue("DEMO SK TIMESTAMPING AUTHORITY 2023E", "/SimpleReport/TimestampToken/ProducedBy", report);

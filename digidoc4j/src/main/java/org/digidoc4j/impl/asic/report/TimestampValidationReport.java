@@ -50,6 +50,7 @@ public class TimestampValidationReport extends TokenValidationReport {
 
   public static TimestampValidationReport create(XmlTimestamp xmlTimestamp) {
     TimestampValidationReport report = new TimestampValidationReport();
+    report.setUniqueId(xmlTimestamp.getId());
     report.setCertificateChain(getCertificateChain(xmlTimestamp));
     report.setIndication(xmlTimestamp.getIndication());
     report.setSubIndication(xmlTimestamp.getSubIndication());

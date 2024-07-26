@@ -76,6 +76,7 @@ public class SignatureValidationReport extends TokenValidationReport {
 
   public static SignatureValidationReport create(XmlSignature xmlSignature) {
     SignatureValidationReport report = new SignatureValidationReport();
+    report.setUniqueId(xmlSignature.getId());
     report.setSigningTime(xmlSignature.getSigningTime());
     report.setBestSignatureTime(xmlSignature.getBestSignatureTime());
     report.setSignedBy(xmlSignature.getSignedBy());

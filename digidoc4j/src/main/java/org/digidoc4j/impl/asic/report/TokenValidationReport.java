@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
+    "uniqueId",
     "certificateChain",
     "indication",
     "subIndication",
@@ -46,6 +47,9 @@ import java.util.stream.Stream;
 class TokenValidationReport implements Serializable {
 
   private final static long serialVersionUID = 1L;
+
+  @XmlElement(name = "UniqueId", required = true, type = String.class)
+  protected String uniqueId;
 
   @XmlElement(name = "CertificateChain")
   protected XmlCertificateChain certificateChain;
@@ -86,6 +90,14 @@ class TokenValidationReport implements Serializable {
             .ofNullable(messageListExtractor.apply(xmlDetails)).map(List::stream).orElseGet(Stream::empty)
     ).forEach(xmlMessage -> collectedMessages.add(xmlMessage.getValue()));
     return collectedMessages;
+  }
+
+  public String getUniqueId() {
+    return uniqueId;
+  }
+
+  public void setUniqueId(String value) {
+    this.uniqueId = value;
   }
 
   public XmlCertificateChain getCertificateChain() {
