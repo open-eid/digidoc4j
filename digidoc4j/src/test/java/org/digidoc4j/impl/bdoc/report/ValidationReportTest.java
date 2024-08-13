@@ -214,8 +214,8 @@ public class ValidationReportTest extends AbstractTest {
   @Test
   public void validContainerWithOneTimestampToken() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/1xTST-text-data-file.asics");
+    String signatureUniqueId = container.getTimestamps().get(0).getUniqueId();
     String report = container.validate().getReport();
-    String signatureUniqueId = "T-E55313866A885F31E979704B0771C4DE7A119441D4414B1BD827FDD8256913DD";
     TestAssert.assertXPathHasValue("0", "/SimpleReport/SignaturesCount", report);
     TestAssert.assertXPathHasValue("0", "/SimpleReport/ValidSignaturesCount", report);
     TestAssert.assertXPathHasValue("1", "count(/SimpleReport/TimestampToken)", report);

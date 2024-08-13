@@ -1,18 +1,27 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.impl;
 
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-
+import eu.europa.esig.dss.enumerations.Indication;
+import eu.europa.esig.dss.enumerations.SignatureQualification;
+import eu.europa.esig.dss.enumerations.SubIndication;
+import eu.europa.esig.dss.simplereport.SimpleReport;
 import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.impl.asic.report.SignatureValidationReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.enumerations.SignatureQualification;
-import eu.europa.esig.dss.enumerations.Indication;
-import eu.europa.esig.dss.enumerations.SubIndication;
-import eu.europa.esig.dss.simplereport.SimpleReport;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)
@@ -21,7 +30,7 @@ public abstract class AbstractSignatureValidationResult extends AbstractValidati
     SignatureValidationResult {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSignatureValidationResult.class);
-  protected List<SignatureValidationReport> reports = new ArrayList<>();
+  protected List<SignatureValidationReport> signatureReports = new ArrayList<>();
   protected List<SimpleReport> simpleReports = new ArrayList<>();
   protected String report;
 
@@ -30,8 +39,8 @@ public abstract class AbstractSignatureValidationResult extends AbstractValidati
    */
 
   @Override
-  public List<SignatureValidationReport> getReports() { //TODO ASIC specific
-    return this.reports;
+  public List<SignatureValidationReport> getSignatureReports() { //TODO ASIC specific
+    return signatureReports;
   }
 
   @Override

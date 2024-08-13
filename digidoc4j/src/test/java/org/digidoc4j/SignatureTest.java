@@ -443,9 +443,9 @@ public class SignatureTest extends AbstractTest {
     Assert.assertEquals(Indication.INDETERMINATE, result.getIndication("S1"));
     Assert.assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, result.getSubIndication("S1"));
     Assert.assertEquals(SignatureQualification.NA.getLabel(), result.getSignatureQualification("S1").getLabel());
-    Assert.assertEquals(Indication.INDETERMINATE, result.getIndication(null));
-    Assert.assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, result.getSubIndication(null));
-    Assert.assertEquals(SignatureQualification.NA.getLabel(), result.getSignatureQualification(null).getLabel());
+    Assert.assertThrows(NullPointerException.class, () -> result.getIndication(null));
+    Assert.assertThrows(NullPointerException.class, () -> result.getSubIndication(null));
+    Assert.assertThrows(NullPointerException.class, () -> result.getSignatureQualification(null));
   }
 
   @Test
@@ -462,9 +462,9 @@ public class SignatureTest extends AbstractTest {
         Assert.assertEquals(SignatureQualification.QESIG.getLabel(), result.getSignatureQualification(id).getLabel());
       }
     }
-    Assert.assertEquals(Indication.TOTAL_PASSED, result.getIndication(null));
-    Assert.assertNull(result.getSubIndication(null));
-    Assert.assertEquals(SignatureQualification.QESIG.getLabel(), result.getSignatureQualification(null).getLabel());
+    Assert.assertThrows(NullPointerException.class, () -> result.getIndication(null));
+    Assert.assertThrows(NullPointerException.class, () -> result.getSubIndication(null));
+    Assert.assertThrows(NullPointerException.class, () -> result.getSignatureQualification(null));
   }
 
   @Test
@@ -477,9 +477,9 @@ public class SignatureTest extends AbstractTest {
     Assert.assertNull(result.getIndication("S0"));
     Assert.assertNull(result.getSubIndication("S0"));
     Assert.assertNull(result.getSignatureQualification("S0"));
-    Assert.assertNull(result.getIndication(null));
-    Assert.assertNull(result.getSubIndication(null));
-    Assert.assertNull(result.getSignatureQualification(null));
+    Assert.assertThrows(NullPointerException.class, () -> result.getIndication(null));
+    Assert.assertThrows(NullPointerException.class, () -> result.getSubIndication(null));
+    Assert.assertThrows(NullPointerException.class, () -> result.getSignatureQualification(null));
   }
 
   @Test
@@ -494,9 +494,9 @@ public class SignatureTest extends AbstractTest {
     Assert.assertEquals(SubIndication.NO_SIGNING_CERTIFICATE_FOUND, result.getSubIndication("S1"));
     Assert.assertEquals(SignatureQualification.INDETERMINATE_QESIG.getLabel(), result.getSignatureQualification("S1").getLabel());
     //Signature with id "S0" is valid
-    Assert.assertEquals(Indication.TOTAL_PASSED, result.getIndication(null));
-    Assert.assertNull(result.getSubIndication(null));
-    Assert.assertEquals(SignatureQualification.QESIG.getLabel(), result.getSignatureQualification(null).getLabel());
+    Assert.assertEquals(Indication.TOTAL_PASSED, result.getIndication("S0"));
+    Assert.assertNull(result.getSubIndication("S0"));
+    Assert.assertEquals(SignatureQualification.QESIG.getLabel(), result.getSignatureQualification("S0").getLabel());
   }
 
   @Test

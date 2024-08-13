@@ -78,7 +78,7 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
   }
 
   @Test
-  public void addTimestamp_WhenContainerWithInMemoryDataFileIsTimestampedOnce_DataFileIsCorrectlyReferencedInManifest() {
+  public void addTimestamp_WhenContainerWithInMemoryDataFileIsTimestampedTwice_DataFileIsCorrectlyReferencedInManifest() {
     Container container = createAsicsContainerWithInMemoryDataFile();
     container.addTimestamp(TimestampBuilder.aTimestamp(container).invokeTimestamping());
     Timestamp timestamp = TimestampBuilder.aTimestamp(container)
@@ -94,7 +94,7 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
     AsicSContainerTimestamp asicsTimestamp = (AsicSContainerTimestamp) container.getTimestamps().get(1);
     assertThat(asicsTimestamp.getArchiveManifest(), notNullValue(AsicArchiveManifest.class));
     assertThat(asicsTimestamp.getArchiveManifest().getReferencedDataObjects(), hasSize(2));
-    List<AsicArchiveManifest.Reference> references = asicsTimestamp.getArchiveManifest().getReferencedDataObjects();
+    List<AsicArchiveManifest.DataReference> references = asicsTimestamp.getArchiveManifest().getReferencedDataObjects();
     assertThat(references.get(0).getName(), equalTo("META-INF/timestamp.tst"));
     assertThat(references.get(0).getMimeType(), equalTo(MimeTypeEnum.TST.getMimeTypeString()));
     assertThat(references.get(1).getName(), equalTo("test.txt"));
@@ -118,7 +118,7 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
     AsicSContainerTimestamp asicsTimestamp = (AsicSContainerTimestamp) container.getTimestamps().get(1);
     assertThat(asicsTimestamp.getArchiveManifest(), notNullValue(AsicArchiveManifest.class));
     assertThat(asicsTimestamp.getArchiveManifest().getReferencedDataObjects(), hasSize(2));
-    List<AsicArchiveManifest.Reference> references = asicsTimestamp.getArchiveManifest().getReferencedDataObjects();
+    List<AsicArchiveManifest.DataReference> references = asicsTimestamp.getArchiveManifest().getReferencedDataObjects();
     assertThat(references.get(0).getName(), equalTo("META-INF/timestamp.tst"));
     assertThat(references.get(0).getMimeType(), equalTo(MimeTypeEnum.TST.getMimeTypeString()));
     assertThat(references.get(1).getName(), equalTo("test.txt"));

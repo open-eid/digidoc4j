@@ -10,10 +10,11 @@
 
 package org.digidoc4j;
 
+import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.exceptions.TechnicalException;
+
 import java.net.MalformedURLException;
 import java.net.URL;
-
-import org.digidoc4j.exceptions.TechnicalException;
 
 /**
  * Supported algorithms
@@ -73,6 +74,21 @@ public enum DigestAlgorithm {
   public static DigestAlgorithm findByAlgorithm(String algorithm) {
     for (DigestAlgorithm digestAlgorithm : values()) {
       if (digestAlgorithm.name().equals(algorithm)) {
+        return digestAlgorithm;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Find DigestAlgorithm by algorithm OID string.
+   *
+   * @param oid algorithm OID string
+   * @return an instance of DigestAlgorithm that matches the specified OID, or {@code null}
+   */
+  public static DigestAlgorithm findByOid(String oid) {
+    for (DigestAlgorithm digestAlgorithm : values()) {
+      if (StringUtils.equals(digestAlgorithm.getDssDigestAlgorithm().getOid(), oid)) {
         return digestAlgorithm;
       }
     }

@@ -10,10 +10,12 @@
 
 package org.digidoc4j.impl.asic.cades;
 
+import eu.europa.esig.dss.enumerations.TimestampQualification;
 import eu.europa.esig.dss.validation.reports.Reports;
 import org.digidoc4j.ValidationResult;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * An immutable encapsulation of timestamp validation data.
@@ -23,7 +25,6 @@ public class TimestampValidationData {
   private final String timestampUniqueId;
   private final Reports encapsulatingReports;
   private final ValidationResult validationResult;
-  // TODO (DD4J-1076): add timestamp qualification field/getter?
 
   /**
    * @param timestampUniqueId unique id / DSS id of the related timestamp
@@ -61,6 +62,18 @@ public class TimestampValidationData {
    */
   public ValidationResult getValidationResult() {
     return validationResult;
+  }
+
+  /**
+   * Returns qualification of the related timestamp.
+   *
+   * @return qualification of the related timestamp
+   */
+  public TimestampQualification getTimestampQualification() {
+    return Optional
+            .ofNullable(encapsulatingReports.getSimpleReport())
+            .map(report -> report.getTimestampQualification(timestampUniqueId))
+            .orElse(TimestampQualification.NA);
   }
 
 }

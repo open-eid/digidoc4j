@@ -49,4 +49,23 @@ public class DigestAlgorithmTest {
             });
   }
 
+  @Test
+  public void findByOid_WhenOidStringMatchesExistingAlgorithm_ReturnsExpectedDigestAlgorithm() {
+    Stream.of(DigestAlgorithm.values())
+            .forEach(digestAlgorithm -> {
+              String oid = digestAlgorithm.getDssDigestAlgorithm().getOid();
+
+              DigestAlgorithm result = DigestAlgorithm.findByOid(oid);
+
+              Assert.assertSame(digestAlgorithm, result);
+            });
+  }
+
+    @Test
+    public void findByOid_WhenOidStringDoesNotMatchAlgorithm_ReturnsNull() {
+      DigestAlgorithm result = DigestAlgorithm.findByOid("Non.Existent.OID");
+
+      Assert.assertNull(result);
+    }
+
 }

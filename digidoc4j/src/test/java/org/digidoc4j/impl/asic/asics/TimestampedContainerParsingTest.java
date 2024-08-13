@@ -15,6 +15,7 @@ import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerOpener;
+import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.impl.asic.cades.AsicArchiveManifest;
 import org.junit.Test;
 
@@ -62,6 +63,7 @@ public class TimestampedContainerParsingTest extends AbstractTest {
     assertThat(container.getTimestamps(), hasSize(1));
     assertThat(container.getTimestamps().get(0), instanceOf(AsicSContainerTimestamp.class));
     assertThat(container.getTimestamps().get(0).getCreationTime(), equalTo(Date.from(Instant.parse("2017-11-24T08:20:33Z"))));
+    assertThat(container.getTimestamps().get(0).getDigestAlgorithm(), equalTo(DigestAlgorithm.SHA256));
     AsicSContainerTimestamp asicsTimestamp = (AsicSContainerTimestamp) container.getTimestamps().get(0);
     assertThat(asicsTimestamp.getCadesTimestamp().getTimestampDocument().getName(), equalTo("META-INF/timestamp.tst"));
     assertThat(asicsTimestamp.getCadesTimestamp().getTimestampDocument().getMimeType(), equalTo(MimeTypeEnum.TST));
@@ -83,12 +85,14 @@ public class TimestampedContainerParsingTest extends AbstractTest {
     assertThat(container.getTimestamps(), hasSize(3));
     assertThat(container.getTimestamps().get(0), instanceOf(AsicSContainerTimestamp.class));
     assertThat(container.getTimestamps().get(0).getCreationTime(), equalTo(Date.from(Instant.parse("2024-07-05T08:42:57Z"))));
+    assertThat(container.getTimestamps().get(0).getDigestAlgorithm(), equalTo(DigestAlgorithm.SHA256));
     AsicSContainerTimestamp asicsTimestamp1 = (AsicSContainerTimestamp) container.getTimestamps().get(0);
     assertThat(asicsTimestamp1.getCadesTimestamp().getTimestampDocument().getName(), equalTo("META-INF/timestamp.tst"));
     assertThat(asicsTimestamp1.getCadesTimestamp().getTimestampDocument().getMimeType(), equalTo(MimeTypeEnum.TST));
     assertThat(asicsTimestamp1.getArchiveManifest(), nullValue());
     assertThat(container.getTimestamps().get(1), instanceOf(AsicSContainerTimestamp.class));
     assertThat(container.getTimestamps().get(1).getCreationTime(), equalTo(Date.from(Instant.parse("2024-07-05T08:44:04Z"))));
+    assertThat(container.getTimestamps().get(1).getDigestAlgorithm(), equalTo(DigestAlgorithm.SHA384));
     AsicSContainerTimestamp asicsTimestamp2 = (AsicSContainerTimestamp) container.getTimestamps().get(1);
     assertThat(asicsTimestamp2.getCadesTimestamp().getTimestampDocument().getName(), equalTo("META-INF/timestamp002.tst"));
     assertThat(asicsTimestamp2.getCadesTimestamp().getTimestampDocument().getMimeType(), equalTo(MimeTypeEnum.TST));
@@ -101,6 +105,7 @@ public class TimestampedContainerParsingTest extends AbstractTest {
     ))));
     assertThat(container.getTimestamps().get(2), instanceOf(AsicSContainerTimestamp.class));
     assertThat(container.getTimestamps().get(2).getCreationTime(), equalTo(Date.from(Instant.parse("2024-07-05T08:45:10Z"))));
+    assertThat(container.getTimestamps().get(2).getDigestAlgorithm(), equalTo(DigestAlgorithm.SHA512));
     AsicSContainerTimestamp asicsTimestamp3 = (AsicSContainerTimestamp) container.getTimestamps().get(2);
     assertThat(asicsTimestamp3.getCadesTimestamp().getTimestampDocument().getName(), equalTo("META-INF/timestamp003.tst"));
     assertThat(asicsTimestamp3.getCadesTimestamp().getTimestampDocument().getMimeType(), equalTo(MimeTypeEnum.TST));

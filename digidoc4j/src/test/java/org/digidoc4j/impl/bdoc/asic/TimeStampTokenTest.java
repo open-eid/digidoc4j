@@ -98,7 +98,7 @@ public class TimeStampTokenTest extends AbstractTest {
     TestAssert.assertContainerIsValid(validate);
   }
 
-  @Ignore("TODO: DD4J-1076")
+  @Ignore("TODO: DD4J-1083")
   @Test(expected = DigiDoc4JException.class)
   public void testOpenContainerTwoDataFiles() {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(this.configuration).
@@ -106,7 +106,7 @@ public class TimeStampTokenTest extends AbstractTest {
     container.validate();
   }
 
-  @Ignore("TODO: DD4J-1076")
+  @Ignore("TODO: DD4J-1083")
   @Test(expected = DigiDoc4JException.class)
   public void testOpenInvalidTimeStampContainer() {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(this.configuration).

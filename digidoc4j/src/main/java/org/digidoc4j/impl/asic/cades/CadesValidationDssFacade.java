@@ -84,7 +84,7 @@ public class CadesValidationDssFacade extends AbstractCadesDssFacade {
   }
 
   private static DSSDocument createDummyContainerDocument(MimeType mimeType) {
-    // TODO (DD4J-1076): Figure out why is this needed and document it here
+    // TODO (DD4J-1083): Figure out why is this needed and document it here
     return new InMemoryDocument(ArrayUtils.EMPTY_BYTE_ARRAY, null, mimeType);
   }
 

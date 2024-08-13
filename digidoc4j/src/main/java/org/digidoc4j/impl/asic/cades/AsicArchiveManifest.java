@@ -16,18 +16,21 @@ import eu.europa.esig.dss.asic.common.validation.ASiCManifestParser;
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.xml.common.definition.DSSAttribute;
 import eu.europa.esig.dss.xml.utils.DomUtils;
+import eu.europa.esig.xmldsig.definition.XMLDSigPath;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -48,7 +51,7 @@ public class AsicArchiveManifest implements Serializable {
   private final DSSDocument manifestDocument;
 
   private transient Reference referencedTimestamp;
-  private transient List<Reference> referencedDataObjects;
+  private transient List<DataReference> referencedDataObjects;
   private transient Set<String> uniqueNonNullEntryNames;
 
   /**
@@ -90,7 +93,7 @@ public class AsicArchiveManifest implements Serializable {
    *
    * @return list of referenced data objects
    */
-  public List<Reference> getReferencedDataObjects() {
+  public List<DataReference> getReferencedDataObjects() {
     if (referencedDataObjects == null) {
       parseManifestContent();
     }
@@ -125,7 +128,7 @@ public class AsicArchiveManifest implements Serializable {
                     .mapToObj(nodeList::item)
                     .filter(Element.class::isInstance)
                     .map(Element.class::cast)
-                    .map(Reference::new)
+                    .map(DataReference::new)
                     .collect(Collectors.toList())
     );
 
@@ -166,6 +169,28 @@ public class AsicArchiveManifest implements Serializable {
 
   }
 
+  public static class DataReference extends Reference {
+
+    private final String digestAlgorithm;
+    private final String digestValue;
+
+    DataReference(Element element) {
+      super(element);
+
+      digestAlgorithm = getValueIfPresent(element, XMLDSigPath.DIGEST_METHOD_ALGORITHM_PATH);
+      digestValue = getValueIfPresent(element, XMLDSigPath.DIGEST_VALUE_PATH + "/text()");
+    }
+
+    public String getDigestAlgorithm() {
+      return digestAlgorithm;
+    }
+
+    public String getDigestValue() {
+      return digestValue;
+    }
+
+  }
+
   private static String getAttributeIfPresent(Element element, DSSAttribute attribute) {
     if (element == null || attribute == null) {
       return null;
@@ -174,6 +199,21 @@ public class AsicArchiveManifest implements Serializable {
     return element.hasAttribute(attributeName)
             ? element.getAttribute(attributeName)
             : null;
+  }
+
+  private static String getValueIfPresent(Element element, String xPathString) {
+    if (element == null || xPathString == null) {
+      return null;
+    }
+    try {
+      return Optional
+              .ofNullable(DomUtils.getNode(element, xPathString))
+              .map(Node::getNodeValue)
+              .orElse(null);
+    } catch (Exception e) {
+      log.debug("Failed to query value for '{}'", xPathString, e);
+      return null;
+    }
   }
 
 }

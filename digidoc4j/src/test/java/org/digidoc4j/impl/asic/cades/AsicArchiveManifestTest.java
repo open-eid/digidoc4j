@@ -24,6 +24,8 @@ import static org.digidoc4j.impl.asic.cades.AsicManifestTestUtils.MANIFEST_NAME;
 import static org.digidoc4j.impl.asic.cades.AsicManifestTestUtils.createAsicDataObjectReferenceXmlElement;
 import static org.digidoc4j.impl.asic.cades.AsicManifestTestUtils.createAsicManifestXmlDocument;
 import static org.digidoc4j.impl.asic.cades.AsicManifestTestUtils.createAsicSigReferenceXmlElement;
+import static org.digidoc4j.impl.asic.cades.AsicManifestTestUtils.createDsDigestMethodXmlElement;
+import static org.digidoc4j.impl.asic.cades.AsicManifestTestUtils.createDsDigestValueXmlElement;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
@@ -128,37 +130,45 @@ public class AsicArchiveManifestTest {
     DSSDocument manifestDocument = createAsicManifestXmlDocument();
     AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
 
-    List<AsicArchiveManifest.Reference> result = asicArchiveManifest.getReferencedDataObjects();
+    List<AsicArchiveManifest.DataReference> result = asicArchiveManifest.getReferencedDataObjects();
 
     assertThat(result, empty());
   }
 
   @Test
-  public void getReferencedDataObjects_WhenManifestContainsValidDataObjectReference_ReturnsListOfOneEquivalentReference() {
+  public void getReferencedDataObjects_WhenManifestContainsEmptyDataObjectReference_ReturnsListOfOneEmptyReference() {
     DSSDocument manifestDocument = createAsicManifestXmlDocument(
             createAsicDataObjectReferenceXmlElement(null, null)
     );
     AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
 
-    List<AsicArchiveManifest.Reference> result = asicArchiveManifest.getReferencedDataObjects();
+    List<AsicArchiveManifest.DataReference> result = asicArchiveManifest.getReferencedDataObjects();
 
     assertThat(result, hasSize(1));
     assertThat(result.get(0).getName(), nullValue());
     assertThat(result.get(0).getMimeType(), nullValue());
+    assertThat(result.get(0).getDigestAlgorithm(), nullValue());
+    assertThat(result.get(0).getDigestValue(), nullValue());
   }
 
   @Test
-  public void getReferencedDataObjects_WhenManifestContainsEmptyDataObjectReference_ReturnsListOfOneEmptyReference() {
+  public void getReferencedDataObjects_WhenManifestContainsValidDataObjectReference_ReturnsListOfOneEquivalentReference() {
     DSSDocument manifestDocument = createAsicManifestXmlDocument(
-            createAsicDataObjectReferenceXmlElement("custom-mimetype-string", "custom-uri-string")
+            createAsicDataObjectReferenceXmlElement(
+                    "custom-mimetype-string", "custom-uri-string",
+                    createDsDigestMethodXmlElement("custom-algorithm-string"),
+                    createDsDigestValueXmlElement("custom-digest-string")
+            )
     );
     AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
 
-    List<AsicArchiveManifest.Reference> result = asicArchiveManifest.getReferencedDataObjects();
+    List<AsicArchiveManifest.DataReference> result = asicArchiveManifest.getReferencedDataObjects();
 
     assertThat(result, hasSize(1));
     assertThat(result.get(0).getName(), equalTo("custom-uri-string"));
     assertThat(result.get(0).getMimeType(), equalTo("custom-mimetype-string"));
+    assertThat(result.get(0).getDigestAlgorithm(), equalTo("custom-algorithm-string"));
+    assertThat(result.get(0).getDigestValue(), equalTo("custom-digest-string"));
   }
 
   @Test

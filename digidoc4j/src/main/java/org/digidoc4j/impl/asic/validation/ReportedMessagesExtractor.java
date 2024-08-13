@@ -138,7 +138,7 @@ public class ReportedMessagesExtractor {
             .distinct()
             .map(errorMessage -> {
               String messageValue = errorMessage.getValue();
-              if (StringUtils.equalsAny(messageValue, MessageTag.BBB_XCV_ISCR_ANS.getId(), MessageTag.PSV_IPSVC_ANS.getId())) {
+              if (StringUtils.equalsAny(errorMessage.getKey(), MessageTag.BBB_XCV_ISCR_ANS.getId(), MessageTag.PSV_IPSVC_ANS.getId())) {
                 return new CertificateRevokedException(messageValue, errorMessage.getId());
               } else {
                 return new DigiDoc4JException(messageValue, errorMessage.getId());

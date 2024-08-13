@@ -10,20 +10,25 @@
 
 package org.digidoc4j.impl.asic.asics;
 
+import eu.europa.esig.dss.enumerations.Indication;
+import eu.europa.esig.dss.enumerations.SubIndication;
+import eu.europa.esig.dss.enumerations.TimestampQualification;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.ContainerValidationResult;
+import org.digidoc4j.Timestamp;
 import org.digidoc4j.test.TestAssert;
 import org.junit.Test;
 
 import static org.digidoc4j.test.TestAssert.assertContainerIsInvalid;
 import static org.digidoc4j.test.TestAssert.assertContainerIsValid;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
 
 public class TimestampedContainerValidationTest extends AbstractTest {
 
@@ -37,10 +42,14 @@ public class TimestampedContainerValidationTest extends AbstractTest {
     ContainerValidationResult validationResult = container.validate();
 
     assertContainerIsValid(validationResult);
-    // TODO (DD4J-1076): verify proper attributes of the validation result
     assertThat(validationResult.getSimpleReports(), hasSize(1));
     assertThat(validationResult.getSimpleReports().get(0).getTimestampIdList(), hasSize(1));
-    for (String timestampId : validationResult.getSimpleReports().get(0).getTimestampIdList()) {
+    assertThat(validationResult.getTimestampReports(), hasSize(1));
+    for (Timestamp timestamp : container.getTimestamps()) {
+      String timestampId = timestamp.getUniqueId();
+      assertThat(validationResult.getIndication(timestampId), sameInstance(Indication.PASSED));
+      assertThat(validationResult.getSubIndication(timestampId), nullValue());
+      assertThat(validationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       assertThat(
               validationResult.getSimpleReports().get(0).getProducedBy(timestampId),
               equalTo("DEMO of SK TSA 2014")
@@ -58,10 +67,14 @@ public class TimestampedContainerValidationTest extends AbstractTest {
     ContainerValidationResult validationResult = container.validate();
 
     assertContainerIsValid(validationResult);
-    // TODO (DD4J-1076): verify proper attributes of the validation result
     assertThat(validationResult.getSimpleReports(), hasSize(1));
     assertThat(validationResult.getSimpleReports().get(0).getTimestampIdList(), hasSize(3));
-    for (String timestampId : validationResult.getSimpleReports().get(0).getTimestampIdList()) {
+    assertThat(validationResult.getTimestampReports(), hasSize(3));
+    for (Timestamp timestamp : container.getTimestamps()) {
+      String timestampId = timestamp.getUniqueId();
+      assertThat(validationResult.getIndication(timestampId), sameInstance(Indication.PASSED));
+      assertThat(validationResult.getSubIndication(timestampId), nullValue());
+      assertThat(validationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       assertThat(
               validationResult.getSimpleReports().get(0).getProducedBy(timestampId),
               equalTo("DEMO SK TIMESTAMPING AUTHORITY 2023E")
@@ -80,11 +93,29 @@ public class TimestampedContainerValidationTest extends AbstractTest {
 
     assertContainerIsInvalid(validationResult);
     TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
-            "T-0824D9A21AEC5EB4AE77E302F43824D78183F801B77F61ED2E228CEDD98F1C75) - The reference data object is not intact!",
-            "T-9113DB064A02F195B5947CB49A3DA81868B7AFB7FCF4001FDF6B95929D6762C0) - The reference data object is not intact!"
+            container.getTimestamps().subList(1, 3).stream()
+                    .map(Timestamp::getUniqueId)
+                    .map(id -> id + ") - The reference data object is not intact!")
+                    .toArray(String[]::new)
     );
-    // TODO (DD4J-1076): verify proper attributes of the validation result
-    assertThat(validationResult.getReport(), containsString("HASH_FAILURE"));
+    {
+      String timestampId = container.getTimestamps().get(0).getUniqueId();
+      assertThat(validationResult.getIndication(timestampId), sameInstance(Indication.PASSED));
+      assertThat(validationResult.getSubIndication(timestampId), nullValue());
+      assertThat(validationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
+    }
+    {
+      String timestampId = container.getTimestamps().get(1).getUniqueId();
+      assertThat(validationResult.getIndication(timestampId), sameInstance(Indication.FAILED));
+      assertThat(validationResult.getSubIndication(timestampId), sameInstance(SubIndication.HASH_FAILURE));
+      assertThat(validationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
+    }
+    {
+      String timestampId = container.getTimestamps().get(2).getUniqueId();
+      assertThat(validationResult.getIndication(timestampId), sameInstance(Indication.FAILED));
+      assertThat(validationResult.getSubIndication(timestampId), sameInstance(SubIndication.HASH_FAILURE));
+      assertThat(validationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
+    }
   }
 
   @Override

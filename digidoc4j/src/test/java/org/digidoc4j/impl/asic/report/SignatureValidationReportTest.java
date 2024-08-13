@@ -8,28 +8,22 @@
  * Version 2.1, February 1999
  */
 
-package org.digidoc4j.impl.bdoc.report;
+package org.digidoc4j.impl.asic.report;
 
 import eu.europa.esig.dss.enumerations.Indication;
 import eu.europa.esig.dss.enumerations.SignatureLevel;
 import eu.europa.esig.dss.enumerations.SignatureQualification;
 import eu.europa.esig.dss.enumerations.SubIndication;
-import eu.europa.esig.dss.simplereport.jaxb.XmlCertificate;
 import eu.europa.esig.dss.simplereport.jaxb.XmlCertificateChain;
 import eu.europa.esig.dss.simplereport.jaxb.XmlDetails;
-import eu.europa.esig.dss.simplereport.jaxb.XmlMessage;
 import eu.europa.esig.dss.simplereport.jaxb.XmlSignature;
 import eu.europa.esig.dss.simplereport.jaxb.XmlSignatureLevel;
 import eu.europa.esig.dss.simplereport.jaxb.XmlSignatureScope;
 import eu.europa.esig.dss.simplereport.jaxb.XmlTimestamp;
 import eu.europa.esig.dss.simplereport.jaxb.XmlTimestamps;
-import org.digidoc4j.impl.asic.report.SignatureValidationReport;
 import org.junit.Test;
 
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -40,7 +34,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-public class SignatureValidationReportTest {
+public class SignatureValidationReportTest extends TokenValidationReportTest {
 
   @Test
   public void create_WhenXmlSignatureParametersArePresent_SignatureValidationReportWithMatchingParametersIsCreated() {
@@ -140,25 +134,6 @@ public class SignatureValidationReportTest {
     assertThat(report.getId(), nullValue());
     assertThat(report.getSignatureFormat(), nullValue());
     assertThat(report.getCertificateChain(), nullValue());
-  }
-
-  private static XmlMessage createMessage(String message) {
-    XmlMessage xmlMessage = new XmlMessage();
-    xmlMessage.setValue(message);
-    return xmlMessage;
-  }
-
-  private static List<XmlMessage> createMessages(String... messages) {
-    return Stream.of(messages)
-            .map(SignatureValidationReportTest::createMessage)
-            .collect(Collectors.toList());
-  }
-
-  private static XmlCertificate createCertificate(String id, String qualifiedName) {
-    XmlCertificate xmlCertificate = new XmlCertificate();
-    xmlCertificate.setId(id);
-    xmlCertificate.setQualifiedName(qualifiedName);
-    return xmlCertificate;
   }
 
 }

@@ -13,15 +13,18 @@ package org.digidoc4j.impl.asic;
 import eu.europa.esig.dss.enumerations.Indication;
 import eu.europa.esig.dss.enumerations.SignatureQualification;
 import eu.europa.esig.dss.enumerations.SubIndication;
+import eu.europa.esig.dss.enumerations.TimestampQualification;
 import eu.europa.esig.dss.simplereport.SimpleReport;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.impl.AbstractContainerValidationResult;
 
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * Validation result information.
@@ -34,36 +37,27 @@ public class AsicContainerValidationResult extends AbstractContainerValidationRe
   private AsicValidationReportBuilder validationReportBuilder;
 
   @Override
-  public Indication getIndication(String signatureId) {
-    if (StringUtils.isBlank(signatureId)) {
-      SimpleReport report = this.getSimpleReport();
-      return report != null ? report.getIndication(report.getFirstSignatureId()) : null;
-    }
-    signatureId = resolveSignatureId(signatureId);
-    SimpleReport report = this.getSimpleReportBySignatureId(signatureId);
-    return report != null ? report.getIndication(signatureId) : null;
+  public Indication getIndication(String tokenId) {
+    return findFromSimpleReportsByIdOrMappedId(ensureTokenIdNotNull(tokenId), SimpleReport::getIndication);
   }
 
   @Override
-  public SubIndication getSubIndication(String signatureId) {
-    if (StringUtils.isBlank(signatureId)) {
-      SimpleReport report = this.getSimpleReport();
-      return report != null ? report.getSubIndication(report.getFirstSignatureId()) : null;
-    }
-    signatureId = resolveSignatureId(signatureId);
-    SimpleReport report = this.getSimpleReportBySignatureId(signatureId);
-    return report != null ? report.getSubIndication(signatureId) : null;
+  public SubIndication getSubIndication(String tokenId) {
+    return findFromSimpleReportsByIdOrMappedId(ensureTokenIdNotNull(tokenId), SimpleReport::getSubIndication);
   }
 
   @Override
   public SignatureQualification getSignatureQualification(String signatureId) {
-    if (StringUtils.isBlank(signatureId)) {
-      SimpleReport report = this.getSimpleReport();
-      return report != null ? report.getSignatureQualification(report.getFirstSignatureId()) : null;
-    }
-    signatureId = resolveSignatureId(signatureId);
-    SimpleReport report = this.getSimpleReportBySignatureId(signatureId);
-    return report != null ? report.getSignatureQualification(signatureId) : null;
+    return findFromSimpleReportsByIdOrMappedId(ensureTokenIdNotNull(signatureId), (report, id) -> {
+      // In DSS 6.0, SimpleReport::getSignatureQualification returns NA if the report does not contain such a signature
+      return report.getSignatureIdList().contains(id) ? report.getSignatureQualification(id) : null;
+    });
+  }
+
+  @Override
+  public TimestampQualification getTimestampQualification(String timestampId) {
+    ensureTokenIdNotNull(timestampId);
+    return findFromSimpleReports(report -> report.getTimestampQualification(timestampId));
   }
 
   /**
@@ -103,32 +97,36 @@ public class AsicContainerValidationResult extends AbstractContainerValidationRe
   }
 
   private void buildResult() {
-    if (this.validationReportBuilder != null) {
-      this.report = this.validationReportBuilder.buildXmlReport();
-      this.reports = this.validationReportBuilder.buildSignatureValidationReports();
-      this.simpleReports = this.validationReportBuilder.buildAllSimpleReports();
-      this.signatureIdMap = this.validationReportBuilder.buildSignatureIdMap();
+    if (validationReportBuilder != null) {
+      report = validationReportBuilder.buildXmlReport();
+      signatureReports = validationReportBuilder.buildSignatureValidationReports();
+      timestampReports = validationReportBuilder.buildTimestampValidationReports();
+      simpleReports = validationReportBuilder.buildAllSimpleReports();
+      signatureIdMap = validationReportBuilder.buildSignatureIdMap();
     }
   }
 
-  private SimpleReport getSimpleReport() {
-    if (CollectionUtils.isNotEmpty(this.simpleReports)) {
-      return this.simpleReports.get(0);
-    }
-    return null;
+  private <T> T findFromSimpleReportsByIdOrMappedId(String tokenId, BiFunction<SimpleReport, String, T> extractor) {
+    return Optional
+            .ofNullable(findFromSimpleReports(report -> extractor.apply(report, tokenId)))
+            .orElseGet(() -> Optional
+                    .ofNullable(signatureIdMap.get(tokenId))
+                    .map(mappedId -> findFromSimpleReports(report -> extractor.apply(report, mappedId)))
+                    .orElse(null));
   }
 
-  private SimpleReport getSimpleReportBySignatureId(String signatureId) {
-    for (SimpleReport report : this.simpleReports) {
-      if (report.getFirstSignatureId().equals(signatureId)) {
-        return report;
+  private <T> T findFromSimpleReports(Function<SimpleReport, T> extractor) {
+    for (SimpleReport report : simpleReports) {
+      T result = extractor.apply(report);
+      if (result != null) {
+        return result;
       }
     }
     return null;
   }
 
-  private String resolveSignatureId(String signatureId) {
-    return signatureIdMap.getOrDefault(signatureId, signatureId);
+  private static String ensureTokenIdNotNull(String tokenId) {
+    return Objects.requireNonNull(tokenId, "Token ID cannot be null");
   }
 
 }

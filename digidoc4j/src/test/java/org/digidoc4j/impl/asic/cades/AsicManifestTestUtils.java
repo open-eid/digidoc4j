@@ -24,6 +24,9 @@ public final class AsicManifestTestUtils {
   public static final String ASIC_MANIFEST_ELEMENT_START = "<asic:ASiCManifest xmlns:asic=\"http://uri.etsi.org/02918/v1.2.1#\">";
   public static final String ASIC_MANIFEST_ELEMENT_END = "</asic:ASiCManifest>";
 
+  private static final String DS_NAMESPACE = "http://www.w3.org/2000/09/xmldsig#";
+  private static final String DS_NAMESPACE_ATTRIBUTE = "xmlns:ds=\"" + DS_NAMESPACE + '"';
+
   public static String createAsicManifestXmlString(String... content) {
     StringBuilder sb = new StringBuilder(XML_DOCUMENT_HEADER);
     sb.append(ASIC_MANIFEST_ELEMENT_START);
@@ -69,6 +72,26 @@ public final class AsicManifestTestUtils {
       sb.append(s);
     }
     return sb.append("</asic:DataObjectReference>").toString();
+  }
+
+  public static String createDsDigestMethodXmlElement(String algorithm) {
+    StringBuilder sb = new StringBuilder("<ds:DigestMethod ");
+    sb.append(DS_NAMESPACE_ATTRIBUTE);
+    if (algorithm != null) {
+      sb.append(" Algorithm=\"").append(algorithm).append('"');
+    }
+    return sb.append("/>").toString();
+  }
+
+  public static String createDsDigestValueXmlElement(String value) {
+    StringBuilder sb = new StringBuilder("<ds:DigestValue ");
+    sb.append(DS_NAMESPACE_ATTRIBUTE);
+    if (value != null) {
+      sb.append('>').append(value).append("</ds:DigestValue>");
+    } else {
+      sb.append("/>");
+    }
+    return sb.toString();
   }
 
   private AsicManifestTestUtils() {
