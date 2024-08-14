@@ -35,6 +35,19 @@ public class ExtendingOcspSourceFactoryTest extends AbstractTest {
   }
 
   @Test
+  public void testCreateReturnsNullProvidedByFactoryFromConfigurationIfExplicitlyConfigured() {
+    OCSPSourceFactory mockExtendingOcspSourceFactory = Mockito.mock(OCSPSourceFactory.class);
+    Mockito.doReturn(null).when(mockExtendingOcspSourceFactory).create();
+
+    configuration.setExtendingOcspSourceFactory(mockExtendingOcspSourceFactory);
+    OCSPSource ocspSource = new ExtendingOcspSourceFactory(configuration).create();
+    Assert.assertNull(ocspSource);
+
+    Mockito.verify(mockExtendingOcspSourceFactory, Mockito.times(1)).create();
+    Mockito.verifyNoMoreInteractions(mockExtendingOcspSourceFactory);
+  }
+
+  @Test
   public void testCreateReturnsNullIfFactoryUnsetInConfiguration() {
     Assert.assertNull(new ExtendingOcspSourceFactory(Configuration.of(Configuration.Mode.TEST)).create());
   }

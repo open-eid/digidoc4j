@@ -12,11 +12,11 @@ package org.digidoc4j.impl;
 
 import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.OCSPSourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.Optional;
 
 /**
  * Manages the creation of OCSP sources during the process of signature extension.
@@ -33,15 +33,14 @@ public class ExtendingOcspSourceFactory implements Serializable {
   }
 
   public OCSPSource create() {
-    return Optional.ofNullable(configuration.getExtendingOcspSourceFactory())
-        .map(factory -> {
-          logger.debug("Using custom OCSP source provided by the factory defined in the configuration");
-          return factory.create();
-        })
-        .orElseGet(() -> {
-          logger.debug("No custom OCSP source factory provided by the configuration, returning NULL");
-          return null;
-        });
+    OCSPSourceFactory factory = configuration.getExtendingOcspSourceFactory();
+    if (factory != null) {
+      logger.debug("Using custom OCSP source provided by the factory defined in the configuration");
+      return factory.create();
+    }
+
+    logger.debug("No custom OCSP source factory provided by the configuration, returning NULL");
+    return null;
   }
 
 }

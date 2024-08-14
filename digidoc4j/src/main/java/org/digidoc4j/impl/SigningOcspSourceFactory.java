@@ -13,11 +13,11 @@ package org.digidoc4j.impl;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
 import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.OCSPSourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.Optional;
 
 /**
  * Manages the creation of OCSP sources during the process of signing.
@@ -34,18 +34,17 @@ public class SigningOcspSourceFactory implements Serializable {
   }
 
   public OCSPSource create() {
-    return Optional.ofNullable(configuration.getSigningOcspSourceFactory())
-        .map(factory -> {
-          logger.debug("Using custom OCSP source provided by the factory defined in the configuration");
-          return factory.create();
-        })
-        .orElseGet(() -> {
-          logger.debug("No custom OCSP source factory provided by the configuration, returning a default one");
-          SKOnlineOCSPSource source = new CommonOCSPSource(configuration);
-          DataLoader loader = new OcspDataLoaderFactory(configuration).create();
-          source.setDataLoader(loader);
-          return source;
-        });
+    OCSPSourceFactory factory = configuration.getSigningOcspSourceFactory();
+    if (factory != null) {
+      logger.debug("Using custom OCSP source provided by the factory defined in the configuration");
+      return factory.create();
+    }
+
+    logger.debug("No custom OCSP source factory provided by the configuration, returning a default one");
+    SKOnlineOCSPSource source = new CommonOCSPSource(configuration);
+    DataLoader loader = new OcspDataLoaderFactory(configuration).create();
+    source.setDataLoader(loader);
+    return source;
   }
 
 }

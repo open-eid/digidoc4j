@@ -38,6 +38,19 @@ public class SigningOcspSourceFactoryTest extends AbstractTest {
   }
 
   @Test
+  public void testCreateReturnsNullProvidedByFactoryFromConfigurationIfExplicitlyConfigured() {
+    OCSPSourceFactory mockSigningOcspSourceFactory = Mockito.mock(OCSPSourceFactory.class);
+    Mockito.doReturn(null).when(mockSigningOcspSourceFactory).create();
+
+    configuration.setSigningOcspSourceFactory(mockSigningOcspSourceFactory);
+    OCSPSource ocspSource = new SigningOcspSourceFactory(configuration).create();
+    Assert.assertNull(ocspSource);
+
+    Mockito.verify(mockSigningOcspSourceFactory, Mockito.times(1)).create();
+    Mockito.verifyNoMoreInteractions(mockSigningOcspSourceFactory);
+  }
+
+  @Test
   public void testCreateReturnsDefaultImplIfFactoryUnsetInConfiguration() {
     OCSPSource ocspSource = new SigningOcspSourceFactory(configuration).create();
 
