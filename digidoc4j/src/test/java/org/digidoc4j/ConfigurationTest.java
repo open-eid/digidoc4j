@@ -279,7 +279,7 @@ public class ConfigurationTest extends AbstractTest {
     BDocContainer container = (BDocContainer) ContainerBuilder.aContainer(Container.DocumentType.BDOC)
         .withConfiguration(this.configuration).build();
     container.getConfiguration().getTSL();
-    Assert.assertEquals(27, container.getConfiguration().getTSL().getCertificates().size());
+    Assert.assertEquals(29, container.getConfiguration().getTSL().getCertificates().size());
 
     int tenSeconds = 10000;
     String lotlHost = "10.0.25.57";
