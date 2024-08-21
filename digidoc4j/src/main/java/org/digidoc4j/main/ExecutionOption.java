@@ -26,14 +26,27 @@ public enum ExecutionOption {
   PKCS11("pkcs11", 2),
   PKCS12("pkcs12", 2),
   SIGNATURE("sig", 1),
+  TYPE("type", 1),
+  TST("tst", 0),
+  TSPSOURCE("tspsource", 1),
+  DATST("datst", 1),
+  REFDATST("refdatst", 1),
+  VERIFY("verify", 0),
+  REMOVE("remove", 1),
+  PROFILE("profile", 1),
+  ENCRYPTION("encryption", 1),
+  NOAIAOCSP("noaiaocsp", 0),
+  @Deprecated AIAOCSP("aiaocsp", 0),
+  REPORTDIR("reportDir", 1),
+  SHOWERRORS("showerrors", 0),
 
   DETACHED_XADES("xades", 0),
   DIGEST_FILE("digFile" , 3),
   XADES_OUTPUT_PATH("sigOutputPath" , 1),
   XADES_INPUT_PATH("sigInputPath" , 1);
 
-  private String name;
-  private int count;
+  private final String name;
+  private final int count;
 
   ExecutionOption(String name, int count) {
     this.name = name;

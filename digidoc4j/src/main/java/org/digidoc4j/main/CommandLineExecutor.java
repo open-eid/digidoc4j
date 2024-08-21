@@ -10,8 +10,8 @@
 
 package org.digidoc4j.main;
 
-import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.spi.DSSUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
@@ -20,21 +20,18 @@ import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.DataToSign;
+import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.EncryptionAlgorithm;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureToken;
 import org.digidoc4j.SignatureValidationResult;
+import org.digidoc4j.TimestampBuilder;
 import org.digidoc4j.exceptions.DataFileNotFoundException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.asic.AsicContainer;
-import org.digidoc4j.impl.asic.asics.AsicSContainer;
-import org.digidoc4j.impl.ddoc.DDocContainer;
-import org.digidoc4j.impl.pades.PadesContainer;
 import org.digidoc4j.signers.PKCS11SignatureToken;
 import org.digidoc4j.signers.PKCS12SignatureToken;
-import org.digidoc4j.signers.TimestampToken;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +47,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Optional;
+
+import static org.digidoc4j.Container.DocumentType.ASICE;
+import static org.digidoc4j.Container.DocumentType.ASICS;
+import static org.digidoc4j.Container.DocumentType.BDOC;
+import static org.digidoc4j.Container.DocumentType.DDOC;
+import static org.digidoc4j.Container.DocumentType.PADES;
 
 /**
  * Class for managing digidoc4j-util parameters.
@@ -72,87 +76,103 @@ public class CommandLineExecutor {
    */
   public void processContainer(Container container) {
     LOGGER.debug("Processing container");
-    if (container instanceof PadesContainer) {
-      this.verifyPadesContainer(container);
-    } else if (container instanceof DDocContainer) {
-      this.manipulateContainer(container);
-      this.verifyContainer(container);
-    } else {
-      this.manipulateContainer(container);
-      if (Container.DocumentType.ASICS.equals(this.getContainerType()) && this.isOptionsToSignAndAddFile()) {
-        AsicSContainer asicSContainer = (AsicSContainer) container;
-        this.verifyIfAllowedToAddSignature(asicSContainer);
-        this.signAsicSContainer(asicSContainer);
-      } else {
-        this.signContainer(container);
-      }
-      this.verifyContainer(container);
+
+    switch (getContainerType()) {
+      case PADES:
+        verifyPadesContainer(container);
+        return;
+      case DDOC:
+        processDataFileCommands(container);
+        break;
+      case ASICS:
+        processDataFileCommands(container);
+        processAsicSContainerSpecificCommands(container);
+        break;
+      default:
+        processDataFileCommands(container);
+        signContainer(container);
     }
+    verifyContainer(container);
+  }
+
+  private void processAsicSContainerSpecificCommands(Container container) {
+    if (hasAnyOption(ExecutionOption.TST.getName())) {
+      signContainerWithTst(container);
+    } else if (hasAnyOption(ExecutionOption.PKCS11.getName(), ExecutionOption.PKCS12.getName(), ExecutionOption.ADD.getName())) {
+      verifyIfAllowedToAddSignatureForAsics(container);
+      signContainer(container);
+    } else {
+      LOGGER.debug("Signing or timestamping was not requested for this ASiC-S container.");
+    }
+  }
+
+  private boolean hasAnyOption(String... opts) {
+    return Arrays.stream(opts).anyMatch(opt -> context.getCommandLine().hasOption(opt));
   }
 
   /**
    * @return indication whether this executor has internal command found
    */
   public boolean hasCommand() {
-    return this.context.getCommand() != null;
+    return context.getCommand() != null;
   }
 
   /**
    * Executes internal command
    */
   public void executeCommand() {
-    if (this.hasCommand()) {
-      for (ExecutionOption option : this.context.getCommand().getMandatoryOptions()) {
+    if (hasCommand()) {
+      for (ExecutionOption option : context.getCommand().getMandatoryOptions()) {
         switch (option) {
           case IN:
-            this.context.setContainer(this.openContainer(this.context.getCommandLine().getOptionValue(option.getName())));
+            context.setContainer(openContainer(context.getCommandLine().getOptionValue(option.getName())));
             break;
           case ADD:
             try {
-              this.context.getContainer();
+              context.getContainer();
             } catch (DigiDoc4JException ignored) {
-              this.context.setContainer(this.openContainer());
+              context.setContainer(openContainer());
             }
-            this.addData();
+            addData(context.getContainer());
             break;
           case CERTIFICATE:
-            this.context.setCertificate(this.loadCertificate());
+            context.setCertificate(loadCertificate());
             break;
           case DTS:
-            switch (this.context.getCommand()) {
+            switch (context.getCommand()) {
               case EXTERNAL_COMPOSE_DTS:
-                this.context.setDataToSign(this.createSigningData());
+                context.setDataToSign(createSigningData());
                 break;
               case EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS11:
               case EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS12:
-                this.context.setDataToSign(this.loadSigningData());
+                context.setDataToSign(loadSigningData());
                 break;
               case EXTERNAL_ADD_SIGNATURE:
-                this.context.setDataToSign(this.loadSigningData());
+                context.setDataToSign(loadSigningData());
                 break;
             }
             break;
           case PKCS11:
-            this.context.setSignatureToken(this.loadPKCS11Token());
+            context.setSignatureToken(loadPKCS11Token());
             break;
           case PKCS12:
-            this.context.setSignatureToken(this.loadPKCS12Token());
+            context.setSignatureToken(loadPKCS12Token());
             break;
           case SIGNATURE:
-            switch (this.context.getCommand()) {
+            switch (context.getCommand()) {
               case EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS11:
               case EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS12:
-                this.context.setSignature(this.createSignature());
+                context.setSignature(createSignature());
                 break;
               case EXTERNAL_ADD_SIGNATURE:
-                this.context.setSignature(this.loadSignature());
+                context.setSignature(loadSignature());
             }
             break;
           default:
             LOGGER.warn("No option <{}> implemented", option);
         }
       }
-      this.postExecutionProcess();
+      postExecutionProcess();
     } else {
       throw new DigiDoc4JException("No command to execute");
     }
@@ -164,36 +184,35 @@ public class CommandLineExecutor {
    * @return document type of container
    */
   public Container.DocumentType getContainerType() {
-    if (StringUtils.equalsIgnoreCase(this.context.getCommandLine().getOptionValue("type"), "BDOC"))
-      return Container.DocumentType.BDOC;
-    if (StringUtils.equalsIgnoreCase(this.context.getCommandLine().getOptionValue("type"), "ASICS"))
-      return Container.DocumentType.ASICS;
-    if (StringUtils.equalsIgnoreCase(this.context.getCommandLine().getOptionValue("type"), "ASICE"))
-      return Container.DocumentType.ASICE;
-    if (StringUtils.equalsIgnoreCase(this.context.getCommandLine().getOptionValue("type"), "DDOC"))
-      return Container.DocumentType.DDOC;
-    if (StringUtils.endsWithIgnoreCase(this.context.getCommandLine().getOptionValue("in"), ".bdoc"))
-      return Container.DocumentType.BDOC;
-    if (StringUtils.endsWithIgnoreCase(this.context.getCommandLine().getOptionValue("in"), ".asics"))
-      return Container.DocumentType.ASICS;
-    if (StringUtils.endsWithIgnoreCase(this.context.getCommandLine().getOptionValue("in"), ".scs"))
-      return Container.DocumentType.ASICS;
-    if (StringUtils.endsWithIgnoreCase(this.context.getCommandLine().getOptionValue("in"), ".asice"))
-      return Container.DocumentType.ASICE;
-    if (StringUtils.endsWithIgnoreCase(this.context.getCommandLine().getOptionValue("in"), ".sce"))
-      return Container.DocumentType.ASICE;
-    if (StringUtils.endsWithIgnoreCase(this.context.getCommandLine().getOptionValue("in"), ".ddoc"))
-      return Container.DocumentType.DDOC;
-    if (StringUtils.endsWithIgnoreCase(this.context.getCommandLine().getOptionValue("in"), ".pdf"))
-      return Container.DocumentType.PADES;
-    return Container.DocumentType.BDOC;
+    String type = context.getCommandLine().getOptionValue(ExecutionOption.TYPE.getName());
+
+    if (StringUtils.equalsAnyIgnoreCase(type, BDOC.name(), ASICS.name(), ASICE.name(), DDOC.name())) {
+      return Container.DocumentType.valueOf(type);
+    }
+
+    String in = context.getCommandLine().getOptionValue(ExecutionOption.IN.getName());
+
+    if (StringUtils.endsWithIgnoreCase(in, ".bdoc")) {
+      return BDOC;
+    } else if (StringUtils.endsWithIgnoreCase(in, ".asics") || StringUtils.endsWithIgnoreCase(in, ".scs")) {
+      return ASICS;
+    } else if (StringUtils.endsWithIgnoreCase(in, ".asice") || StringUtils.endsWithIgnoreCase(in, ".sce")) {
+      return ASICE;
+    } else if (StringUtils.endsWithIgnoreCase(in, ".ddoc")) {
+      return DDOC;
+    } else if (StringUtils.endsWithIgnoreCase(in, ".pdf")) {
+      return PADES;
+    }
+
+    LOGGER.warn("Unable to detect container type for provided arguments, defaulting to ASICE");
+    return ASICE;
   }
 
   /**
    * @return generated container
    */
   public Container openContainer() {
-    return this.openContainer("");
+    return openContainer("");
   }
 
   /**
@@ -201,8 +220,10 @@ public class CommandLineExecutor {
    * @return existing or generated container
    */
   public Container openContainer(String containerPath) {
-    Container.DocumentType type = this.getContainerType();
-    if (new File(containerPath).exists() || this.context.getCommandLine().hasOption("verify") || this.context.getCommandLine().hasOption("remove")) {
+    Container.DocumentType type = getContainerType();
+    if (new File(containerPath).exists() ||
+        context.getCommandLine().hasOption(ExecutionOption.VERIFY.getName()) ||
+        context.getCommandLine().hasOption(ExecutionOption.REMOVE.getName())) {
       LOGGER.debug("Opening container " + containerPath);
       return ContainerOpener.open(containerPath);
     } else {
@@ -218,13 +239,15 @@ public class CommandLineExecutor {
    * @param containerPath path
    */
   public void saveContainer(Container container, String containerPath) {
-    if (this.fileHasChanged) {
+    if (fileHasChanged) {
       container.saveAsFile(containerPath);
       if (new File(containerPath).exists()) {
         LOGGER.debug("Container has been successfully saved to " + containerPath);
       } else {
         LOGGER.warn("Container was NOT saved to " + containerPath);
       }
+    } else {
+      LOGGER.warn("Container was NOT saved because there were no changes.");
     }
   }
 
@@ -232,70 +255,81 @@ public class CommandLineExecutor {
    * RESTRICTED METHODS
    */
 
-  private void verifyIfAllowedToAddSignature(AsicSContainer asicSContainer) {
-    if (asicSContainer.isTimestampTokenDefined()) {
+  private void verifyIfAllowedToAddSignatureForAsics(Container container) {
+    if (CollectionUtils.isNotEmpty(container.getTimestamps())) {
       throw new DigiDoc4JException("This container has already timestamp. Should be no signatures in case of timestamped ASiCS container.");
     }
-    if (!asicSContainer.getSignatures().isEmpty()) {
+    if (!container.getSignatures().isEmpty()) {
       throw new DigiDoc4JException("This container is already signed. Should be only one signature in case of ASiCS container.");
     }
   }
 
-  private boolean isOptionsToSignAndAddFile() {
-    return this.context.getCommandLine().hasOption("add") || this.context.getCommandLine().hasOption("pkcs11") || this.context.getCommandLine().hasOption("pkcs12");
+  private void processDataFileCommands(Container container) {
+    addDataFile(container);
+    removeDataFile(container);
+    extractDataFile(container);
   }
 
-  private void signAsicSContainer(AsicSContainer asicSContainer) {
-    if (this.context.getCommandLine().hasOption("tst")) {
-      this.signContainerWithTst(asicSContainer);
-    } else {
-      this.signContainer(asicSContainer);
+  private void addDataFile(Container container) {
+    if (context.getCommandLine().hasOption(ExecutionOption.ADD.getName())) {
+      addData(container);
     }
   }
 
-  private void manipulateContainer(Container container) {
-    if (this.context.getCommandLine().hasOption(ExecutionOption.ADD.getName())) {
-      this.addData(container);
-    }
-    if (this.context.getCommandLine().hasOption("remove")) {
-      String fileToRemove = this.context.getCommandLine().getOptionValue("remove");
+  private void removeDataFile(Container container) {
+    if (context.getCommandLine().hasOption(ExecutionOption.REMOVE.getName())) {
+      LOGGER.debug("Removing data file");
+      String fileToRemove = context.getCommandLine().getOptionValue(ExecutionOption.REMOVE.getName());
       container.removeDataFile(container.getDataFiles().stream()
-              .filter(dataFile -> fileToRemove.equals(dataFile.getName()))
-              .findFirst().orElseThrow(() -> new DataFileNotFoundException("No datafile found: " + fileToRemove))
+          .filter(dataFile -> fileToRemove.equals(dataFile.getName()))
+          .findFirst().orElseThrow(() -> new DataFileNotFoundException("No datafile found: " + fileToRemove))
       );
-      this.fileHasChanged = true;
-    }
-    if (this.context.getCommandLine().hasOption(ExecutionOption.EXTRACT.getName())) {
-      LOGGER.debug("Extracting data file");
-      this.extractDataFile(container);
+      fileHasChanged = true;
     }
   }
 
-  private void addData() {
-    this.addData(this.context.getContainer());
+  private void extractDataFile(Container container) {
+    if (context.getCommandLine().hasOption(ExecutionOption.EXTRACT.getName())) {
+      LOGGER.debug("Extracting data file");
+
+      String[] optionValues = context.getCommandLine().getOptionValues(ExecutionOption.EXTRACT.getName());
+      String fileNameToExtract = optionValues[0];
+      String extractPath = optionValues[1];
+      boolean fileFound = false;
+      for (DataFile dataFile : container.getDataFiles()) {
+        if (StringUtils.equalsIgnoreCase(fileNameToExtract, dataFile.getName())) {
+          LOGGER.info("Extracting " + dataFile.getName() + " to " + extractPath);
+          dataFile.saveAs(extractPath);
+          fileFound = true;
+        }
+      }
+      if (!fileFound) {
+        throw new DigiDoc4JUtilityException(4, "Data file " + fileNameToExtract + " was not found in the container");
+      }
+    }
   }
 
   private void addData(Container container) {
     LOGGER.debug("Adding data to container ...");
-    String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.ADD.getName());
+    String[] values = context.getCommandLine().getOptionValues(ExecutionOption.ADD.getName());
     container.addDataFile(values[0], values[1]);
-    this.fileHasChanged = true;
+    fileHasChanged = true;
   }
 
   private DataToSign createSigningData() {
     LOGGER.debug("Creating signing data ...");
-    return SignatureBuilder.aSignature(this.context.getContainer()).withSigningCertificate(this.context.getCertificate())
-        .withSignatureDigestAlgorithm(this.context.getDigestAlgorithm()).buildDataToSign();
+    return SignatureBuilder.aSignature(context.getContainer()).withSigningCertificate(context.getCertificate())
+        .withSignatureDigestAlgorithm(context.getDigestAlgorithm()).buildDataToSign();
   }
 
   private byte[] createSignature() {
     LOGGER.debug("Creating signature ...");
-    return this.context.getSignatureToken().sign(this.context.getDigestAlgorithm(), this.context.getDataToSign().getDataToSign());
+    return context.getSignatureToken().sign(context.getDigestAlgorithm(), context.getDataToSign().getDataToSign());
   }
 
   private X509Certificate loadCertificate() {
     LOGGER.debug("Loading certificate ...");
-    String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.CERTIFICATE.getName());
+    String[] values = context.getCommandLine().getOptionValues(ExecutionOption.CERTIFICATE.getName());
     try (InputStream stream = new FileInputStream(values[0])) {
       return DSSUtils.loadCertificate(stream).getCertificate();
     } catch (IOException e) {
@@ -305,7 +339,7 @@ public class CommandLineExecutor {
 
   private DataToSign loadSigningData() {
     LOGGER.debug("Loading signing data ...");
-    String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.DTS.getName());
+    String[] values = context.getCommandLine().getOptionValues(ExecutionOption.DTS.getName());
     try {
       return Helper.deserializer(values[0]);
     } catch (Exception e) {
@@ -315,7 +349,7 @@ public class CommandLineExecutor {
 
   private byte[] loadSignature() {
     LOGGER.debug("Loading signature ...");
-    String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.SIGNATURE.getName());
+    String[] values = context.getCommandLine().getOptionValues(ExecutionOption.SIGNATURE.getName());
     try {
       return Files.readAllBytes(Paths.get(values[0]));
     } catch (IOException e) {
@@ -325,7 +359,7 @@ public class CommandLineExecutor {
 
   private SignatureToken loadPKCS11Token() {
     LOGGER.debug("Loading PKCS11 token ...");
-    String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.PKCS11.getName());
+    String[] values = context.getCommandLine().getOptionValues(ExecutionOption.PKCS11.getName());
     try {
       if (values.length > 3) {
         return new PKCS11SignatureToken(values[0], values[1].toCharArray(), Integer.parseInt(values[2]), values[3]);
@@ -339,7 +373,7 @@ public class CommandLineExecutor {
 
   private SignatureToken loadPKCS12Token() {
     LOGGER.debug("Loading PKCS12 token ...");
-    String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.PKCS12.getName());
+    String[] values = context.getCommandLine().getOptionValues(ExecutionOption.PKCS12.getName());
     try {
       return new PKCS12SignatureToken(values[0], values[1].toCharArray());
     } catch (Exception e) {
@@ -349,9 +383,9 @@ public class CommandLineExecutor {
 
   private void storeSignature() {
     LOGGER.debug("Storing signature ...");
-    String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.SIGNATURE.getName());
+    String[] values = context.getCommandLine().getOptionValues(ExecutionOption.SIGNATURE.getName());
     try (OutputStream stream = new FileOutputStream(values[0])) {
-      IOUtils.write(this.context.getSignature(), stream);
+      IOUtils.write(context.getSignature(), stream);
     } catch (IOException e) {
       throw new DigiDoc4JException(String.format("Unable to store signature file to <%s>", values[0]), e);
     }
@@ -359,9 +393,9 @@ public class CommandLineExecutor {
 
   private void storeSigningData() {
     LOGGER.debug("Storing signing data ...");
-    String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.DTS.getName());
+    String[] values = context.getCommandLine().getOptionValues(ExecutionOption.DTS.getName());
     try {
-      Helper.serialize(this.context.getDataToSign(), values[0]);
+      Helper.serialize(context.getDataToSign(), values[0]);
     } catch (Exception e) {
       throw new DigiDoc4JException(String.format("Unable to store signing data file to <%s>", values[0]), e);
     }
@@ -369,9 +403,9 @@ public class CommandLineExecutor {
 
   private void storeContainer() {
     LOGGER.debug("Storing container ...");
-    String[] values = this.context.getCommandLine().getOptionValues(ExecutionOption.IN.getName());
+    String[] values = context.getCommandLine().getOptionValues(ExecutionOption.IN.getName());
     try {
-      this.context.getContainer().saveAsFile(values[0]);
+      context.getContainer().saveAsFile(values[0]);
     } catch (Exception e) {
       throw new DigiDoc4JException(String.format("Unable to store container file to <%s>", values[0]), e);
     }
@@ -379,57 +413,40 @@ public class CommandLineExecutor {
 
   private void storeContainerWithSignature() {
     LOGGER.debug("Adding signature to container ...");
-    Container container = this.context.getContainer();
-    container.addSignature(this.context.getDataToSign().finalize(this.context.getSignature()));
-    this.fileHasChanged = true;
-    this.saveContainer(container, this.context.getCommandLine().getOptionValue(ExecutionOption.IN.getName()));
+    Container container = context.getContainer();
+    container.addSignature(context.getDataToSign().finalize(context.getSignature()));
+    fileHasChanged = true;
+    saveContainer(container, context.getCommandLine().getOptionValue(ExecutionOption.IN.getName()));
   }
 
   private void postExecutionProcess() {
-    switch (this.context.getCommand()) {
+    switch (context.getCommand()) {
       case EXTERNAL_COMPOSE_DTS:
-        this.storeSigningData();
-        this.storeContainer();
+        storeSigningData();
+        storeContainer();
         break;
       case EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS11:
       case EXTERNAL_COMPOSE_SIGNATURE_WITH_PKCS12:
-        this.storeSignature();
+        storeSignature();
         break;
       case EXTERNAL_ADD_SIGNATURE:
-        this.storeContainerWithSignature();
+        storeContainerWithSignature();
         break;
-    }
-  }
-
-  private void extractDataFile(Container container) {
-    String[] optionValues = this.context.getCommandLine().getOptionValues(ExecutionOption.EXTRACT.getName());
-    String fileNameToExtract = optionValues[0];
-    String extractPath = optionValues[1];
-    boolean fileFound = false;
-    for (DataFile dataFile : container.getDataFiles()) {
-      if (StringUtils.equalsIgnoreCase(fileNameToExtract, dataFile.getName())) {
-        LOGGER.info("Extracting " + dataFile.getName() + " to " + extractPath);
-        dataFile.saveAs(extractPath);
-        fileFound = true;
-      }
-    }
-    if (!fileFound) {
-      throw new DigiDoc4JUtilityException(4, "Data file " + fileNameToExtract + " was not found in the container");
     }
   }
 
   private void signContainer(Container container) {
     SignatureBuilder signatureBuilder = SignatureBuilder.aSignature(container);
-    this.updateProfile(signatureBuilder);
-    this.updateEncryptionAlgorithm(signatureBuilder);
-    this.useAiaOcsp(container);
-    this.signWithPkcs12(container, signatureBuilder);
-    this.signWithPkcs11(container, signatureBuilder);
+    updateProfile(signatureBuilder);
+    updateEncryptionAlgorithm(signatureBuilder);
+    useAiaOcsp(container);
+    signWithPkcs12(container, signatureBuilder);
+    signWithPkcs11(container, signatureBuilder);
   }
 
   private void updateProfile(SignatureBuilder signatureBuilder) {
-    if (this.context.getCommandLine().hasOption("profile")) {
-      String profile = this.context.getCommandLine().getOptionValue("profile");
+    if (context.getCommandLine().hasOption(ExecutionOption.PROFILE.getName())) {
+      String profile = context.getCommandLine().getOptionValue(ExecutionOption.PROFILE.getName());
       try {
         SignatureProfile signatureProfile = SignatureProfile.valueOf(profile);
         signatureBuilder.withSignatureProfile(signatureProfile);
@@ -440,58 +457,89 @@ public class CommandLineExecutor {
   }
 
   private void updateEncryptionAlgorithm(SignatureBuilder signatureBuilder) {
-    if (this.context.getCommandLine().hasOption("encryption")) {
-      String encryption = this.context.getCommandLine().getOptionValue("encryption");
+    if (context.getCommandLine().hasOption(ExecutionOption.ENCRYPTION.getName())) {
+      String encryption = context.getCommandLine().getOptionValue(ExecutionOption.ENCRYPTION.getName());
       EncryptionAlgorithm encryptionAlgorithm = EncryptionAlgorithm.valueOf(encryption);
       signatureBuilder.withEncryptionAlgorithm(encryptionAlgorithm);
     }
   }
 
   private void useAiaOcsp(Container container) {
-    if (this.context.getCommandLine().hasOption("noaiaocsp")) {
+    if (context.getCommandLine().hasOption(ExecutionOption.NOAIAOCSP.getName())) {
       Configuration configuration = container.getConfiguration();
       configuration.setPreferAiaOcsp(false);
-    } else if (this.context.getCommandLine().hasOption("aiaocsp")) {
+    } else if (context.getCommandLine().hasOption(ExecutionOption.AIAOCSP.getName())) {
       LOGGER.warn("Option 'aiaocsp' is deprecated; preference to use AIA OCSP is enabled by default");
     }
   }
 
   private void signWithPkcs12(Container container, SignatureBuilder signatureBuilder) {
-    if (this.context.getCommandLine().hasOption("pkcs12")) {
-      String[] optionValues = this.context.getCommandLine().getOptionValues("pkcs12");
+    if (context.getCommandLine().hasOption(ExecutionOption.PKCS12.getName())) {
+      String[] optionValues = context.getCommandLine().getOptionValues(ExecutionOption.PKCS12.getName());
       SignatureToken pkcs12Signer = new PKCS12SignatureToken(optionValues[0], optionValues[1].toCharArray());
       Signature signature = invokeSigning(signatureBuilder, pkcs12Signer);
       container.addSignature(signature);
-      this.fileHasChanged = true;
+      fileHasChanged = true;
     }
   }
 
-  private void signContainerWithTst(AsicContainer asicContainer) {
-    if (this.context.getCommandLine().hasOption("tst") && !(this.context.getCommandLine().hasOption("pkcs12") || this.context.getCommandLine().hasOption("pkcs11"))) {
-      DigestAlgorithm digestAlgorithm = DigestAlgorithm.SHA256;
-      if (this.context.getCommandLine().hasOption("datst")) {
-        String digestAlgorithmStr = this.context.getCommandLine().getOptionValue("datst");
-        if (StringUtils.isNotBlank(digestAlgorithmStr)) {
-          digestAlgorithm = DigestAlgorithm.forName(digestAlgorithmStr);
-        }
-      }
-      LOGGER.info("Digest algorithm to calculate data file hash: " + digestAlgorithm.getName());
-      if (this.context.getCommandLine().hasOption("add")) {
-        if (asicContainer.getDataFiles().size() > 1) {
-          throw new DigiDoc4JException("Data file in container already exists. Should be only one data file in case of ASiCS container.");
-        }
-        String[] optionValues = this.context.getCommandLine().getOptionValues("add");
-        DataFile dataFile = new DataFile(optionValues[0], optionValues[1]);
-        DataFile tst = TimestampToken.generateTimestampToken(digestAlgorithm, dataFile);
-        asicContainer.setTimeStampToken(tst);
-        this.fileHasChanged = true;
+  private void signContainerWithTst(Container container) {
+    if (context.getCommandLine().hasOption(ExecutionOption.PKCS12.getName()) || context.getCommandLine().hasOption(ExecutionOption.PKCS11.getName())) {
+      throw new DigiDoc4JException("Timestamping and signing is not allowed.");
+    }
+
+    TimestampBuilder timestampBuilder = TimestampBuilder.aTimestamp(container);
+
+    getTspSource().ifPresent(value -> {
+      LOGGER.info("Using TSP Source {}", value);
+      timestampBuilder.withTspSource(value);
+    });
+
+    DigestAlgorithm timestampDigestAlgorithm = getTimestampDigestAlgorithm();
+    LOGGER.info("Using timestamp digest algorithm {}", timestampDigestAlgorithm.name());
+    timestampBuilder.withTimestampDigestAlgorithm(timestampDigestAlgorithm);
+
+    getReferenceDigestAlgorithm().ifPresent(value -> {
+      LOGGER.info("Using reference digest algorithm {}", value.name());
+      timestampBuilder.withReferenceDigestAlgorithm(value);
+    });
+
+    container.addTimestamp(timestampBuilder.invokeTimestamping());
+
+    fileHasChanged = true;
+  }
+
+  private Optional<String> getTspSource() {
+    if (context.getCommandLine().hasOption(ExecutionOption.TSPSOURCE.getName())) {
+      String val = context.getCommandLine().getOptionValue(ExecutionOption.TSPSOURCE.getName());
+      return StringUtils.isNotBlank(val) ? Optional.of(val) : Optional.empty();
+    }
+    return Optional.empty();
+  }
+
+  private DigestAlgorithm getTimestampDigestAlgorithm() {
+    if (context.getCommandLine().hasOption(ExecutionOption.DATST.getName())) {
+      String val = context.getCommandLine().getOptionValue(ExecutionOption.DATST.getName());
+      if (StringUtils.isNotBlank(val)) {
+        return DigestAlgorithm.valueOf(val);
       }
     }
+    return DigestAlgorithm.SHA256;
+  }
+
+  private Optional<DigestAlgorithm> getReferenceDigestAlgorithm() {
+    if (context.getCommandLine().hasOption(ExecutionOption.REFDATST.getName())) {
+      String val = context.getCommandLine().getOptionValue(ExecutionOption.REFDATST.getName());
+      if (StringUtils.isNotBlank(val)) {
+        return Optional.of(DigestAlgorithm.valueOf(val));
+      }
+    }
+    return Optional.empty();
   }
 
   private void signWithPkcs11(Container container, SignatureBuilder signatureBuilder) {
-    if (this.context.getCommandLine().hasOption("pkcs11")) {
-      String[] optionValues = this.context.getCommandLine().getOptionValues("pkcs11");
+    if (context.getCommandLine().hasOption(ExecutionOption.PKCS11.getName())) {
+      String[] optionValues = context.getCommandLine().getOptionValues(ExecutionOption.PKCS11.getName());
       String pkcs11ModulePath = optionValues[0];
       char[] pin = optionValues[1].toCharArray();
       int slotIndex = Integer.parseInt(optionValues[2]);
@@ -502,9 +550,9 @@ public class CommandLineExecutor {
       } else {
         pkcs11Signer = new PKCS11SignatureToken(pkcs11ModulePath, pin, slotIndex);
       }
-      Signature signature = this.invokeSigning(signatureBuilder, pkcs11Signer);
+      Signature signature = invokeSigning(signatureBuilder, pkcs11Signer);
       container.addSignature(signature);
-      this.fileHasChanged = true;
+      fileHasChanged = true;
     }
   }
 
@@ -514,12 +562,12 @@ public class CommandLineExecutor {
 
   private void verifyContainer(Container container) {
     Path reports = null;
-    if (this.context.getCommandLine().hasOption("reportDir")) {
-      reports = Paths.get(this.context.getCommandLine().getOptionValue("reportDir"));
+    if (context.getCommandLine().hasOption(ExecutionOption.REPORTDIR.getName())) {
+      reports = Paths.get(context.getCommandLine().getOptionValue(ExecutionOption.REPORTDIR.getName()));
     }
-    if (this.context.getCommandLine().hasOption("verify")) {
-      ContainerVerifier verifier = new ContainerVerifier(this.context.getCommandLine());
-      if (this.context.getCommandLine().hasOption("showerrors")){
+    if (context.getCommandLine().hasOption(ExecutionOption.VERIFY.getName())) {
+      ContainerVerifier verifier = new ContainerVerifier(context.getCommandLine());
+      if (context.getCommandLine().hasOption(ExecutionOption.SHOWERRORS.getName())){
         LOGGER.warn("Option 'err/showerrors' is deprecated; in some cases, it can produce false negative validation results");
         Configuration configuration = container.getConfiguration();
         configuration.setFullReportNeeded(true);

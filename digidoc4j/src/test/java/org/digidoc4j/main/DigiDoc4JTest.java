@@ -343,9 +343,9 @@ public class DigiDoc4JTest extends AbstractTest {
     int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
     assertEquals(0, caughtExitStatus);
     assertEquals(3, new File(outputFolder).listFiles().length);
-    TestAssert.assertFolderContainsFile(outputFolder, "firstDoc.bdoc");
-    TestAssert.assertFolderContainsFile(outputFolder, "secondDoc.bdoc");
-    TestAssert.assertFolderContainsFile(outputFolder, "thirdDoc.bdoc");
+    TestAssert.assertFolderContainsFile(outputFolder, "firstDoc.asice");
+    TestAssert.assertFolderContainsFile(outputFolder, "secondDoc.asice");
+    TestAssert.assertFolderContainsFile(outputFolder, "thirdDoc.asice");
   }
 
   @Test
@@ -372,7 +372,7 @@ public class DigiDoc4JTest extends AbstractTest {
     String inputFolder = this.testFolder.newFolder("inputFolder").getPath();
     String outputFolder = this.testFolder.newFolder("outputFolder").getPath();
     FileUtils.writeStringToFile(new File(inputFolder, "firstDoc.txt"), "Hello daddy");
-    FileUtils.writeStringToFile(new File(outputFolder, "firstDoc.bdoc"), "John Matrix");
+    FileUtils.writeStringToFile(new File(outputFolder, "firstDoc.asice"), "John Matrix");
     String[] parameters = new String[]{"-inputDir", inputFolder, "-outputDir", outputFolder,
         "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD};
     int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
@@ -389,9 +389,9 @@ public class DigiDoc4JTest extends AbstractTest {
         "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD};
     int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
     assertEquals(0, caughtExitStatus);
-    Container container = ContainerOpener.open(new File(outputFolder, "firstDoc.bdoc").getPath());
+    Container container = ContainerOpener.open(new File(outputFolder, "firstDoc.asice").getPath());
     assertEquals("text/xml", container.getDataFiles().get(0).getMediaType());
-    container = ContainerOpener.open(new File(outputFolder, "secondDoc.bdoc").getPath());
+    container = ContainerOpener.open(new File(outputFolder, "secondDoc.asice").getPath());
     assertEquals("text/xml", container.getDataFiles().get(0).getMediaType());
   }
 

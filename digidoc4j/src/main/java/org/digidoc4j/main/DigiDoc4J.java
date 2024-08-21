@@ -14,7 +14,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.digidoc4j.Container;
@@ -237,7 +236,9 @@ public final class DigiDoc4J {
     options.addOption(DigiDoc4J.mimeType());
     options.addOption(DigiDoc4J.extractDataFile());
     options.addOption(DigiDoc4J.reportsDir());
+    options.addOption(DigiDoc4J.tspSource());
     options.addOption(DigiDoc4J.tstDigestAlgorihm());
+    options.addOption(DigiDoc4J.tstReferenceDigestAlgorihm());
     options.addOption(DigiDoc4J.signingDataFile());
     options.addOption(DigiDoc4J.signatureFile());
     options.addOption(DigiDoc4J.certificateFile());
@@ -250,121 +251,199 @@ public final class DigiDoc4J {
   }
 
   private static Option signingDataFile() {
-    return OptionBuilder.withArgName("path").hasArg().withDescription("specifies location path of signing data file")
-        .withLongOpt("signingDataFile").create(ExecutionOption.DTS.getName());
+    return Option.builder(ExecutionOption.DTS.getName())
+        .argName("path")
+        .hasArg()
+        .desc("specifies location path of signing data file")
+        .longOpt("signingDataFile")
+        .build();
   }
 
   private static Option signatureFile() {
-    return OptionBuilder.withArgName("path").hasArg().withDescription("specifies location path of signature file")
-        .withLongOpt("signatureFile").create(ExecutionOption.SIGNATURE.getName());
+    return Option.builder(ExecutionOption.SIGNATURE.getName())
+        .argName("path")
+        .hasArg()
+        .desc("specifies location path of signature file")
+        .longOpt("signatureFile")
+        .build();
   }
 
   private static Option certificateFile() {
-    return OptionBuilder.withArgName("path").hasArg().withDescription(
-        "specifies loaction path of public certificate file")
-        .withLongOpt("certificateFile").create(ExecutionOption.CERTIFICATE.getName());
+    return Option.builder(ExecutionOption.CERTIFICATE.getName())
+        .argName("path")
+        .hasArg()
+        .desc("specifies loaction path of public certificate file")
+        .longOpt("certificateFile")
+        .build();
+  }
+
+  private static Option tspSource() {
+    return Option.builder(ExecutionOption.TSPSOURCE.getName())
+        .argName("tspSource")
+        .hasArg()
+        .desc("sets TSP source URL")
+        .build();
   }
 
   private static Option tstDigestAlgorihm() {
-    return OptionBuilder.withArgName("digestAlgorithm").hasArgs()
-        .withDescription("sets method to calculate datafile hash for timestamp token. Default: SHA256").create("datst");
+    return Option.builder(ExecutionOption.DATST.getName())
+        .argName("digestAlgorithm")
+        .hasArgs()
+        .desc("sets method to calculate datafile hash for timestamp token. Default: SHA256")
+        .build();
+  }
+
+  private static Option tstReferenceDigestAlgorihm() {
+    return Option.builder(ExecutionOption.REFDATST.getName())
+        .argName("referenceDigestAlgorithm")
+        .hasArgs()
+        .desc("sets reference digest algorithm. " +
+            "Used when a timestamp has to cover a collection of references (e.g. an ASiCArchiveManifest.xml file), " +
+            "and each reference needs to incorporate the digest of the entity it references.")
+        .build();
   }
 
   private static Option signatureProfile() {
-    return OptionBuilder.withArgName("signatureProfile").hasArg()
-            .withDescription("sets signature profile. Profile can be B_BES, LT or LTA")
-            .withLongOpt("profile").create("p");
+    return Option.builder("p")
+        .argName("signatureProfile")
+        .hasArg()
+        .desc("sets signature profile. Profile can be B_BES, LT or LTA")
+        .longOpt("profile")
+        .build();
   }
 
   private static Option encryptionAlgorithm() {
-    return OptionBuilder.withArgName("encryptionAlgorithm").hasArg()
-        .withDescription("sets the encryption algorithm (RSA/ECDSA).").withLongOpt("encryption").create("e");
+    return Option.builder("e")
+        .argName("encryptionAlgorithm")
+        .hasArg()
+        .desc("sets the encryption algorithm (RSA/ECDSA).")
+        .longOpt("encryption")
+        .build();
   }
 
   private static Option pkcs12Sign() {
-    return OptionBuilder.withArgName("pkcs12Keystore password").hasArgs(2)
-        .withDescription("sets pkcs12 keystore and keystore password").create("pkcs12");
+    return Option.builder("pkcs12")
+        .argName("pkcs12Keystore password")
+        .numberOfArgs(2)
+        .desc("sets pkcs12 keystore and keystore password")
+        .build();
   }
 
   private static Option pkcs11Sign() {
-    return OptionBuilder.withArgName("pkcs11ModulePath pin slot label").hasOptionalArgs(4)
-        .withDescription("sets pkcs11 module path, pin(password), slot index and (optionally) keypair label").create
-            ("pkcs11");
+    return Option.builder("pkcs11")
+        .argName("pkcs11ModulePath pin slot label")
+        .hasArgs()
+        .desc("sets pkcs11 module path, pin(password), slot index and (optionally) keypair label")
+        .build();
   }
 
   private static Option removeFile() {
-    return OptionBuilder.withArgName("file").hasArg().withDescription("removes file from container").create("remove");
+    return Option.builder("remove")
+        .argName("file")
+        .hasArg()
+        .desc("removes file from container")
+        .build();
   }
 
   private static Option addFile() {
-    return OptionBuilder.withArgName("file mime-type").hasArgs(2)
-        .withDescription("adds file specified with mime type to container").create("add");
+    return Option.builder("add")
+        .argName("file mime-type")
+        .numberOfArgs(2)
+        .desc("adds file specified with mime type to container")
+        .build();
   }
 
   private static Option inputFile() {
-    return OptionBuilder.withArgName("file").hasArg().withDescription("opens or creates container").create("in");
+    return Option.builder("in")
+        .argName("file")
+        .hasArg()
+        .desc("opens or creates container")
+        .build();
   }
 
   private static Option inputDir() {
-    return OptionBuilder.withArgName("inputDir").hasArg()
-        .withDescription("directory path containing data files to sign").create("inputDir");
+    return Option.builder("inputDir")
+        .argName("inputDir")
+        .hasArg()
+        .desc("directory path containing data files to sign")
+        .build();
   }
 
   private static Option reportsDir() {
-    return OptionBuilder.withArgName("reportDir").hasArg().withDescription("directory path for validation reports")
-        .withLongOpt("reportDir").create("r");
+    return Option.builder("r")
+        .argName("reportDir")
+        .hasArg()
+        .desc("directory path for validation reports")
+        .longOpt("reportDir")
+        .build();
   }
 
   private static Option mimeType() {
-    return OptionBuilder.withArgName("mimeType").hasArg().withDescription(
-        "specifies input file mime type when using inputDir")
-        .create("mimeType");
+    return Option.builder("mimeType")
+        .argName("mimeType")
+        .hasArg()
+        .desc("specifies input file mime type when using inputDir")
+        .build();
   }
 
   private static Option outputDir() {
-    return OptionBuilder.withArgName("outputDir").hasArg().withDescription("directory path where containers are saved")
-        .create("outputDir");
+    return Option.builder("outputDir")
+        .argName("outputDir")
+        .hasArg()
+        .desc("directory path where containers are saved")
+        .build();
   }
 
   private static Option type() {
-    return OptionBuilder.withArgName("type").hasArg()
-        .withDescription("sets container type. Types can be BDOC, ASICE or ASICS")
-        .withLongOpt("type").create("t");
+    return Option.builder("t")
+        .argName("type")
+        .hasArg()
+        .desc("sets container type. Types can be BDOC, ASICE or ASICS")
+        .longOpt("type")
+        .build();
   }
 
   private static Option extractDataFile() {
-    return OptionBuilder.withArgName("fileName destination").hasArgs(2)
-        .withDescription("extracts the file from the container to the specified destination").create(
-            ExecutionOption.EXTRACT.getName());
+    return Option.builder(ExecutionOption.EXTRACT.getName())
+        .argName("fileName destination")
+        .numberOfArgs(2)
+        .desc("extracts the file from the container to the specified destination")
+        .build();
+  }
+
+  private static Option detachedXades() {
+    return Option.builder(ExecutionOption.DETACHED_XADES.getName())
+        .hasArg(false)
+        .desc("operates with detached XadES")
+        .build();
+  }
+
+  private static Option addDigestFile() {
+    return Option.builder(ExecutionOption.DIGEST_FILE.getName())
+        .argName("name digest mimeType")
+        .numberOfArgs(ExecutionOption.DIGEST_FILE.getCount())
+        .desc("sets digest (in base64) data file for detached XadES")
+        .build();
+  }
+
+  private static Option xadesOutputPath() {
+    return Option.builder(ExecutionOption.XADES_OUTPUT_PATH.getName())
+        .argName("path")
+        .hasArg()
+        .desc("sets the destination where detached XadES signature will be saved")
+        .build();
+  }
+
+  private static Option xadesInputPath() {
+    return Option.builder(ExecutionOption.XADES_INPUT_PATH.getName())
+        .argName("path")
+        .hasArg()
+        .desc("sets the source where detached XadES signature will read from")
+        .build();
   }
 
   private static void showVersion() {
     System.out.println("DigiDoc4j version " + Version.VERSION);
-  }
-
-  private static Option detachedXades() {
-    return OptionBuilder.hasArg(false)
-        .withDescription("operates with detached XadES").create(ExecutionOption.DETACHED_XADES.getName());
-  }
-
-  private static Option addDigestFile() {
-    return OptionBuilder.withArgName("name digest mimeType").hasArgs(ExecutionOption.DIGEST_FILE.getCount())
-        .withDescription("sets digest (in base64) data file for detached XadES").create(ExecutionOption.DIGEST_FILE
-            .getName());
-  }
-
-  private static Option xadesOutputPath() {
-    return OptionBuilder.withArgName("path").hasArg()
-        .withDescription("sets the destination where detached XadES signature will be saved").create(ExecutionOption
-            .XADES_OUTPUT_PATH
-            .getName());
-  }
-
-  private static Option xadesInputPath() {
-    return OptionBuilder.withArgName("path").hasArg()
-        .withDescription("sets the source where detached XadES signature will read from").create(ExecutionOption
-            .XADES_INPUT_PATH
-            .getName());
   }
 
 }
