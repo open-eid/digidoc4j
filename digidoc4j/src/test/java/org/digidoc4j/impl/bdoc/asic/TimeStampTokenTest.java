@@ -279,7 +279,7 @@ public class TimeStampTokenTest extends AbstractTest {
     caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
     assertEquals(1, caughtExitStatus);
     assertThat(this.stdOut.getLog(), StringContains.containsString(
-        "Datafiles cannot be added to an already timestamped container"));
+        "Signing of ASiCS container is not supported."));
   }
 
   @Test
@@ -289,9 +289,9 @@ public class TimeStampTokenTest extends AbstractTest {
         "text/plain", "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD};
     int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
     assertEquals(1, caughtExitStatus);
-    assertThat(this.stdOut.getLog(), StringContains.containsString("Not supported: Not for ASiC-S container"));
+    assertThat(this.stdOut.getLog(), StringContains.containsString("Signing of ASiCS container is not supported."));
   }
-  
+
   /*
    * RESTRICTED METHODS
    */

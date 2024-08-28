@@ -85,6 +85,7 @@ public class CommandLineExecutor {
         processDataFileCommands(container);
         break;
       case ASICS:
+        checkInputArgsForAsicSContainer();
         processDataFileCommands(container);
         processAsicSContainerSpecificCommands(container);
         break;
@@ -95,10 +96,18 @@ public class CommandLineExecutor {
     verifyContainer(container);
   }
 
+  private void checkInputArgsForAsicSContainer() {
+    // This check should be here for as long as adding signature to ASiCS container is not supported.
+    // See org.digidoc4j.impl.asic.asics.AsicSContainer::addSignature
+    if (hasAnyOption(ExecutionOption.PKCS11.getName(), ExecutionOption.PKCS12.getName())) {
+      throw new DigiDoc4JException("Signing of ASiCS container is not supported.");
+    }
+  }
+
   private void processAsicSContainerSpecificCommands(Container container) {
     if (hasAnyOption(ExecutionOption.TST.getName())) {
       signContainerWithTst(container);
-    } else if (hasAnyOption(ExecutionOption.PKCS11.getName(), ExecutionOption.PKCS12.getName(), ExecutionOption.ADD.getName())) {
+    } else if (hasAnyOption(ExecutionOption.PKCS11.getName(), ExecutionOption.PKCS12.getName())) {
       verifyIfAllowedToAddSignatureForAsics(container);
       signContainer(container);
     } else {
@@ -259,7 +268,7 @@ public class CommandLineExecutor {
     if (CollectionUtils.isNotEmpty(container.getTimestamps())) {
       throw new DigiDoc4JException("This container has already timestamp. Should be no signatures in case of timestamped ASiCS container.");
     }
-    if (!container.getSignatures().isEmpty()) {
+    if (CollectionUtils.isNotEmpty(container.getSignatures())) {
       throw new DigiDoc4JException("This container is already signed. Should be only one signature in case of ASiCS container.");
     }
   }
