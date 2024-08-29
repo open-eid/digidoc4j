@@ -56,7 +56,7 @@ import static org.digidoc4j.Container.DocumentType.DDOC;
 import static org.digidoc4j.Container.DocumentType.PADES;
 
 /**
- * Class for managing digidoc4j-util parameters.
+ * Class for executing digidoc4j-util commands.
  */
 public class CommandLineExecutor {
 
@@ -76,6 +76,8 @@ public class CommandLineExecutor {
    */
   public void processContainer(Container container) {
     LOGGER.debug("Processing container");
+
+    overrideConfiguration(container);
 
     switch (getContainerType()) {
       case PADES:
@@ -113,10 +115,6 @@ public class CommandLineExecutor {
     } else {
       LOGGER.debug("Signing or timestamping was not requested for this ASiC-S container.");
     }
-  }
-
-  private boolean hasAnyOption(String... opts) {
-    return Arrays.stream(opts).anyMatch(opt -> context.getCommandLine().hasOption(opt));
   }
 
   /**
@@ -499,51 +497,16 @@ public class CommandLineExecutor {
 
     TimestampBuilder timestampBuilder = TimestampBuilder.aTimestamp(container);
 
-    getTspSource().ifPresent(value -> {
-      LOGGER.info("Using TSP Source {}", value);
-      timestampBuilder.withTspSource(value);
-    });
-
-    DigestAlgorithm timestampDigestAlgorithm = getTimestampDigestAlgorithm();
-    LOGGER.info("Using timestamp digest algorithm {}", timestampDigestAlgorithm.name());
-    timestampBuilder.withTimestampDigestAlgorithm(timestampDigestAlgorithm);
-
-    getReferenceDigestAlgorithm().ifPresent(value -> {
-      LOGGER.info("Using reference digest algorithm {}", value.name());
-      timestampBuilder.withReferenceDigestAlgorithm(value);
-    });
+    LOGGER.info(
+        "Following properties will be used for timestamping: TSP Source {}; timestamp digest algorithm {}, reference digest algorithm {}",
+        timestampBuilder.getTspSource(),
+        timestampBuilder.getTimestampDigestAlgorithm().name(),
+        timestampBuilder.getReferenceDigestAlgorithm().name()
+    );
 
     container.addTimestamp(timestampBuilder.invokeTimestamping());
 
     fileHasChanged = true;
-  }
-
-  private Optional<String> getTspSource() {
-    if (context.getCommandLine().hasOption(ExecutionOption.TSPSOURCE.getName())) {
-      String val = context.getCommandLine().getOptionValue(ExecutionOption.TSPSOURCE.getName());
-      return StringUtils.isNotBlank(val) ? Optional.of(val) : Optional.empty();
-    }
-    return Optional.empty();
-  }
-
-  private DigestAlgorithm getTimestampDigestAlgorithm() {
-    if (context.getCommandLine().hasOption(ExecutionOption.DATST.getName())) {
-      String val = context.getCommandLine().getOptionValue(ExecutionOption.DATST.getName());
-      if (StringUtils.isNotBlank(val)) {
-        return DigestAlgorithm.valueOf(val);
-      }
-    }
-    return DigestAlgorithm.SHA256;
-  }
-
-  private Optional<DigestAlgorithm> getReferenceDigestAlgorithm() {
-    if (context.getCommandLine().hasOption(ExecutionOption.REFDATST.getName())) {
-      String val = context.getCommandLine().getOptionValue(ExecutionOption.REFDATST.getName());
-      if (StringUtils.isNotBlank(val)) {
-        return Optional.of(DigestAlgorithm.valueOf(val));
-      }
-    }
-    return Optional.empty();
   }
 
   private void signWithPkcs11(Container container, SignatureBuilder signatureBuilder) {
@@ -597,9 +560,44 @@ public class CommandLineExecutor {
     }
   }
 
-  /*
-   * ACCESSORS
-   */
+  private void overrideConfiguration(Container container) {
+    Configuration configuration = container.getConfiguration();
+
+    getExecOptionValue(ExecutionOption.TSPSOURCE)
+        .ifPresent(value -> {
+          LOGGER.info("Overriding configuration value: setting TSP source: {}", value);
+          configuration.setTspSource(value);
+        });
+    getExecOptionValue(ExecutionOption.TSPSOURCEARCHIVE)
+        .ifPresent(value -> {
+          LOGGER.info("Overriding configuration value: setting TSP source for archive timestamps: {}", value);
+          configuration.setTspSourceForArchiveTimestamps(value);
+        });
+    getExecOptionValue(ExecutionOption.DATST)
+        .map(DigestAlgorithm::valueOf)
+        .ifPresent(value -> {
+          LOGGER.info("Overriding configuration value: setting archive timestamp digest algorithm: {}", value.name());
+          configuration.setArchiveTimestampDigestAlgorithm(value);
+        });
+    getExecOptionValue(ExecutionOption.REFDATST)
+        .map(DigestAlgorithm::valueOf)
+        .ifPresent(value -> {
+          LOGGER.info("Overriding configuration value: setting archive timestamp reference digest algorithm: {}", value.name());
+          configuration.setArchiveTimestampReferenceDigestAlgorithm(value);
+        });
+  }
+
+  private Optional<String> getExecOptionValue(ExecutionOption execOpt) {
+    if (context.getCommandLine().hasOption(execOpt.getName())) {
+      String val = context.getCommandLine().getOptionValue(execOpt.getName());
+      return StringUtils.isNotBlank(val) ? Optional.of(val) : Optional.empty();
+    }
+    return Optional.empty();
+  }
+
+  private boolean hasAnyOption(String... opts) {
+    return Arrays.stream(opts).anyMatch(opt -> context.getCommandLine().hasOption(opt));
+  }
 
   public ExecutionContext getContext() {
     return context;

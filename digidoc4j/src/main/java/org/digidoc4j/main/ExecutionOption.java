@@ -29,6 +29,7 @@ public enum ExecutionOption {
   TYPE("type", 1),
   TST("tst", 0),
   TSPSOURCE("tspsource", 1),
+  TSPSOURCEARCHIVE("tspsourcearchive", 1),
   DATST("datst", 1),
   REFDATST("refdatst", 1),
   VERIFY("verify", 0),

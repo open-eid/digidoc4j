@@ -237,6 +237,7 @@ public final class DigiDoc4J {
     options.addOption(DigiDoc4J.extractDataFile());
     options.addOption(DigiDoc4J.reportsDir());
     options.addOption(DigiDoc4J.tspSource());
+    options.addOption(DigiDoc4J.tspSourceArchive());
     options.addOption(DigiDoc4J.tstDigestAlgorihm());
     options.addOption(DigiDoc4J.tstReferenceDigestAlgorihm());
     options.addOption(DigiDoc4J.signingDataFile());
@@ -281,7 +282,15 @@ public final class DigiDoc4J {
     return Option.builder(ExecutionOption.TSPSOURCE.getName())
         .argName("tspSource")
         .hasArg()
-        .desc("sets TSP source URL")
+        .desc("sets TSP source URL for signature timestamps")
+        .build();
+  }
+
+  private static Option tspSourceArchive() {
+    return Option.builder(ExecutionOption.TSPSOURCEARCHIVE.getName())
+        .argName("tspSourceArchive")
+        .hasArg()
+        .desc("sets TSP source URL for archive timestamps.")
         .build();
   }
 
@@ -289,7 +298,8 @@ public final class DigiDoc4J {
     return Option.builder(ExecutionOption.DATST.getName())
         .argName("digestAlgorithm")
         .hasArgs()
-        .desc("sets method to calculate datafile hash for timestamp token. Default: SHA256")
+        .desc("sets the digest algorithm for archive timestamps. " +
+            "Defaults to the value defined in configuration if unset.")
         .build();
   }
 

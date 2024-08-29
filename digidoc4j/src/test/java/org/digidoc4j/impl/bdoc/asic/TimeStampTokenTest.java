@@ -216,10 +216,10 @@ public class TimeStampTokenTest extends AbstractTest {
     String fileName = this.getFileBy("asics");
     String tspSource = "http://tsa.demo.sk.ee/tsarsa";
 
-    int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-tspsource", tspSource, "-tst");
+    int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-tspsourcearchive", tspSource, "-tst");
 
     assertEquals(0, caughtExitStatus);
-    assertThat(this.stdOut.getLog(), StringContains.containsString("Using TSP Source " + tspSource));
+    assertThat(this.stdOut.getLog(), StringContains.containsString("Following properties will be used for timestamping: TSP Source " + tspSource));
     Container container = ContainerOpener.open(fileName);
     Assert.assertTrue(container.validate().isValid());
     Assert.assertEquals(1, container.getTimestamps().size());
@@ -230,7 +230,7 @@ public class TimeStampTokenTest extends AbstractTest {
     String fileName = this.getFileBy("asics");
     String tspSource = "http://10.255.255.1/";
 
-    int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-tspsource", tspSource, "-tst");
+    int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-tspsourcearchive", tspSource, "-tst");
 
     assertEquals(1, caughtExitStatus);
     assertThat(this.stdOut.getLog(), StringContains.containsString(String.format("Unable to process <TSP> POST call for service <%s>", tspSource)));
@@ -243,12 +243,12 @@ public class TimeStampTokenTest extends AbstractTest {
     String fileName = this.getFileBy("asics");
 
     invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-tst", "-datst", digestAlgo);
-    assertThat(this.stdOut.getLog(), StringContains.containsString("Using timestamp digest algorithm " + digestAlgo));
+    assertThat(this.stdOut.getLog(), StringContains.containsString("timestamp digest algorithm " + digestAlgo));
 
     digestAlgo = "SHA512";
     invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-tst", "-datst", digestAlgo, "-refdatst", refDigestAlgo);
-    assertThat(this.stdOut.getLog(), StringContains.containsString("Using timestamp digest algorithm " + digestAlgo));
-    assertThat(this.stdOut.getLog(), StringContains.containsString("Using reference digest algorithm " + refDigestAlgo));
+    assertThat(this.stdOut.getLog(), StringContains.containsString("timestamp digest algorithm " + digestAlgo));
+    assertThat(this.stdOut.getLog(), StringContains.containsString("reference digest algorithm " + refDigestAlgo));
 
     Container container = ContainerOpener.open(fileName);
     Assert.assertTrue(container.validate().isValid());
