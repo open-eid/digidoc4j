@@ -24,6 +24,7 @@ import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.asic.AsicCompositeContainerValidationResult;
 import org.digidoc4j.impl.asic.TimeStampContainerValidationResult;
 import org.digidoc4j.impl.asic.asics.AsicSContainerTimestamp;
 import org.digidoc4j.impl.asic.cades.AsicArchiveManifest;
@@ -82,11 +83,12 @@ public class TimeStampTokenTest extends AbstractTest {
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
     Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(configuration).
         fromExistingFile("src/test/resources/testFiles/valid-containers/timestamptoken-ddoc.asics").build();
-    TimeStampContainerValidationResult validate = (TimeStampContainerValidationResult) container.validate();
-    Assert.assertEquals("SK TIMESTAMPING AUTHORITY", validate.getSignedBy());
-    Assert.assertEquals(Indication.TOTAL_FAILED, validate.getIndication());
-    TestAssert.assertContainerIsInvalid(validate);
-    TestAssert.assertContainsExactSetOfErrors(validate.getErrors(),
+    AsicCompositeContainerValidationResult validationResult = (AsicCompositeContainerValidationResult) container.validate();
+    TimeStampContainerValidationResult timestampValidationResult = (TimeStampContainerValidationResult) validationResult.getNestingContainerValidationResult();
+    Assert.assertEquals("SK TIMESTAMPING AUTHORITY", timestampValidationResult.getSignedBy());
+    Assert.assertEquals(Indication.TOTAL_FAILED, timestampValidationResult.getIndication());
+    TestAssert.assertContainerIsInvalid(validationResult);
+    TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
             "The certificate is not related to a granted status at time-stamp lowest POE time!");
   }
 

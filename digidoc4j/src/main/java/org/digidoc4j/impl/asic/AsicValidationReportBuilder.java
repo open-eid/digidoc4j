@@ -81,7 +81,7 @@ public class AsicValidationReportBuilder {
 
   public String buildXmlReport() {
     if (reportInXml == null) {
-      reportInXml = generateNewReport();
+      reportInXml = generateNewXmlReport();
     }
     return reportInXml;
   }
@@ -197,8 +197,7 @@ public class AsicValidationReportBuilder {
     }
   }
 
-  private String generateNewReport() {
-    logger.debug("Generating a new XML validation report");
+  ContainerValidationReport generateNewValidationReport() {
     ContainerValidationReport report = new ContainerValidationReport();
     report.setValidationPolicy(extractValidationPolicy());
     report.setValidationTime(new Date());
@@ -207,6 +206,12 @@ public class AsicValidationReportBuilder {
     report.setSignatures(createSignatureValidationReports());
     report.setTimestampTokens(createTimestampValidationReports());
     report.setContainerErrors(createContainerErrors());
+    return report;
+  }
+
+  private String generateNewXmlReport() {
+    logger.debug("Generating a new XML validation report");
+    ContainerValidationReport report = generateNewValidationReport();
     return createFormattedXmlString(report);
   }
 
@@ -253,7 +258,7 @@ public class AsicValidationReportBuilder {
     return containerErrors;
   }
 
-  private String createFormattedXmlString(ContainerValidationReport simpleReport) {
+  public static String createFormattedXmlString(ContainerValidationReport simpleReport) {
     try {
       JAXBContext context = JAXBContext.newInstance(ContainerValidationReport.class);
       Marshaller marshaller = context.createMarshaller();

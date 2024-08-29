@@ -16,6 +16,8 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.impl.AiaSourceFactory;
 import org.digidoc4j.impl.asic.AbstractValidationReportGenerator;
 
+import java.util.Date;
+
 /**
  * Abstract base class of validation report generator for CAdES.
  */
@@ -31,6 +33,13 @@ public abstract class CadesValidationReportGenerator extends AbstractValidationR
    * @param validationDssFacade the facade to configure for validation
    */
   protected abstract void configureValidationFacade(CadesValidationDssFacade validationDssFacade);
+
+  @Override
+  public Reports generateReports(Date validationTime) {
+    SignedDocumentValidator signedDocumentValidator = createValidator();
+    signedDocumentValidator.setValidationTime(validationTime);
+    return validate(signedDocumentValidator);
+  }
 
   @Override
   protected SignedDocumentValidator createValidator() {

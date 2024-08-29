@@ -14,6 +14,7 @@ import org.apache.commons.io.FileUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
+import org.digidoc4j.DataFile;
 import org.digidoc4j.DataToSign;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.Signature;
@@ -24,6 +25,7 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 public class TestDataBuilderUtil {
@@ -103,6 +105,22 @@ public class TestDataBuilderUtil {
 
   public static Container open(String path) {
     return ContainerBuilder.aContainer().fromExistingFile(path).build();
+  }
+
+  public static Container open(DataFile dataFile, Configuration configuration) {
+    try (InputStream in = dataFile.getStream()) {
+      return ContainerBuilder.aContainer().fromStream(in).withConfiguration(configuration).build();
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to open stream from: " + dataFile, e);
+    }
+  }
+
+  public static Container open(DataFile dataFile) {
+    try (InputStream in = dataFile.getStream()) {
+      return ContainerBuilder.aContainer().fromStream(in).build();
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to open stream from: " + dataFile, e);
+    }
   }
 
   private static Container populateContainerBuilderWithFile(ContainerBuilder builder, TemporaryFolder testFolder, Configuration configuration) throws IOException {

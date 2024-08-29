@@ -11,12 +11,14 @@
 package org.digidoc4j;
 
 import eu.europa.esig.dss.enumerations.MimeTypeEnum;
+import org.apache.commons.collections4.CollectionUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.asic.AsicFileContainerParser;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicStreamContainerParser;
 import org.digidoc4j.impl.asic.asice.AsicEContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
+import org.digidoc4j.impl.asic.asics.AsicSCompositeContainer;
 import org.digidoc4j.impl.asic.asics.AsicSContainer;
 import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
 import org.digidoc4j.impl.ddoc.DDocOpener;
@@ -106,7 +108,7 @@ public class ContainerOpener {
       if (Helper.isZipFile(bufferedInputStream)) {
         AsicParseResult parseResult = new AsicStreamContainerParser(bufferedInputStream, configuration).read();
         if (isAsicSContainer(parseResult)){
-          return new AsicSContainer(parseResult, configuration);
+          return openAsicSContainer(parseResult, configuration);
         }
         if (isBDocContainer(parseResult)) {
           return new BDocContainer(parseResult, configuration);
@@ -125,13 +127,25 @@ public class ContainerOpener {
     configuration.loadConfiguration("digidoc4j.yaml", false);
     AsicParseResult parseResult = new AsicFileContainerParser(path, configuration).read();
     if (isAsicSContainer(parseResult)){
-      return new AsicSContainer(parseResult, configuration);
+      return openAsicSContainer(parseResult, configuration);
     }
     if (isBDocContainer(parseResult)) {
       return new BDocContainer(parseResult, configuration);
     }
 
     return new AsicEContainer(parseResult, configuration);
+  }
+
+  private static Container openAsicSContainer(AsicParseResult parseResult, Configuration configuration) {
+    if (CollectionUtils.isNotEmpty(parseResult.getTimestamps()) && CollectionUtils.size(parseResult.getDataFiles()) == 1) {
+      // TODO (DD4J-1085): Implement proper parsing mechanism and pre-parsing checks
+      try (InputStream in = parseResult.getDataFiles().get(0).getStream()) {
+        return new AsicSCompositeContainer(parseResult, open(in, configuration), configuration);
+      } catch (Exception e) {
+        logger.trace("Failed to open data file as nested container", e);
+      }
+    }
+    return new AsicSContainer(parseResult, configuration);
   }
 
   private static Container openPadesContainer(String path, Configuration configuration) {

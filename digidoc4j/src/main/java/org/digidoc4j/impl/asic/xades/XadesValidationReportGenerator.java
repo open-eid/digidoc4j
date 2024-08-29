@@ -24,6 +24,7 @@ import org.digidoc4j.impl.asic.AbstractValidationReportGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -55,6 +56,20 @@ public class XadesValidationReportGenerator extends AbstractValidationReportGene
       this.xadesSignature = getXAdESSignature();
     }
     return this.xadesSignature;
+  }
+
+  @Override
+  public Reports generateReports(Date validationTime) {
+    try {
+      log.debug("Creating a new validation report @ {}", validationTime);
+      SignedDocumentValidator signedDocumentValidator = createValidator();
+      signedDocumentValidator.setValidationTime(validationTime);
+      Reports validationReports = validate(signedDocumentValidator);
+      XadesValidationReportProcessor.process(validationReports);
+      return validationReports;
+    } catch (DSSException e) {
+      throw new DigiDoc4JException(e);
+    }
   }
 
   @Override

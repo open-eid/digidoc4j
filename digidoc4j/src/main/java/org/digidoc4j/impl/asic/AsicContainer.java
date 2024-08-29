@@ -29,6 +29,7 @@ import org.digidoc4j.exceptions.SignatureNotFoundException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.AbstractContainerValidationResult;
 import org.digidoc4j.impl.AbstractValidationResult;
+import org.digidoc4j.impl.ValidatableContainer;
 import org.digidoc4j.impl.asic.manifest.AsicManifest;
 import org.digidoc4j.impl.asic.xades.SignatureExtender;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
@@ -45,6 +46,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -52,7 +54,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Andrei on 7.11.2017.
  */
-public abstract class AsicContainer implements Container {
+public abstract class AsicContainer implements Container, ValidatableContainer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AsicContainer.class);
 
@@ -187,8 +189,24 @@ public abstract class AsicContainer implements Container {
     return validationResult;
   }
 
+  @Override
+  public ContainerValidationResult validateAt(Date validationTime) {
+    ContainerValidationResult validationResult = validateContainerAt(validationTime);
+    validateDataFiles(validationResult);
+    if (validationResult instanceof AbstractValidationResult) {
+      ((AbstractValidationResult) validationResult).print(configuration);
+    }
+    return validationResult;
+  }
+
   protected ContainerValidationResult validateContainer() {
     return getContainerValidator(containerParseResult, dataFilesHaveChanged).validate(getSignatures());
+  }
+
+  protected ContainerValidationResult validateContainerAt(Date validationTime) {
+    AsicContainerValidator asicContainerValidator = getContainerValidator(containerParseResult, dataFilesHaveChanged);
+    asicContainerValidator.setValidationTime(validationTime);
+    return asicContainerValidator.validate(getSignatures());
   }
 
   protected abstract AsicContainerValidator getContainerValidator(AsicParseResult containerParseResult, boolean dataFilesHaveChanged);

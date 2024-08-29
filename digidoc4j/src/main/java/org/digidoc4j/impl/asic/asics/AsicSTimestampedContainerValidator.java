@@ -31,6 +31,7 @@ import org.digidoc4j.utils.DateUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -43,14 +44,26 @@ import java.util.stream.Collectors;
 public class AsicSTimestampedContainerValidator {
 
   private final AsicSContainer asicsContainer;
+  private final Date validationTime;
 
   /**
-   * Creates an instance of a validator.
+   * Creates an instance of a validator with current validation time.
    *
    * @param asicsContainer ASiC-S container to validate
    */
   public AsicSTimestampedContainerValidator(AsicSContainer asicsContainer) {
+    this(asicsContainer, new Date());
+  }
+
+  /**
+   * Creates an instance of a validator with specified validation time.
+   *
+   * @param validationTime validation time
+   * @param asicsContainer ASiC-S container to validate
+   */
+  public AsicSTimestampedContainerValidator(AsicSContainer asicsContainer, Date validationTime) {
     this.asicsContainer = Objects.requireNonNull(asicsContainer);
+    this.validationTime = validationTime;
   }
 
   /**
@@ -59,7 +72,7 @@ public class AsicSTimestampedContainerValidator {
    * @return container validation result
    */
   public ContainerValidationResult validate() {
-    Reports reports = new AsicSTimestampsValidationReportGenerator(asicsContainer).openValidationReport();
+    Reports reports = new AsicSTimestampsValidationReportGenerator(asicsContainer).generateReports(validationTime);
     return createValidationResult(reports);
   }
 

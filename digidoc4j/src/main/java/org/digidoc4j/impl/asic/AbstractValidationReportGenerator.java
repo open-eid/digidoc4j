@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -61,6 +62,15 @@ public abstract class AbstractValidationReportGenerator implements Serializable 
     }
     return reports;
   }
+
+  /**
+   * Validates the state of this validation report generator against the specified validation time,
+   * and generates and returns new {@link Reports} based on the fresh validation results.
+   *
+   * @param validationTime validation time
+   * @return newly generated reports
+   */
+  public abstract Reports generateReports(Date validationTime);
 
   /**
    * Generates and returns new {@link Reports} based on current state of this report generator.

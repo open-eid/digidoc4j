@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -52,6 +53,7 @@ public abstract class AsicContainerValidator {
   private List<DigiDoc4JException> manifestErrors;
   private List<DigiDoc4JException> containerErrors = new ArrayList<>();
   private ThreadPoolManager threadPoolManager;
+  private Date validationTime;
 
   /**
    * @param configuration configuration
@@ -104,7 +106,7 @@ public abstract class AsicContainerValidator {
   protected List<Future<SignatureValidationData>> startSignatureValidationInParallel(List<Signature> signatures) {
     List<Future<SignatureValidationData>> futures = new ArrayList<>();
     for (Signature signature : signatures) {
-      SignatureValidationTask validationExecutor = new SignatureValidationTask(signature);
+      SignatureValidationTask validationExecutor = new SignatureValidationTask(signature, validationTime);
       Future<SignatureValidationData> validationDataFuture = threadPoolManager.submit(validationExecutor);
       futures.add(validationDataFuture);
     }
@@ -129,6 +131,13 @@ public abstract class AsicContainerValidator {
    */
   public void setValidateManifest(boolean validateManifest) {
     this.validateManifest = validateManifest;
+  }
+
+  /**
+   * @param validationTime validate against specific time
+   */
+  public void setValidationTime(Date validationTime) {
+    this.validationTime = validationTime;
   }
 
   protected void extractSignatureErrors(SignatureValidationData validationData) {

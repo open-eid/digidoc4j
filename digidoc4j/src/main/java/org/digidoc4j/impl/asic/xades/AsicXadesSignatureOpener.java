@@ -49,6 +49,7 @@ public abstract class AsicXadesSignatureOpener implements AsicSignatureOpener {
     XadesSignatureValidator xadesValidator = createSignatureValidator(signatureWrapper.getSignature());
     AsicSignature asicSignature = createAsicSignature(signatureWrapper.getSignature(), xadesValidator);
     asicSignature.setSignatureDocument(signatureWrapper.getSignatureDocument());
+    asicSignature.setConfiguration(configuration);
     return asicSignature;
   }
 

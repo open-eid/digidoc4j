@@ -214,18 +214,106 @@ public class ValidationReportTest extends AbstractTest {
   @Test
   public void validContainerWithOneTimestampToken() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/1xTST-text-data-file.asics");
-    String signatureUniqueId = container.getTimestamps().get(0).getUniqueId();
+    String timestampUniqueId = container.getTimestamps().get(0).getUniqueId();
     String report = container.validate().getReport();
     TestAssert.assertXPathHasValue("0", "/SimpleReport/SignaturesCount", report);
     TestAssert.assertXPathHasValue("0", "/SimpleReport/ValidSignaturesCount", report);
     TestAssert.assertXPathHasValue("1", "count(/SimpleReport/TimestampToken)", report);
-    TestAssert.assertXPathHasValue(signatureUniqueId, "/SimpleReport/TimestampToken/@Id", report);
-    TestAssert.assertXPathHasValue(signatureUniqueId,"/SimpleReport/TimestampToken/*[position()=1][self::UniqueId]", report);
+    TestAssert.assertXPathHasValue(timestampUniqueId, "/SimpleReport/TimestampToken/@Id", report);
+    TestAssert.assertXPathHasValue(timestampUniqueId,"/SimpleReport/TimestampToken/*[position()=1][self::UniqueId]", report);
     TestAssert.assertXPathHasValue("PASSED", "/SimpleReport/TimestampToken/Indication", report);
     TestAssert.assertXPathHasValue("2024-05-28T12:24:09Z", "/SimpleReport/TimestampToken/ProductionTime", report);
     TestAssert.assertXPathHasValue("DEMO SK TIMESTAMPING AUTHORITY 2023E", "/SimpleReport/TimestampToken/ProducedBy", report);
     TestAssert.assertXPathHasValue("QTSA", "/SimpleReport/TimestampToken/TimestampLevel", report);
     TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/TimestampToken/TimestampScope/@name", report);
+  }
+
+  @Test
+  public void validTimestampedContainerWithNestedValidBdoc() throws Exception {
+    Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/1xTST-valid-bdoc-data-file.asics");
+    Container nestedContainer = TestDataBuilderUtil.open(container.getDataFiles().get(0));
+    String timestampUniqueId = container.getTimestamps().get(0).getUniqueId();
+    String signatureUniqueId = nestedContainer.getSignatures().get(0).getUniqueId();
+    String report = container.validate().getReport();
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/TimestampToken)", report);
+    TestAssert.assertXPathHasValue(timestampUniqueId,"/SimpleReport/TimestampToken/*[position()=1][self::UniqueId]", report);
+    TestAssert.assertXPathHasValue("PASSED", "/SimpleReport/TimestampToken/Indication", report);
+    TestAssert.assertXPathHasValue("2024-03-27T12:42:57Z", "/SimpleReport/TimestampToken/ProductionTime", report);
+    TestAssert.assertXPathHasValue("DEMO SK TIMESTAMPING AUTHORITY 2023E", "/SimpleReport/TimestampToken/ProducedBy", report);
+    TestAssert.assertXPathHasValue("QTSA", "/SimpleReport/TimestampToken/TimestampLevel", report);
+    TestAssert.assertXPathHasValue("valid-bdoc-tm.bdoc", "/SimpleReport/TimestampToken/TimestampScope/@name", report);
+    TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
+    TestAssert.assertXPathHasValue("1", "/SimpleReport/ValidSignaturesCount", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature)", report);
+    TestAssert.assertXPathHasValue(signatureUniqueId, "/SimpleReport/Signature/*[position()=1][self::UniqueId]", report);
+    TestAssert.assertXPathHasValue("XAdES-BASELINE-LT-TM", "/SimpleReport/Signature/@SignatureFormat", report);
+    TestAssert.assertXPathHasValue("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001016970", "/SimpleReport/Signature/SignedBy", report);
+    TestAssert.assertXPathHasValue("TOTAL_PASSED", "/SimpleReport/Signature/Indication", report);
+    TestAssert.assertXPathHasValue("QESig", "/SimpleReport/Signature/SignatureLevel", report);
+    TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/Signature/SignatureScope/@name", report);
+  }
+
+  @Test
+  public void valid2xTimestampedContainerWithNestedValidBdoc() throws Exception {
+    Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/2xTST-valid-bdoc-data-file.asics");
+    Container nestedContainer = TestDataBuilderUtil.open(container.getDataFiles().get(0));
+    String timestamp1UniqueId = container.getTimestamps().get(0).getUniqueId();
+    String timestamp2UniqueId = container.getTimestamps().get(1).getUniqueId();
+    String signatureUniqueId = nestedContainer.getSignatures().get(0).getUniqueId();
+    String report = container.validate().getReport();
+    TestAssert.assertXPathHasValue("2", "count(/SimpleReport/TimestampToken)", report);
+    TestAssert.assertXPathHasValue(timestamp1UniqueId,"/SimpleReport/TimestampToken[1]/UniqueId", report);
+    TestAssert.assertXPathHasValue("PASSED", "/SimpleReport/TimestampToken[1]/Indication", report);
+    TestAssert.assertXPathHasValue("2024-03-27T12:42:57Z", "/SimpleReport/TimestampToken[1]/ProductionTime", report);
+    TestAssert.assertXPathHasValue("DEMO SK TIMESTAMPING AUTHORITY 2023E", "/SimpleReport/TimestampToken[1]/ProducedBy", report);
+    TestAssert.assertXPathHasValue("QTSA", "/SimpleReport/TimestampToken[1]/TimestampLevel", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/TimestampToken[1]/TimestampScope)", report);
+    TestAssert.assertXPathHasValue("valid-bdoc-tm.bdoc", "/SimpleReport/TimestampToken[1]/TimestampScope/@name", report);
+    TestAssert.assertXPathHasValue(timestamp2UniqueId,"/SimpleReport/TimestampToken[2]/UniqueId", report);
+    TestAssert.assertXPathHasValue("PASSED", "/SimpleReport/TimestampToken[2]/Indication", report);
+    TestAssert.assertXPathHasValue("2024-08-26T13:31:34Z", "/SimpleReport/TimestampToken[2]/ProductionTime", report);
+    TestAssert.assertXPathHasValue("DEMO SK TIMESTAMPING AUTHORITY 2023R", "/SimpleReport/TimestampToken[2]/ProducedBy", report);
+    TestAssert.assertXPathHasValue("QTSA", "/SimpleReport/TimestampToken[2]/TimestampLevel", report);
+    TestAssert.assertXPathHasValue("3", "count(/SimpleReport/TimestampToken[2]/TimestampScope)", report);
+    TestAssert.assertXPathHasValue("META-INF/ASiCArchiveManifest.xml", "/SimpleReport/TimestampToken[2]/TimestampScope[1]/@name", report);
+    TestAssert.assertXPathHasValue("META-INF/timestamp.tst", "/SimpleReport/TimestampToken[2]/TimestampScope[2]/@name", report);
+    TestAssert.assertXPathHasValue("valid-bdoc-tm.bdoc", "/SimpleReport/TimestampToken[2]/TimestampScope[3]/@name", report);
+    TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
+    TestAssert.assertXPathHasValue("1", "/SimpleReport/ValidSignaturesCount", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature)", report);
+    TestAssert.assertXPathHasValue(signatureUniqueId, "/SimpleReport/Signature/*[position()=1][self::UniqueId]", report);
+    TestAssert.assertXPathHasValue("XAdES-BASELINE-LT-TM", "/SimpleReport/Signature/@SignatureFormat", report);
+    TestAssert.assertXPathHasValue("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001016970", "/SimpleReport/Signature/SignedBy", report);
+    TestAssert.assertXPathHasValue("TOTAL_PASSED", "/SimpleReport/Signature/Indication", report);
+    TestAssert.assertXPathHasValue("QESig", "/SimpleReport/Signature/SignatureLevel", report);
+    TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/Signature/SignatureScope/@name", report);
+  }
+
+  @Test
+  public void invalidTimestampedContainerWithNestedValidBdoc() throws Exception {
+    Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/invalid-containers/1xTST-valid-bdoc-data-file-hash-failure-in-tst.asics");
+    Container nestedContainer = TestDataBuilderUtil.open(container.getDataFiles().get(0));
+    String timestampUniqueId = container.getTimestamps().get(0).getUniqueId();
+    String signatureUniqueId = nestedContainer.getSignatures().get(0).getUniqueId();
+    String report = container.validate().getReport();
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/TimestampToken)", report);
+    TestAssert.assertXPathHasValue(timestampUniqueId,"/SimpleReport/TimestampToken[1]/UniqueId", report);
+    TestAssert.assertXPathHasValue("FAILED", "/SimpleReport/TimestampToken/Indication", report);
+    TestAssert.assertXPathHasValue("2024-03-27T12:42:57Z", "/SimpleReport/TimestampToken/ProductionTime", report);
+    TestAssert.assertXPathHasValue("DEMO SK TIMESTAMPING AUTHORITY 2023E", "/SimpleReport/TimestampToken/ProducedBy", report);
+    TestAssert.assertXPathHasValue("QTSA", "/SimpleReport/TimestampToken/TimestampLevel", report);
+    TestAssert.assertXPathHasValue("0", "count(/SimpleReport/TimestampToken/TimestampScope)", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/TimestampToken/Errors)", report);
+    TestAssert.assertXPathHasValue("The time-stamp message imprint is not intact!", "/SimpleReport/TimestampToken/Errors[1]", report);
+    TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
+    TestAssert.assertXPathHasValue("1", "/SimpleReport/ValidSignaturesCount", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature)", report);
+    TestAssert.assertXPathHasValue(signatureUniqueId, "/SimpleReport/Signature/*[position()=1][self::UniqueId]", report);
+    TestAssert.assertXPathHasValue("XAdES-BASELINE-LT-TM", "/SimpleReport/Signature/@SignatureFormat", report);
+    TestAssert.assertXPathHasValue("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001016970", "/SimpleReport/Signature/SignedBy", report);
+    TestAssert.assertXPathHasValue("TOTAL_PASSED", "/SimpleReport/Signature/Indication", report);
+    TestAssert.assertXPathHasValue("QESig", "/SimpleReport/Signature/SignatureLevel", report);
+    TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/Signature/SignatureScope/@name", report);
   }
 
   /*

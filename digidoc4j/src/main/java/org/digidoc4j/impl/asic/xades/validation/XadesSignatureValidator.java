@@ -37,6 +37,7 @@ import org.digidoc4j.impl.asic.OcspNonceValidator;
 import org.digidoc4j.impl.asic.OcspResponderValidator;
 import org.digidoc4j.impl.asic.TmSignaturePolicyType;
 import org.digidoc4j.impl.asic.validation.ReportedMessagesExtractor;
+import org.digidoc4j.impl.asic.xades.SimpleXadesValidationResult;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
@@ -46,6 +47,7 @@ import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -65,24 +67,37 @@ public class XadesSignatureValidator implements SignatureValidator {
   private final String signatureId;
   private final String signatureUniqueId;
   protected final Configuration configuration;
+  private final Date validationTime;
 
   /**
-   * Constructor.
+   * Constructs signature validator without specific validation time.
    *
    * @param signature     Signature object for validation
    * @param configuration configuration
    */
   public XadesSignatureValidator(XadesSignature signature, Configuration configuration) {
+    this(signature, configuration, null);
+  }
+
+  /**
+   * Constructs signature validator with specific validation time.
+   *
+   * @param signature     Signature object for validation
+   * @param configuration configuration
+   * @param validationTime validation time
+   */
+  public XadesSignatureValidator(XadesSignature signature, Configuration configuration, Date validationTime) {
     this.signature = signature;
     this.signatureId = signature.getId();
     this.signatureUniqueId = signature.getUniqueId();
     this.configuration = configuration;
+    this.validationTime = validationTime;
   }
 
   @Override
   public ValidationResult extractResult() {
     LOGGER.debug("Extracting validation errors");
-    XadesValidationResult validationResult = this.signature.validate();
+    XadesValidationResult validationResult = validateSignature();
     this.validationReport = validationResult.getReports();
     this.simpleReport = this.getSimpleReport(validationResult.buildSimpleReports());
     this.populateValidationErrors();
@@ -90,7 +105,7 @@ public class XadesSignatureValidator implements SignatureValidator {
       FullSimpleReportBuilder detailedReportParser = new FullSimpleReportBuilder(validationReport.getDetailedReport());
       detailedReportParser.addDetailedReportExceptions(validationErrors, validationWarnings);
     }
-    return this.createValidationResult();
+    return createValidationResult(validationResult);
   }
 
   /*
@@ -283,8 +298,8 @@ public class XadesSignatureValidator implements SignatureValidator {
     }
   }
 
-  private ValidationResult createValidationResult() {
-    SimpleValidationResult result = new SimpleValidationResult("XAdES signature");
+  private ValidationResult createValidationResult(XadesValidationResult xadesValidationResult) {
+    SimpleValidationResult result = new SimpleXadesValidationResult("XAdES signature", xadesValidationResult);
     result.setErrors(this.validationErrors);
     result.setWarnings(this.validationWarnings);
     return result;
@@ -292,6 +307,14 @@ public class XadesSignatureValidator implements SignatureValidator {
 
   private boolean isIndicationValid(Indication indication) {
     return Arrays.asList(Indication.PASSED, Indication.TOTAL_PASSED).contains(indication);
+  }
+
+  private XadesValidationResult validateSignature() {
+    if (validationTime != null) {
+      return signature.validateAt(validationTime);
+    } else {
+      return signature.validate();
+    }
   }
 
 }

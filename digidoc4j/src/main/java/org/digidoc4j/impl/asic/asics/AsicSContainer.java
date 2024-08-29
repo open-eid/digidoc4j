@@ -45,6 +45,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -227,6 +228,15 @@ public class AsicSContainer extends AsicContainer {
       return new AsicSTimestampedContainerValidator(this).validate();
     } else {
       return super.validateContainer();
+    }
+  }
+
+  @Override
+  protected ContainerValidationResult validateContainerAt(Date validationTime) {
+    if (CollectionUtils.isNotEmpty(timestamps)) {
+      return new AsicSTimestampedContainerValidator(this, validationTime).validate();
+    } else {
+      return super.validateContainerAt(validationTime);
     }
   }
 

@@ -96,6 +96,10 @@ public class AsicContainerValidationResult extends AbstractContainerValidationRe
     return "ASiC container";
   }
 
+  AsicValidationReportBuilder getValidationReportBuilder() {
+    return validationReportBuilder;
+  }
+
   private void buildResult() {
     if (validationReportBuilder != null) {
       report = validationReportBuilder.buildXmlReport();

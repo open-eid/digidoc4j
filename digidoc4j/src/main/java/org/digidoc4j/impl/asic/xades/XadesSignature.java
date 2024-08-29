@@ -1,19 +1,16 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.asic.xades;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-
+import eu.europa.esig.dss.xades.validation.XAdESSignature;
 import org.apache.xml.security.signature.Reference;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.Signature;
@@ -21,7 +18,9 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.impl.asic.xades.validation.XadesValidationResult;
 
-import eu.europa.esig.dss.xades.validation.XAdESSignature;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 /**
  * XadesSignature interface.
@@ -182,6 +181,14 @@ public interface XadesSignature extends Serializable {
    * @return the validation result.
    */
   XadesValidationResult validate();
+
+  /**
+   * Validates signature against the specified validation time.
+   *
+   * @param validationTime validation time
+   * @return validation result
+   */
+  XadesValidationResult validateAt(Date validationTime);
 
   /**
    * This method returns the signature OCSP response nonce

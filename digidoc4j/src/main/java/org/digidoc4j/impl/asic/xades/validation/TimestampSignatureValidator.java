@@ -45,6 +45,10 @@ public class TimestampSignatureValidator extends XadesSignatureValidator {
     super(signature, configuration);
   }
 
+  public TimestampSignatureValidator(XadesSignature signature, Configuration configuration, Date validationTime) {
+    super(signature, configuration, validationTime);
+  }
+
   public TimestampSignatureValidator(XadesSignature signature) {
     super(signature, Configuration.getInstance());
   }

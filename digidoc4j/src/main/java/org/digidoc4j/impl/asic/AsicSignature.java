@@ -19,8 +19,10 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.impl.ValidatableSignature;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.digidoc4j.impl.asic.xades.validation.SignatureValidator;
+import org.digidoc4j.impl.asic.xades.validation.XadesSignatureValidatorFactory;
 import org.digidoc4j.impl.asic.xades.validation.XadesValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +34,7 @@ import java.util.List;
 /**
  * Created by Andrei on 29.11.2017.
  */
-public class AsicSignature implements Signature {
+public class AsicSignature implements Signature, ValidatableSignature {
 
   private static final Logger logger = LoggerFactory.getLogger(AsicSignature.class);
   private transient ValidationResult validationResult;
@@ -160,14 +162,34 @@ public class AsicSignature implements Signature {
   public ValidationResult validateSignature() {
     logger.debug("Validating signature");
     if (validationResult == null) {
-      validationResult = this.validator.extractResult();
+      validationResult = validator.extractResult();
       logger.info(
-          "Signature has " + validationResult.getErrors().size() + " validation errors and " + validationResult.getWarnings().size() + " warnings");
+              "Signature has {} validation errors and {} warnings",
+              validationResult.getErrors().size(), validationResult.getWarnings().size()
+      );
     } else {
-      logger.debug("Using cached signature validation result. " +
-          "Signature has " + validationResult.getErrors().size() + " validation errors and " + validationResult.getWarnings().size() + " warnings");
+      logger.debug(
+              "Using cached signature validation result. Signature has {} validation errors and {} warnings",
+              validationResult.getErrors().size(), validationResult.getWarnings().size()
+      );
     }
     return validationResult;
+  }
+
+  @Override
+  public ValidationResult validateSignatureAt(Date validationTime) {
+    logger.debug("Validating signature @ {}", validationTime);
+    XadesSignatureValidatorFactory validatorFactory = new XadesSignatureValidatorFactory();
+    validatorFactory.setConfiguration(getConfiguration());
+    validatorFactory.setSignature(xadesSignature);
+    validatorFactory.setValidationTime(validationTime);
+    SignatureValidator validatorAtTime = validatorFactory.create();
+    ValidationResult validationResultAtTime = validatorAtTime.extractResult();
+    logger.info(
+            "Signature has {} validation errors and {} warnings @ {}",
+            validationResultAtTime.getErrors().size(), validationResultAtTime.getWarnings().size(), validationTime
+    );
+    return validationResultAtTime;
   }
 
   @Override
