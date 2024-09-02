@@ -10,6 +10,7 @@
 
 package org.digidoc4j.impl.bdoc;
 
+import eu.europa.esig.dss.alert.exception.AlertException;
 import eu.europa.esig.dss.enumerations.ASiCContainerType;
 import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 import eu.europa.esig.dss.enumerations.SignatureLevel;
@@ -466,7 +467,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testContainerExtensionFromLTtoLTA() throws InterruptedException {
+  public void testContainerExtensionFromNewLTtoLTA() throws InterruptedException {
     Container container = createNonEmptyContainer();
     createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
     sleep(1100);
@@ -477,6 +478,35 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     TestAssert.assertContainerIsValid(container);
     List<TimestampToken> archiveTimestamps = getSignatureArchiveTimestamps(container, 0);
     assertEquals("The signature must contain 1 archive timestamp", 1, archiveTimestamps.size());
+  }
+
+  @Test
+  public void testContainerExtensionFromExistingLTtoLTA() {
+    Container container = ContainerOpener
+            .open("src/test/resources/testFiles/valid-containers/valid-asice-esteid2018.asice");
+
+    container.extendSignatureProfile(SignatureProfile.LTA);
+
+    Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
+    TestAssert.assertContainerIsValid(container);
+    List<TimestampToken> archiveTimestamps = getSignatureArchiveTimestamps(container, 0);
+    assertEquals("The signature must contain 1 archive timestamp", 1, archiveTimestamps.size());
+  }
+
+  @Test
+  public void testContainerExtensionFromExpiredLTtoLTAFails() {
+    Container container = ContainerOpener
+            .open("src/test/resources/testFiles/valid-containers/valid-asice.asice");
+
+    AlertException caughtException = assertThrows(
+            AlertException.class,
+            () -> container.extendSignatureProfile(SignatureProfile.LTA)
+    );
+
+    assertThat(caughtException.getMessage(), containsString("Expired signature found"));
+    TestAssert.assertContainerIsValid(container);
+    List<TimestampToken> archiveTimestamps = getSignatureArchiveTimestamps(container, 0);
+    assertEquals("The signature must contain no archive timestamp", 0, archiveTimestamps.size());
   }
 
   @Test
