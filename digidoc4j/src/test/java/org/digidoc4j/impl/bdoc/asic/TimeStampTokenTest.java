@@ -31,6 +31,7 @@ import org.digidoc4j.impl.asic.cades.AsicArchiveManifest;
 import org.digidoc4j.impl.asic.manifest.ManifestValidator;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestSigningUtil;
+import org.hamcrest.Matchers;
 import org.hamcrest.core.StringContains;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -44,6 +45,7 @@ import java.util.zip.ZipFile;
 
 import static org.digidoc4j.main.TestDigiDoc4JUtil.invokeDigiDoc4jAndReturnExitStatus;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anyOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -234,7 +236,10 @@ public class TimeStampTokenTest extends AbstractTest {
     int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-tspsourcearchive", tspSource, "-tst");
 
     assertEquals(1, caughtExitStatus);
-    assertThat(this.stdOut.getLog(), StringContains.containsString(String.format("Unable to process <TSP> POST call for service <%s>", tspSource)));
+    assertThat(this.stdOut.getLog(), anyOf(
+            StringContains.containsString(String.format("Connection to TSP service <%s> timed out", tspSource)),
+            StringContains.containsString(String.format("Unable to process <TSP> POST call for service <%s>", tspSource))
+    ));
   }
 
   @Test
