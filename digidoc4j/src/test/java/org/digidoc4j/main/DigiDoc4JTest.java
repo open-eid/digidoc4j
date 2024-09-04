@@ -10,6 +10,8 @@
 
 package org.digidoc4j.main;
 
+import eu.europa.esig.dss.spi.client.http.DataLoader;
+import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
@@ -20,6 +22,10 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.ddoc.DigiDocException;
 import org.digidoc4j.ddoc.SignedDoc;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.CommonOCSPSource;
+import org.digidoc4j.impl.ConfigurationSingeltonHolder;
+import org.digidoc4j.impl.OcspDataLoaderFactory;
+import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.ddoc.ConfigManagerInitializer;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestCommonUtil;
@@ -33,6 +39,7 @@ import org.junit.contrib.java.lang.system.SystemOutRule;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 import static org.digidoc4j.main.DigiDoc4J.isWarning;
 import static org.digidoc4j.main.TestDigiDoc4JUtil.invokeDigiDoc4jAndReturnExitStatus;
@@ -787,5 +794,180 @@ public class DigiDoc4JTest extends AbstractTest {
 
     assertEquals(2, caughtExitStatus);
     assertThat(stdOut.getLog(), containsString("Problem with given parameters"));
+  }
+
+  @Test
+  public void extendSignatureProfile_B_BESToT_Success() {
+    String fileName = createContainerWithUtilAndGetFileName("B_BES");
+    setupCustomConfigurationWithExtendingOcspSourceFactory();
+
+    Container container = extend(fileName, "T");
+
+    assertEquals(SignatureProfile.T, container.getSignatures().get(0).getProfile());
+  }
+
+  @Test
+  public void extendSignatureProfile_B_BESToLT_Success() {
+    String fileName = createContainerWithUtilAndGetFileName("B_BES");
+    setupCustomConfigurationWithExtendingOcspSourceFactory();
+
+    Container container = extend(fileName, "LT");
+
+    assertEquals(SignatureProfile.LT, container.getSignatures().get(0).getProfile());
+    TestAssert.assertContainerIsValid(container);
+  }
+
+  @Test
+  public void extendSignatureProfile_B_BESToLTA_Success() {
+    String fileName = createContainerWithUtilAndGetFileName("B_BES");
+    setupCustomConfigurationWithExtendingOcspSourceFactory();
+
+    Container container = extend(fileName, "LTA");
+
+    assertEquals(SignatureProfile.LTA, container.getSignatures().get(0).getProfile());
+    TestAssert.assertContainerIsValid(container);
+  }
+
+  @Test
+  public void extendSignatureProfile_TToLT_Success() {
+    String fileName = createContainerWithUtilAndGetFileName("T");
+    setupCustomConfigurationWithExtendingOcspSourceFactory();
+
+    Container container = extend(fileName, "LT");
+
+    assertEquals(SignatureProfile.LT, container.getSignatures().get(0).getProfile());
+    TestAssert.assertContainerIsValid(container);
+  }
+
+  @Test
+  public void extendSignatureProfile_TToLTA_Success() {
+    String fileName = createContainerWithUtilAndGetFileName("T");
+    setupCustomConfigurationWithExtendingOcspSourceFactory();
+
+    Container container = extend(fileName, "LTA");
+
+    assertEquals(SignatureProfile.LTA, container.getSignatures().get(0).getProfile());
+    TestAssert.assertContainerIsValid(container);
+  }
+
+  @Test
+  public void extendSignatureProfile_LTToLTA_Success() {
+    String fileName = createContainerWithUtilAndGetFileName("LT");
+
+    Container container = extend(fileName, "LTA");
+
+    assertEquals(SignatureProfile.LTA, container.getSignatures().get(0).getProfile());
+    TestAssert.assertContainerIsValid(container);
+  }
+
+  @Test
+  public void extendSignatureProfile_LTAToLTA_Success() {
+    String fileName = createContainerWithUtilAndGetFileName("LTA");
+
+    Container container = extend(fileName, "LTA");
+
+    assertEquals(SignatureProfile.LTA, container.getSignatures().get(0).getProfile());
+    TestAssert.assertContainerIsValid(container);
+  }
+
+  @Test
+  public void extendSignatureProfile_MultipleSignatures_Success() {
+    String fileName = this.getFileBy("asice");
+    assertEquals(
+        0,
+        invokeDigiDoc4jAndReturnExitStatus(
+            "-in", fileName,
+            "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain",
+            "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD,
+            "-profile", "LT"
+        )
+    );
+    assertEquals(
+        0,
+        invokeDigiDoc4jAndReturnExitStatus(
+            "-in", fileName,
+            "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD,
+            "-profile", "LT"
+        )
+    );
+    Container container = ContainerOpener.open(fileName);
+    assertEquals(2, container.getSignatures().size());
+    assertEquals(SignatureProfile.LT, container.getSignatures().get(0).getProfile());
+    assertEquals(SignatureProfile.LT, container.getSignatures().get(1).getProfile());
+    TestAssert.assertContainerIsValid(container);
+
+    container = extend(fileName, "LTA");
+
+    assertEquals(2, container.getSignatures().size());
+    assertEquals(SignatureProfile.LTA, container.getSignatures().get(0).getProfile());
+    assertEquals(SignatureProfile.LTA, container.getSignatures().get(1).getProfile());
+    TestAssert.assertContainerIsValid(container);
+  }
+
+  @Test
+  public void extendSignatureProfile_NoSignatures_Failure() {
+    String fileName = this.getFileBy("asice");
+    assertEquals(
+        0,
+        invokeDigiDoc4jAndReturnExitStatus(
+            "-in", fileName,
+            "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain"
+        )
+    );
+    assertEquals(1, invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-profile", "LTA"));
+    assertThat(stdOut.getLog(), containsString("There are no signatures to extend in the provided container"));
+  }
+
+  @Test
+  public void extendSignatureProfile_ToIncorrectProfile_Failure() {
+    String fileName = createContainerWithUtilAndGetFileName("LTA");
+    assertEquals(1, invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-profile", "ABRAKADABRA"));
+    assertThat(stdOut.getLog(), containsString("Unknown signature profile ABRAKADABRA"));
+  }
+
+  @Test
+  public void extendSignatureProfile_NonAsice_Failure() {
+    for (String extension : Arrays.asList("bdoc", "asics", "ddoc", "pdf")) {
+      String fileName = this.getFileBy(extension);
+      assertEquals(1, invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-profile", "LTA"));
+      assertThat(stdOut.getLog(), containsString("Extension of signature(s) is applicable for ASiC-E containers only"));
+    }
+  }
+
+  private String createContainerWithUtilAndGetFileName(String signatureProfile) {
+    String fileName = this.getFileBy("asice");
+    System.setProperty("digidoc4j.mode", "TEST");
+    assertEquals(
+        0,
+        invokeDigiDoc4jAndReturnExitStatus(
+            "-in", fileName,
+            "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain",
+            "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD,
+            "-profile", signatureProfile
+        )
+    );
+    Container container = ContainerOpener.open(fileName);
+    assertEquals(SignatureProfile.findByProfile(signatureProfile), container.getSignatures().get(0).getProfile());
+
+    return fileName;
+  }
+
+  private Container extend(String fileName, String targetProfile) {
+    assertEquals(0, invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-profile", targetProfile));
+    assertThat(stdOut.getLog(), containsString("Extending existing signature(s) to profile " + targetProfile));
+    return ContainerOpener.open(fileName);
+  }
+
+  protected void setupCustomConfigurationWithExtendingOcspSourceFactory() {
+    System.setProperty("digidoc4j.mode", "TEST");
+    configuration = ConfigurationSingeltonHolder.getInstance();
+    configuration.setExtendingOcspSourceFactory(this::getOcspSource);
+  }
+
+  private OCSPSource getOcspSource() {
+    SKOnlineOCSPSource source = new CommonOCSPSource(configuration);
+    DataLoader loader = new OcspDataLoaderFactory(configuration).create();
+    source.setDataLoader(loader);
+    return source;
   }
 }

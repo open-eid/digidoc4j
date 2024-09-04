@@ -95,6 +95,7 @@ public class CommandLineExecutor {
         processDataFileCommands(container);
         signContainer(container);
     }
+    extendSignatures(container);
     verifyContainer(container);
   }
 
@@ -268,6 +269,31 @@ public class CommandLineExecutor {
     }
     if (CollectionUtils.isNotEmpty(container.getSignatures())) {
       throw new DigiDoc4JException("This container is already signed. Should be only one signature in case of ASiCS container.");
+    }
+  }
+
+  private void extendSignatures(Container container) {
+    if (hasAnyOption(ExecutionOption.PROFILE.getName())) {
+      if (hasAnyOption(ExecutionOption.PKCS11.getName(), ExecutionOption.PKCS12.getName())) {
+        return;
+      }
+      if (ASICE != getContainerType()) {
+        throw new DigiDoc4JException("Extension of signature(s) is applicable for ASiC-E containers only");
+      }
+      if (CollectionUtils.isEmpty(container.getSignatures())) {
+        throw new DigiDoc4JException("There are no signatures to extend in the provided container");
+      }
+
+      String value = context.getCommandLine().getOptionValue(ExecutionOption.PROFILE.getName());
+      SignatureProfile signatureProfile = SignatureProfile.findByProfile(value);
+      if (signatureProfile == null) {
+        throw new DigiDoc4JException("Unknown signature profile " + value);
+      }
+
+      LOGGER.info("Extending existing signature(s) to profile {}", signatureProfile.name());
+      container.extendSignatureProfile(signatureProfile);
+
+      fileHasChanged = true;
     }
   }
 

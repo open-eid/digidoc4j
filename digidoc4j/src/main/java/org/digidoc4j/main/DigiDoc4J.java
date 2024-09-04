@@ -317,7 +317,8 @@ public final class DigiDoc4J {
     return Option.builder("p")
         .argName("signatureProfile")
         .hasArg()
-        .desc("sets signature profile. Profile can be B_BES, LT or LTA")
+        .desc("sets target signature profile. Profile can be B_BES, T, LT or LTA. " +
+            "When applied to an existing container, its existing signatures are extended to the specified profile.")
         .longOpt("profile")
         .build();
   }
