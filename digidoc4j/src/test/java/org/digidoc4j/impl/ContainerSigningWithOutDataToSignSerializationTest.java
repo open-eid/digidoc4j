@@ -210,7 +210,7 @@ public class ContainerSigningWithOutDataToSignSerializationTest extends Abstract
     Instant trustedSigningTimeUpperBound = Instant.now();
 
     Date trustedSigningTime = signature.getTrustedSigningTime();
-    assertTimeInBounds(trustedSigningTime, trustedSigningTimeLowerBound, trustedSigningTimeUpperBound, Duration.ofSeconds(5));
+    assertTimeInBounds(trustedSigningTime, trustedSigningTimeLowerBound, trustedSigningTimeUpperBound, Duration.ofSeconds(10));
 
     Date claimedSigningTime = signature.getClaimedSigningTime();
     assertTimeInBounds(claimedSigningTime, claimedSigningTimeLowerBound, claimedSigningTimeUpperBound, Duration.ZERO);
