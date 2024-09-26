@@ -38,7 +38,6 @@ import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.DssContainerSigner;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -607,8 +606,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-1062 Currently ASIC-S containers can be extended and the resulting ASIC-S with LTA signature validates in SiVa. Enable and/or update the test when this has been fixed.")
-  public void extensionNotPossibleForAsicsContainer() {
+  public void extendAsicsContainerFromLTtoLTA() {
     Configuration configuration = Configuration.of(Configuration.Mode.TEST);
     DssContainerSigner containerSigner = new DssContainerSigner(configuration);
     DSSDocument dataFile = new InMemoryDocument(
@@ -624,14 +622,20 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     );
     Container container = ContainerOpener.open(dssContainer.openStream(), configuration);
 
-    NotSupportedException caughtException = assertThrows(
-            NotSupportedException.class,
-            () -> container.extendSignatureProfile(SignatureProfile.LTA)
-    );
+    container.extendSignatureProfile(SignatureProfile.LTA);
 
-    assertThat(caughtException.getMessage(), containsString(
-            "It is not possible to extend signatures in ASIC-S container."
-    ));
+    Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
+    ContainerValidationResult validationResult = container.validate();
+    // TODO: The container should be valid; fix this test when ASiC-S validation has been fixed
+    //  and it does not require the existence of manifest.xml anymore.
+    TestAssert.assertContainerIsInvalid(validationResult);
+    TestAssert.assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
+            validationResult.getErrors(),
+            1,
+            "Unsupported format: Container does not contain a manifest file"
+    );
+    List<TimestampToken> archiveTimestamps = getSignatureArchiveTimestamps(container, 0);
+    assertEquals("The signature must contain 1 archive timestamp", 1, archiveTimestamps.size());
   }
 
   /*
