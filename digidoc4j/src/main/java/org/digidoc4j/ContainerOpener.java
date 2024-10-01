@@ -13,6 +13,7 @@ package org.digidoc4j;
 import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 import org.apache.commons.collections4.CollectionUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.asic.AsicFileContainerParser;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicStreamContainerParser;
@@ -23,6 +24,7 @@ import org.digidoc4j.impl.asic.asics.AsicSContainer;
 import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
 import org.digidoc4j.impl.ddoc.DDocOpener;
 import org.digidoc4j.impl.pades.PadesContainer;
+import org.digidoc4j.utils.ContainerUtils;
 import org.digidoc4j.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +44,8 @@ import java.util.List;
  */
 public class ContainerOpener {
 
+  private static final int MAX_LEVEL_OF_NESTED_CONTAINERS = 1;
+
   private static final Logger logger = LoggerFactory.getLogger(ContainerOpener.class);
 
   /**
@@ -59,7 +63,7 @@ public class ContainerOpener {
       if (Helper.isPdfFile(path)){
         return openPadesContainer(path, configuration);
       } else if (Helper.isZipFile(new File(path))) {
-        return openAsicContainer(path, configuration);
+        return openAsicContainer(path, configuration, 0);
       } else {
         return new DDocOpener().open(path, configuration);
       }
@@ -106,15 +110,7 @@ public class ContainerOpener {
     logger.debug("Opening container from stream");
     try (BufferedInputStream bufferedInputStream = new BufferedInputStream(stream)) {
       if (Helper.isZipFile(bufferedInputStream)) {
-        AsicParseResult parseResult = new AsicStreamContainerParser(bufferedInputStream, configuration).read();
-        if (isAsicSContainer(parseResult)){
-          return openAsicSContainer(parseResult, configuration);
-        }
-        if (isBDocContainer(parseResult)) {
-          return new BDocContainer(parseResult, configuration);
-        }
-
-        return new AsicEContainer(parseResult, configuration);
+        return openAsicContainer(bufferedInputStream, configuration, 0);
       } else {
         return new DDocOpener().open(bufferedInputStream, configuration);
       }
@@ -123,11 +119,11 @@ public class ContainerOpener {
     }
   }
 
-  private static Container openAsicContainer(String path, Configuration configuration) {
+  private static Container openAsicContainer(String path, Configuration configuration, int currentRecursionDepth) {
     configuration.loadConfiguration("digidoc4j.yaml", false);
     AsicParseResult parseResult = new AsicFileContainerParser(path, configuration).read();
     if (isAsicSContainer(parseResult)){
-      return openAsicSContainer(parseResult, configuration);
+      return openAsicSContainer(parseResult, configuration, currentRecursionDepth);
     }
     if (isBDocContainer(parseResult)) {
       return new BDocContainer(parseResult, configuration);
@@ -136,13 +132,40 @@ public class ContainerOpener {
     return new AsicEContainer(parseResult, configuration);
   }
 
-  private static Container openAsicSContainer(AsicParseResult parseResult, Configuration configuration) {
-    if (CollectionUtils.isNotEmpty(parseResult.getTimestamps()) && CollectionUtils.size(parseResult.getDataFiles()) == 1) {
-      // TODO (DD4J-1085): Implement proper parsing mechanism and pre-parsing checks
-      try (InputStream in = parseResult.getDataFiles().get(0).getStream()) {
-        return new AsicSCompositeContainer(parseResult, open(in, configuration), configuration);
-      } catch (Exception e) {
-        logger.trace("Failed to open data file as nested container", e);
+  private static Container openAsicContainer(InputStream stream, Configuration configuration, int currentRecursionDepth) {
+    AsicParseResult parseResult = new AsicStreamContainerParser(stream, configuration).read();
+    if (isAsicSContainer(parseResult)){
+      return openAsicSContainer(parseResult, configuration, currentRecursionDepth);
+    }
+    if (isBDocContainer(parseResult)) {
+      return new BDocContainer(parseResult, configuration);
+    }
+
+    return new AsicEContainer(parseResult, configuration);
+  }
+
+  private static Container openAsicSContainer(AsicParseResult parseResult, Configuration configuration, int currentRecursionDepth) {
+    if (currentRecursionDepth < MAX_LEVEL_OF_NESTED_CONTAINERS && isValidTimestampedContainer(parseResult)) {
+      DataFile potentialNestedContainer = parseResult.getDataFiles().get(0);
+      Container nestedContainer = null;
+
+      if (ContainerUtils.isAsicContainer(potentialNestedContainer::getStream,
+              MimeTypeEnum.ASICE.getMimeTypeString(), MimeTypeEnum.ASICS.getMimeTypeString())) {
+        try (InputStream inputStream = potentialNestedContainer.getStream()) {
+          nestedContainer = openAsicContainer(inputStream, configuration, currentRecursionDepth + 1);
+        } catch (Exception e) {
+          throw new TechnicalException("Failed to parse nested ASiC container", e);
+        }
+      } else {
+        try (InputStream inputStream = potentialNestedContainer.getStream()) {
+          nestedContainer = new DDocOpener().open(inputStream, configuration);
+        } catch (Exception e) {
+          logger.trace("Failed to open data file as nested DDOC container", e);
+        }
+      }
+
+      if (nestedContainer != null) {
+        return new AsicSCompositeContainer(parseResult, nestedContainer, configuration);
       }
     }
     return new AsicSContainer(parseResult, configuration);
@@ -155,6 +178,12 @@ public class ContainerOpener {
 
   private static boolean isAsicSContainer(AsicParseResult parseResult) {
     return parseResult.getMimeType().equals(MimeTypeEnum.ASICS.getMimeTypeString());
+  }
+
+  private static boolean isValidTimestampedContainer(AsicParseResult parseResult) {
+    return CollectionUtils.size(parseResult.getDataFiles()) == 1 // Must contain exactly 1 datafile
+            && CollectionUtils.isEmpty(parseResult.getSignatures()) // Must not be signed
+            && CollectionUtils.isNotEmpty(parseResult.getTimestamps()); // Must have timestamp tokens
   }
 
   private static boolean isBDocContainer(AsicParseResult parseResult) {

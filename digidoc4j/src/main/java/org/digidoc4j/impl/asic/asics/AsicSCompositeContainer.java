@@ -14,6 +14,7 @@ import eu.europa.esig.dss.simplereport.jaxb.XmlSignatureScope;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.DataFile;
@@ -151,8 +152,16 @@ public class AsicSCompositeContainer extends AsicSContainer {
 
   private static Container validateNestedContainer(Container nestedContainer) {
     Objects.requireNonNull(nestedContainer, "Nested container cannot be null");
-    // TODO (DD4J-1085): Limit nested containers by allowed container types
-    return nestedContainer;
+    String nestedContainerType = nestedContainer.getType();
+    switch (nestedContainerType) {
+      case Constant.ASICE_CONTAINER_TYPE:
+      case Constant.ASICS_CONTAINER_TYPE:
+      case Constant.BDOC_CONTAINER_TYPE:
+      case Constant.DDOC_CONTAINER_TYPE:
+        return nestedContainer;
+      default:
+        throw new IllegalArgumentException("Unsupported nested container type: " + nestedContainerType);
+    }
   }
 
   private static DataFile createNestedContainerDataFile(Container nestedContainer, String fileName) {

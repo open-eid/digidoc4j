@@ -10,9 +10,11 @@
 
 package org.digidoc4j;
 
+import eu.europa.esig.dss.asic.common.ASiCUtils;
 import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 import org.digidoc4j.ddoc.Manifest;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.test.util.TestZipUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -22,14 +24,11 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
-import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class ContainerZipTest extends AbstractTest {
-
-  private static final String MIME_TYPE_ENTRY_NAME = "mimetype";
 
   @Test
   public void newBdocContainerSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
@@ -258,13 +257,9 @@ public class ContainerZipTest extends AbstractTest {
 
   private static void saveDegenerateContainerWithDeflatedMimeType(File destinationFile, String mimeTypeContent) throws Exception {
     try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(destinationFile))) {
-      ZipEntry zipEntry = new ZipEntry(MIME_TYPE_ENTRY_NAME);
-      zipEntry.setMethod(ZipEntry.DEFLATED);
-
-      zipOutputStream.putNextEntry(zipEntry);
-      zipOutputStream.setMethod(ZipOutputStream.DEFLATED);
-      zipOutputStream.write(mimeTypeContent.getBytes(StandardCharsets.US_ASCII));
-      zipOutputStream.closeEntry();
+      TestZipUtil.writeEntries(zipOutputStream, TestZipUtil.createDeflatedEntry(
+              ASiCUtils.MIME_TYPE, mimeTypeContent.getBytes(StandardCharsets.US_ASCII)
+      ));
     }
   }
 
@@ -278,26 +273,10 @@ public class ContainerZipTest extends AbstractTest {
     }
   }
 
-  private static ZipEntry writeValidMimeTypeTo(ZipOutputStream zipOutputStream, String mimeTypeContent) throws Exception {
-    ZipEntry zipEntry = new ZipEntry(MIME_TYPE_ENTRY_NAME);
-    zipEntry.setMethod(ZipEntry.STORED);
-
-    byte[] content = mimeTypeContent.getBytes(StandardCharsets.US_ASCII);
-    zipEntry.setCrc(calculateCrc32(content));
-    zipEntry.setCompressedSize(content.length);
-    zipEntry.setSize(content.length);
-
-    zipOutputStream.putNextEntry(zipEntry);
-    zipOutputStream.write(content);
-    zipOutputStream.closeEntry();
-
-    return zipEntry;
-  }
-
-  private static long calculateCrc32(byte[] content) {
-    CRC32 crc32 = new CRC32();
-    crc32.update(content);
-    return crc32.getValue();
+  private static void writeValidMimeTypeTo(ZipOutputStream zipOutputStream, String mimeTypeContent) {
+    TestZipUtil.writeEntries(zipOutputStream, TestZipUtil.createStoredEntry(
+            ASiCUtils.MIME_TYPE, mimeTypeContent.getBytes(StandardCharsets.US_ASCII)
+    ));
   }
 
   private static void readAndAssertFirstEntryStoredMimeType(InputStream inputStream) throws Exception {
@@ -308,7 +287,7 @@ public class ContainerZipTest extends AbstractTest {
   }
 
   private static void assertStoredMimeTypeZipEntry(ZipEntry mimeTypeZipEntry) {
-    Assert.assertEquals(MIME_TYPE_ENTRY_NAME, mimeTypeZipEntry.getName());
+    Assert.assertEquals(ASiCUtils.MIME_TYPE, mimeTypeZipEntry.getName());
     Assert.assertEquals(ZipEntry.STORED, mimeTypeZipEntry.getMethod());
   }
 
