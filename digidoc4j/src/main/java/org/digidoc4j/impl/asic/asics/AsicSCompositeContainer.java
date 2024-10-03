@@ -13,11 +13,14 @@ package org.digidoc4j.impl.asic.asics;
 import eu.europa.esig.dss.simplereport.jaxb.XmlSignatureScope;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.CompositeContainer;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Constant;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.DataFile;
+import org.digidoc4j.Signature;
+import org.digidoc4j.Timestamp;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.ValidatableContainer;
@@ -30,13 +33,15 @@ import org.digidoc4j.utils.ContainerUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 /**
  * A special case of ASiC-S container with timestamp tokens, when the datafile of the container is a nested container.
  */
-public class AsicSCompositeContainer extends AsicSContainer {
+public class AsicSCompositeContainer extends AsicSContainer implements CompositeContainer {
 
   private static final String NOT_FOR_THIS_CONTAINER = "Not for ASiC-S container with nesting";
 
@@ -84,9 +89,51 @@ public class AsicSCompositeContainer extends AsicSContainer {
   }
 
   @Override
-  public ContainerValidationResult validate() {
-    ContainerValidationResult nestingContainerValidationResult = super.validate();
+  public List<DataFile> getNestingContainerDataFiles() {
+    return getDataFiles();
+  }
 
+  @Override
+  public List<DataFile> getNestedContainerDataFiles() {
+    return Collections.unmodifiableList(nestedContainer.getDataFiles());
+  }
+
+  @Override
+  public List<Signature> getNestingContainerSignatures() {
+    return getSignatures();
+  }
+
+  @Override
+  public List<Signature> getNestedContainerSignatures() {
+    return Collections.unmodifiableList(nestedContainer.getSignatures());
+  }
+
+  @Override
+  public List<Timestamp> getNestingContainerTimestamps() {
+    return getTimestamps();
+  }
+
+  @Override
+  public List<Timestamp> getNestedContainerTimestamps() {
+    return Collections.unmodifiableList(nestedContainer.getTimestamps());
+  }
+
+  @Override
+  public String getNestedContainerType() {
+    return nestedContainer.getType();
+  }
+
+  @Override
+  public ContainerValidationResult validate() {
+    return processValidation(super.validate());
+  }
+
+  @Override
+  public ContainerValidationResult validateAt(Date validationTime) {
+    return processValidation(super.validateAt(validationTime));
+  }
+
+  private ContainerValidationResult processValidation(ContainerValidationResult nestingContainerValidationResult) {
     if (nestingContainerValidationResult instanceof AsicContainerValidationResult) {
       AsicContainerValidationResult nestingContainerAsicValidationResult = (AsicContainerValidationResult) nestingContainerValidationResult;
       ContainerValidationResult nestedContainerValidationResult = validateNestedContainer(nestingContainerAsicValidationResult);
@@ -95,11 +142,6 @@ public class AsicSCompositeContainer extends AsicSContainer {
     }
 
     throw new TechnicalException("Incompatible validation result of nesting container");
-  }
-
-  @Override
-  public ContainerValidationResult validateAt(Date validationTime) {
-    throw new NotSupportedException(NOT_FOR_THIS_CONTAINER);
   }
 
   private ContainerValidationResult validateNestedContainer(AsicContainerValidationResult nestingContainerValidationResult) {

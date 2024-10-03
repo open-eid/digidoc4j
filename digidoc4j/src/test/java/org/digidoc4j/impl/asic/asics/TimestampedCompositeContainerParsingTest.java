@@ -12,6 +12,7 @@ package org.digidoc4j.impl.asic.asics;
 
 import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 import org.digidoc4j.AbstractTest;
+import org.digidoc4j.CompositeContainer;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
@@ -33,6 +34,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.function.Consumer;
 
+import static org.digidoc4j.Constant.ASICE_CONTAINER_TYPE;
+import static org.digidoc4j.Constant.ASICS_CONTAINER_TYPE;
+import static org.digidoc4j.Constant.BDOC_CONTAINER_TYPE;
+import static org.digidoc4j.Constant.DDOC_CONTAINER_TYPE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
@@ -50,6 +55,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
 
     assertThat(container, instanceOf(AsicSContainer.class));
     assertThat(container, not(instanceOf(AsicSCompositeContainer.class)));
+    assertThat(container, not(instanceOf(CompositeContainer.class)));
     assertThat(container.getDataFiles(), hasSize(1));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(1));
@@ -63,6 +69,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
 
     assertThat(container, instanceOf(AsicSContainer.class));
     assertThat(container, not(instanceOf(AsicSCompositeContainer.class)));
+    assertThat(container, not(instanceOf(CompositeContainer.class)));
     assertThat(container.getDataFiles(), hasSize(1));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(1));
@@ -82,6 +89,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
 
     assertThat(container, instanceOf(AsicSContainer.class));
     assertThat(container, not(instanceOf(AsicSCompositeContainer.class)));
+    assertThat(container, not(instanceOf(CompositeContainer.class)));
     assertThat(container.getDataFiles(), hasSize(1));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(1));
@@ -101,6 +109,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
 
     assertThat(container, instanceOf(AsicSContainer.class));
     assertThat(container, not(instanceOf(AsicSCompositeContainer.class)));
+    assertThat(container, not(instanceOf(CompositeContainer.class)));
     assertThat(container.getDataFiles(), hasSize(1));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(1));
@@ -115,6 +124,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
 
     assertThat(container, instanceOf(AsicSContainer.class));
     assertThat(container, not(instanceOf(AsicSCompositeContainer.class)));
+    assertThat(container, not(instanceOf(CompositeContainer.class)));
     assertThat(container.getDataFiles(), hasSize(1));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(1));
@@ -129,6 +139,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
 
     assertThat(container, instanceOf(AsicSContainer.class));
     assertThat(container, not(instanceOf(AsicSCompositeContainer.class)));
+    assertThat(container, not(instanceOf(CompositeContainer.class)));
     assertThat(container.getDataFiles(), hasSize(1));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(1));
@@ -142,10 +153,18 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
 
     assertThat(container, instanceOf(AsicSContainer.class));
     assertThat(container, instanceOf(AsicSCompositeContainer.class));
+    assertThat(container, instanceOf(CompositeContainer.class));
     assertThat(container.getDataFiles(), hasSize(1));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(1));
-    // TODO (DD4J-1095): verify that parameters from the inner container are correct
+    CompositeContainer compositeContainer = (CompositeContainer) container;
+    assertThat(compositeContainer.getNestingContainerDataFiles(), equalTo(container.getDataFiles()));
+    assertThat(compositeContainer.getNestingContainerSignatures(), equalTo(container.getSignatures()));
+    assertThat(compositeContainer.getNestingContainerTimestamps(), equalTo(container.getTimestamps()));
+    assertThat(compositeContainer.getNestedContainerDataFiles(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerSignatures(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerTimestamps(), empty());
+    assertThat(compositeContainer.getNestedContainerType(), equalTo(ASICE_CONTAINER_TYPE));
   }
 
   @Test
@@ -156,14 +175,22 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
 
     assertThat(container, instanceOf(AsicSContainer.class));
     assertThat(container, instanceOf(AsicSCompositeContainer.class));
+    assertThat(container, instanceOf(CompositeContainer.class));
     assertThat(container.getDataFiles(), hasSize(1));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(1));
-    // TODO (DD4J-1095): verify that parameters from the inner container are correct
+    CompositeContainer compositeContainer = (CompositeContainer) container;
+    assertThat(compositeContainer.getNestingContainerDataFiles(), equalTo(container.getDataFiles()));
+    assertThat(compositeContainer.getNestingContainerSignatures(), equalTo(container.getSignatures()));
+    assertThat(compositeContainer.getNestingContainerTimestamps(), equalTo(container.getTimestamps()));
+    assertThat(compositeContainer.getNestedContainerDataFiles(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerSignatures(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerTimestamps(), empty());
+    assertThat(compositeContainer.getNestedContainerType(), equalTo(ASICE_CONTAINER_TYPE));
   }
 
   @Test
-  public void openContainer_WhenDataFileIsDegenerateAsiceContainerAndLoadFromFile_ReturnsCompositeAsicsContainer() {
+  public void openContainer_WhenDataFileIsDegenerateAsiceContainerAndLoadFromFile_ThrowsNestedContainerParsingException() {
     Container container = createTimestampedAsics(builder -> builder.withDataFile(
             "src/test/resources/testFiles/degenerate-containers/2-mimetypes.asice",
             MimeTypeEnum.ASICE.getMimeTypeString()
@@ -179,7 +206,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsDegenerateAsiceContainerAndLoadFromStream_ReturnsCompositeAsicsContainer() {
+  public void openContainer_WhenDataFileIsDegenerateAsiceContainerAndLoadFromStream_ThrowsNestedContainerParsingException() {
     Container container = createTimestampedAsics(builder -> builder.withDataFile(
             "src/test/resources/testFiles/degenerate-containers/2-mimetypes.asice",
             MimeTypeEnum.ASICE.getMimeTypeString()
@@ -202,10 +229,18 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
 
     assertThat(container, instanceOf(AsicSContainer.class));
     assertThat(container, instanceOf(AsicSCompositeContainer.class));
+    assertThat(container, instanceOf(CompositeContainer.class));
     assertThat(container.getDataFiles(), hasSize(1));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(1));
-    // TODO (DD4J-1095): verify that parameters from the inner container are correct
+    CompositeContainer compositeContainer = (CompositeContainer) container;
+    assertThat(compositeContainer.getNestingContainerDataFiles(), equalTo(container.getDataFiles()));
+    assertThat(compositeContainer.getNestingContainerSignatures(), equalTo(container.getSignatures()));
+    assertThat(compositeContainer.getNestingContainerTimestamps(), equalTo(container.getTimestamps()));
+    assertThat(compositeContainer.getNestedContainerDataFiles(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerSignatures(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerTimestamps(), empty());
+    assertThat(compositeContainer.getNestedContainerType(), equalTo(ASICS_CONTAINER_TYPE));
   }
 
   @Test
@@ -217,10 +252,18 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
 
     assertThat(container, instanceOf(AsicSContainer.class));
     assertThat(container, instanceOf(AsicSCompositeContainer.class));
+    assertThat(container, instanceOf(CompositeContainer.class));
     assertThat(container.getDataFiles(), hasSize(1));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(1));
-    // TODO (DD4J-1095): verify that parameters from the inner container are correct
+    CompositeContainer compositeContainer = (CompositeContainer) container;
+    assertThat(compositeContainer.getNestingContainerDataFiles(), equalTo(container.getDataFiles()));
+    assertThat(compositeContainer.getNestingContainerSignatures(), equalTo(container.getSignatures()));
+    assertThat(compositeContainer.getNestingContainerTimestamps(), equalTo(container.getTimestamps()));
+    assertThat(compositeContainer.getNestedContainerDataFiles(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerSignatures(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerTimestamps(), empty());
+    assertThat(compositeContainer.getNestedContainerType(), equalTo(ASICS_CONTAINER_TYPE));
   }
 
   @Test
@@ -232,10 +275,18 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
 
     assertThat(container, instanceOf(AsicSContainer.class));
     assertThat(container, instanceOf(AsicSCompositeContainer.class));
+    assertThat(container, instanceOf(CompositeContainer.class));
     assertThat(container.getDataFiles(), hasSize(1));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(1));
-    // TODO (DD4J-1095): verify that parameters from the inner container are correct
+    CompositeContainer compositeContainer = (CompositeContainer) container;
+    assertThat(compositeContainer.getNestingContainerDataFiles(), equalTo(container.getDataFiles()));
+    assertThat(compositeContainer.getNestingContainerSignatures(), equalTo(container.getSignatures()));
+    assertThat(compositeContainer.getNestingContainerTimestamps(), equalTo(container.getTimestamps()));
+    assertThat(compositeContainer.getNestedContainerDataFiles(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerSignatures(), empty());
+    assertThat(compositeContainer.getNestedContainerTimestamps(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerType(), equalTo(ASICS_CONTAINER_TYPE));
   }
 
   @Test
@@ -247,17 +298,25 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
 
     assertThat(container, instanceOf(AsicSContainer.class));
     assertThat(container, instanceOf(AsicSCompositeContainer.class));
+    assertThat(container, instanceOf(CompositeContainer.class));
     assertThat(container.getDataFiles(), hasSize(1));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(1));
-    // TODO (DD4J-1095): verify that parameters from the inner container are correct
+    CompositeContainer compositeContainer = (CompositeContainer) container;
+    assertThat(compositeContainer.getNestingContainerDataFiles(), equalTo(container.getDataFiles()));
+    assertThat(compositeContainer.getNestingContainerSignatures(), equalTo(container.getSignatures()));
+    assertThat(compositeContainer.getNestingContainerTimestamps(), equalTo(container.getTimestamps()));
+    assertThat(compositeContainer.getNestedContainerDataFiles(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerSignatures(), empty());
+    assertThat(compositeContainer.getNestedContainerTimestamps(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerType(), equalTo(ASICS_CONTAINER_TYPE));
   }
 
   @Test
-  public void openContainer_WhenDataFileIsDegenerateAsicsContainerAndLoadFromFile_ReturnsCompositeAsicsContainer() {
+  public void openContainer_WhenDataFileIsDegenerateAsicsContainerAndLoadFromFile_ThrowsNestedContainerParsingException() {
     Container container = createTimestampedAsics(builder -> builder.withDataFile(
             "src/test/resources/testFiles/degenerate-containers/2-mimetypes.asics",
-            MimeTypeEnum.ASICE.getMimeTypeString()
+            MimeTypeEnum.ASICS.getMimeTypeString()
     ));
     File file = saveContainerToTemporaryFile(container);
 
@@ -270,10 +329,10 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsDegenerateAsicsContainerAndLoadFromStream_ReturnsCompositeAsicsContainer() {
+  public void openContainer_WhenDataFileIsDegenerateAsicsContainerAndLoadFromStream_ThrowsNestedContainerParsingException() {
     Container container = createTimestampedAsics(builder -> builder.withDataFile(
             "src/test/resources/testFiles/degenerate-containers/2-mimetypes.asics",
-            MimeTypeEnum.ASICE.getMimeTypeString()
+            MimeTypeEnum.ASICS.getMimeTypeString()
     ));
 
     TechnicalException caughtException = Assert.assertThrows(
@@ -292,10 +351,18 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
 
     assertThat(container, instanceOf(AsicSContainer.class));
     assertThat(container, instanceOf(AsicSCompositeContainer.class));
+    assertThat(container, instanceOf(CompositeContainer.class));
     assertThat(container.getDataFiles(), hasSize(1));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(1));
-    // TODO (DD4J-1095): verify that parameters from the inner container are correct
+    CompositeContainer compositeContainer = (CompositeContainer) container;
+    assertThat(compositeContainer.getNestingContainerDataFiles(), equalTo(container.getDataFiles()));
+    assertThat(compositeContainer.getNestingContainerSignatures(), equalTo(container.getSignatures()));
+    assertThat(compositeContainer.getNestingContainerTimestamps(), equalTo(container.getTimestamps()));
+    assertThat(compositeContainer.getNestedContainerDataFiles(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerSignatures(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerTimestamps(), empty());
+    assertThat(compositeContainer.getNestedContainerType(), equalTo(BDOC_CONTAINER_TYPE));
   }
 
   @Test
@@ -306,14 +373,22 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
 
     assertThat(container, instanceOf(AsicSContainer.class));
     assertThat(container, instanceOf(AsicSCompositeContainer.class));
+    assertThat(container, instanceOf(CompositeContainer.class));
     assertThat(container.getDataFiles(), hasSize(1));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(1));
-    // TODO (DD4J-1095): verify that parameters from the inner container are correct
+    CompositeContainer compositeContainer = (CompositeContainer) container;
+    assertThat(compositeContainer.getNestingContainerDataFiles(), equalTo(container.getDataFiles()));
+    assertThat(compositeContainer.getNestingContainerSignatures(), equalTo(container.getSignatures()));
+    assertThat(compositeContainer.getNestingContainerTimestamps(), equalTo(container.getTimestamps()));
+    assertThat(compositeContainer.getNestedContainerDataFiles(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerSignatures(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerTimestamps(), empty());
+    assertThat(compositeContainer.getNestedContainerType(), equalTo(BDOC_CONTAINER_TYPE));
   }
 
   @Test
-  public void openContainer_WhenDataFileIsDegenerateBdocContainerAndLoadFromFile_ReturnsCompositeAsicsContainer() {
+  public void openContainer_WhenDataFileIsDegenerateBdocContainerAndLoadFromFile_ThrowsNestedContainerParsingException() {
     Container container = createTimestampedAsics(builder -> builder.withDataFile(
             "src/test/resources/testFiles/degenerate-containers/2-mimetypes.bdoc",
             MimeTypeEnum.ASICE.getMimeTypeString()
@@ -329,7 +404,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsDegenerateBdocContainerAndLoadFromStream_ReturnsCompositeAsicsContainer() {
+  public void openContainer_WhenDataFileIsDegenerateBdocContainerAndLoadFromStream_ThrowsNestedContainerParsingException() {
     Container container = createTimestampedAsics(builder -> builder.withDataFile(
             "src/test/resources/testFiles/degenerate-containers/2-mimetypes.bdoc",
             MimeTypeEnum.ASICE.getMimeTypeString()
@@ -351,10 +426,18 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
 
     assertThat(container, instanceOf(AsicSContainer.class));
     assertThat(container, instanceOf(AsicSCompositeContainer.class));
+    assertThat(container, instanceOf(CompositeContainer.class));
     assertThat(container.getDataFiles(), hasSize(1));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(1));
-    // TODO (DD4J-1095): verify that parameters from the inner container are correct
+    CompositeContainer compositeContainer = (CompositeContainer) container;
+    assertThat(compositeContainer.getNestingContainerDataFiles(), equalTo(container.getDataFiles()));
+    assertThat(compositeContainer.getNestingContainerSignatures(), equalTo(container.getSignatures()));
+    assertThat(compositeContainer.getNestingContainerTimestamps(), equalTo(container.getTimestamps()));
+    assertThat(compositeContainer.getNestedContainerDataFiles(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerSignatures(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerTimestamps(), empty());
+    assertThat(compositeContainer.getNestedContainerType(), equalTo(DDOC_CONTAINER_TYPE));
   }
 
   @Test
@@ -365,10 +448,18 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
 
     assertThat(container, instanceOf(AsicSContainer.class));
     assertThat(container, instanceOf(AsicSCompositeContainer.class));
+    assertThat(container, instanceOf(CompositeContainer.class));
     assertThat(container.getDataFiles(), hasSize(1));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(1));
-    // TODO (DD4J-1095): verify that parameters from the inner container are correct
+    CompositeContainer compositeContainer = (CompositeContainer) container;
+    assertThat(compositeContainer.getNestingContainerDataFiles(), equalTo(container.getDataFiles()));
+    assertThat(compositeContainer.getNestingContainerSignatures(), equalTo(container.getSignatures()));
+    assertThat(compositeContainer.getNestingContainerTimestamps(), equalTo(container.getTimestamps()));
+    assertThat(compositeContainer.getNestedContainerDataFiles(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerSignatures(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerTimestamps(), empty());
+    assertThat(compositeContainer.getNestedContainerType(), equalTo(DDOC_CONTAINER_TYPE));
   }
 
   @Test
@@ -380,6 +471,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
 
     assertThat(container, instanceOf(AsicSContainer.class));
     assertThat(container, not(instanceOf(AsicSCompositeContainer.class)));
+    assertThat(container, not(instanceOf(CompositeContainer.class)));
     assertThat(container.getDataFiles(), hasSize(1));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(1));
@@ -394,6 +486,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
 
     assertThat(container, instanceOf(AsicSContainer.class));
     assertThat(container, not(instanceOf(AsicSCompositeContainer.class)));
+    assertThat(container, not(instanceOf(CompositeContainer.class)));
     assertThat(container.getDataFiles(), hasSize(1));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(1));
@@ -407,10 +500,18 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
 
     assertThat(container, instanceOf(AsicSContainer.class));
     assertThat(container, instanceOf(AsicSCompositeContainer.class));
+    assertThat(container, instanceOf(CompositeContainer.class));
     assertThat(container.getDataFiles(), hasSize(1));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(2));
-    // TODO (DD4J-1095): verify that parameters from the inner container are correct
+    CompositeContainer compositeContainer = (CompositeContainer) container;
+    assertThat(compositeContainer.getNestingContainerDataFiles(), equalTo(container.getDataFiles()));
+    assertThat(compositeContainer.getNestingContainerSignatures(), equalTo(container.getSignatures()));
+    assertThat(compositeContainer.getNestingContainerTimestamps(), equalTo(container.getTimestamps()));
+    assertThat(compositeContainer.getNestedContainerDataFiles(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerSignatures(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerTimestamps(), empty());
+    assertThat(compositeContainer.getNestedContainerType(), equalTo(BDOC_CONTAINER_TYPE));
   }
 
   @Test
@@ -421,10 +522,18 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
 
     assertThat(container, instanceOf(AsicSContainer.class));
     assertThat(container, instanceOf(AsicSCompositeContainer.class));
+    assertThat(container, instanceOf(CompositeContainer.class));
     assertThat(container.getDataFiles(), hasSize(1));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(2));
-    // TODO (DD4J-1095): verify that parameters from the inner container are correct
+    CompositeContainer compositeContainer = (CompositeContainer) container;
+    assertThat(compositeContainer.getNestingContainerDataFiles(), equalTo(container.getDataFiles()));
+    assertThat(compositeContainer.getNestingContainerSignatures(), equalTo(container.getSignatures()));
+    assertThat(compositeContainer.getNestingContainerTimestamps(), equalTo(container.getTimestamps()));
+    assertThat(compositeContainer.getNestedContainerDataFiles(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerSignatures(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerTimestamps(), empty());
+    assertThat(compositeContainer.getNestedContainerType(), equalTo(BDOC_CONTAINER_TYPE));
   }
 
   @Test
@@ -435,10 +544,18 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
 
     assertThat(container, instanceOf(AsicSContainer.class));
     assertThat(container, instanceOf(AsicSCompositeContainer.class));
+    assertThat(container, instanceOf(CompositeContainer.class));
     assertThat(container.getDataFiles(), hasSize(1));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(1));
-    // TODO (DD4J-1095): verify that parameters from the inner container are correct
+    CompositeContainer compositeContainer = (CompositeContainer) container;
+    assertThat(compositeContainer.getNestingContainerDataFiles(), equalTo(container.getDataFiles()));
+    assertThat(compositeContainer.getNestingContainerSignatures(), equalTo(container.getSignatures()));
+    assertThat(compositeContainer.getNestingContainerTimestamps(), equalTo(container.getTimestamps()));
+    assertThat(compositeContainer.getNestedContainerDataFiles(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerSignatures(), empty());
+    assertThat(compositeContainer.getNestedContainerTimestamps(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerType(), equalTo(ASICS_CONTAINER_TYPE));
 
     ContainerValidationResult validationResult = container.validate();
     assertThat(validationResult.getTimestampReports(), hasSize(2));
@@ -452,10 +569,18 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
 
     assertThat(container, instanceOf(AsicSContainer.class));
     assertThat(container, instanceOf(AsicSCompositeContainer.class));
+    assertThat(container, instanceOf(CompositeContainer.class));
     assertThat(container.getDataFiles(), hasSize(1));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(1));
-    // TODO (DD4J-1095): verify that parameters from the inner container are correct
+    CompositeContainer compositeContainer = (CompositeContainer) container;
+    assertThat(compositeContainer.getNestingContainerDataFiles(), equalTo(container.getDataFiles()));
+    assertThat(compositeContainer.getNestingContainerSignatures(), equalTo(container.getSignatures()));
+    assertThat(compositeContainer.getNestingContainerTimestamps(), equalTo(container.getTimestamps()));
+    assertThat(compositeContainer.getNestedContainerDataFiles(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerSignatures(), empty());
+    assertThat(compositeContainer.getNestedContainerTimestamps(), hasSize(1));
+    assertThat(compositeContainer.getNestedContainerType(), equalTo(ASICS_CONTAINER_TYPE));
 
     ContainerValidationResult validationResult = container.validate();
     assertThat(validationResult.getTimestampReports(), hasSize(2));

@@ -52,7 +52,7 @@ public class DataFile implements Serializable {
    * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
    */
   public DataFile(String path, String mimeType) {
-    logger.debug("Path: " + path + ", mime type: " + mimeType);
+    logger.debug("Path: {}, mime type: {}", path, mimeType);
     try {
       document = new FileDocument(path);
       document.setMimeType(getMimeType(mimeType));
@@ -70,7 +70,7 @@ public class DataFile implements Serializable {
    * @param mimeType MIME type of the data file, for example 'text/plain' or 'application/msword'
    */
   public DataFile(byte[] data, String fileName, String mimeType) {
-    logger.debug("File name: " + fileName + ", mime type: " + mimeType);
+    logger.debug("File name: {}, mime type: {}", fileName, mimeType);
     document = new InMemoryDocument(data.clone(), fileName, getMimeType(mimeType));
   }
 
@@ -82,7 +82,7 @@ public class DataFile implements Serializable {
    * @param mimeType MIME type of the stream file, for example 'text/plain' or 'application/msword'
    */
   public DataFile(InputStream stream, String fileName, String mimeType) {
-    logger.debug("File name: " + fileName + ", mime type: " + mimeType);
+    logger.debug("File name: {}, mime type: {}", fileName, mimeType);
     try {
       document = new InMemoryDocument(stream, fileName, getMimeType(mimeType));
     } catch (Exception e) {
@@ -95,10 +95,15 @@ public class DataFile implements Serializable {
     this.document = document;
   }
 
+  /**
+   * @deprecated Deprecated for removal.
+   * Use parameterized constructors to create instances that do not need post-construct mutation.
+   */
+  @Deprecated
   public DataFile() {
   }
 
-  protected MimeType getMimeType(String mimeType) {
+  protected static MimeType getMimeType(String mimeType) {
     try {
       MimeType mimeTypeCode = MimeTypeUtil.fromMimeTypeString(mimeType);
       logger.debug("Mime type: {}", mimeTypeCode);
@@ -137,7 +142,7 @@ public class DataFile implements Serializable {
    * @return calculated digest
    */
   public byte[] calculateDigest(URL method) {
-    logger.debug("URL method: " + method);
+    logger.debug("URL method: {}", method);
     DigestAlgorithm digestAlgorithm = DigestAlgorithm.forXML(method.toString());
     String digestBase64String = document.getDigest(digestAlgorithm);
     return Base64.decodeBase64(digestBase64String);
@@ -159,7 +164,7 @@ public class DataFile implements Serializable {
   public String getName() {
     String documentName = document.getName();
     String name = FilenameUtils.getName(documentName);
-    logger.trace("File name: for document " + documentName + " is " + name);
+    logger.trace("File name for document {}: {}", documentName, name);
     return name;
   }
 
@@ -195,7 +200,7 @@ public class DataFile implements Serializable {
     } catch (IOException e) {
       throw new TechnicalException("Error reading document bytes: " + e.getMessage(), e);
     }
-    logger.debug("File document size: " + fileSize);
+    logger.debug("File document size: {}", fileSize);
     return fileSize;
   }
 
@@ -229,7 +234,7 @@ public class DataFile implements Serializable {
       FileDocument fileDocument = (FileDocument) document;
       try {
         long fileSize = Files.size(Paths.get(fileDocument.getAbsolutePath()));
-        logger.debug("Document size: " + fileSize);
+        logger.debug("Document size: {}", fileSize);
         return fileSize;
       } catch (IOException e) {
         logger.error(e.getMessage());
@@ -246,10 +251,15 @@ public class DataFile implements Serializable {
    */
   public String getMediaType() {
     String mediaType = document.getMimeType().getMimeTypeString();
-    logger.debug("Media type is: " + mediaType);
+    logger.debug("Media type: {}", mediaType);
     return mediaType;
   }
 
+  /**
+   * @deprecated Deprecated for removal.
+   * Use parameterized constructors to create instances that do not need post-construct mutation.
+   */
+  @Deprecated
   public void setMediaType(String mediaType) {
     MimeType mimeType = getMimeType(mediaType);
     document.setMimeType(mimeType);
@@ -275,10 +285,10 @@ public class DataFile implements Serializable {
   //TODO exception - method throws DSSException which can be caused by other exceptions
   public void saveAs(String path) {
     try {
-      logger.debug("Path: " + path);
+      logger.debug("Path: {}", path);
       document.save(path);
     } catch (IOException e) {
-      logger.error("Failed to save path " + path);
+      logger.error("Failed to save path {}", path);
       throw new TechnicalException("Failed to save path " + path, e);
     }
   }
@@ -318,6 +328,11 @@ public class DataFile implements Serializable {
     return document;
   }
 
+  /**
+   * @deprecated Deprecated for removal.
+   * Use parameterized constructors to create instances that do not need post-construct mutation.
+   */
+  @Deprecated
   public void setDocument(DSSDocument document) {
     this.document = document;
   }

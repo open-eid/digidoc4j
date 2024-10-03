@@ -25,6 +25,7 @@ import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import eu.europa.esig.dss.validation.reports.Reports;
 import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.DataFile;
@@ -55,7 +56,11 @@ public class PadesContainer extends PdfBoxDefaultObjectFactory implements Contai
   private static final Logger logger = LoggerFactory.getLogger(PadesContainer.class);
   private static final String NOT_FOR_THIS_CONTAINER = "Not for PAdES container";
 
-  public static final String PADES = "PADES";
+  /**
+   * @deprecated Deprecated for removal. Use {@link Constant#PADES_CONTAINER_TYPE} instead.
+   */
+  @Deprecated
+  public static final String PADES = Constant.PADES_CONTAINER_TYPE;
   private final Configuration configuration;
   private final String containerPath;
 
@@ -100,7 +105,7 @@ public class PadesContainer extends PdfBoxDefaultObjectFactory implements Contai
 
   @Override
   public String getType() {
-    return PADES;
+    return Constant.PADES_CONTAINER_TYPE;
   }
 
   @Override

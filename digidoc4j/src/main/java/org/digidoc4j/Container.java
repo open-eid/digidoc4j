@@ -35,7 +35,7 @@ public interface Container extends Serializable {
    * Adds a data file from the file system to the container.
    * <p>
    * Note:
-   * Data files can be removed from a container only after all signatures have been removed.
+   * Data files can be added to a container only after all signatures have been removed.
    * </p>
    *
    * @param path     data file to be added to the container
@@ -62,7 +62,7 @@ public interface Container extends Serializable {
    * Adds a data file from the file system to the container.
    * <p>
    * Note:
-   * Data files can be removed from a container only after all signatures have been removed.
+   * Data files can be added to a container only after all signatures have been removed.
    * </p>
    *
    * @param file     data file to be added to the container
@@ -72,10 +72,10 @@ public interface Container extends Serializable {
   DataFile addDataFile(File file, String mimeType);
 
   /**
-   * Adds a data file from the file system to the container.
+   * Adds the specified data file to the container.
    * <p>
    * Note:
-   * Data files can be removed from a container only after all signatures have been removed.
+   * Data files can be added to a container only after all signatures have been removed.
    * </p>
    *
    * @param dataFile data file to be added to the container
@@ -97,23 +97,31 @@ public interface Container extends Serializable {
   void addTimestamp(Timestamp timestamp);
 
   /**
-   * Returns all data files in the container.
+   * Returns the list of data files in the container.
    *
-   * @return list of all the data files in the container.
+   * @return list of data files in the container
    */
   List<DataFile> getDataFiles();
 
   /**
-   * Returns container type "BDOC" or "DDOC"
+   * Returns the type of the container.
+   * The known container types are the following:<ul>
+   * <li>{@value org.digidoc4j.Constant#ASICE_CONTAINER_TYPE}</li>
+   * <li>{@value org.digidoc4j.Constant#ASICS_CONTAINER_TYPE}</li>
+   * <li>{@value org.digidoc4j.Constant#BDOC_CONTAINER_TYPE}</li>
+   * <li>{@value org.digidoc4j.Constant#DDOC_CONTAINER_TYPE}</li>
+   * <li>{@value org.digidoc4j.Constant#PADES_CONTAINER_TYPE}</li>
+   * </ul>
+   * Custom implementations of this interface may return other custom types.
    *
-   * @return type
+   * @return type of the container
    */
   String getType();
 
   /**
-   * Returns a list of all signatures in the container.
+   * Returns the list of signatures in the container.
    *
-   * @return list of all signatures
+   * @return list of signatures in the container
    */
   List<Signature> getSignatures();
 

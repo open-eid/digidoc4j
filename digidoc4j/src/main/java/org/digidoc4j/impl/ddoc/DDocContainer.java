@@ -11,6 +11,7 @@
 package org.digidoc4j.impl.ddoc;
 
 import org.digidoc4j.Configuration;
+import org.digidoc4j.Constant;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.DataFile;
@@ -78,11 +79,11 @@ public class DDocContainer implements Container {
   }
 
   /**
-   * Returns container type "BDOC" or "DDOC"
+   * Returns container type {@value Constant#DDOC_CONTAINER_TYPE}
    */
   @Override
   public String getType() {
-    return "DDOC";
+    return Constant.DDOC_CONTAINER_TYPE;
   }
 
   @Override

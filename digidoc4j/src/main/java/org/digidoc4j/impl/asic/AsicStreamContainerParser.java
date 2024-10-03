@@ -10,6 +10,7 @@
 
 package org.digidoc4j.impl.asic;
 
+import eu.europa.esig.dss.enumerations.MimeType;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.CountingInputStream;
 import org.digidoc4j.Configuration;
@@ -71,8 +72,8 @@ public class AsicStreamContainerParser extends AsicContainerParser {
   private void updateDataFilesMimeType() {
     for (DataFile dataFile : getDataFiles().values()) {
       String fileName = dataFile.getName();
-      String mimeType = MimeTypeUtil.mimeTypeOf(getDataFileMimeType(fileName)).getMimeTypeString();
-      dataFile.setMediaType(mimeType);
+      MimeType mimeType = MimeTypeUtil.mimeTypeOf(getDataFileMimeType(fileName));
+      dataFile.getDocument().setMimeType(mimeType);
     }
   }
 

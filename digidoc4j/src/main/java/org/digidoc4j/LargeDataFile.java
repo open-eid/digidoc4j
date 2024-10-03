@@ -10,14 +10,12 @@
 
 package org.digidoc4j;
 
-import java.io.InputStream;
-
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.impl.StreamDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.europa.esig.dss.model.DSSDocument;
+import java.io.InputStream;
 
 /**
  * Handling large files from a stream to be stored temporarily on disk.
@@ -36,13 +34,17 @@ public class LargeDataFile extends DataFile {
    * @param mimeType MIME type of the stream file, for example 'text/plain' or 'application/msword'
    */
   public LargeDataFile(InputStream stream, String fileName, String mimeType) {
-    logger.debug("Large file name: " + fileName + ", mime type: " + mimeType);
+    super(createStreamDocument(stream, fileName, mimeType));
+  }
+
+  private static StreamDocument createStreamDocument(InputStream stream, String fileName, String mimeType) {
+    logger.debug("Large file name: {}, mime type: {}", fileName, mimeType);
     try {
-      DSSDocument document = new StreamDocument(stream, fileName, getMimeType(mimeType));
-      setDocument(document);
+      return new StreamDocument(stream, fileName, getMimeType(mimeType));
     } catch (Exception e) {
       logger.error(e.getMessage());
       throw new InvalidDataFileException(e);
     }
   }
+
 }
