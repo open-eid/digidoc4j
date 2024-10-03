@@ -31,7 +31,6 @@ import org.digidoc4j.impl.asic.cades.AsicArchiveManifest;
 import org.digidoc4j.impl.asic.manifest.ManifestValidator;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestSigningUtil;
-import org.hamcrest.Matchers;
 import org.hamcrest.core.StringContains;
 import org.junit.Assert;
 import org.junit.Ignore;

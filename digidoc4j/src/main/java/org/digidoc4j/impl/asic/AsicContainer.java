@@ -476,13 +476,6 @@ public abstract class AsicContainer implements Container, ValidatableContainer {
     verifyDataFileIsNotEmpty(dataFile);
     String fileName = dataFile.getName();
     verifyIfAllowedToAddDataFile(fileName);
-    if (Constant.ASICS_CONTAINER_TYPE.equals(getType())) {
-      if (dataFiles.size() > 1) {
-        throw new DigiDoc4JException("DataFile is already exists");
-      } else if (newDataFiles.size() > 1) {
-        throw new DigiDoc4JException("Not possible to add more than one datafile");
-      }
-    }
     dataFiles.add(dataFile);
     newDataFiles.add(dataFile);
     dataFilesHaveChanged = true;

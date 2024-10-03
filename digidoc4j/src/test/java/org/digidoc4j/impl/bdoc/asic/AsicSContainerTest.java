@@ -24,8 +24,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -40,8 +43,16 @@ public class AsicSContainerTest extends AbstractTest {
   }
 
   @Test(expected = DigiDoc4JException.class)
-  public void testAsicSContainerWithTwoDataFiles() throws IOException {
+  public void testBuildAsicSContainerWithTwoDataFiles() throws IOException {
     this.createNonEmptyContainer(Container.DocumentType.ASICS, 2);
+  }
+
+  @Test
+  public void testAddingDatafileToContainerWithExistingDatafile() throws IOException {
+    Container container = this.createNonEmptyContainer(Container.DocumentType.ASICS, 1);
+    DigiDoc4JException exception = assertThrows(DigiDoc4JException.class,
+            () -> container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain"));
+    assertThat(exception.getMessage(), equalTo("Datafile already exists. ASiC-S container can only contain 1 datafile."));
   }
 
   @Test(expected = DigiDoc4JException.class)

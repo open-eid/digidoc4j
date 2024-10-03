@@ -20,6 +20,7 @@ import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
 import org.digidoc4j.Timestamp;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateTimestampException;
 import org.digidoc4j.exceptions.IllegalTimestampException;
 import org.digidoc4j.exceptions.NotSupportedException;
@@ -269,6 +270,14 @@ public class AsicSContainer extends AsicContainer {
   @Override
   public void addSignature(Signature signature) {
     throw new NotSupportedException("Not for ASiC-S container");
+  }
+
+  @Override
+  protected void verifyIfAllowedToAddDataFile(String fileName) {
+    super.verifyIfAllowedToAddDataFile(fileName);
+    if (CollectionUtils.isNotEmpty(getDataFiles())) {
+      throw new DigiDoc4JException("Datafile already exists. ASiC-S container can only contain 1 datafile.");
+    }
   }
 
   @Override
