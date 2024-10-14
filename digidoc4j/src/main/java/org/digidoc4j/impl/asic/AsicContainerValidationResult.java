@@ -16,10 +16,13 @@ import eu.europa.esig.dss.enumerations.SubIndication;
 import eu.europa.esig.dss.enumerations.TimestampQualification;
 import eu.europa.esig.dss.simplereport.SimpleReport;
 import org.digidoc4j.ContainerValidationResult;
+import org.digidoc4j.ValidationResult;
 import org.digidoc4j.impl.AbstractContainerValidationResult;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -34,6 +37,7 @@ import java.util.function.Function;
 public class AsicContainerValidationResult extends AbstractContainerValidationResult implements ContainerValidationResult {
 
   private Map<String, String> signatureIdMap = Collections.emptyMap();
+  private Map<String, ValidationResult> signatureResultMap = Collections.emptyMap();
   private AsicValidationReportBuilder validationReportBuilder;
 
   @Override
@@ -44,6 +48,18 @@ public class AsicContainerValidationResult extends AbstractContainerValidationRe
   @Override
   public SubIndication getSubIndication(String tokenId) {
     return findFromSimpleReportsByIdOrMappedId(ensureTokenIdNotNull(tokenId), SimpleReport::getSubIndication);
+  }
+
+  @Override
+  public ValidationResult getValidationResult(String tokenId) {
+    ensureTokenIdNotNull(tokenId);
+    return Optional
+            .ofNullable(signatureResultMap.get(tokenId))
+            // TODO (DD4J-1120): Allow to query timestamp validation results
+            .orElseGet(() -> Optional
+                    .ofNullable(signatureIdMap.get(tokenId))
+                    .map(signatureResultMap::get)
+                    .orElse(null));
   }
 
   @Override
@@ -58,6 +74,11 @@ public class AsicContainerValidationResult extends AbstractContainerValidationRe
   public TimestampQualification getTimestampQualification(String timestampId) {
     ensureTokenIdNotNull(timestampId);
     return findFromSimpleReports(report -> report.getTimestampQualification(timestampId));
+  }
+
+  @Override
+  public List<String> getSignatureIdList() {
+    return new ArrayList<>(signatureResultMap.keySet());
   }
 
   /**
@@ -103,6 +124,7 @@ public class AsicContainerValidationResult extends AbstractContainerValidationRe
   private void buildResult() {
     if (validationReportBuilder != null) {
       report = validationReportBuilder.buildXmlReport();
+      signatureResultMap = validationReportBuilder.buildSignatureValidationResultMap();
       signatureReports = validationReportBuilder.buildSignatureValidationReports();
       timestampReports = validationReportBuilder.buildTimestampValidationReports();
       simpleReports = validationReportBuilder.buildAllSimpleReports();

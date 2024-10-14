@@ -14,6 +14,7 @@ import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.ddoc.DigiDocException;
 import org.digidoc4j.ddoc.SignedDoc;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.AbstractContainerValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Overview of errors and warnings for DDoc
+ * Overview of errors and warnings for DDoc signature
  */
 public class DDocSignatureValidationResult extends AbstractContainerValidationResult implements ContainerValidationResult {
 
@@ -43,8 +44,8 @@ public class DDocSignatureValidationResult extends AbstractContainerValidationRe
   /**
    * Constructor
    *
-   * @param exceptions add description
-   * @param documentFormat add description
+   * @param exceptions list of validation exceptions
+   * @param documentFormat document format
    */
   public DDocSignatureValidationResult(List<DigiDocException> exceptions, String documentFormat) {
     this(exceptions, null, documentFormat);
@@ -53,11 +54,14 @@ public class DDocSignatureValidationResult extends AbstractContainerValidationRe
   /**
    * Constructor
    *
-   * @param exceptions              add description
+   * @param exceptions list of validation exceptions
    * @param openContainerExceptions list of exceptions encountered when opening the container
-   * @param documentFormat add description
+   * @param documentFormat document format
+   *
+   * @deprecated Deprecated for removal. Use {@link DDocContainerValidationResult} for encapsulating DDOC container
+   * validation results.
    */
-
+  @Deprecated
   public DDocSignatureValidationResult(List<DigiDocException> exceptions,
                                        List<DigiDocException> openContainerExceptions,
                                        String documentFormat) {
@@ -91,13 +95,18 @@ public class DDocSignatureValidationResult extends AbstractContainerValidationRe
     this.report = this.toReportString(this.document);
   }
 
+  @Override
+  public List<String> getSignatureIdList() {
+    throw new NotSupportedException("Not supported for " + getResultName() + " validation result");
+  }
+
   /*
    * RESTRICTED METHODS
    */
 
   @Override
   protected String getResultName() {
-    return "DDoc container";
+    return "DDoc signature";
   }
 
   private void removeDuplicates(List<DigiDocException> exceptions) {

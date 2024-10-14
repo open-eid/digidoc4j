@@ -1,15 +1,16 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.impl.ddoc;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
@@ -19,6 +20,7 @@ import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.DigestDataFile;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
+import org.digidoc4j.ValidationResult;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.ddoc.DigiDocException;
 import org.digidoc4j.ddoc.KeyInfo;
@@ -32,7 +34,9 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Offers validation specific functionality of a DDOC container.
@@ -183,10 +187,37 @@ public class DDocFacade implements Serializable {
 
   public ContainerValidationResult validate() {
     logger.debug("Validating DDoc container ...");
-    List containerExceptions = this.ddoc.validate(true);
-    containerExceptions.addAll(this.openContainerExceptions);
-    DDocSignatureValidationResult result = new DDocSignatureValidationResult(this.ddoc.verify(true, true),
-        containerExceptions, this.ddoc.getFormat());
+    Map<String, ValidationResult> signatureResults = new LinkedHashMap<>();
+
+    // The implementation of {@link SignedDoc#verify(boolean, boolean)} has been re-implemented here in order to get
+    //  access to the verification results of individual signatures.
+    @SuppressWarnings("unchecked")
+    ArrayList<DigiDocException> containerExceptions = ddoc.validate(true);
+    boolean noFatalErrors = !SignedDoc.hasFatalErrs(containerExceptions);
+    ArrayList<DigiDocException> verificationExceptions = new ArrayList<>(containerExceptions);
+    containerExceptions.addAll(openContainerExceptions);
+    for (int i = 0; i < ddoc.countSignatures(); ++i) {
+      org.digidoc4j.ddoc.Signature signature = ddoc.getSignature(i);
+      List<DigiDocException> signatureExceptions = validateSignature(signature, verificationExceptions);
+      String signatureId = signature.getId();
+      if (signatureId == null) {
+        logger.warn("DDoc signature is missing signature ID");
+      } else if (signatureResults.containsKey(signatureId)) {
+        logger.warn("DDoc signature ID collision detected, mapping '{}' to first matching result!", signatureId);
+      } else {
+        signatureResults.put(signatureId, new DDocSignatureValidationResult(signatureExceptions, ddoc.getFormat()));
+      }
+    }
+    if (noFatalErrors && ddoc.countSignatures() == 0) {
+      verificationExceptions.add(new DigiDocException(DigiDocException.ERR_NOT_SIGNED, "This document is not signed!", null));
+    }
+
+    DDocSignatureValidationResult result = new DDocContainerValidationResult(
+            verificationExceptions,
+            containerExceptions,
+            signatureResults,
+            ddoc.getFormat()
+    );
     result.print(this.configuration);
     return result;
   }
@@ -220,6 +251,35 @@ public class DDocFacade implements Serializable {
 
   protected void setContainerOpeningExceptions(ArrayList<DigiDocException> openContainerExceptions) {
     this.openContainerExceptions = openContainerExceptions;
+  }
+
+  private List<DigiDocException> validateSignature(
+          org.digidoc4j.ddoc.Signature signature,
+          List<DigiDocException> verificationErrorAccumulator
+  ) {
+    try {
+      @SuppressWarnings("unchecked")
+      List<DigiDocException> verificationResult = signature.verify(ddoc, true, true);
+      logger.debug("Verification of signature '{}' returned: {}", signature.getId(), verificationResult);
+      if (CollectionUtils.isNotEmpty(verificationResult)) {
+        verificationErrorAccumulator.addAll(verificationResult);
+      }
+      return verificationResult;
+    } catch (Exception e) {
+      logger.debug("Verification of signature '{}' failed", signature.getId(), e);
+
+      @SuppressWarnings("unchecked")
+      List<DigiDocException> validationResult = signature.validate();
+      logger.debug("Validation of signature '{}' returned: {}", signature.getId(), validationResult);
+      if (CollectionUtils.isNotEmpty(validationResult)) {
+        return validationResult;
+      }
+
+      validationResult = new ArrayList<>();
+      validationResult.add(new DigiDocException(DigiDocException.ERR_VERIFY, "Fatal error", null));
+      logger.debug("Unverifiable signature '{}' has no validation errors; returning fatal error", signature.getId());
+      return validationResult;
+    }
   }
 
 }

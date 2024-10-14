@@ -12,6 +12,7 @@ package org.digidoc4j.impl;
 
 import eu.europa.esig.dss.enumerations.TimestampQualification;
 import org.digidoc4j.ContainerValidationResult;
+import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.asic.report.TimestampValidationReport;
 import org.slf4j.Logger;
@@ -27,6 +28,12 @@ public abstract class AbstractContainerValidationResult extends AbstractSignatur
   protected List<TimestampValidationReport> timestampReports = new ArrayList<>();
   protected List<DigiDoc4JException> containerErrors = new ArrayList<>();
   protected List<DigiDoc4JException> containerWarnings = new ArrayList<>();
+
+  @Override
+  public ValidationResult getValidationResult(String tokenId) {
+    log.info(getNotSupportedMessage());
+    return null;
+  }
 
   @Override
   public List<TimestampValidationReport> getTimestampReports() {

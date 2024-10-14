@@ -38,6 +38,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -141,6 +142,19 @@ public class AsicValidationReportBuilder {
       reports.addAll(buildTimestampSimpleReports());
     }
     return reports;
+  }
+
+  public Map<String, ValidationResult> buildSignatureValidationResultMap() {
+    Map<String, ValidationResult> validationResultMap = new LinkedHashMap<>();
+    for (SignatureValidationData validationData : signatureValidationData) {
+      String key = validationData.getSignatureUniqueId();
+      if (validationResultMap.containsKey(key)) {
+        logger.warn("Signature unique ID collision detected, mapping '{}' to first matching result!", key);
+      } else {
+        validationResultMap.put(key, validationData.getValidationResult());
+      }
+    }
+    return validationResultMap;
   }
 
   public Map<String, String> buildSignatureIdMap() {

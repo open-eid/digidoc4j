@@ -9,6 +9,7 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.AbstractContainerValidationResult;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by Andrei on 20.11.2017.
@@ -36,6 +37,11 @@ public class PadesContainerValidationResult extends AbstractContainerValidationR
       return this.simpleReports.get(0).getSubIndication(signatureId);
     }
     throw new DigiDoc4JException("Signature ID is unset");
+  }
+
+  @Override
+  public List<String> getSignatureIdList() {
+    return simpleReports.get(0).getSignatureIdList();
   }
 
   /*

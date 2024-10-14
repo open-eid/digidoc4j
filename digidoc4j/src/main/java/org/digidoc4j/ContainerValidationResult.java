@@ -52,6 +52,27 @@ public interface ContainerValidationResult extends SignatureValidationResult {
   SubIndication getSubIndication(String tokenId);
 
   /**
+   * Get validation result of the token (signature or timestamp) with the specified ID.
+   *
+   * @see Signature#getUniqueId()
+   * @see Timestamp#getUniqueId()
+   * @see Signature#getId()
+   *
+   * @param tokenId ID of a token (signature or timestamp)
+   * @return validation result of the specified token or {@code null} if the specified ID does not map to any token
+   */
+  ValidationResult getValidationResult(String tokenId);
+
+  /**
+   * Get the list of signature unique IDs.
+   *
+   * @see Signature#getUniqueId()
+   *
+   * @return list of signature unique IDs
+   */
+  List<String> getSignatureIdList();
+
+  /**
    * Get TimestampQualification of the timestamp with the specified ID.
    *
    * @see Timestamp#getUniqueId()

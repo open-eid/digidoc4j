@@ -96,6 +96,11 @@ public class AsicCompositeContainerValidationResult implements ContainerValidati
   }
 
   @Override
+  public List<String> getSignatureIdList() {
+    return getConcatenatedUnmodifiableList(ContainerValidationResult::getSignatureIdList);
+  }
+
+  @Override
   public List<SignatureValidationReport> getSignatureReports() {
     return getConcatenatedUnmodifiableList(SignatureValidationResult::getSignatureReports);
   }
@@ -113,6 +118,11 @@ public class AsicCompositeContainerValidationResult implements ContainerValidati
   @Override
   public SubIndication getSubIndication(String tokenId) {
     return getFirstNonNull(validationResult -> validationResult.getSubIndication(tokenId));
+  }
+
+  @Override
+  public ValidationResult getValidationResult(String tokenId) {
+    return getFirstNonNull(validationResult -> validationResult.getValidationResult(tokenId));
   }
 
   @Override
