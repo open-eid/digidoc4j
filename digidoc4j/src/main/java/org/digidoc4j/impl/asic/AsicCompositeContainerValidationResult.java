@@ -161,10 +161,10 @@ public class AsicCompositeContainerValidationResult implements ContainerValidati
             .collect(Collectors.toList())
     );
 
-    containerValidationReport.setSignaturesCount(containerValidationReport.getSignatures().size());
-    containerValidationReport.setValidSignaturesCount((int) containerValidationReport.getSignatures().stream()
-            .map(SignatureValidationReport::getErrors)
-            .filter(CollectionUtils::isEmpty)
+    containerValidationReport.setSignaturesCount(getSignatureIdList().size());
+    containerValidationReport.setValidSignaturesCount((int) getSignatureIdList().stream()
+            .map(this::getValidationResult)
+            .filter(ValidationResult::isValid)
             .count());
 
     return AsicValidationReportBuilder.createFormattedXmlString(containerValidationReport);
