@@ -21,6 +21,7 @@ import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.TimestampBuilder;
 import org.digidoc4j.ValidationResult;
+import org.digidoc4j.ddoc.utils.ConfigManager;
 import org.digidoc4j.impl.asic.report.TimestampValidationReport;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.junit.Test;
@@ -599,6 +600,10 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
   @Override
   protected void before() {
     configuration = Configuration.of(Configuration.Mode.TEST);
+    // TODO (DD4J-1123): Currently JDigiDoc configuration (for validating DDoc containers and signatures) is
+    //  automatically initialized only once per process, and thus is dependent on the order the unit tests are run.
+    //  This workaround helps to avoid unit test failures caused by incompatible configuration being loaded.
+    ConfigManager.init(configuration.getDDoc4JConfiguration());
   }
 
 }

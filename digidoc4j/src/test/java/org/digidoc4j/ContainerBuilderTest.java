@@ -13,6 +13,7 @@ package org.digidoc4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.digidoc4j.ddoc.utils.ConfigManager;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.exceptions.NotSupportedException;
@@ -657,6 +658,11 @@ public class ContainerBuilderTest extends AbstractTest {
 
   @Test
   public void openBOMBeginningDDocContainerFromPath() {
+    // TODO (DD4J-1123): Currently JDigiDoc configuration (for validating DDoc containers and signatures) is
+    //  automatically initialized only once per process, and thus is dependent on the order the unit tests are run.
+    //  This workaround helps to avoid unit test failures caused by incompatible configuration being loaded.
+    ConfigManager.init(Configuration.getInstance().getDDoc4JConfiguration());
+
     Container container = ContainerBuilder.aContainer()
         .fromExistingFile("src/test/resources/testFiles/valid-containers/BOM_algusega.ddoc")
         .build();
@@ -665,6 +671,11 @@ public class ContainerBuilderTest extends AbstractTest {
 
   @Test
   public void openBOMBeginningDDocContainerFromStream() throws IOException {
+    // TODO (DD4J-1123): Currently JDigiDoc configuration (for validating DDoc containers and signatures) is
+    //  automatically initialized only once per process, and thus is dependent on the order the unit tests are run.
+    //  This workaround helps to avoid unit test failures caused by incompatible configuration being loaded.
+    ConfigManager.init(Configuration.getInstance().getDDoc4JConfiguration());
+
     Container container = ContainerBuilder.aContainer()
         .fromStream(FileUtils.openInputStream(new File("src/test/resources/testFiles/valid-containers/BOM_algusega.ddoc")))
         .build();
