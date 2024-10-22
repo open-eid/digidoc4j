@@ -38,6 +38,7 @@ public class AsicContainerValidationResult extends AbstractContainerValidationRe
 
   private Map<String, String> signatureIdMap = Collections.emptyMap();
   private Map<String, ValidationResult> signatureResultMap = Collections.emptyMap();
+  private Map<String, ValidationResult> timestampResultMap = Collections.emptyMap();
   private AsicValidationReportBuilder validationReportBuilder;
 
   @Override
@@ -55,11 +56,12 @@ public class AsicContainerValidationResult extends AbstractContainerValidationRe
     ensureTokenIdNotNull(tokenId);
     return Optional
             .ofNullable(signatureResultMap.get(tokenId))
-            // TODO (DD4J-1120): Allow to query timestamp validation results
             .orElseGet(() -> Optional
-                    .ofNullable(signatureIdMap.get(tokenId))
-                    .map(signatureResultMap::get)
-                    .orElse(null));
+                    .ofNullable(timestampResultMap.get(tokenId))
+                    .orElseGet(() -> Optional
+                            .ofNullable(signatureIdMap.get(tokenId))
+                            .map(signatureResultMap::get)
+                            .orElse(null)));
   }
 
   @Override
@@ -79,6 +81,11 @@ public class AsicContainerValidationResult extends AbstractContainerValidationRe
   @Override
   public List<String> getSignatureIdList() {
     return new ArrayList<>(signatureResultMap.keySet());
+  }
+
+  @Override
+  public List<String> getTimestampIdList() {
+    return new ArrayList<>(timestampResultMap.keySet());
   }
 
   /**
@@ -125,6 +132,7 @@ public class AsicContainerValidationResult extends AbstractContainerValidationRe
     if (validationReportBuilder != null) {
       report = validationReportBuilder.buildXmlReport();
       signatureResultMap = validationReportBuilder.buildSignatureValidationResultMap();
+      timestampResultMap = validationReportBuilder.buildTimestampValidationResultMap();
       signatureReports = validationReportBuilder.buildSignatureValidationReports();
       timestampReports = validationReportBuilder.buildTimestampValidationReports();
       simpleReports = validationReportBuilder.buildAllSimpleReports();

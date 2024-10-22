@@ -101,6 +101,11 @@ public class AsicCompositeContainerValidationResult implements ContainerValidati
   }
 
   @Override
+  public List<String> getTimestampIdList() {
+    return getConcatenatedUnmodifiableList(ContainerValidationResult::getTimestampIdList);
+  }
+
+  @Override
   public List<SignatureValidationReport> getSignatureReports() {
     return getConcatenatedUnmodifiableList(SignatureValidationResult::getSignatureReports);
   }

@@ -73,6 +73,15 @@ public interface ContainerValidationResult extends SignatureValidationResult {
   List<String> getSignatureIdList();
 
   /**
+   * Get the list of timestamp unique IDs.
+   *
+   * @see Timestamp#getUniqueId()
+   *
+   * @return list of timestamp unique IDs
+   */
+  List<String> getTimestampIdList();
+
+  /**
    * Get TimestampQualification of the timestamp with the specified ID.
    *
    * @see Timestamp#getUniqueId()

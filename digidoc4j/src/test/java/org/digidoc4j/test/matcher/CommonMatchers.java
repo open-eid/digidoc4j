@@ -12,6 +12,7 @@ package org.digidoc4j.test.matcher;
 
 import org.digidoc4j.Container;
 import org.digidoc4j.Signature;
+import org.digidoc4j.Timestamp;
 import org.hamcrest.Matcher;
 
 import java.util.List;
@@ -27,6 +28,14 @@ public final class CommonMatchers {
 
   public static Matcher<List<String>> equalToSignatureUniqueIdList(List<Signature> signatures) {
     return equalTo(signatures.stream().map(Signature::getUniqueId).collect(Collectors.toList()));
+  }
+
+  public static Matcher<List<String>> equalToTimestampUniqueIdList(Container container) {
+    return equalToTimestampUniqueIdList(container.getTimestamps());
+  }
+
+  public static Matcher<List<String>> equalToTimestampUniqueIdList(List<Timestamp> timestamps) {
+    return equalTo(timestamps.stream().map(Timestamp::getUniqueId).collect(Collectors.toList()));
   }
 
   private CommonMatchers() {

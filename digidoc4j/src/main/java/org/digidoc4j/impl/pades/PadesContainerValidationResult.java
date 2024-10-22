@@ -7,14 +7,19 @@ import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.AbstractContainerValidationResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Created by Andrei on 20.11.2017.
  */
 public class PadesContainerValidationResult extends AbstractContainerValidationResult implements ContainerValidationResult {
+
+  private static final Logger log = LoggerFactory.getLogger(PadesContainerValidationResult.class);
 
   /**
    * @param simpleReport simple report
@@ -42,6 +47,12 @@ public class PadesContainerValidationResult extends AbstractContainerValidationR
   @Override
   public List<String> getSignatureIdList() {
     return simpleReports.get(0).getSignatureIdList();
+  }
+
+  @Override
+  public List<String> getTimestampIdList() {
+    log.info(getNotSupportedMessage());
+    return Collections.emptyList();
   }
 
   /*

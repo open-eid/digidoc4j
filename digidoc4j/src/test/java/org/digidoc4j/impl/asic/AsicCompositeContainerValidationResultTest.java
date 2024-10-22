@@ -16,6 +16,7 @@ import eu.europa.esig.dss.enumerations.SubIndication;
 import eu.europa.esig.dss.enumerations.TimestampQualification;
 import eu.europa.esig.dss.simplereport.SimpleReport;
 import org.digidoc4j.ContainerValidationResult;
+import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.asic.report.SignatureValidationReport;
 import org.digidoc4j.impl.asic.report.TimestampValidationReport;
@@ -38,6 +39,7 @@ import static org.hamcrest.Matchers.sameInstance;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -481,6 +483,136 @@ public class AsicCompositeContainerValidationResultTest {
   }
 
   @Test
+  public void getSignatureIdList_WhenBothListsAreNull_ReturnsEmptyList() {
+    doReturn(null).when(nestingContainerValidationResult).getSignatureIdList();
+    doReturn(null).when(nestedContainerValidationResult).getSignatureIdList();
+
+    List<String> result = compositeValidationResult.getSignatureIdList();
+
+    assertThat(result, empty());
+    verify(nestedContainerValidationResult).getSignatureIdList();
+    verify(nestingContainerValidationResult).getSignatureIdList();
+    verifyNoMoreInteractions(nestingContainerValidationResult, nestedContainerValidationResult);
+  }
+
+  @Test
+  public void getSignatureIdList_WhenBothListsAreEmpty_ReturnsEmptyList() {
+    doReturn(Collections.emptyList()).when(nestingContainerValidationResult).getSignatureIdList();
+    doReturn(Collections.emptyList()).when(nestedContainerValidationResult).getSignatureIdList();
+
+    List<String> result = compositeValidationResult.getSignatureIdList();
+
+    assertThat(result, empty());
+    verify(nestedContainerValidationResult).getSignatureIdList();
+    verify(nestingContainerValidationResult).getSignatureIdList();
+    verifyNoMoreInteractions(nestingContainerValidationResult, nestedContainerValidationResult);
+  }
+
+  @Test
+  public void getSignatureIdList_WhenNestedValidationResultContainsId_ReturnsListContainingGivenId() {
+    doReturn(Collections.emptyList()).when(nestingContainerValidationResult).getSignatureIdList();
+    doReturn(Collections.singletonList("id")).when(nestedContainerValidationResult).getSignatureIdList();
+
+    List<String> result = compositeValidationResult.getSignatureIdList();
+
+    assertThat(result, equalTo(Collections.singletonList("id")));
+    verify(nestedContainerValidationResult).getSignatureIdList();
+    verify(nestingContainerValidationResult).getSignatureIdList();
+    verifyNoMoreInteractions(nestingContainerValidationResult, nestedContainerValidationResult);
+  }
+
+  @Test
+  public void getSignatureIdList_WhenNestingValidationResultContainsId_ReturnsListContainingGivenId() {
+    doReturn(Collections.singletonList("id")).when(nestingContainerValidationResult).getSignatureIdList();
+    doReturn(Collections.emptyList()).when(nestedContainerValidationResult).getSignatureIdList();
+
+    List<String> result = compositeValidationResult.getSignatureIdList();
+
+    assertThat(result, equalTo(Collections.singletonList("id")));
+    verify(nestedContainerValidationResult).getSignatureIdList();
+    verify(nestingContainerValidationResult).getSignatureIdList();
+    verifyNoMoreInteractions(nestingContainerValidationResult, nestedContainerValidationResult);
+  }
+
+  @Test
+  public void getSignatureIdList_WhenBothListsContainIds_ReturnsAggregatedListOfGivenIds() {
+    doReturn(Collections.singletonList("id-1")).when(nestingContainerValidationResult).getSignatureIdList();
+    doReturn(Collections.singletonList("id-2")).when(nestedContainerValidationResult).getSignatureIdList();
+
+    List<String> result = compositeValidationResult.getSignatureIdList();
+
+    assertThat(result, equalTo(Arrays.asList("id-2", "id-1")));
+    verify(nestedContainerValidationResult).getSignatureIdList();
+    verify(nestingContainerValidationResult).getSignatureIdList();
+    verifyNoMoreInteractions(nestingContainerValidationResult, nestedContainerValidationResult);
+  }
+
+  @Test
+  public void getTimestampIdList_WhenBothListsAreNull_ReturnsEmptyList() {
+    doReturn(null).when(nestingContainerValidationResult).getTimestampIdList();
+    doReturn(null).when(nestedContainerValidationResult).getTimestampIdList();
+
+    List<String> result = compositeValidationResult.getTimestampIdList();
+
+    assertThat(result, empty());
+    verify(nestedContainerValidationResult).getTimestampIdList();
+    verify(nestingContainerValidationResult).getTimestampIdList();
+    verifyNoMoreInteractions(nestingContainerValidationResult, nestedContainerValidationResult);
+  }
+
+  @Test
+  public void getTimestampIdList_WhenBothListsAreEmpty_ReturnsEmptyList() {
+    doReturn(Collections.emptyList()).when(nestingContainerValidationResult).getTimestampIdList();
+    doReturn(Collections.emptyList()).when(nestedContainerValidationResult).getTimestampIdList();
+
+    List<String> result = compositeValidationResult.getTimestampIdList();
+
+    assertThat(result, empty());
+    verify(nestedContainerValidationResult).getTimestampIdList();
+    verify(nestingContainerValidationResult).getTimestampIdList();
+    verifyNoMoreInteractions(nestingContainerValidationResult, nestedContainerValidationResult);
+  }
+
+  @Test
+  public void getTimestampIdList_WhenNestedValidationResultContainsId_ReturnsListContainingGivenId() {
+    doReturn(Collections.emptyList()).when(nestingContainerValidationResult).getTimestampIdList();
+    doReturn(Collections.singletonList("id")).when(nestedContainerValidationResult).getTimestampIdList();
+
+    List<String> result = compositeValidationResult.getTimestampIdList();
+
+    assertThat(result, equalTo(Collections.singletonList("id")));
+    verify(nestedContainerValidationResult).getTimestampIdList();
+    verify(nestingContainerValidationResult).getTimestampIdList();
+    verifyNoMoreInteractions(nestingContainerValidationResult, nestedContainerValidationResult);
+  }
+
+  @Test
+  public void getTimestampIdList_WhenNestingValidationResultContainsId_ReturnsListContainingGivenId() {
+    doReturn(Collections.singletonList("id")).when(nestingContainerValidationResult).getTimestampIdList();
+    doReturn(Collections.emptyList()).when(nestedContainerValidationResult).getTimestampIdList();
+
+    List<String> result = compositeValidationResult.getTimestampIdList();
+
+    assertThat(result, equalTo(Collections.singletonList("id")));
+    verify(nestedContainerValidationResult).getTimestampIdList();
+    verify(nestingContainerValidationResult).getTimestampIdList();
+    verifyNoMoreInteractions(nestingContainerValidationResult, nestedContainerValidationResult);
+  }
+
+  @Test
+  public void getTimestampIdList_WhenBothListsContainIds_ReturnsAggregatedListOfGivenIds() {
+    doReturn(Collections.singletonList("id-1")).when(nestingContainerValidationResult).getTimestampIdList();
+    doReturn(Collections.singletonList("id-2")).when(nestedContainerValidationResult).getTimestampIdList();
+
+    List<String> result = compositeValidationResult.getTimestampIdList();
+
+    assertThat(result, equalTo(Arrays.asList("id-2", "id-1")));
+    verify(nestedContainerValidationResult).getTimestampIdList();
+    verify(nestingContainerValidationResult).getTimestampIdList();
+    verifyNoMoreInteractions(nestingContainerValidationResult, nestedContainerValidationResult);
+  }
+
+  @Test
   public void getSignatureReports_WhenBothListsAreNull_ReturnsEmptyList() {
     doReturn(null).when(nestingContainerValidationResult).getSignatureReports();
     doReturn(null).when(nestedContainerValidationResult).getSignatureReports();
@@ -690,6 +822,47 @@ public class AsicCompositeContainerValidationResultTest {
     assertThat(result, sameInstance(SubIndication.NOT_YET_VALID));
     verify(nestedContainerValidationResult).getSubIndication(TOKEN_ID);
     verifyNoMoreInteractions(nestingContainerValidationResult, nestedContainerValidationResult);
+  }
+
+  @Test
+  public void getValidationResult_WhenBothValidationResultsReturnNull_ReturnsNull() {
+    doReturn(null).when(nestingContainerValidationResult).getValidationResult(TOKEN_ID);
+    doReturn(null).when(nestedContainerValidationResult).getValidationResult(TOKEN_ID);
+
+    ValidationResult result = compositeValidationResult.getValidationResult(TOKEN_ID);
+
+    assertThat(result, nullValue());
+    verify(nestedContainerValidationResult).getValidationResult(TOKEN_ID);
+    verify(nestingContainerValidationResult).getValidationResult(TOKEN_ID);
+    verifyNoMoreInteractions(nestingContainerValidationResult, nestedContainerValidationResult);
+  }
+
+  @Test
+  public void getValidationResult_WhenNestingValidationResultReturnsResult_ReturnsGivenResult() {
+    ValidationResult tokenValidationResult = mock(ValidationResult.class);
+    doReturn(tokenValidationResult).when(nestingContainerValidationResult).getValidationResult(TOKEN_ID);
+    doReturn(null).when(nestedContainerValidationResult).getValidationResult(TOKEN_ID);
+
+    ValidationResult result = compositeValidationResult.getValidationResult(TOKEN_ID);
+
+    assertThat(result, sameInstance(tokenValidationResult));
+    verify(nestedContainerValidationResult).getValidationResult(TOKEN_ID);
+    verify(nestingContainerValidationResult).getValidationResult(TOKEN_ID);
+    verifyNoMoreInteractions(nestingContainerValidationResult, nestedContainerValidationResult);
+    verifyNoInteractions(tokenValidationResult);
+  }
+
+  @Test
+  public void getValidationResult_WhenNestedValidationResultReturnsResult_ReturnsGivenResult() {
+    ValidationResult tokenValidationResult = mock(ValidationResult.class);
+    doReturn(tokenValidationResult).when(nestedContainerValidationResult).getValidationResult(TOKEN_ID);
+
+    ValidationResult result = compositeValidationResult.getValidationResult(TOKEN_ID);
+
+    assertThat(result, sameInstance(tokenValidationResult));
+    verify(nestedContainerValidationResult).getValidationResult(TOKEN_ID);
+    verifyNoMoreInteractions(nestingContainerValidationResult, nestedContainerValidationResult);
+    verifyNoInteractions(tokenValidationResult);
   }
 
   @Test

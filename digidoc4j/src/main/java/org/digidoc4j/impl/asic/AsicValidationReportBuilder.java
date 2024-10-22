@@ -157,6 +157,19 @@ public class AsicValidationReportBuilder {
     return validationResultMap;
   }
 
+  public Map<String, ValidationResult> buildTimestampValidationResultMap() {
+    Map<String, ValidationResult> validationResultMap = new LinkedHashMap<>();
+    for (TimestampValidationData validationData : timestampValidationData) {
+      String key = validationData.getTimestampUniqueId();
+      if (validationResultMap.containsKey(key)) {
+        logger.warn("Timestamp unique ID collision detected, mapping '{}' to first matching result!", key);
+      } else {
+        validationResultMap.put(key, validationData.getValidationResult());
+      }
+    }
+    return validationResultMap;
+  }
+
   public Map<String, String> buildSignatureIdMap() {
     return signatureValidationData.stream().collect(Collectors.toMap(
             SignatureValidationData::getSignatureId,

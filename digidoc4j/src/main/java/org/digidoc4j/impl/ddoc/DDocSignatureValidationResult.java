@@ -97,7 +97,12 @@ public class DDocSignatureValidationResult extends AbstractContainerValidationRe
 
   @Override
   public List<String> getSignatureIdList() {
-    throw new NotSupportedException("Not supported for " + getResultName() + " validation result");
+    throw new NotSupportedException(getNotSupportedMessage());
+  }
+
+  @Override
+  public List<String> getTimestampIdList() {
+    throw new NotSupportedException(getNotSupportedMessage());
   }
 
   /*

@@ -15,6 +15,7 @@ import org.digidoc4j.ValidationResult;
 import org.digidoc4j.ddoc.DigiDocException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -52,6 +53,11 @@ public class DDocContainerValidationResult extends DDocSignatureValidationResult
   @Override
   public List<String> getSignatureIdList() {
     return new ArrayList<>(signatureResultMap.keySet());
+  }
+
+  @Override
+  public List<String> getTimestampIdList() {
+    return Collections.emptyList();
   }
 
   @Override
