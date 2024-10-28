@@ -15,12 +15,22 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.Timestamp;
 import org.hamcrest.Matcher;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.equalTo;
 
 public final class CommonMatchers {
+
+  public static Matcher<Date> equalToDate(Instant instant) {
+    return equalTo(Date.from(instant));
+  }
+
+  public static Matcher<Date> equalToIsoDate(String dateString) {
+    return equalToDate(Instant.parse(dateString));
+  }
 
   public static Matcher<List<String>> equalToSignatureUniqueIdList(Container container) {
     return equalToSignatureUniqueIdList(container.getSignatures());

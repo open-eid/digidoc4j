@@ -22,7 +22,6 @@ import org.digidoc4j.Timestamp;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.SimpleValidationResult;
-import org.digidoc4j.impl.asic.AsicContainerValidationResult;
 import org.digidoc4j.impl.asic.AsicValidationReportBuilder;
 import org.digidoc4j.impl.asic.TimeStampContainerValidationResult;
 import org.digidoc4j.impl.asic.cades.TimestampValidationData;
@@ -76,10 +75,10 @@ public class AsicSTimestampedContainerValidator {
     return createValidationResult(reports);
   }
 
-  private AsicContainerValidationResult createValidationResult(Reports reports) {
-    AsicContainerValidationResult result = isLegacyValidationResultSupported()
+  private AsicSTimestampedContainerValidationResult createValidationResult(Reports reports) {
+    AsicSTimestampedContainerValidationResult result = isLegacyValidationResultSupported()
             ? createLegacyValidationResult()
-            : new AsicContainerValidationResult();
+            : new AsicSTimestampedContainerValidationResult();
 
     List<TimestampValidationData> timestampValidationData = extractTimestampValidationData(reports);
 

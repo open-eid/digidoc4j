@@ -13,6 +13,7 @@ package org.digidoc4j.impl.asic;
 import eu.europa.esig.dss.enumerations.Indication;
 import org.bouncycastle.tsp.TimeStampToken;
 import org.digidoc4j.ContainerValidationResult;
+import org.digidoc4j.impl.asic.asics.AsicSTimestampedContainerValidationResult;
 
 /**
  * Legacy validation result for ASiC-S containers with single timestamp token.
@@ -21,7 +22,7 @@ import org.digidoc4j.ContainerValidationResult;
  * ASiC-S containers with arbitrary amount of timestamp tokens.
  */
 @Deprecated
-public class TimeStampContainerValidationResult extends AsicContainerValidationResult {
+public class TimeStampContainerValidationResult extends AsicSTimestampedContainerValidationResult {
 
   private TimeStampToken timeStampToken;
   private String signedBy = "";

@@ -149,6 +149,14 @@ public final class TestAssert {
     Assert.assertNotNull(TestAssert.findSignedFile(signature, fileName));
   }
 
+  public static void assertContainerIsValidIgnoreErrors(ContainerValidationResult containerValidationResult) {
+    Assert.assertTrue("Container is invalid", containerValidationResult.isValid());
+  }
+
+  public static void assertContainerIsValidIgnoreErrors(Container container) {
+    assertContainerIsValidIgnoreErrors(container.validate());
+  }
+
   public static void assertContainerIsValid(ContainerValidationResult containerValidationResult) {
     if (containerValidationResult.isValid()) {
       assertThat(containerValidationResult.getErrors(), empty());
