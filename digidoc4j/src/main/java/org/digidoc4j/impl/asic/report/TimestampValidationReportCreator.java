@@ -32,7 +32,7 @@ public class TimestampValidationReportCreator extends TokenValidationReportCreat
 
   private TimestampValidationReport createTimestampValidationReport() {
     TimestampValidationReport timestampValidationReport = cloneTimestampValidationReport();
-    updateMissingErrors(timestampValidationData.getValidationResult(), timestampValidationReport);
+    updateMissingErrorsAndWarnings(timestampValidationData.getValidationResult(), timestampValidationReport);
     return timestampValidationReport;
   }
 

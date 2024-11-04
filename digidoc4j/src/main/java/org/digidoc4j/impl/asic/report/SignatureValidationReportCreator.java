@@ -39,7 +39,7 @@ public class SignatureValidationReportCreator extends TokenValidationReportCreat
 
   private SignatureValidationReport createSignatureValidationReport() {
     signatureValidationReport = cloneSignatureValidationReport();
-    updateMissingErrors(validationData.getValidationResult(), signatureValidationReport);
+    updateMissingErrorsAndWarnings(validationData.getValidationResult(), signatureValidationReport);
     updateDocumentName();
     updateIndication();
     updateSignatureFormat();

@@ -103,7 +103,7 @@ public class TimestampSignatureValidator extends XadesSignatureValidator {
         this.addValidationError(new TimestampAndOcspResponseTimeDeltaTooLargeException());
       } else if (this.configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes() <= differenceInMinutes && differenceInMinutes <= deltaLimit) {
         log.warn("The difference (in minutes) between the OCSP response production time and the signature timestamp is in allowable range (<{}>, allowed maximum <{}>)", differenceInMinutes, deltaLimit);
-        this.addValidationWarning(new DigiDoc4JException("The difference between the OCSP response time and the signature timestamp is in allowable range"));
+        this.addValidationWarning(new DigiDoc4JException("The time difference between the signature timestamp and the OCSP response exceeds 15 minutes, rendering the OCSP response not 'fresh'."));
       }
     }
   }

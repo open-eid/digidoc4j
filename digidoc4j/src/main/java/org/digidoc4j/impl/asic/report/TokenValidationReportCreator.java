@@ -32,16 +32,23 @@ class TokenValidationReportCreator {
   }
 
   /**
-   * Adds errors to validation report that are present in validation result but missing in validation report.
+   * Complements validation report with errors and warnings which are
+   * present in validation result but missing from validation report.
    *
-   * @param validationResult the source of all errors
-   * @param validationReport the destination to add missing errors to
+   * @param validationResult the source of all errors and warnings
+   * @param validationReport the destination to add missing errors and warnings to
    */
-  protected static void updateMissingErrors(ValidationResult validationResult, TokenValidationReport validationReport) {
+  protected static void updateMissingErrorsAndWarnings(ValidationResult validationResult, TokenValidationReport validationReport) {
     List<String> errors = validationReport.getErrors();
     for (DigiDoc4JException error : validationResult.getErrors()) {
       if (!errors.contains(error.getMessage())) {
         errors.add(error.getMessage());
+      }
+    }
+    List<String> warnings = validationReport.getWarnings();
+    for (DigiDoc4JException warning : validationResult.getWarnings()) {
+      if (!warnings.contains(warning.getMessage())) {
+        warnings.add(warning.getMessage());
       }
     }
   }

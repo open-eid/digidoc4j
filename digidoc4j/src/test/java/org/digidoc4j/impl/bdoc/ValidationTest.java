@@ -292,9 +292,12 @@ public class ValidationTest extends AbstractTest {
   public void revocationAndTimeStampDifferenceTooLarge() {
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/revocation_timestamp_delta_26h.asice", PROD_CONFIGURATION);
-    SignatureValidationResult validate = container.validate();
-    TestAssert.assertContainsExactSetOfErrors(validate.getErrors(),
+    SignatureValidationResult validationResult = container.validate();
+    TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
             "(Signature ID: S0) - The difference between the OCSP response time and the signature timestamp is too large"
+    );
+    TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
+            "(Signature ID: S0) - The authority info access is not present!"
     );
   }
 
@@ -332,7 +335,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  public void revocationAndTimeStampDifferenceNotTooLarge() {
+  public void revocationAndTimeStampDifferenceMoreThan15minButNotTooLarge() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
     int delta27Hours = 27 * 60;
     configuration.setRevocationAndTimestampDeltaInMinutes(delta27Hours);
@@ -341,7 +344,7 @@ public class ValidationTest extends AbstractTest {
         .validate();
     TestAssert.assertContainerIsValid(result);
     TestAssert.assertContainsExactSetOfErrors(result.getWarnings(),
-            "The difference between the OCSP response time and the signature timestamp is in allowable range",
+            "The time difference between the signature timestamp and the OCSP response exceeds 15 minutes, rendering the OCSP response not 'fresh'.",
             "The authority info access is not present!"
     );
   }

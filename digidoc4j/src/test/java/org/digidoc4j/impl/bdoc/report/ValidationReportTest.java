@@ -214,6 +214,24 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
+  public void signatureRevocationAndTimeStampDifferenceMoreThan15min() throws Exception {
+    Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/EE_LT_sig_OCSP_15m6s_after_TS.asice");
+    String signatureUniqueId = container.getSignatures().get(0).getUniqueId();
+    String report = container.validate().getReport();
+    TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
+    TestAssert.assertXPathHasValue("1", "/SimpleReport/ValidSignaturesCount", report);
+    TestAssert.assertXPathHasValue(signatureUniqueId, "/SimpleReport/Signature[1]/*[position()=1][self::UniqueId]", report);
+    TestAssert.assertXPathHasValue("XAdES-BASELINE-LT", "/SimpleReport/Signature/@SignatureFormat", report);
+    TestAssert.assertXPathHasValue("JÕEORG,JAAK-KRISTJAN,38001085718", "/SimpleReport/Signature/SignedBy", report);
+    TestAssert.assertXPathHasValue("TOTAL_PASSED", "/SimpleReport/Signature/Indication", report);
+    TestAssert.assertXPathHasValue("", "/SimpleReport/Signature/Errors", report);
+    TestAssert.assertXPathHasValue("The time difference between the signature timestamp and the OCSP response exceeds 15 minutes, rendering the OCSP response not 'fresh'.",
+            "/SimpleReport/Signature/Warnings", report);
+    TestAssert.assertXPathHasValue("META-INF/signatures0.xml", "/SimpleReport/Signature/DocumentName", report);
+    TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/Signature/SignatureScope/@name", report);
+  }
+
+  @Test
   public void validContainerWithOneTimestampToken() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/1xTST-text-data-file.asics");
     String timestampUniqueId = container.getTimestamps().get(0).getUniqueId();
