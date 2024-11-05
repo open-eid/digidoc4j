@@ -39,7 +39,7 @@ public class AiaOcspTest extends AbstractTest {
         assertContainerIsValid(container);
         assertThat(
                 container.getSignatures().get(0).getOCSPCertificate().getSubjectName(X509Cert.SubjectName.CN),
-                matchesRegex("TEST of ESTEID-SK 2018 AIA OCSP RESPONDER 202[3-9][0-1][0-9]")
+                matchesRegex("TEST of ESTEID2018 OCSP RESPONDER 202[3-9][0-1][0-9]")
         );
     }
 
