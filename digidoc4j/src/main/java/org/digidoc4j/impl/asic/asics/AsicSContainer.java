@@ -314,6 +314,7 @@ public class AsicSContainer extends AsicContainer {
   }
 
   private void populateContainerWithParseResult(AsicParseResult parseResult) {
+    AsicSContainerValidationUtils.validateContainerParseResult(parseResult);
     if (CollectionUtils.isNotEmpty(parseResult.getTimestamps())) {
       for (ContainerTimestampWrapper timestamp : parseResult.getTimestamps()) {
         if (timestamp.getArchiveManifest() != null) {
