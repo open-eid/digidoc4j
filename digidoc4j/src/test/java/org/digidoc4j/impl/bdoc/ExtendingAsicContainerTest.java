@@ -50,6 +50,7 @@ import static java.lang.Thread.sleep;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -626,14 +627,11 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
     Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
     ContainerValidationResult validationResult = container.validate();
-    // TODO: The container should be valid; fix this test when ASiC-S validation has been fixed
-    //  and it does not require the existence of manifest.xml anymore.
-    TestAssert.assertContainerIsInvalid(validationResult);
-    TestAssert.assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
-            validationResult.getErrors(),
-            1,
-            "Unsupported format: Container does not contain a manifest file"
-    );
+    TestAssert.assertContainerIsValid(validationResult);
+    assertThat(validationResult.getErrors(), empty());
+    assertThat(validationResult.getContainerErrors(), empty());
+    assertThat(validationResult.getWarnings(), empty());
+    assertThat(validationResult.getContainerWarnings(), empty());
     List<TimestampToken> archiveTimestamps = getSignatureArchiveTimestamps(container, 0);
     assertEquals("The signature must contain 1 archive timestamp", 1, archiveTimestamps.size());
   }

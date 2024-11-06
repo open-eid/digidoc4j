@@ -171,14 +171,12 @@ public abstract class AsicContainerValidator {
       return Collections.emptyList();
     }
 
-    List<DigiDoc4JException> manifestExceptions = new ArrayList<>();
     ManifestParser manifestParser = containerParseResult.getManifestParser();
     if (manifestParser == null || !manifestParser.containsManifestFile()) {
-      logger.error("Container is missing manifest.xml");
-      manifestExceptions.add(new UnsupportedFormatException("Container does not contain a manifest file"));
-      return manifestExceptions;
+      return getListWithManifestMissingException();
     }
 
+    List<DigiDoc4JException> manifestExceptions = new ArrayList<>();
     List<DSSDocument> detachedContents = containerParseResult.getDetachedContents();
     List<ManifestErrorMessage> manifestErrorMessageList = new ManifestValidator(manifestParser, detachedContents,
             signatures).validateDocument();
@@ -187,6 +185,13 @@ public abstract class AsicContainerValidator {
               new DigiDoc4JException(manifestErrorMessage.getErrorMessage(), manifestErrorMessage.getSignatureId()));
     }
     return manifestExceptions;
+  }
+
+  protected ArrayList<DigiDoc4JException> getListWithManifestMissingException() {
+    logger.error("Container is missing manifest.xml");
+    return new ArrayList<>(Collections.singletonList(
+            new UnsupportedFormatException("Container does not contain a manifest file")
+    ));
   }
 
   private void extractContainerErrors(List<Signature> signatures) {

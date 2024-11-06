@@ -17,6 +17,7 @@ import org.digidoc4j.impl.asic.AsicContainerValidator;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.AsicSignature;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -59,6 +60,11 @@ public class AsicSContainerValidator extends AsicContainerValidator {
       errors.add(error);
     }
     super.validateSignatures(signatures);
+  }
+
+  @Override
+  protected ArrayList<DigiDoc4JException> getListWithManifestMissingException() {
+    return new ArrayList<>();
   }
 
   private boolean containsMultipleSignatureFiles(List<Signature> signatures) {
