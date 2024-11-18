@@ -72,6 +72,7 @@ public class AsicSTimestampedContainerValidator {
    */
   public ContainerValidationResult validate() {
     Reports reports = new AsicSTimestampsValidationReportGenerator(asicsContainer).generateReports(validationTime);
+    TimestampNotGrantedValidationUtils.convertNotGrantedErrorsToWarnings(reports);
     return createValidationResult(reports);
   }
 
@@ -84,6 +85,7 @@ public class AsicSTimestampedContainerValidator {
 
     result.setErrors(collectExceptions(timestampValidationData, ValidationResult::getErrors));
     result.setWarnings(collectExceptions(timestampValidationData, ValidationResult::getWarnings));
+    TimestampNotGrantedValidationUtils.addContainerWarningIfNotGrantedTimestampExists(result);
     result.generate(new AsicValidationReportBuilder(
             Collections.emptyList(),
             timestampValidationData,

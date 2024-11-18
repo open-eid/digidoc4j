@@ -22,7 +22,6 @@ import org.digidoc4j.ValidationResult;
 import org.digidoc4j.impl.asic.report.TimestampValidationReport;
 import org.junit.Test;
 
-import static org.digidoc4j.test.TestAssert.assertContainerIsInvalid;
 import static org.digidoc4j.test.TestAssert.assertContainerIsValid;
 import static org.digidoc4j.test.TestAssert.assertContainerIsValidIgnoreErrors;
 import static org.digidoc4j.test.TestAssert.assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages;
@@ -49,6 +48,8 @@ public class TimestampedContainerValidationTest extends AbstractTest {
 
     assertContainerIsValid(containerValidationResult);
     assertThat(containerValidationResult.getWarnings(), empty());
+    assertThat(containerValidationResult.getContainerErrors(), empty());
+    assertThat(containerValidationResult.getContainerWarnings(), empty());
     assertThat(containerValidationResult.getSimpleReports(), hasSize(1));
     assertThat(containerValidationResult.getSignatureReports(), empty());
     assertThat(containerValidationResult.getTimestampReports(), hasSize(1));
@@ -83,6 +84,8 @@ public class TimestampedContainerValidationTest extends AbstractTest {
 
     assertContainerIsValid(containerValidationResult);
     assertThat(containerValidationResult.getWarnings(), empty());
+    assertThat(containerValidationResult.getContainerErrors(), empty());
+    assertThat(containerValidationResult.getContainerWarnings(), empty());
     assertThat(containerValidationResult.getSimpleReports(), hasSize(1));
     assertThat(containerValidationResult.getSignatureReports(), empty());
     assertThat(containerValidationResult.getTimestampReports(), hasSize(3));
@@ -152,6 +155,8 @@ public class TimestampedContainerValidationTest extends AbstractTest {
             container.getTimestamps().get(2).getUniqueId() + ") - The reference data object is not intact!"
     );
     assertThat(containerValidationResult.getWarnings(), empty());
+    assertThat(containerValidationResult.getContainerErrors(), empty());
+    assertThat(containerValidationResult.getContainerWarnings(), empty());
     assertThat(containerValidationResult.getSimpleReports(), hasSize(1));
     assertThat(containerValidationResult.getSignatureReports(), empty());
     assertThat(containerValidationResult.getTimestampReports(), hasSize(3));
@@ -212,7 +217,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenAsicsWithOneExpiredTimestamp_ValidationResultIsNotValidAndContainsErrors() {
+  public void validate_WhenAsicsWithOneExpiredTimestamp_ValidationResultIsValidAndContainsWarnings() {
     Container container = ContainerOpener.open(
             "src/test/resources/prodFiles/invalid-containers/1xTST-text-data-file-expired-tst.asics",
             Configuration.of(Configuration.Mode.PROD)
@@ -220,12 +225,17 @@ public class TimestampedContainerValidationTest extends AbstractTest {
 
     ContainerValidationResult containerValidationResult = container.validate();
 
-    assertContainerIsInvalid(containerValidationResult);
+    assertContainerIsValid(containerValidationResult);
     assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
-            containerValidationResult.getErrors(), 1,
+            containerValidationResult.getWarnings(), 1,
             container.getTimestamps().get(0).getUniqueId() + ") - The certificate is not related to a granted status at time-stamp lowest POE time!"
     );
-    assertThat(containerValidationResult.getWarnings(), empty());
+    assertThat(containerValidationResult.getContainerErrors(), empty());
+    assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
+            containerValidationResult.getContainerWarnings(), 1,
+            "Found a timestamp token not related to granted status. " +
+                    "If not yet covered with a fresh timestamp token, this container might become invalid in the future."
+    );
     assertThat(containerValidationResult.getSimpleReports(), hasSize(1));
     assertThat(containerValidationResult.getSignatureReports(), empty());
     assertThat(containerValidationResult.getTimestampReports(), hasSize(1));
@@ -243,17 +253,17 @@ public class TimestampedContainerValidationTest extends AbstractTest {
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
       assertThat(timestampValidationResult, notNullValue());
-      assertThat(timestampValidationResult.isValid(), equalTo(false));
+      assertThat(timestampValidationResult.isValid(), equalTo(true));
+      assertThat(timestampValidationResult.getErrors(), empty());
       assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
-              timestampValidationResult.getErrors(), 1,
+              timestampValidationResult.getWarnings(), 1,
               timestampId + ") - The certificate is not related to a granted status at time-stamp lowest POE time!"
       );
-      assertThat(timestampValidationResult.getWarnings(), empty());
     }
   }
 
   @Test
-  public void validate_WhenAsicsWithOneExpiredAndOneValidTimestamp_ValidationResultIsValidButContainsErrors() {
+  public void validate_WhenAsicsWithOneExpiredAndOneValidTimestamp_ValidationResultIsValidAndContainsWarnings() {
     Container container = ContainerOpener.open(
             "src/test/resources/prodFiles/valid-containers/2xTST-text-data-file-expired-tst-and-valid-tst.asics",
             Configuration.of(Configuration.Mode.PROD)
@@ -261,12 +271,17 @@ public class TimestampedContainerValidationTest extends AbstractTest {
 
     ContainerValidationResult containerValidationResult = container.validate();
 
-    assertContainerIsValidIgnoreErrors(containerValidationResult);
+    assertContainerIsValid(containerValidationResult);
     assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
-            containerValidationResult.getErrors(), 1,
+            containerValidationResult.getWarnings(), 1,
             container.getTimestamps().get(0).getUniqueId() + ") - The certificate is not related to a granted status at time-stamp lowest POE time!"
     );
-    assertThat(containerValidationResult.getWarnings(), empty());
+    assertThat(containerValidationResult.getContainerErrors(), empty());
+    assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
+            containerValidationResult.getContainerWarnings(), 1,
+            "Found a timestamp token not related to granted status. " +
+                    "If not yet covered with a fresh timestamp token, this container might become invalid in the future."
+    );
     assertThat(containerValidationResult.getSimpleReports(), hasSize(1));
     assertThat(containerValidationResult.getSignatureReports(), empty());
     assertThat(containerValidationResult.getTimestampReports(), hasSize(2));
@@ -284,12 +299,12 @@ public class TimestampedContainerValidationTest extends AbstractTest {
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
       assertThat(timestampValidationResult, notNullValue());
-      assertThat(timestampValidationResult.isValid(), equalTo(false));
+      assertThat(timestampValidationResult.isValid(), equalTo(true));
+      assertThat(timestampValidationResult.getErrors(), empty());
       assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
-              timestampValidationResult.getErrors(), 1,
+              timestampValidationResult.getWarnings(), 1,
               timestampId + ") - The certificate is not related to a granted status at time-stamp lowest POE time!"
       );
-      assertThat(timestampValidationResult.getWarnings(), empty());
     }
     {
       String timestampId = container.getTimestamps().get(1).getUniqueId();
@@ -323,6 +338,8 @@ public class TimestampedContainerValidationTest extends AbstractTest {
             container.getTimestamps().get(0).getUniqueId() + ") - The time-stamp message imprint is not intact!"
     );
     assertThat(containerValidationResult.getWarnings(), empty());
+    assertThat(containerValidationResult.getContainerErrors(), empty());
+    assertThat(containerValidationResult.getContainerWarnings(), empty());
     assertThat(containerValidationResult.getSimpleReports(), hasSize(1));
     assertThat(containerValidationResult.getSignatureReports(), empty());
     assertThat(containerValidationResult.getTimestampReports(), hasSize(2));
@@ -379,6 +396,8 @@ public class TimestampedContainerValidationTest extends AbstractTest {
             container.getTimestamps().get(0).getUniqueId() + ") - The time-stamp message imprint is not intact!"
     );
     assertThat(containerValidationResult.getWarnings(), empty());
+    assertThat(containerValidationResult.getContainerErrors(), empty());
+    assertThat(containerValidationResult.getContainerWarnings(), empty());
     assertThat(containerValidationResult.getSimpleReports(), hasSize(1));
     assertThat(containerValidationResult.getSignatureReports(), empty());
     assertThat(containerValidationResult.getTimestampReports(), hasSize(3));
