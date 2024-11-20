@@ -333,6 +333,9 @@
       <FieldMDP Level="WARN" />
       <SigFieldLock Level="WARN" />
       <UndefinedChanges Level="WARN" />
+      <TrustServiceTypeIdentifier Level="FAIL">
+        <Id>http://uri.etsi.org/TrstSvc/Svctype/TSA/QTST</Id>
+      </TrustServiceTypeIdentifier>
       <SigningCertificate>
         <Recognition Level="FAIL"/>
         <Signature Level="FAIL"/>
