@@ -662,7 +662,14 @@ public class DigiDoc4JTest extends AbstractTest {
     assertThat(stdOut.getLog(), containsString("OCSP response production time is before timestamp time"));
     assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - Timestamp time is after OCSP response production time"));
     assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The certificate is not related to a TSA/QTST!"));
-    assertThat(stdOut.getLog(), containsString("Signature has 2 validation errors"));
+    assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - Signature has an invalid timestamp"));
+    assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The trust service(s) related to the time-stamp does not have the expected type identifier!"));
+    assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The certificate is not related to a qualified certificate issuing trust service with valid status!"));
+    assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The past signature validation is not conclusive!"));
+    assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The best-signature-time is not before the expiration date of the signing certificate!"));
+    assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The current time is not in the validity range of the signer's certificate!"));
+    assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The certificate validation is not conclusive!"));
+    assertThat(stdOut.getLog(), containsString("Signature has 9 validation errors"));
     assertThat(stdOut.getLog(), containsString("Signature S1 is not valid"));
   }
 
@@ -675,7 +682,14 @@ public class DigiDoc4JTest extends AbstractTest {
     assertThat(stdOut.getLog(), containsString("OCSP response production time is before timestamp time"));
     assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - Timestamp time is after OCSP response production time"));
     assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The certificate is not related to a TSA/QTST!"));
-    assertThat(stdOut.getLog(), containsString("Signature has 2 validation errors"));
+    assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - Signature has an invalid timestamp"));
+    assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The trust service(s) related to the time-stamp does not have the expected type identifier!"));
+    assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The certificate is not related to a qualified certificate issuing trust service with valid status!"));
+    assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The past signature validation is not conclusive!"));
+    assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The best-signature-time is not before the expiration date of the signing certificate!"));
+    assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The current time is not in the validity range of the signer's certificate!"));
+    assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The certificate validation is not conclusive!"));
+    assertThat(stdOut.getLog(), containsString("Signature has 9 validation errors"));
     assertThat(stdOut.getLog(), containsString("Validation finished. Container is NOT valid!"));
   }
 
