@@ -28,10 +28,8 @@ import org.digidoc4j.impl.asic.AsicCompositeContainerValidationResult;
 import org.digidoc4j.impl.asic.AsicContainerValidationResult;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.report.TimestampValidationReport;
-import org.digidoc4j.utils.ContainerUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Date;
@@ -47,15 +45,15 @@ public class AsicSCompositeContainer extends AsicSContainer implements Composite
 
   private final Container nestedContainer;
 
-  public AsicSCompositeContainer(Container nestedContainer, String nestedContainerName) {
+  public AsicSCompositeContainer(DataFile serializedNestedContainer, Container nestedContainer) {
     this.nestedContainer = validateNestedContainer(nestedContainer);
-    super.addDataFile(createNestedContainerDataFile(nestedContainer, nestedContainerName));
+    super.addDataFile(validateSerializedNestedContainer(serializedNestedContainer));
   }
 
-  public AsicSCompositeContainer(Container nestedContainer, String nestedContainerName, Configuration configuration) {
+  public AsicSCompositeContainer(DataFile serializedNestedContainer, Container nestedContainer, Configuration configuration) {
     super(configuration);
     this.nestedContainer = validateNestedContainer(nestedContainer);
-    super.addDataFile(createNestedContainerDataFile(nestedContainer, nestedContainerName));
+    super.addDataFile(validateSerializedNestedContainer(serializedNestedContainer));
   }
 
   public AsicSCompositeContainer(AsicParseResult containerParseResult, Container nestedContainer, Configuration configuration) {
@@ -192,6 +190,13 @@ public class AsicSCompositeContainer extends AsicSContainer implements Composite
     return CollectionUtils.isEmpty(timestampValidationReport.getErrors());
   }
 
+  private static DataFile validateSerializedNestedContainer(DataFile serializedNestedContainer) {
+    return Objects.requireNonNull(
+            serializedNestedContainer,
+            "Data file representing the nested container cannot be null"
+    );
+  }
+
   private static Container validateNestedContainer(Container nestedContainer) {
     Objects.requireNonNull(nestedContainer, "Nested container cannot be null");
     String nestedContainerType = nestedContainer.getType();
@@ -203,14 +208,6 @@ public class AsicSCompositeContainer extends AsicSContainer implements Composite
         return nestedContainer;
       default:
         throw new IllegalArgumentException("Unsupported nested container type: " + nestedContainerType);
-    }
-  }
-
-  private static DataFile createNestedContainerDataFile(Container nestedContainer, String fileName) {
-    try (InputStream inputStream = nestedContainer.saveAsStream()) {
-      return new DataFile(inputStream, fileName, ContainerUtils.getMimeTypeStringFor(nestedContainer));
-    } catch (IOException e) {
-      throw new TechnicalException("Failed to serialize nested container", e);
     }
   }
 

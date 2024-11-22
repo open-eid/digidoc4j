@@ -11,13 +11,12 @@
 package org.digidoc4j.impl.bdoc.report;
 
 import org.digidoc4j.AbstractTest;
+import org.digidoc4j.CompositeContainerBuilder;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureValidationResult;
-import org.digidoc4j.TimestampBuilder;
-import org.digidoc4j.impl.asic.asics.AsicSCompositeContainer;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.junit.Assert;
@@ -252,9 +251,8 @@ public class ValidationReportTest extends AbstractTest {
   public void validTimestampedContainerWithNestedInvalidAsiceWithMultipleSignatures() throws Exception {
     String containerPath = "src/test/resources/testFiles/invalid-containers/one-valid-and-multiple-invalid-signatures.asice";
     String containerFilename = Paths.get(containerPath).getFileName().toString();
-    Container nestedContainer = TestDataBuilderUtil.open(containerPath, configuration);
-    Container container = new AsicSCompositeContainer(nestedContainer, containerFilename, configuration);
-    container.addTimestamp(TimestampBuilder.aTimestamp(container).invokeTimestamping());
+    Container container = CompositeContainerBuilder.fromContainerFile(containerPath)
+            .withConfiguration(configuration).buildTimestamped(timestampBuilder -> {});
     String timestampUniqueId = container.getTimestamps().get(0).getUniqueId();
     String report = container.validate().getReport();
     TestAssert.assertXPathHasValue("1", "count(/SimpleReport/TimestampToken)", report);
@@ -398,9 +396,8 @@ public class ValidationReportTest extends AbstractTest {
   public void validTimestampedContainerWithNestedInvalidDdocWithMultipleSignatures() throws Exception {
     String containerPath = "src/test/resources/testFiles/invalid-containers/one-valid-and-multiple-invalid-signatures.ddoc";
     String containerFilename = Paths.get(containerPath).getFileName().toString();
-    Container nestedContainer = TestDataBuilderUtil.open(containerPath, configuration);
-    Container container = new AsicSCompositeContainer(nestedContainer, containerFilename, configuration);
-    container.addTimestamp(TimestampBuilder.aTimestamp(container).invokeTimestamping());
+    Container container = CompositeContainerBuilder.fromContainerFile(containerPath)
+            .withConfiguration(configuration).buildTimestamped(timestampBuilder -> {});
     String timestampUniqueId = container.getTimestamps().get(0).getUniqueId();
     String report = container.validate().getReport();
     TestAssert.assertXPathHasValue("1", "count(/SimpleReport/TimestampToken)", report);

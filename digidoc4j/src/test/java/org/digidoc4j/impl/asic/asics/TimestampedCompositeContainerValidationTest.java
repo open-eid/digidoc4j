@@ -15,11 +15,11 @@ import eu.europa.esig.dss.enumerations.SignatureQualification;
 import eu.europa.esig.dss.enumerations.SubIndication;
 import eu.europa.esig.dss.enumerations.TimestampQualification;
 import org.digidoc4j.AbstractTest;
+import org.digidoc4j.CompositeContainerBuilder;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.ContainerValidationResult;
-import org.digidoc4j.TimestampBuilder;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.ddoc.utils.ConfigManager;
 import org.digidoc4j.impl.asic.report.TimestampValidationReport;
@@ -462,8 +462,9 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
   public void validate_WhenTimestampedNestedContainerIsInvalidAsiceWithMultipleSignatures_ValidationResultContainsAggregatedInfo() {
     String path = "src/test/resources/testFiles/invalid-containers/one-valid-and-multiple-invalid-signatures.asice";
     Container nestedContainer = TestDataBuilderUtil.open(path, configuration);
-    Container container = new AsicSCompositeContainer(nestedContainer, Paths.get(path).getFileName().toString(), configuration);
-    container.addTimestamp(TimestampBuilder.aTimestamp(container).invokeTimestamping());
+    Container container = CompositeContainerBuilder
+            .fromContainer(nestedContainer, Paths.get(path).getFileName().toString())
+            .buildTimestamped(timestampBuilder -> {});
 
     ContainerValidationResult containerValidationResult = container.validate();
 
@@ -705,8 +706,9 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
   public void validate_WhenTimestampedNestedContainerIsInvalidDdocWithMultipleSignatures_ValidationResultContainsAggregatedInfo() {
     String path = "src/test/resources/testFiles/invalid-containers/one-valid-and-multiple-invalid-signatures.ddoc";
     Container nestedContainer = TestDataBuilderUtil.open(path, configuration);
-    Container container = new AsicSCompositeContainer(nestedContainer, Paths.get(path).getFileName().toString(), configuration);
-    container.addTimestamp(TimestampBuilder.aTimestamp(container).invokeTimestamping());
+    Container container = CompositeContainerBuilder
+            .fromContainer(nestedContainer, Paths.get(path).getFileName().toString())
+            .buildTimestamped(timestampBuilder -> {});
 
     ContainerValidationResult containerValidationResult = container.validate();
 
