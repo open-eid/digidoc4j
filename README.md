@@ -89,7 +89,7 @@ You can use the library as a Maven dependency from the Maven Central (http://mvn
 <dependency>
 	<groupId>org.digidoc4j</groupId>
 	<artifactId>digidoc4j</artifactId>
-	<version>5.x.x</version>
+	<version>6.x.x</version>
 </dependency>
 ```
 
