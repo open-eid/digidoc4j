@@ -1,6 +1,64 @@
 DigiDoc4J Java library release notes
 ------------------------------------
 
+Release 6.0.0-RC.1
+------------------
+Summary of the major changes since 5.3.1
+------------------------------------------
+* Improved LTA support
+  - LTA signatures can be extended repeatedly
+    - Each extension adds a new LTA archive timestamp to the signature, extending its long term availability and integrity
+  - Specific signatures to extend inside a container can be explicitly specified
+    - Signatures can be extended one at a time
+* Improved support for ASiC-S containers with timestamp tokens
+  - Timestamp tokens are now created and validated using DSS
+    - Validation rules are stricter: old timestamp tokens from withdrawn services produce warnings
+      - Re-timestamping of old timestamped ASiC-S containers is recommended to avoid future incompatibilities
+  - ASiC-S containers now support multiple timestamp tokens
+    - Each new timestamp token covers container's data file and previous timestamp tokens, extending the container's long term availability and integrity
+  - New API for adding timestamp tokens to, removing from, and querying from containers (analogous to signatures API)
+    - New Timestamp interface for interacting with an individual timestamp token
+    - TimestampBuilder for creating timestamp tokens
+  - Deprecation of old API-s:
+    - Classes: TimeStampTokenValidator
+    - Methods in Container interface and its implementing classes, AsicParseResult class:
+      - void setTimeStampToken(DataFile)
+      - DataFile getTimeStampToken()
+    - Methods in AsicContainerCreator class:
+      - void writeTimestampToken(DataFile)
+* Support for composite containers
+  - Inside timestamped ASiC-S containers, nested ASiC, BDOC, and DDOC containers are supported
+  - New CompositeContainer interface for identifying composite containers
+    - API methods for accessing the contents of a nested container inside a timestamped ASiC-S container
+  - CompositeContainerBuilder for wrapping an existing container inside a timestamped ASiC-S container
+  - Validating a composite container, also triggers validation of its nested container
+    - A nested container is validated against the creation time of the earliest valid timestamp token of its parent container
+    - Validation results/reports contain the aggregated results of both nesting and nested containers
+* Support for creating T profile signatures
+* Improved configurability
+  - Added possibility to configure custom OCSP sources (via OCSP source factories)
+  - Added possibility to configure separate timestamp service to be used for archive timestamps
+  - Added possibility to configure digest algorithms to be used for archive timestamps
+* Improved ContainerValidationResult
+  - Validation results of individual signatures and timestamp tokens are now accessible via their unique IDs
+  - New API methods:
+    - ValidationResult getValidationResult(String)
+    - List<String> getSignatureIdList()
+    - List<String> getTimestampIdList()
+* Removed "META-INF/manifest.xml" requirement for signed ASiC-S containers
+* Stricter rules for parsing ASiC-S containers
+  - ASiC-S containers with illegal or unsupported contents fail to parse (for more information, see DigiDoc4j wiki)
+* Changes in validation policies
+  - Allow timestamps from TSA/QTST services only
+* Updated dependencies
+
+Known issues
+------------
+* We have noticed a decrease in performance of parsing/validating XAdES signatures that cover numerous data files since updating to DSS 6.0
+* We have noticed a slight increase in TSL loading times due to pivot LOTL support
+* We have noticed a decrease in performance with the introduction of properly accessing AIA certificate resources
+* Opening a container that contains signatures, triggers TSL loading (TSL lazy loading does not work as expected)
+
 Release 5.3.1
 ------------------
 Summary of the major changes since 5.3.0
@@ -11,6 +69,7 @@ Summary of the major changes since 5.3.0
 
 Known issues
 ------------
+* EDIT 05.12.2024: We have noticed a decrease in performance of parsing/validating XAdES signatures that cover numerous data files since updating to DSS 6.0
 * We have noticed a slight increase in TSL loading times due to pivot LOTL support
 * We have noticed a decrease in performance with the introduction of properly accessing AIA certificate resources
 * Opening a container that contains signatures, triggers TSL loading (TSL lazy loading does not work as expected)
@@ -35,6 +94,7 @@ Summary of the major changes since 5.2.0
 Known issues
 ------------
 * EDIT 10.06.2024: NB! Underlying DSS library version used in this release has memory leak since DSS 5.13.RC1.
+* EDIT 05.12.2024: We have noticed a decrease in performance of parsing/validating XAdES signatures that cover numerous data files since updating to DSS 6.0
 * At the time of release, the newest supported Bouncy Castle version is 1.76
   Bouncy Castle version 1.77 causes OCSP response parsing to fail
 * We have noticed a slight increase in TSL loading times due to pivot LOTL support
