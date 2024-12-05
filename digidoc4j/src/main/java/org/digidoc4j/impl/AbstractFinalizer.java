@@ -17,6 +17,7 @@ import org.digidoc4j.exceptions.InvalidDataFileException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * Abstract base class for signature/timestamp finalizers.
@@ -31,19 +32,30 @@ public abstract class AbstractFinalizer implements Serializable {
    *
    * @param configuration configuration to use
    * @param dataFiles list of datafiles
-   *
-   * @throws InvalidDataFileException if any of the specified datafiles is empty
    */
   protected AbstractFinalizer(Configuration configuration, List<DataFile> dataFiles) {
-    verifyDataFilesNotEmpty(Objects.requireNonNull(dataFiles));
     this.configuration = Objects.requireNonNull(configuration);
-    this.dataFiles = dataFiles;
+    this.dataFiles = Objects.requireNonNull(dataFiles);
   }
 
-  private static void verifyDataFilesNotEmpty(List<DataFile> dataFiles) {
+  /**
+   * Ensures that none of the data files are empty, throwing {@link InvalidDataFileException} in case any empty data
+   * files are encountered.
+   * On success, returns the initial list of data files unmodified.
+   *
+   * @param dataFiles list of data files to verify
+   * @return initial list of data files
+   *
+   * @throws InvalidDataFileException if any empty data files are encountered.
+   * In case of multiple empty data files, subsequent exceptions are listed as suppressed by the first one.
+   */
+  protected static List<DataFile> verifyDataFilesNotEmpty(
+          List<DataFile> dataFiles,
+          Function<DataFile, String> exceptionMessageResolver
+  ) throws InvalidDataFileException {
     dataFiles.stream()
             .filter(DataFile::isFileEmpty)
-            .map(dataFile -> "Cannot sign empty datafile: " + dataFile.getName())
+            .map(exceptionMessageResolver)
             .map(InvalidDataFileException::new)
             .reduce((e1, e2) -> {
                 e1.addSuppressed(e2);
@@ -52,6 +64,8 @@ public abstract class AbstractFinalizer implements Serializable {
             .ifPresent(e -> {
                 throw e;
             });
+
+    return dataFiles;
   }
 
 }

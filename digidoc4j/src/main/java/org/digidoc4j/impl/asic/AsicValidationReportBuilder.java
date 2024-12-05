@@ -36,7 +36,6 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -52,7 +51,8 @@ public class AsicValidationReportBuilder {
 
   private static final Logger logger = LoggerFactory.getLogger(AsicValidationReportBuilder.class);
 
-  private final List<DigiDoc4JException> manifestErrors;
+  private final List<DigiDoc4JException> containerErrors;
+  private final List<DigiDoc4JException> containerWarnings;
   private final List<SignatureValidationData> signatureValidationData;
   private final List<TimestampValidationData> timestampValidationData;
 
@@ -61,23 +61,28 @@ public class AsicValidationReportBuilder {
   /**
    * @param signatureValidationData list of signature validation data
    * @param manifestErrors          list of manifest errors
+   *
+   * @deprecated Deprecated for removal. Use {@link #AsicValidationReportBuilder(List, List, List, List)} instead.
    */
+  @Deprecated
   public AsicValidationReportBuilder(
           List<SignatureValidationData> signatureValidationData,
           List<DigiDoc4JException> manifestErrors
   ) {
-    this(signatureValidationData, Collections.emptyList(), manifestErrors);
+    this(signatureValidationData, new ArrayList<>(), manifestErrors, new ArrayList<>());
   }
 
   public AsicValidationReportBuilder(
           List<SignatureValidationData> signatureValidationData,
           List<TimestampValidationData> timestampValidationData,
-          List<DigiDoc4JException> manifestErrors
+          List<DigiDoc4JException> containerErrors,
+          List<DigiDoc4JException> containerWarnings
   ) {
     logger.debug("Initializing ASiC validation report builder");
-    this.signatureValidationData = signatureValidationData;
-    this.timestampValidationData = timestampValidationData;
-    this.manifestErrors = manifestErrors;
+    this.signatureValidationData = Objects.requireNonNull(signatureValidationData);
+    this.timestampValidationData = Objects.requireNonNull(timestampValidationData);
+    this.containerErrors = Objects.requireNonNull(containerErrors);
+    this.containerWarnings = Objects.requireNonNull(containerWarnings);
   }
 
   public String buildXmlReport() {
@@ -232,7 +237,8 @@ public class AsicValidationReportBuilder {
     report.setValidSignaturesCount(extractValidSignaturesCount());
     report.setSignatures(createSignatureValidationReports());
     report.setTimestampTokens(createTimestampValidationReports());
-    report.setContainerErrors(createContainerErrors());
+    report.setContainerErrors(toExceptionMessages(containerErrors));
+    report.setContainerWarnings(toExceptionMessages(containerWarnings));
     return report;
   }
 
@@ -277,12 +283,8 @@ public class AsicValidationReportBuilder {
     return validSignaturesCount;
   }
 
-  private List<String> createContainerErrors() {
-    List<String> containerErrors = new ArrayList<>();
-    for (DigiDoc4JException manifestError : manifestErrors) {
-      containerErrors.add(manifestError.getMessage());
-    }
-    return containerErrors;
+  private static List<String> toExceptionMessages(List<DigiDoc4JException> exceptions) {
+    return exceptions.stream().map(DigiDoc4JException::getMessage).collect(Collectors.toList());
   }
 
   public static String createFormattedXmlString(ContainerValidationReport simpleReport) {

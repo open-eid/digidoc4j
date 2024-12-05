@@ -28,11 +28,15 @@ import org.digidoc4j.impl.TspDataLoaderFactory;
 import org.digidoc4j.impl.asic.DetachedContentCreator;
 
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Base class for finalizers of timestamp tokens for ASiC containers.
  */
 public abstract class AsicContainerTimestampFinalizer extends AbstractFinalizer {
+
+  private static final Function<DataFile, String> EMPTY_DATAFILE_MESSAGE_RESOLVER = dataFile ->
+          "Cannot timestamp empty datafile: " + dataFile.getName();
 
   protected final CadesTimestampingDssFacade timestampingFacade;
 
@@ -48,7 +52,7 @@ public abstract class AsicContainerTimestampFinalizer extends AbstractFinalizer 
           List<DataFile> dataFiles,
           TimestampParameters timestampParameters
   ) {
-    super(configuration, dataFiles);
+    super(configuration, verifyDataFilesNotEmpty(dataFiles, EMPTY_DATAFILE_MESSAGE_RESOLVER));
     timestampingFacade = new CadesTimestampingDssFacade();
     configureTimestampingFacade(timestampParameters);
   }

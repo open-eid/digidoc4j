@@ -11,6 +11,7 @@
 package org.digidoc4j.impl.asic;
 
 import eu.europa.esig.dss.model.DSSDocument;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.digidoc4j.Configuration;
@@ -21,6 +22,7 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.DuplicateSignatureFilesException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.exceptions.UnsupportedFormatException;
+import org.digidoc4j.impl.DataFilesValidationUtils;
 import org.digidoc4j.impl.asic.manifest.ManifestErrorMessage;
 import org.digidoc4j.impl.asic.manifest.ManifestParser;
 import org.digidoc4j.impl.asic.manifest.ManifestValidator;
@@ -34,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -47,12 +50,13 @@ public abstract class AsicContainerValidator {
   protected List<DigiDoc4JException> errors = new ArrayList<>();
   protected List<DigiDoc4JException> warnings = new ArrayList<>();
 
+  private final List<SignatureValidationData> signatureValidationData = new ArrayList<>();
+  private final List<DigiDoc4JException> containerErrors = new ArrayList<>();
+  private final List<DigiDoc4JException> containerWarnings = new ArrayList<>();
+  private final ThreadPoolManager threadPoolManager;
+
   private AsicParseResult containerParseResult;
   private boolean validateManifest;
-  private List<SignatureValidationData> signatureValidationData = new ArrayList<>();
-  private List<DigiDoc4JException> manifestErrors;
-  private List<DigiDoc4JException> containerErrors = new ArrayList<>();
-  private ThreadPoolManager threadPoolManager;
   private Date validationTime;
 
   /**
@@ -93,6 +97,7 @@ public abstract class AsicContainerValidator {
     validateSignatures(signatures);
     extractManifestErrors(signatures);
     extractContainerErrors(signatures);
+    extractContainerWarnings();
     AsicContainerValidationResult result = createValidationResult();
     logger.info("Is container valid: {}", result.isValid());
     return result;
@@ -150,19 +155,23 @@ public abstract class AsicContainerValidator {
 
   protected void extractManifestErrors(List<Signature> signatures) {
     logger.debug("Extracting manifest errors");
-    manifestErrors = findManifestErrors(signatures);
+    List<DigiDoc4JException> manifestErrors = findManifestErrors(signatures);
     errors.addAll(manifestErrors);
     containerErrors.addAll(manifestErrors);
   }
 
   protected AsicContainerValidationResult createValidationResult() {
-    AsicValidationReportBuilder reportBuilder = new AsicValidationReportBuilder(signatureValidationData,
-            manifestErrors);
     AsicContainerValidationResult result = new AsicContainerValidationResult();
     result.setErrors(errors);
     result.setWarnings(warnings);
     result.setContainerErrors(containerErrors);
-    result.generate(reportBuilder);
+    result.setContainerWarnings(containerWarnings);
+    result.generate(new AsicValidationReportBuilder(
+            signatureValidationData,
+            Collections.emptyList(),
+            containerErrors,
+            containerWarnings
+    ));
     return result;
   }
 
@@ -218,4 +227,17 @@ public abstract class AsicContainerValidator {
     }
     return fileNameErrors;
   }
+
+  private void extractContainerWarnings() {
+    Optional
+            .ofNullable(containerParseResult)
+            .map(AsicParseResult::getDataFiles)
+            .filter(CollectionUtils::isNotEmpty)
+            .map(DataFilesValidationUtils::getExceptionsForEmptyDataFiles)
+            .ifPresent(dataFilesWarnings -> {
+              containerWarnings.addAll(dataFilesWarnings);
+              warnings.addAll(dataFilesWarnings);
+            });
+  }
+
 }

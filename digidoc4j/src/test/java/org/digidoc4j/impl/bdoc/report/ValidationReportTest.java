@@ -14,9 +14,11 @@ import org.digidoc4j.AbstractTest;
 import org.digidoc4j.CompositeContainerBuilder;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
+import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureValidationResult;
+import org.digidoc4j.ddoc.utils.ConfigManager;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.junit.Assert;
@@ -197,6 +199,81 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
+  public void unsignedAsiceContainerWithEmptyDataFiles() throws Exception {
+    Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/unsigned-container-with-empty-datafiles.asice");
+    String report = container.validate().getReport();
+    TestAssert.assertXPathHasValue("0", "/SimpleReport/SignaturesCount", report);
+    TestAssert.assertXPathHasValue("0", "/SimpleReport/ValidSignaturesCount", report);
+    TestAssert.assertXPathHasValue("0", "count(/SimpleReport/Signature)", report);
+    TestAssert.assertXPathHasValue("0", "count(/SimpleReport/TimestampToken)", report);
+    TestAssert.assertXPathHasValue("2", "count(/SimpleReport/ContainerWarning)", report);
+    TestAssert.assertXPathHasValue("Data file 'empty-file-2.txt' is empty", "/SimpleReport/ContainerWarning[1]", report);
+    TestAssert.assertXPathHasValue("Data file 'empty-file-4.txt' is empty", "/SimpleReport/ContainerWarning[2]", report);
+  }
+
+  @Test
+  public void unsignedAsicsContainerWithEmptyDataFile() throws Exception {
+    Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/unsigned-container-with-empty-datafile.asics");
+    String report = container.validate().getReport();
+    TestAssert.assertXPathHasValue("0", "/SimpleReport/SignaturesCount", report);
+    TestAssert.assertXPathHasValue("0", "/SimpleReport/ValidSignaturesCount", report);
+    TestAssert.assertXPathHasValue("0", "count(/SimpleReport/Signature)", report);
+    TestAssert.assertXPathHasValue("0", "count(/SimpleReport/TimestampToken)", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/ContainerWarning)", report);
+    TestAssert.assertXPathHasValue("Data file 'empty-file.txt' is empty", "/SimpleReport/ContainerWarning", report);
+  }
+
+  @Test
+  public void signedAsiceContainerWithEmptyDataFiles() throws Exception {
+    Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/signed-container-with-empty-datafiles.asice");
+    String report = container.validate().getReport();
+    TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
+    TestAssert.assertXPathHasValue("1", "/SimpleReport/ValidSignaturesCount", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature)", report);
+    TestAssert.assertXPathHasValue("0", "count(/SimpleReport/TimestampToken)", report);
+    TestAssert.assertXPathHasValue("2", "count(/SimpleReport/ContainerWarning)", report);
+    TestAssert.assertXPathHasValue("Data file 'empty-file-2.txt' is empty", "/SimpleReport/ContainerWarning[1]", report);
+    TestAssert.assertXPathHasValue("Data file 'empty-file-4.txt' is empty", "/SimpleReport/ContainerWarning[2]", report);
+  }
+
+  @Test
+  public void signedBdocContainerWithEmptyDataFiles() throws Exception {
+    Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/signed-container-with-empty-datafiles.bdoc");
+    String report = container.validate().getReport();
+    TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
+    TestAssert.assertXPathHasValue("1", "/SimpleReport/ValidSignaturesCount", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature)", report);
+    TestAssert.assertXPathHasValue("0", "count(/SimpleReport/TimestampToken)", report);
+    TestAssert.assertXPathHasValue("2", "count(/SimpleReport/ContainerWarning)", report);
+    TestAssert.assertXPathHasValue("Data file 'empty-file-2.txt' is empty", "/SimpleReport/ContainerWarning[1]", report);
+    TestAssert.assertXPathHasValue("Data file 'empty-file-4.txt' is empty", "/SimpleReport/ContainerWarning[2]", report);
+  }
+
+  @Test
+  public void signedAsicsContainerWithEmptyDataFile() throws Exception {
+    Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/signed-container-with-empty-datafile.asics");
+    String report = container.validate().getReport();
+    TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
+    TestAssert.assertXPathHasValue("1", "/SimpleReport/ValidSignaturesCount", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature)", report);
+    TestAssert.assertXPathHasValue("0", "count(/SimpleReport/TimestampToken)", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/ContainerWarning)", report);
+    TestAssert.assertXPathHasValue("Data file 'empty-file.txt' is empty", "/SimpleReport/ContainerWarning", report);
+  }
+
+  @Test
+  public void timestampedAsicsContainerWithEmptyDataFile() throws Exception {
+    Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/timestamped-container-with-empty-datafile.asics");
+    String report = container.validate().getReport();
+    TestAssert.assertXPathHasValue("0", "/SimpleReport/SignaturesCount", report);
+    TestAssert.assertXPathHasValue("0", "/SimpleReport/ValidSignaturesCount", report);
+    TestAssert.assertXPathHasValue("0", "count(/SimpleReport/Signature)", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/TimestampToken)", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/ContainerWarning)", report);
+    TestAssert.assertXPathHasValue("Data file 'empty-file.txt' is empty", "/SimpleReport/ContainerWarning", report);
+  }
+
+  @Test
   public void signatureContainsAdditionalErrors() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/invalid-containers/TS-08_23634_TS_OCSP_before_TS.asice");
     String signatureUniqueId = container.getSignatures().get(0).getUniqueId();
@@ -354,6 +431,11 @@ public class ValidationReportTest extends AbstractTest {
 
   @Test
   public void valid3xTimestampedContainerWithNestedValidDdoc() throws Exception {
+    // TODO (DD4J-1123): Currently JDigiDoc configuration (for validating DDoc containers and signatures) is
+    //  automatically initialized only once per process, and thus is dependent on the order the unit tests are run.
+    //  This workaround helps to avoid unit test failures caused by incompatible configuration being loaded.
+    ConfigManager.init(Configuration.getInstance().getDDoc4JConfiguration());
+
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/3xTST-valid-ddoc-data-file.asics");
     String timestamp1UniqueId = container.getTimestamps().get(0).getUniqueId();
     String timestamp2UniqueId = container.getTimestamps().get(1).getUniqueId();
@@ -396,6 +478,11 @@ public class ValidationReportTest extends AbstractTest {
   public void validTimestampedContainerWithNestedInvalidDdocWithMultipleSignatures() throws Exception {
     String containerPath = "src/test/resources/testFiles/invalid-containers/one-valid-and-multiple-invalid-signatures.ddoc";
     String containerFilename = Paths.get(containerPath).getFileName().toString();
+    // TODO (DD4J-1123): Currently JDigiDoc configuration (for validating DDoc containers and signatures) is
+    //  automatically initialized only once per process, and thus is dependent on the order the unit tests are run.
+    //  This workaround helps to avoid unit test failures caused by incompatible configuration being loaded.
+    ConfigManager.init(configuration.getDDoc4JConfiguration());
+
     Container container = CompositeContainerBuilder.fromContainerFile(containerPath)
             .withConfiguration(configuration).buildTimestamped(timestampBuilder -> {});
     String timestampUniqueId = container.getTimestamps().get(0).getUniqueId();
@@ -407,6 +494,39 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("7", "/SimpleReport/SignaturesCount", report);
     TestAssert.assertXPathHasValue("1", "/SimpleReport/ValidSignaturesCount", report);
     TestAssert.assertXPathHasValue("0", "count(/SimpleReport/Signature)", report);
+  }
+
+  @Test
+  public void validTimestampedContainerWithExpiredTimestampToken() throws Exception {
+    Container container = ContainerOpener.open(
+            "src/test/resources/prodFiles/invalid-containers/1xTST-text-data-file-expired-tst.asics",
+            Configuration.of(Configuration.Mode.PROD)
+    );
+    String timestampUniqueId = container.getTimestamps().get(0).getUniqueId();
+    String report = container.validate().getReport();
+    TestAssert.assertXPathHasValue("0", "/SimpleReport/SignaturesCount", report);
+    TestAssert.assertXPathHasValue("0", "/SimpleReport/ValidSignaturesCount", report);
+    TestAssert.assertXPathHasValue("0", "count(/SimpleReport/Signature)", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/TimestampToken)", report);
+    System.out.println(report);
+    TestAssert.assertXPathHasValue(timestampUniqueId,"/SimpleReport/TimestampToken[1]/UniqueId", report);
+    TestAssert.assertXPathHasValue("PASSED", "/SimpleReport/TimestampToken/Indication", report);
+    TestAssert.assertXPathHasValue("2017-08-25T09:56:33Z", "/SimpleReport/TimestampToken/ProductionTime", report);
+    TestAssert.assertXPathHasValue("SK TIMESTAMPING AUTHORITY", "/SimpleReport/TimestampToken/ProducedBy", report);
+    TestAssert.assertXPathHasValue("TSA", "/SimpleReport/TimestampToken/TimestampLevel", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/TimestampToken/TimestampScope)", report);
+    TestAssert.assertXPathHasValue("Test.txt", "/SimpleReport/TimestampToken/TimestampScope/@name", report);
+    TestAssert.assertXPathHasValue("0", "count(/SimpleReport/TimestampToken/Errors)", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/TimestampToken/Warnings)", report);
+    TestAssert.assertXPathHasValue(
+            "The certificate is not related to a granted status at time-stamp lowest POE time!",
+            "/SimpleReport/TimestampToken/Warnings[1]", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/ContainerWarning)", report);
+    TestAssert.assertXPathHasValue(
+            "Found a timestamp token not related to granted status. " +
+                    "If not yet covered with a fresh timestamp token, this container might become invalid in the future.",
+            "/SimpleReport/ContainerWarning[1]", report
+    );
   }
 
   /*

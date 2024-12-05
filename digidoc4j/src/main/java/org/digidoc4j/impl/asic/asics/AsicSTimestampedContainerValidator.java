@@ -21,6 +21,7 @@ import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.Timestamp;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.impl.DataFilesValidationUtils;
 import org.digidoc4j.impl.SimpleValidationResult;
 import org.digidoc4j.impl.asic.AsicValidationReportBuilder;
 import org.digidoc4j.impl.asic.TimeStampContainerValidationResult;
@@ -86,13 +87,28 @@ public class AsicSTimestampedContainerValidator {
     result.setErrors(collectExceptions(timestampValidationData, ValidationResult::getErrors));
     result.setWarnings(collectExceptions(timestampValidationData, ValidationResult::getWarnings));
     TimestampNotGrantedValidationUtils.addContainerWarningIfNotGrantedTimestampExists(result);
+    addDataFilesWarningsTo(result);
+
     result.generate(new AsicValidationReportBuilder(
             Collections.emptyList(),
             timestampValidationData,
-            Collections.emptyList()
+            result.getContainerErrors(),
+            result.getContainerWarnings()
     ));
 
     return result;
+  }
+
+  private void addDataFilesWarningsTo(AsicSTimestampedContainerValidationResult containerValidationResult) {
+    Optional
+            .of(asicsContainer.getDataFiles())
+            .filter(CollectionUtils::isNotEmpty)
+            .map(DataFilesValidationUtils::getExceptionsForEmptyDataFiles)
+            .filter(CollectionUtils::isNotEmpty)
+            .ifPresent(dataFilesWarnings -> {
+              containerValidationResult.addContainerWarnings(dataFilesWarnings);
+              containerValidationResult.addWarnings(dataFilesWarnings);
+            });
   }
 
   private static List<TimestampValidationData> extractTimestampValidationData(Reports reports) {

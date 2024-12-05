@@ -19,6 +19,7 @@ import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureParameters;
 
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Signature finalizer for datafiles signing process.
@@ -26,10 +27,13 @@ import java.util.List;
  */
 public abstract class SignatureFinalizer extends AbstractFinalizer {
 
+  private static final Function<DataFile, String> EMPTY_DATAFILE_MESSAGE_RESOLVER = dataFile ->
+          "Cannot sign empty datafile: " + dataFile.getName();
+
   protected SignatureParameters signatureParameters;
 
   protected SignatureFinalizer(List<DataFile> dataFiles, SignatureParameters signatureParameters, Configuration configuration) {
-    super(configuration, dataFiles);
+    super(configuration, verifyDataFilesNotEmpty(dataFiles, EMPTY_DATAFILE_MESSAGE_RESOLVER));
     this.signatureParameters = signatureParameters;
   }
 

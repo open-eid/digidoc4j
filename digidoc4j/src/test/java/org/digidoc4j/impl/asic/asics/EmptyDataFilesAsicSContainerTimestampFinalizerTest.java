@@ -30,7 +30,7 @@ public class EmptyDataFilesAsicSContainerTimestampFinalizerTest extends Abstract
             () -> new AsicSContainerTimestampFinalizer(configuration, dataFile, null)
     );
 
-    Assert.assertEquals("Cannot sign empty datafile: empty-file.txt", caughtException.getMessage());
+    Assert.assertEquals("Cannot timestamp empty datafile: empty-file.txt", caughtException.getMessage());
     TestAssert.assertSuppressed(caughtException, InvalidDataFileException.class);
   }
 

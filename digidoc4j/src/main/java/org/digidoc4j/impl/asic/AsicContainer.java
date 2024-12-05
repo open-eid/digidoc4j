@@ -27,7 +27,6 @@ import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.exceptions.RemovingDataFileException;
 import org.digidoc4j.exceptions.SignatureNotFoundException;
 import org.digidoc4j.exceptions.TechnicalException;
-import org.digidoc4j.impl.AbstractContainerValidationResult;
 import org.digidoc4j.impl.AbstractValidationResult;
 import org.digidoc4j.impl.ValidatableContainer;
 import org.digidoc4j.impl.asic.manifest.AsicManifest;
@@ -49,7 +48,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * Created by Andrei on 7.11.2017.
@@ -182,7 +180,6 @@ public abstract class AsicContainer implements Container, ValidatableContainer {
   @Override
   public ContainerValidationResult validate() {
     ContainerValidationResult validationResult = validateContainer();
-    validateDataFiles(validationResult);
     if (validationResult instanceof AbstractValidationResult) {
       ((AbstractValidationResult) validationResult).print(configuration);
     }
@@ -192,7 +189,6 @@ public abstract class AsicContainer implements Container, ValidatableContainer {
   @Override
   public ContainerValidationResult validateAt(Date validationTime) {
     ContainerValidationResult validationResult = validateContainerAt(validationTime);
-    validateDataFiles(validationResult);
     if (validationResult instanceof AbstractValidationResult) {
       ((AbstractValidationResult) validationResult).print(configuration);
     }
@@ -210,31 +206,6 @@ public abstract class AsicContainer implements Container, ValidatableContainer {
   }
 
   protected abstract AsicContainerValidator getContainerValidator(AsicParseResult containerParseResult, boolean dataFilesHaveChanged);
-
-  private void validateDataFiles(ContainerValidationResult containerValidationResult) {
-    List<String> dataFilesValidationWarnings = dataFiles.stream()
-            .filter(DataFile::isFileEmpty)
-            .map(dataFile -> String.format("Data file '%s' is empty", dataFile.getName()))
-            .collect(Collectors.toList());
-
-    if (CollectionUtils.isEmpty(dataFilesValidationWarnings)) {
-      return;
-    }
-
-    if (containerValidationResult instanceof AbstractContainerValidationResult) {
-      AbstractContainerValidationResult abstractContainerValidationResult = (AbstractContainerValidationResult) containerValidationResult;
-      List<DigiDoc4JException> exceptions = dataFilesValidationWarnings.stream().map(InvalidDataFileException::new).collect(Collectors.toList());
-      abstractContainerValidationResult.addContainerWarnings(exceptions);
-      abstractContainerValidationResult.addWarnings(exceptions);
-    } else if (containerValidationResult instanceof AbstractValidationResult) {
-      List<DigiDoc4JException> exceptions = dataFilesValidationWarnings.stream().map(InvalidDataFileException::new).collect(Collectors.toList());
-      ((AbstractValidationResult) containerValidationResult).addWarnings(exceptions);
-    } else {
-      for (String dataFileValidationWarning : dataFilesValidationWarnings) {
-        LOGGER.warn(dataFileValidationWarning);
-      }
-    }
-  }
 
   @Override
   public File saveAsFile(String filePath) {
