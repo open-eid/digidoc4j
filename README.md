@@ -4,9 +4,10 @@
 DigiDoc4j is a Java library for digitally signing documents and creating digital signature containers of signed documents.
 
 # Features
-* Creating ASiC-E
-* Validating ASiC-E, BDOC, ASIC-S and DDOC containers
-* Creating and validating detached XadES
+* Creating ASiC-E and ASiC-S containers
+* Validating ASiC-E, ASiC-S, BDOC, and DDOC containers
+* Creating and validating detached XAdES signatures
+* Creating and validating timestamp tokens
 
 # How to use it
 * Take a look at the [examples](https://github.com/open-eid/digidoc4j/wiki/Examples-of-using-it)
@@ -20,9 +21,11 @@ DigiDoc4j is a Java library for digitally signing documents and creating digital
 * This format is default format since 2019.
 * ASIC-E containers are in compliance with EU standards.
 * Signatures are stored in **XAdES** format.
-* Supports following signature formats:
+* Supports following signature profiles:
+  * **B_BES** - Basic signature (not considered valid by DigiDoc4j validation rules).
+  * **T** (Time) - Signature with **time-stamp** (not considered valid by DigiDoc4j validation rules).
   * **LT** (Long Term) - Signature with **time-stamp** and **OCSP** (both "regular" and AIA OCSP are supported).
-  * **LTA** (Long Term Archival) -  signature format has additional **archival time-stamp** to LT profile.
+  * **LTA** (Long Term Archival) - Signature has additional **archival time-stamp**(s) to LT profile.
 * **.asice** or **.sce** file is in fact a ZIP container with the signed files, the signatures and the protocol control information and can basically be opened by any program that recognizes the ZIP format.
 * It is recommended not to use special characters in the data file’s name, i.e. it is suggested to use only the characters that are categorized as “unreserved” according to RFC3986 (https://datatracker.ietf.org/doc/html/rfc3986).
 
@@ -35,8 +38,10 @@ The support for creating BDOC-specific **time-mark** signatures was removed sinc
 * This format has been used as a default digital signature format in Estonia since 2015 until end of 2018.
 * BDOC container is based on **ASiC-E** standard.
 * Signatures are stored in **XAdES** format.
-* Supports signature formats:
-  * **LT_TM** (Long Term TimeMark) - signature has **time-mark** ensuring long-term provability of the authenticity of the signature.
+* Supports signature profiles:
+  * **B_EPES** - Basic signature with signature policy defined (not considered valid by DigiDoc4j validation rules).
+    **B_EPES** signing support in DigiDoc4j was removed since version **5.2.0**.
+  * **LT_TM** (Long Term TimeMark) - Signature has **time-mark** ensuring long-term provability of the authenticity of the signature.
     **LT_TM** signing support in DigiDoc4j was removed since version **5.2.0**.
     * It is based on **XAdES baseline LT** signature format.
 * **.bdoc** file is in fact a ZIP container with the signed files, the signatures and the protocol control information and can basically be opened by any program that recognizes the ZIP format.
@@ -46,8 +51,10 @@ The support for creating BDOC-specific **time-mark** signatures was removed sinc
 * Has **.asics** or **.scs** extension
 * Container associates one data file with either:
   - one signature file containing one or more XAdES detached digital signature(s) that apply to it; or
-  - one time assertion file containing a time assertion that apply to it.
-* This format is used for timestamping the old DDOC containers in order to prove the inviolability of documents.
+  - one or more time assertion file(s) containing a time assertion that apply to it.
+* This format is used for timestamping the old DDOC containers in order to prove the integrity of documents.
+* Starting from DigiDoc4j version **6.0.0-RC.1**, this format is also supported for timestamping ASiC and BDOC
+  containers in order to prove the integrity of their contents.
 
 # DDOC container format
 * Has **.ddoc** extension
