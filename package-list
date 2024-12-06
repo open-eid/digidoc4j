@@ -4,10 +4,12 @@ org.digidoc4j.impl.asic
 org.digidoc4j.impl.asic.asice
 org.digidoc4j.impl.asic.asice.bdoc
 org.digidoc4j.impl.asic.asics
+org.digidoc4j.impl.asic.cades
 org.digidoc4j.impl.asic.manifest
 org.digidoc4j.impl.asic.ocsp
 org.digidoc4j.impl.asic.report
 org.digidoc4j.impl.asic.tsl
+org.digidoc4j.impl.asic.validation
 org.digidoc4j.impl.asic.xades
 org.digidoc4j.impl.asic.xades.validation
 org.digidoc4j.impl.ddoc
