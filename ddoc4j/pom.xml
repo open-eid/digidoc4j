@@ -5,7 +5,7 @@
 
     <artifactId>ddoc4j</artifactId>
     <packaging>jar</packaging>
-    <version>6.0.0-RC.1</version>
+    <version>6.0.0-SNAPSHOT</version>
 
     <name>DDoc4J</name>
     <description>DDoc4J is Java Library for validating DDOC documents. It's not recommended to use it directly but rather through DigiDoc4J's API.</description>
@@ -14,7 +14,7 @@
     <parent>
         <artifactId>digidoc4j-parent</artifactId>
         <groupId>org.digidoc4j</groupId>
-        <version>6.0.0-RC.1</version>
+        <version>6.0.0-SNAPSHOT</version>
     </parent>
 
     <dependencies>
