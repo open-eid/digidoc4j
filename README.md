@@ -1,4 +1,4 @@
-﻿![EU Regional Development Fund](digidoc4j/src/main/doc/resources/EL_Regionaalarengu_Fond_horisontaalne-vaike.jpg)
+﻿<img src="digidoc4j/src/main/doc/resources/Co-funded_by_the_European_Union.jpg" width="350" height="200" alt="Co-funded by the European Union">
 
 # DigiDoc4j
 DigiDoc4j is a Java library for digitally signing documents and creating digital signature containers of signed documents.
