@@ -298,7 +298,7 @@ public final class DigiDoc4J {
     return Option.builder(ExecutionOption.DATST.getName())
         .argName("digestAlgorithm")
         .hasArgs()
-        .desc("sets the digest algorithm for archive timestamps. " +
+        .desc("sets the digest algorithm for archive timestamps (e.g. SHA256, SHA384). " +
             "Defaults to the value defined in configuration if unset.")
         .build();
   }
@@ -307,7 +307,7 @@ public final class DigiDoc4J {
     return Option.builder(ExecutionOption.REFDATST.getName())
         .argName("referenceDigestAlgorithm")
         .hasArgs()
-        .desc("sets reference digest algorithm. " +
+        .desc("sets reference digest algorithm (e.g. SHA384, SHA512). " +
             "Used when a timestamp has to cover a collection of references (e.g. an ASiCArchiveManifest.xml file), " +
             "and each reference needs to incorporate the digest of the entity it references.")
         .build();
