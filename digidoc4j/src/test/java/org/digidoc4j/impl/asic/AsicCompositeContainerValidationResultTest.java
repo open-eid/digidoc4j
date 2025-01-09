@@ -15,6 +15,7 @@ import eu.europa.esig.dss.enumerations.SignatureQualification;
 import eu.europa.esig.dss.enumerations.SubIndication;
 import eu.europa.esig.dss.enumerations.TimestampQualification;
 import eu.europa.esig.dss.simplereport.SimpleReport;
+import org.digidoc4j.AbstractTest;
 import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -26,6 +27,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,14 +39,17 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AsicCompositeContainerValidationResultTest {
+public class AsicCompositeContainerValidationResultTest extends AbstractTest {
 
   private static final String TOKEN_ID = "test-token-ID";
 
@@ -940,14 +946,26 @@ public class AsicCompositeContainerValidationResultTest {
   }
 
   @Test
-  public void saveXmlReports_WhenValidPathIsGiven_RequestIsDelegatedToBothValidationResults() {
-    Path path = mock(Path.class);
+  public void saveXmlReports_WhenValidPathIsGiven_RequestIsDelegatedToBothValidationResults() throws Exception {
+    AsicCompositeContainerValidationResult compositeValidationResultSpy = spy(compositeValidationResult);
+    doReturn("Mock report string").when(compositeValidationResultSpy).getReport();
+    Path path = testFolder.newFolder("outputFolder").toPath();
 
-    compositeValidationResult.saveXmlReports(path);
+    compositeValidationResultSpy.saveXmlReports(path);
 
-    verify(nestedContainerValidationResult).saveXmlReports(path);
-    verify(nestingContainerValidationResult).saveXmlReports(path);
-    verifyNoMoreInteractions(nestingContainerValidationResult, nestedContainerValidationResult);
+    Path reportPath = path.resolve("validationReport.xml");
+    assertTrue(Files.exists(reportPath));
+    assertTrue(Files.isRegularFile(reportPath));
+    assertArrayEquals(
+            "Mock report string".getBytes(StandardCharsets.UTF_8),
+            Files.readAllBytes(reportPath)
+    );
+    verify(compositeValidationResultSpy).getReport();
+    verify(compositeValidationResultSpy).saveXmlReports(path);
+    verify(nestedContainerValidationResult).saveXmlReports(path.resolve("nestedContainer"));
+    verify(nestingContainerValidationResult).saveXmlReports(path.resolve("nestingContainer"));
+    verifyNoMoreInteractions(nestingContainerValidationResult, nestedContainerValidationResult,
+            compositeValidationResultSpy);
   }
 
 }

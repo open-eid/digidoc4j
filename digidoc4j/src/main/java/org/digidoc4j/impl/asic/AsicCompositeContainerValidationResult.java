@@ -15,6 +15,7 @@ import eu.europa.esig.dss.enumerations.SignatureQualification;
 import eu.europa.esig.dss.enumerations.SubIndication;
 import eu.europa.esig.dss.enumerations.TimestampQualification;
 import eu.europa.esig.dss.simplereport.SimpleReport;
+import eu.europa.esig.dss.spi.DSSUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.SignatureValidationResult;
@@ -24,6 +25,7 @@ import org.digidoc4j.impl.asic.report.ContainerValidationReport;
 import org.digidoc4j.impl.asic.report.SignatureValidationReport;
 import org.digidoc4j.impl.asic.report.TimestampValidationReport;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -151,8 +153,15 @@ public class AsicCompositeContainerValidationResult implements ContainerValidati
 
   @Override
   public void saveXmlReports(Path directory) {
-    nestedContainerValidationResult.saveXmlReports(directory);
-    nestingContainerValidationResult.saveXmlReports(directory);
+    DSSUtils.saveToFile(
+            getReport().getBytes(StandardCharsets.UTF_8),
+            directory.resolve("validationReport.xml").toFile()
+    );
+    // Each container validation result saves their own "validationReport.xml" file, as well as other DSS reports.
+    // Place reports of nested and nesting container validation results into separate subdirectories in order to avoid
+    // any validation result to overwrite reports of other validation results.
+    nestedContainerValidationResult.saveXmlReports(directory.resolve("nestedContainer"));
+    nestingContainerValidationResult.saveXmlReports(directory.resolve("nestingContainer"));
   }
 
   private String generateReport() {

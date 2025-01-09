@@ -45,7 +45,14 @@ import static org.digidoc4j.main.DigiDoc4J.isWarning;
 import static org.digidoc4j.main.TestDigiDoc4JUtil.invokeDigiDoc4jAndReturnExitStatus;
 import static org.digidoc4j.test.matcher.ContainsPattern.containsPattern;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
+import static org.hamcrest.Matchers.arrayWithSize;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.StringContains.containsString;
+import static org.hamcrest.io.FileMatchers.aFileNamed;
+import static org.hamcrest.io.FileMatchers.anExistingDirectory;
+import static org.hamcrest.io.FileMatchers.anExistingFile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -757,6 +764,35 @@ public class DigiDoc4JTest extends AbstractTest {
     assertEquals(1, caughtExitStatus);
     assertThat(stdOut.getLog(), containsString(
             "The certificate chain for revocation data is not trusted, it does not contain a trust anchor"));
+  }
+
+  @Test
+  public void verifyWithReports_WhenTimestampedAsicsContainingAnotherContainer_AllReportFilesExist() throws Exception {
+    String outputFolder = testFolder.newFolder("outputFolder").getPath();
+    String[] parameters = new String[]{
+            "-in", "src/test/resources/testFiles/valid-containers/1xTST-recursive-asics-datafile.asics",
+            "-v", "-r", outputFolder};
+
+    int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
+
+    assertEquals(0, caughtExitStatus);
+    File[] reportFiles = new File(outputFolder).listFiles();
+    assertThat(reportFiles, arrayWithSize(3));
+    assertThat(reportFiles, arrayContainingInAnyOrder(
+            allOf(anExistingFile(), aFileNamed(equalTo("validationReport.xml"))),
+            allOf(anExistingDirectory(), aFileNamed(equalTo("nestingContainer"))),
+            allOf(anExistingDirectory(), aFileNamed(equalTo("nestedContainer")))
+    ));
+    for (File reportFile : reportFiles) {
+      if (!reportFile.isDirectory()) {
+        continue;
+      }
+      File[] nestedReportFiles = reportFile.listFiles();
+      assertThat(nestedReportFiles, arrayWithSize(1));
+      assertThat(nestedReportFiles, arrayContainingInAnyOrder(
+              allOf(anExistingFile(), aFileNamed(equalTo("validationReport.xml")))
+      ));
+    }
   }
 
   private void assertExtractingDataFile(String containerPath, String fileToExtract) throws IOException {
