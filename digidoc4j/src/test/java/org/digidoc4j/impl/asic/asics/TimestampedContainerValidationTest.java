@@ -25,9 +25,11 @@ import org.junit.Test;
 import static org.digidoc4j.test.TestAssert.assertContainerIsValid;
 import static org.digidoc4j.test.TestAssert.assertContainerIsValidIgnoreErrors;
 import static org.digidoc4j.test.TestAssert.assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages;
+import static org.digidoc4j.test.TestAssert.assertContainsExactSetOfErrors;
 import static org.digidoc4j.test.matcher.CommonMatchers.equalToIsoDate;
 import static org.digidoc4j.test.matcher.CommonMatchers.equalToTimestampUniqueIdList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -324,7 +326,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenAsicsWithInvalidAndNonCoveringTimestamp_ValidationResultIsValidButContainsErrors() {
+  public void validate_WhenAsicsWithInvalidAndNonCoveringTimestamp_ValidationResultIsValidButContainsErrorsAndWarnings() {
     Container container = ContainerOpener.open(
             "src/test/resources/prodFiles/invalid-containers/2xTST-text-data-file-1st-tst-invalid-2nd-tst-no-coverage.asics",
             Configuration.of(Configuration.Mode.PROD)
@@ -337,7 +339,8 @@ public class TimestampedContainerValidationTest extends AbstractTest {
             containerValidationResult.getErrors(), 1,
             container.getTimestamps().get(0).getUniqueId() + ") - The time-stamp message imprint is not intact!"
     );
-    assertThat(containerValidationResult.getWarnings(), empty());
+    assertContainsExactSetOfErrors(containerValidationResult.getWarnings(),
+            container.getTimestamps().get(1).getUniqueId() + ") - The time-stamp token does not cover container datafile!");
     assertThat(containerValidationResult.getContainerErrors(), empty());
     assertThat(containerValidationResult.getContainerWarnings(), empty());
     assertThat(containerValidationResult.getSimpleReports(), hasSize(1));
@@ -352,6 +355,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
       assertThat(containerValidationResult.getSubIndication(timestampId), sameInstance(SubIndication.HASH_FAILURE));
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(0);
+      assertThat(timestampReport.getWarnings(), empty());
       assertThat(timestampReport.getProducedBy(), equalTo("SK TIMESTAMPING UNIT 2024E"));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-09-13T10:49:58Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
@@ -370,6 +374,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
       assertThat(containerValidationResult.getSubIndication(timestampId), nullValue());
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(1);
+      assertThat(timestampReport.getWarnings(), contains("The time-stamp token does not cover container datafile!"));
       assertThat(timestampReport.getProducedBy(), equalTo("SK TIMESTAMPING UNIT 2024E"));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-09-13T11:20:02Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
@@ -377,12 +382,14 @@ public class TimestampedContainerValidationTest extends AbstractTest {
       assertThat(timestampValidationResult, notNullValue());
       assertThat(timestampValidationResult.isValid(), equalTo(true));
       assertThat(timestampValidationResult.getErrors(), empty());
-      assertThat(timestampValidationResult.getWarnings(), empty());
+      assertContainsExactSetOfErrors(timestampValidationResult.getWarnings(),
+              timestampId + ") - The time-stamp token does not cover container datafile!"
+      );
     }
   }
 
   @Test
-  public void validate_WhenAsicsWithInvalidAndNonCoveringAndValidTimestamp_ValidationResultIsValidButContainsErrors() {
+  public void validate_WhenAsicsWithInvalidAndNonCoveringAndValidTimestamp_ValidationResultIsValidButContainsErrorsAndWarnings() {
     Container container = ContainerOpener.open(
             "src/test/resources/prodFiles/valid-containers/3xTST-text-data-file-1st-tst-invalid-2nd-tst-no-coverage-3rd-tst-valid.asics",
             Configuration.of(Configuration.Mode.PROD)
@@ -395,7 +402,8 @@ public class TimestampedContainerValidationTest extends AbstractTest {
             containerValidationResult.getErrors(), 1,
             container.getTimestamps().get(0).getUniqueId() + ") - The time-stamp message imprint is not intact!"
     );
-    assertThat(containerValidationResult.getWarnings(), empty());
+    assertContainsExactSetOfErrors(containerValidationResult.getWarnings(),
+            container.getTimestamps().get(1).getUniqueId() + ") - The time-stamp token does not cover container datafile!");
     assertThat(containerValidationResult.getContainerErrors(), empty());
     assertThat(containerValidationResult.getContainerWarnings(), empty());
     assertThat(containerValidationResult.getSimpleReports(), hasSize(1));
@@ -410,6 +418,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
       assertThat(containerValidationResult.getSubIndication(timestampId), sameInstance(SubIndication.HASH_FAILURE));
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(0);
+      assertThat(timestampReport.getWarnings(), empty());
       assertThat(timestampReport.getProducedBy(), equalTo("SK TIMESTAMPING UNIT 2024E"));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-09-13T10:49:58Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
@@ -428,6 +437,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
       assertThat(containerValidationResult.getSubIndication(timestampId), nullValue());
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(1);
+      assertThat(timestampReport.getWarnings(), contains("The time-stamp token does not cover container datafile!"));
       assertThat(timestampReport.getProducedBy(), equalTo("SK TIMESTAMPING UNIT 2024E"));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-09-13T11:20:02Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
@@ -435,7 +445,9 @@ public class TimestampedContainerValidationTest extends AbstractTest {
       assertThat(timestampValidationResult, notNullValue());
       assertThat(timestampValidationResult.isValid(), equalTo(true));
       assertThat(timestampValidationResult.getErrors(), empty());
-      assertThat(timestampValidationResult.getWarnings(), empty());
+      assertContainsExactSetOfErrors(timestampValidationResult.getWarnings(),
+              timestampId + ") - The time-stamp token does not cover container datafile!"
+      );
     }
     {
       String timestampId = container.getTimestamps().get(2).getUniqueId();
@@ -443,6 +455,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
       assertThat(containerValidationResult.getSubIndication(timestampId), nullValue());
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(2);
+      assertThat(timestampReport.getWarnings(), empty());
       assertThat(timestampReport.getProducedBy(), equalTo("SK TIMESTAMPING UNIT 2024E"));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-10-25T13:25:59Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));

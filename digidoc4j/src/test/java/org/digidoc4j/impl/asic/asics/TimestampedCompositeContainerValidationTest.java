@@ -33,10 +33,12 @@ import static org.digidoc4j.test.TestAssert.assertContainerIsValid;
 import static org.digidoc4j.test.TestAssert.assertContainerIsValidIgnoreErrors;
 import static org.digidoc4j.test.TestAssert.assertContainsErrors;
 import static org.digidoc4j.test.TestAssert.assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages;
+import static org.digidoc4j.test.TestAssert.assertContainsExactSetOfErrors;
 import static org.digidoc4j.test.matcher.CommonMatchers.equalToIsoDate;
 import static org.digidoc4j.test.matcher.CommonMatchers.equalToSignatureUniqueIdList;
 import static org.digidoc4j.test.matcher.CommonMatchers.equalToTimestampUniqueIdList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -248,7 +250,8 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
     assertContainsErrors(containerValidationResult.getErrors(),
             container.getTimestamps().get(0).getUniqueId() + ") - The time-stamp message imprint is not intact!"
     );
-    assertThat(containerValidationResult.getWarnings(), empty());
+    assertContainsExactSetOfErrors(containerValidationResult.getWarnings(),
+            container.getTimestamps().get(1).getUniqueId() + ") - The time-stamp token does not cover container datafile!");
     assertThat(containerValidationResult.getSimpleReports(), hasSize(2));
     assertThat(containerValidationResult.getSignatureReports(), hasSize(1));
     assertThat(containerValidationResult.getTimestampReports(), hasSize(2));
@@ -273,6 +276,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
       assertThat(containerValidationResult.getSubIndication(timestampId), sameInstance(SubIndication.HASH_FAILURE));
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(0);
+      assertThat(timestampReport.getWarnings(), empty());
       assertThat(timestampReport.getProducedBy(), equalTo("DEMO SK TIMESTAMPING AUTHORITY 2023E"));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-03-27T12:42:57Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
@@ -290,6 +294,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
       assertThat(containerValidationResult.getSubIndication(timestampId), nullValue());
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(1);
+      assertThat(timestampReport.getWarnings(), contains("The time-stamp token does not cover container datafile!"));
       assertThat(timestampReport.getProducedBy(), equalTo("DEMO SK TIMESTAMPING AUTHORITY 2023E"));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-09-11T06:03:34Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
@@ -297,7 +302,9 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
       assertThat(timestampValidationResult, notNullValue());
       assertThat(timestampValidationResult.isValid(), equalTo(true));
       assertThat(timestampValidationResult.getErrors(), empty());
-      assertThat(timestampValidationResult.getWarnings(), empty());
+      assertContainsExactSetOfErrors(timestampValidationResult.getWarnings(),
+              timestampId + ") - The time-stamp token does not cover container datafile!"
+      );
     }
 
     ContainerValidationResult nestedValidationResult = nestedContainer.validate();
@@ -323,7 +330,8 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
     assertContainsErrors(containerValidationResult.getErrors(),
             container.getTimestamps().get(0).getUniqueId() + ") - The time-stamp message imprint is not intact!"
     );
-    assertThat(containerValidationResult.getWarnings(), empty());
+    assertContainsExactSetOfErrors(containerValidationResult.getWarnings(),
+            container.getTimestamps().get(1).getUniqueId() + ") - The time-stamp token does not cover container datafile!");
     assertThat(containerValidationResult.getSimpleReports(), hasSize(2));
     assertThat(containerValidationResult.getSignatureReports(), hasSize(1));
     assertThat(containerValidationResult.getTimestampReports(), hasSize(3));
@@ -348,6 +356,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
       assertThat(containerValidationResult.getSubIndication(timestampId), sameInstance(SubIndication.HASH_FAILURE));
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(0);
+      assertThat(timestampReport.getWarnings(), empty());
       assertThat(timestampReport.getProducedBy(), equalTo("DEMO SK TIMESTAMPING AUTHORITY 2023E"));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-03-27T12:42:57Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
@@ -365,6 +374,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
       assertThat(containerValidationResult.getSubIndication(timestampId), nullValue());
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(1);
+      assertThat(timestampReport.getWarnings(), contains("The time-stamp token does not cover container datafile!"));
       assertThat(timestampReport.getProducedBy(), equalTo("DEMO SK TIMESTAMPING AUTHORITY 2023E"));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-09-11T06:03:34Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
@@ -372,7 +382,9 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
       assertThat(timestampValidationResult, notNullValue());
       assertThat(timestampValidationResult.isValid(), equalTo(true));
       assertThat(timestampValidationResult.getErrors(), empty());
-      assertThat(timestampValidationResult.getWarnings(), empty());
+      assertContainsExactSetOfErrors(timestampValidationResult.getWarnings(),
+              timestampId + ") - The time-stamp token does not cover container datafile!"
+      );
     }
     {
       String timestampId = container.getTimestamps().get(2).getUniqueId();
@@ -380,6 +392,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
       assertThat(containerValidationResult.getSubIndication(timestampId), nullValue());
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(2);
+      assertThat(timestampReport.getWarnings(), empty());
       assertThat(timestampReport.getProducedBy(), equalTo("DEMO SK TIMESTAMPING AUTHORITY 2023E"));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-10-25T13:42:07Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
