@@ -15,15 +15,14 @@ import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 import eu.europa.esig.dss.model.InMemoryDocument;
 import eu.europa.esig.dss.model.TimestampBinary;
-import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
 import eu.europa.esig.dss.spi.DSSUtils;
-import eu.europa.esig.dss.spi.client.http.DataLoader;
+import eu.europa.esig.dss.spi.x509.tsp.TSPSource;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.impl.TspDataLoaderFactory;
+import org.digidoc4j.impl.ArchiveTspSourceFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -62,11 +61,10 @@ public final class TimestampToken {
       throw new DigiDoc4JException("Supports only asics with only one datafile");
     }
     ContainerBuilder.ContainerDataFile containerDataFile = dataFiles.get(0);
-    OnlineTSPSource onlineTSPSource = defineOnlineTSPSource(configuration);
+    TSPSource tspSource = createTspSource(configuration);
     byte[] dataFileDigest = getDigest(containerDataFile);
     byte[] digest = DSSUtils.digest(digestAlgorithm, dataFileDigest);
-    DataFile timeStampToken = getTimestampToken(onlineTSPSource, digestAlgorithm, digest);
-    return timeStampToken;
+    return getTimestampToken(tspSource, digestAlgorithm, digest);
   }
 
   /**
@@ -80,27 +78,22 @@ public final class TimestampToken {
    */
   @Deprecated
   public static DataFile generateTimestampToken(DigestAlgorithm digestAlgorithm, DataFile containerDataFile) {
-    OnlineTSPSource onlineTSPSource = defineOnlineTSPSource(null);
+    TSPSource tspSource = createTspSource(null);
     byte[] digest = containerDataFile.calculateDigest(org.digidoc4j.DigestAlgorithm.getDigestAlgorithmUri(digestAlgorithm));
-    DataFile timeStampToken = getTimestampToken(onlineTSPSource, digestAlgorithm, digest);
-    return timeStampToken;
+    return getTimestampToken(tspSource, digestAlgorithm, digest);
   }
 
-  private static OnlineTSPSource defineOnlineTSPSource(Configuration configuration) {
-    OnlineTSPSource source = new OnlineTSPSource();
+  private static TSPSource createTspSource(Configuration configuration) {
     if (configuration == null) {
       configuration = Configuration.getInstance();
     }
-    source.setTspServer(configuration.getTspSource());
-    DataLoader loader = new TspDataLoaderFactory(configuration).create();
-    source.setDataLoader(loader);
-    return source;
+    return new ArchiveTspSourceFactory(configuration).create();
   }
 
-  private static DataFile getTimestampToken(OnlineTSPSource onlineTSPSource, DigestAlgorithm digestAlgorithm,
+  private static DataFile getTimestampToken(TSPSource tspSource, DigestAlgorithm digestAlgorithm,
                                             byte[] digest) {
     DataFile timeStampToken = new DataFile();
-    TimestampBinary timestampBinary = onlineTSPSource.getTimeStampResponse(digestAlgorithm, digest);
+    TimestampBinary timestampBinary = tspSource.getTimeStampResponse(digestAlgorithm, digest);
     String timestampFilename = ASiCUtils.META_INF_FOLDER + ASiCUtils.TIMESTAMP_FILENAME + ASiCUtils.TST_EXTENSION;
     timeStampToken.setDocument(
         new InMemoryDocument(timestampBinary.getBytes(), timestampFilename, MimeTypeEnum.TST));

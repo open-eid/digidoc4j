@@ -212,6 +212,8 @@ public class Configuration implements Serializable {
   private AIASourceFactory aiaSourceFactory;
   private OCSPSourceFactory extendingOcspSourceFactory;
   private OCSPSourceFactory signingOcspSourceFactory;
+  private TSPSourceFactory archiveTspSourceFactory;
+  private TSPSourceFactory signatureTspSourceFactory;
   private DataLoaderFactory aiaDataLoaderFactory;
   private DataLoaderFactory ocspDataLoaderFactory;
   private DataLoaderFactory tspDataLoaderFactory;
@@ -724,6 +726,40 @@ public class Configuration implements Serializable {
    */
   public OCSPSourceFactory getSigningOcspSourceFactory() {
     return signingOcspSourceFactory;
+  }
+
+  /**
+   * Set a TSP source factory that manages the creation of custom TSP sources for archive timestamps.
+   * @param archiveTspSourceFactory TSP source factory
+   */
+  public void setArchiveTspSourceFactory(TSPSourceFactory archiveTspSourceFactory) {
+    this.archiveTspSourceFactory = archiveTspSourceFactory;
+  }
+
+  /**
+   * Returns the currently set TSP source factory for archive timestamps or {@code null} if no custom TSP source
+   * factory is set.
+   * @return TSP source factory
+   */
+  public TSPSourceFactory getArchiveTspSourceFactory() {
+    return archiveTspSourceFactory;
+  }
+
+  /**
+   * Set a TSP source factory that manages the creation of custom TSP sources for signature timestamps.
+   * @param signatureTspSourceFactory TSP source factory
+   */
+  public void setSignatureTspSourceFactory(TSPSourceFactory signatureTspSourceFactory) {
+    this.signatureTspSourceFactory = signatureTspSourceFactory;
+  }
+
+  /**
+   * Returns the currently set TSP source factory for signature timestamps or {@code null} if no custom TSP source
+   * factory is set.
+   * @return TSP source factory
+   */
+  public TSPSourceFactory getSignatureTspSourceFactory() {
+    return signatureTspSourceFactory;
   }
 
   /**

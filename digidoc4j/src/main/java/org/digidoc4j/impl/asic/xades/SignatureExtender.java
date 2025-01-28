@@ -12,15 +12,15 @@ package org.digidoc4j.impl.asic.xades;
 
 import eu.europa.esig.dss.enumerations.SignatureLevel;
 import eu.europa.esig.dss.model.DSSDocument;
-import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
-import eu.europa.esig.dss.spi.client.http.DataLoader;
+import eu.europa.esig.dss.spi.x509.tsp.TSPSource;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.AiaSourceFactory;
+import org.digidoc4j.impl.ArchiveTspSourceFactory;
 import org.digidoc4j.impl.ExtendingOcspSourceFactory;
-import org.digidoc4j.impl.TspDataLoaderFactory;
+import org.digidoc4j.impl.SignatureTspSourceFactory;
 import org.digidoc4j.impl.asic.AsicSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,24 +113,16 @@ public class SignatureExtender {
     return signatureDocument;
   }
 
-  private OnlineTSPSource createTimeStampProviderSource(SignatureProfile profile) {
+  private TSPSource createTimeStampProviderSource(SignatureProfile profile) {
     switch (profile) {
       case T:
       case LT:
+        return new SignatureTspSourceFactory(configuration).create();
       case LTA:
-        OnlineTSPSource source = new OnlineTSPSource(getTspSourceForProfile(profile));
-        DataLoader loader = new TspDataLoaderFactory(this.configuration).create();
-        source.setDataLoader(loader);
-        return source;
+        return new ArchiveTspSourceFactory(configuration).create();
       default:
         return null;
     }
-  }
-
-  private String getTspSourceForProfile(SignatureProfile profile) {
-    return profile == SignatureProfile.LTA
-            ? this.configuration.getTspSourceForArchiveTimestamps()
-            : this.configuration.getTspSource();
   }
 
   private SignatureLevel getSignatureLevel(SignatureProfile profile) {

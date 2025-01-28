@@ -13,9 +13,7 @@ package org.digidoc4j.impl.asic;
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.model.SignerLocation;
-import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
 import eu.europa.esig.dss.spi.DSSASN1Utils;
-import eu.europa.esig.dss.spi.client.http.DataLoader;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.digidoc4j.Configuration;
@@ -32,9 +30,10 @@ import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.AiaSourceFactory;
+import org.digidoc4j.impl.ArchiveTspSourceFactory;
 import org.digidoc4j.impl.SignatureFinalizer;
+import org.digidoc4j.impl.SignatureTspSourceFactory;
 import org.digidoc4j.impl.SigningOcspSourceFactory;
-import org.digidoc4j.impl.TspDataLoaderFactory;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
 import org.digidoc4j.impl.asic.xades.XadesSigningDssFacade;
@@ -314,29 +313,25 @@ public abstract class AsicSignatureFinalizer extends SignatureFinalizer {
     switch (profile) {
       case T:
       case LT:
+        facade.setTspSource(
+                new SignatureTspSourceFactory(configuration, getSigningCertificateCountryIfPresent()).create()
+        );
+        break;
       case LTA:
-        OnlineTSPSource tspSource = new OnlineTSPSource(getTspSource(configuration, profile));
-        DataLoader dataLoader = new TspDataLoaderFactory(configuration).create();
-        tspSource.setDataLoader(dataLoader);
-        this.facade.setTspSource(tspSource);
+        facade.setTspSource(
+                new ArchiveTspSourceFactory(configuration).create()
+        );
         break;
       default:
-        this.facade.setTspSource(null);
+        facade.setTspSource(null);
     }
   }
 
-  private String getTspSource(Configuration configuration, SignatureProfile profile) {
-    if (profile == SignatureProfile.T) {
-      X509Cert x509Cert = new X509Cert(signatureParameters.getSigningCertificate());
-      String certCountry = x509Cert.getSubjectName(X509Cert.SubjectName.C);
-      String tspSourceByCountry = configuration.getTspSourceByCountry(certCountry);
-      if (StringUtils.isNotBlank(tspSourceByCountry)) {
-        return tspSourceByCountry;
-      }
-    }
-    return profile == SignatureProfile.LTA
-            ? configuration.getTspSourceForArchiveTimestamps()
-            : configuration.getTspSource();
+  private String getSigningCertificateCountryIfPresent() {
+    return Optional
+            .ofNullable(signatureParameters.getSigningCertificate())
+            .map(cert -> new X509Cert(cert).getSubjectName(X509Cert.SubjectName.C))
+            .orElse(null);
   }
 
   private void setCustomDataLoader() {

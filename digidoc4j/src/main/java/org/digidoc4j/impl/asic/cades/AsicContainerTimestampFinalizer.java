@@ -11,7 +11,6 @@
 package org.digidoc4j.impl.asic.cades;
 
 import eu.europa.esig.dss.model.DSSDocument;
-import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
 import eu.europa.esig.dss.spi.x509.aia.AIASource;
 import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
@@ -22,9 +21,9 @@ import org.digidoc4j.TimestampParameters;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.AbstractFinalizer;
 import org.digidoc4j.impl.AiaSourceFactory;
+import org.digidoc4j.impl.ArchiveTspSourceFactory;
 import org.digidoc4j.impl.CommonOCSPSource;
 import org.digidoc4j.impl.OcspDataLoaderFactory;
-import org.digidoc4j.impl.TspDataLoaderFactory;
 import org.digidoc4j.impl.asic.DetachedContentCreator;
 
 import java.util.List;
@@ -107,10 +106,7 @@ public abstract class AsicContainerTimestampFinalizer extends AbstractFinalizer 
   }
 
   private TSPSource createTspSource(String tspSourceUrl) {
-    OnlineTSPSource tspSource = new OnlineTSPSource(tspSourceUrl);
-    DataLoader dataLoader = new TspDataLoaderFactory(configuration).create();
-    tspSource.setDataLoader(dataLoader);
-    return tspSource;
+    return new ArchiveTspSourceFactory(configuration, tspSourceUrl).create();
   }
 
   private List<DSSDocument> getDataFileDocuments() {
