@@ -175,7 +175,7 @@ import static java.util.Arrays.asList;
  * <li>TEMP_FILE_MAX_AGE: Maximum age in milliseconds till TEMP files are deleted (works only when saving container).</li>
  * <li>ALLOW_UNSAFE_INTEGER: Allows to use unsafe Integer because of few applications still struggle with the
  * ASN.1 BER encoding rules for an INTEGER as described in:
- * {@link https://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf. }
+ * <a href="https://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf">https://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf</a> .
  * NB! Strict Validation applied by default.</li>
  * <li>ALLOWED_OCSP_RESPONDERS_FOR_TM: whitelist of OCSP responders for timemark validation
  * (for example: SK OCSP RESPONDER 2011, ESTEID-SK OCSP RESPONDER, KLASS3-SK OCSP RESPONDER)</li>
@@ -471,7 +471,7 @@ public class Configuration implements Serializable {
   /**
    * Get the maximum size of data files to be cached. Used by DigiDoc4J and by DDoc4J.
    *
-   * @return Size in MB. if size < 0 no caching is used
+   * @return Size in MB. if {@literal size < 0}, no caching is used
    */
   public long getMaxDataFileCachedInMB() {
     String maxDataFileCached = ddoc4jConfiguration.get("DIGIDOC_MAX_DATAFILE_CACHED");
@@ -483,7 +483,7 @@ public class Configuration implements Serializable {
   /**
    * Get the maximum size of data files to be cached. Used by DigiDoc4J and by DDoc4J.
    *
-   * @return Size in MB. if size < 0 no caching is used
+   * @return Size in MB. if {@literal size < 0}, no caching is used
    */
   public long getMaxDataFileCachedInBytes() {
     long maxDataFileCachedInMB = getMaxDataFileCachedInMB();

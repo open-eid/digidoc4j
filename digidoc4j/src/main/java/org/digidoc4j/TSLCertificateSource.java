@@ -42,14 +42,13 @@ public interface TSLCertificateSource extends CertificateSource {
   void addTSLCertificate(X509Certificate certificate);
 
   /**
-   * This method allows to define (to add) any certificate as trusted. A
-   * service information is associated to this certificate.
+   * This method allows to define (to add) any certificate as trusted.
+   * Service information is associated to this certificate.
    *
    * @param certificate
    *            the certificate you have to trust
    * @param trustProperties
    *            list of the service information associated to the service
-   * @return the corresponding certificate token
    */
   void addCertificate(final CertificateToken certificate, final List<TrustProperties> trustProperties);
 
