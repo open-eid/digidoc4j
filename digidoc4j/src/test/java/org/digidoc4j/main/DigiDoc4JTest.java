@@ -788,9 +788,12 @@ public class DigiDoc4JTest extends AbstractTest {
         continue;
       }
       File[] nestedReportFiles = reportFile.listFiles();
-      assertThat(nestedReportFiles, arrayWithSize(1));
+      assertThat(nestedReportFiles, arrayWithSize(4));
       assertThat(nestedReportFiles, arrayContainingInAnyOrder(
-              allOf(anExistingFile(), aFileNamed(equalTo("validationReport.xml")))
+              allOf(anExistingFile(), aFileNamed(equalTo("validationReport.xml"))),
+              allOf(anExistingFile(), aFileNamed(equalTo("validationDiagnosticData0.xml"))),
+              allOf(anExistingFile(), aFileNamed(equalTo("validationDetailReport0.xml"))),
+              allOf(anExistingFile(), aFileNamed(equalTo("validationSimpleReport0.xml")))
       ));
     }
   }

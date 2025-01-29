@@ -28,12 +28,12 @@ import org.digidoc4j.impl.asic.report.SignatureValidationReportCreator;
 import org.digidoc4j.impl.asic.report.TimestampValidationReport;
 import org.digidoc4j.impl.asic.report.TimestampValidationReportCreator;
 import org.digidoc4j.impl.asic.xades.validation.SignatureValidationData;
+import org.digidoc4j.impl.asic.xades.validation.XadesValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
@@ -41,6 +41,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -189,44 +190,42 @@ public class AsicValidationReportBuilder {
    * @param directory Directory where to save XML files.
    */
   public void saveXmlReports(Path directory) {
-    try {
-      byte[] bytes = this.buildXmlReport().getBytes("UTF-8");
-      DSSUtils.saveToFile(bytes, new File(directory + File.separator + "validationReport.xml"));
-      logger.info("Validation report is generated");
-    } catch (UnsupportedEncodingException e) {
-      logger.error(e.getMessage());
-    }
-    if (!signatureValidationData.isEmpty()) {
-      int n = signatureValidationData.size();
-      for (int i = 0; i < n; i++) {
-        SignatureValidationData validationData = signatureValidationData.get(i);
-        Reports reports = validationData.getReport().getReports();
-        try {
-          byte[] bytes = reports.getXmlDiagnosticData().getBytes("UTF-8");
-          DSSUtils.saveToFile(bytes,
-                  new File(directory + File.separator + "validationDiagnosticData" + Integer.toString(i) + ".xml"));
-          logger.info("Validation diagnostic data report is generated");
-        } catch (UnsupportedEncodingException e) {
-          logger.error(e.getMessage());
-        }
+    DSSUtils.saveToFile(
+            buildXmlReport().getBytes(StandardCharsets.UTF_8),
+            directory.resolve("validationReport.xml").toFile()
+    );
+    logger.info("Validation report is generated");
 
-        try {
-          byte[] bytes = reports.getXmlSimpleReport().getBytes("UTF-8");
-          DSSUtils.saveToFile(bytes, new File(directory + File.separator + "validationSimpleReport" + Integer.toString(i) + ".xml"));
-          logger.info("Validation simple report is generated");
-        } catch (UnsupportedEncodingException e) {
-          logger.error(e.getMessage());
-        }
+    AtomicInteger indexCounter = new AtomicInteger(0);
+    Stream.concat(
+            signatureValidationData.stream()
+                    .map(SignatureValidationData::getReport)
+                    .map(XadesValidationResult::getReports),
+            timestampValidationData.stream()
+                    .map(TimestampValidationData::getEncapsulatingReports)
+                    .distinct() // The results of multiple timestamp tokens can be contained in a single set of reports
+                    //  and thus multiple timestamp validation data instances might reference the same set of reports.
+    ).forEach(reports -> {
+      int index = indexCounter.getAndIncrement();
 
-        try {
-          byte[] bytes = reports.getXmlDetailedReport().getBytes("UTF-8");
-          DSSUtils.saveToFile(bytes, new File(directory + File.separator + "validationDetailReport" + Integer.toString(i) + ".xml"));
-          logger.info("Validation detailed report is generated");
-        } catch (UnsupportedEncodingException e) {
-          logger.error(e.getMessage());
-        }
-      }
-    }
+      DSSUtils.saveToFile(
+              reports.getXmlDiagnosticData().getBytes(StandardCharsets.UTF_8),
+              directory.resolve("validationDiagnosticData" + index + ".xml").toFile()
+      );
+      logger.info("Validation diagnostic data report is generated");
+
+      DSSUtils.saveToFile(
+              reports.getXmlSimpleReport().getBytes(StandardCharsets.UTF_8),
+              directory.resolve("validationSimpleReport" + index + ".xml").toFile()
+      );
+      logger.info("Validation simple report is generated");
+
+      DSSUtils.saveToFile(
+              reports.getXmlDetailedReport().getBytes(StandardCharsets.UTF_8),
+              directory.resolve("validationDetailReport" + index + ".xml").toFile()
+      );
+      logger.info("Validation detailed report is generated");
+    });
   }
 
   ContainerValidationReport generateNewValidationReport() {
