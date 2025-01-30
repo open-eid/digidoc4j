@@ -14,6 +14,7 @@ import eu.europa.esig.dss.model.DSSDocument;
 import org.digidoc4j.Container;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.Timestamp;
+import org.digidoc4j.exceptions.IllegalTimestampException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.asic.DetachedContentCreator;
 import org.digidoc4j.impl.asic.cades.CadesValidationDssFacade;
@@ -60,7 +61,9 @@ public class AsicSTimestampsValidationReportGenerator extends CadesValidationRep
 
     for (Timestamp timestamp : timestamps) {
       if (timestamp instanceof TimestampAndManifestPair) {
-        timestampDocumentsHolders.add(extractTimestampDocuments((TimestampAndManifestPair) timestamp));
+        TimestampAndManifestPair timestampAndManifestPair = (TimestampAndManifestPair) timestamp;
+        ensureTimestampAndManifestParsability(timestampAndManifestPair);
+        timestampDocumentsHolders.add(extractTimestampDocuments(timestampAndManifestPair));
       } else {
         log.warn("Unrecognizable timestamp type in ASiC-S container: {}", timestamp.getClass().getSimpleName());
       }
@@ -76,6 +79,24 @@ public class AsicSTimestampsValidationReportGenerator extends CadesValidationRep
       timestampDocumentsHolder.setManifestDocument(timestamp.getArchiveManifest().getManifestDocument());
     }
     return timestampDocumentsHolder;
+  }
+
+  private static void ensureTimestampAndManifestParsability(TimestampAndManifestPair timestamp) {
+    try {
+      timestamp.getCadesTimestamp().getTimeStampToken();
+    } catch (Exception e) {
+      throw new IllegalTimestampException("Invalid timestamp token", e);
+    }
+
+    if (timestamp.getArchiveManifest() == null) {
+      return;
+    }
+
+    try {
+      timestamp.getArchiveManifest().getReferencedTimestamp();
+    } catch (Exception e) {
+      throw new IllegalTimestampException("Invalid manifest file", e);
+    }
   }
 
 }

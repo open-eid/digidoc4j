@@ -23,7 +23,9 @@ import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.SignatureValidationResult;
-import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.ddoc.utils.ConfigManager;
+import org.digidoc4j.exceptions.IllegalContainerContentException;
+import org.digidoc4j.exceptions.IllegalTimestampException;
 import org.digidoc4j.impl.asic.AsicCompositeContainerValidationResult;
 import org.digidoc4j.impl.asic.TimeStampContainerValidationResult;
 import org.digidoc4j.impl.asic.asics.AsicSContainerTimestamp;
@@ -33,7 +35,6 @@ import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestSigningUtil;
 import org.hamcrest.core.StringContains;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.SystemOutRule;
@@ -45,9 +46,11 @@ import java.util.zip.ZipFile;
 import static org.digidoc4j.main.TestDigiDoc4JUtil.invokeDigiDoc4jAndReturnExitStatus;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 
 /**
  * Created by Andrei on 22.11.2017.
@@ -80,17 +83,21 @@ public class TimeStampTokenTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("TODO: DD4J-1083 - different sets of validation errors locally vs. in pipeline")
-  public void buildTimestampedContainer_TimeStampWithdrawn_ValidationFails() {
+  public void buildTimestampedContainer_TimeStampWithdrawn_ValidationSucceedsWithWarning() {
+    // TODO (DD4J-1123): Currently JDigiDoc configuration (for validating DDoc containers and signatures) is
+    //  automatically initialized only once per process, and thus is dependent on the order the unit tests are run.
+    //  This workaround helps to avoid unit test failures caused by incompatible configuration being loaded.
+    ConfigManager.init(Configuration.getInstance().getDDoc4JConfiguration());
+
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
     Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(configuration).
         fromExistingFile("src/test/resources/testFiles/valid-containers/timestamptoken-ddoc.asics").build();
     AsicCompositeContainerValidationResult validationResult = (AsicCompositeContainerValidationResult) container.validate();
     TimeStampContainerValidationResult timestampValidationResult = (TimeStampContainerValidationResult) validationResult.getNestingContainerValidationResult();
     Assert.assertEquals("SK TIMESTAMPING AUTHORITY", timestampValidationResult.getSignedBy());
-    Assert.assertEquals(Indication.TOTAL_FAILED, timestampValidationResult.getIndication());
-    TestAssert.assertContainerIsInvalid(validationResult);
-    TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
+    Assert.assertEquals(Indication.TOTAL_PASSED, timestampValidationResult.getIndication());
+    TestAssert.assertContainerIsValid(validationResult);
+    TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
             "The certificate is not related to a granted status at time-stamp lowest POE time!");
   }
 
@@ -104,20 +111,38 @@ public class TimeStampTokenTest extends AbstractTest {
     TestAssert.assertContainerIsValid(validate);
   }
 
-  @Ignore("TODO: DD4J-1083")
-  @Test(expected = DigiDoc4JException.class)
-  public void testOpenContainerTwoDataFiles() {
-    Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(this.configuration).
-        fromExistingFile("src/test/resources/testFiles/invalid-containers/timestamptoken-two-data-files.asics").build();
-    container.validate();
+  @Test
+  public void openTimestampedContainer_WhenContainerContainsTwoDataFiles_ThrowsIllegalContainerContentException() {
+    ContainerBuilder builder = ContainerBuilder
+            .aContainer(Container.DocumentType.ASICS)
+            .withConfiguration(this.configuration)
+            .fromExistingFile("src/test/resources/testFiles/invalid-containers/timestamptoken-two-data-files.asics");
+
+    IllegalContainerContentException caughtException = assertThrows(
+            IllegalContainerContentException.class,
+            builder::build
+    );
+
+    assertThat(
+            caughtException.getMessage(),
+            equalTo("Timestamped ASiC-S container must contain exactly one datafile")
+    );
   }
 
-  @Ignore("TODO: DD4J-1083")
-  @Test(expected = DigiDoc4JException.class)
-  public void testOpenInvalidTimeStampContainer() {
-    Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(this.configuration).
-        fromExistingFile("src/test/resources/testFiles/invalid-containers/timestamptoken-invalid.asics").build();
-    container.validate();
+  @Test
+  public void validateTimestampedContainer_WhenContainerContainsInvalidTimestampToken_ThrowsIllegalTimestampException() {
+    Container container = ContainerBuilder
+            .aContainer(Container.DocumentType.ASICS)
+            .withConfiguration(this.configuration)
+            .fromExistingFile("src/test/resources/testFiles/invalid-containers/timestamptoken-invalid.asics")
+            .build();
+
+    IllegalTimestampException caughtException = assertThrows(
+            IllegalTimestampException.class,
+            container::validate
+    );
+
+    assertThat(caughtException.getMessage(), equalTo("Invalid timestamp token"));
   }
 
   @Test

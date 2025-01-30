@@ -19,4 +19,12 @@ public class IllegalTimestampException extends DigiDoc4JException {
     super(message);
   }
 
+  /**
+   * @param message error message
+   * @param cause cause
+   */
+  public IllegalTimestampException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
 }
