@@ -66,8 +66,20 @@ public class PerformanceTest extends AbstractTest {
 
   @Test
   @PerfTest(invocations = INVOCATIONS)
-  public void validateTestAsicsSignatures() {
+  public void validateTestDdocSignaturesInAsics() {
     TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc-valid.asics")));
+  }
+
+  @Test
+  @PerfTest(invocations = INVOCATIONS)
+  public void validateTestAsiceSignaturesInAsics() {
+    TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-asice-in-asics.asics")));
+  }
+
+  @Test
+  @PerfTest(invocations = INVOCATIONS)
+  public void validateTestBdocTmSignaturesInAsics() {
+    TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm-in-asics.asics")));
   }
 
   @Test
@@ -90,7 +102,7 @@ public class PerformanceTest extends AbstractTest {
 
   @Test
   @PerfTest(invocations = INVOCATIONS, threads = MULTIPLE_THREADS)
-  public void validateTestAsicsSignaturesInThreads() {
+  public void validateTestDdocSignaturesInAsicsInThreads() {
     TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc-valid.asics")));
   }
 
@@ -120,7 +132,7 @@ public class PerformanceTest extends AbstractTest {
 
   @Test
   @PerfTest(invocations = INVOCATIONS)
-  public void validateTestAsicsLargeContainer() {
+  public void validateTestDdocLargeContainerInAsics() {
     TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc-with-large-data-file.asics")));
   }
 
@@ -144,8 +156,14 @@ public class PerformanceTest extends AbstractTest {
 
   @Test
   @PerfTest
-  public void validateAsicsWith1000Signatures() {
+  public void validateDdocWith1000SignaturesInAsics() {
     TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc-1000-signatures.asics")));
+  }
+
+  @Test
+  @PerfTest(invocations = 5)
+  public void validateAsicsWith100Timestamps() {
+    TestAssert.assertContainerIsValid(this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/asics-100-timestamps.asics")));
   }
 
   @Test
@@ -183,10 +201,30 @@ public class PerformanceTest extends AbstractTest {
 
   @Test
   @PerfTest(invocations = INVOCATIONS)
-  public void openAsicsContainerDetails() {
-    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc-valid.asics"));
+  public void openNonCompositeAsicsContainerDetails() {
+    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/testtimestamp.asics"));
+    Assert.assertEquals("test.txt", container.getDataFiles().get(0).getName());
+    Assert.assertEquals("ASICS", container.getType());
+  }
+
+  @Test
+  @PerfTest(invocations = INVOCATIONS)
+  public void openDdocInAsicsContainerDetails() {
+    CompositeContainer container = (CompositeContainer) this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc-valid.asics"));
     Assert.assertEquals("ddoc-valid.ddoc", container.getDataFiles().get(0).getName());
     Assert.assertEquals("ASICS", container.getType());
+    Assert.assertEquals("test.txt", container.getNestedContainerDataFiles().get(0).getName());
+    Assert.assertEquals("DDOC", container.getNestedContainerType());
+  }
+
+  @Test
+  @PerfTest(invocations = INVOCATIONS)
+  public void openAsiceInAsicsContainerDetails() {
+    CompositeContainer container = (CompositeContainer) this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-asice-in-asics.asics"));
+    Assert.assertEquals("valid-asice.asice", container.getDataFiles().get(0).getName());
+    Assert.assertEquals("ASICS", container.getType());
+    Assert.assertEquals("test.txt", container.getNestedContainerDataFiles().get(0).getName());
+    Assert.assertEquals("ASICE", container.getNestedContainerType());
   }
 
   @Test
@@ -211,6 +249,13 @@ public class PerformanceTest extends AbstractTest {
   public void createAsicSignature() {
     Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-asice.asice"));
     this.createSignatureBy(container, SignatureProfile.LT, DigestAlgorithm.SHA256, pkcs12SignatureToken);
+  }
+
+  @Test
+  @PerfTest(invocations = 50)
+  public void extendAsicSignature() {
+    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-asice-esteid2018.asice"));
+    container.extendSignatureProfile(SignatureProfile.LTA);
   }
 
   /*

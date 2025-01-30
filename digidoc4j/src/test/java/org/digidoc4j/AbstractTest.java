@@ -63,6 +63,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -231,6 +232,23 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
       builder.withConfiguration(configuration);
     }
     return builder.build();
+  }
+
+  protected static byte[] getFile(String filePath) {
+    Path documentPath = getDocumentPath(filePath);
+    try {
+      return Files.readAllBytes(documentPath);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private static Path getDocumentPath(String filePath) {
+    try {
+      return Paths.get(AbstractTest.class.getClassLoader().getResource(filePath).toURI());
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @SuppressWarnings("unchecked")
