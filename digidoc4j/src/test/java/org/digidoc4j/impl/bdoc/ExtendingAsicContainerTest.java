@@ -29,10 +29,12 @@ import org.digidoc4j.OCSPSourceFactory;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureValidationResult;
+import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.CommonOCSPSource;
 import org.digidoc4j.impl.OcspDataLoaderFactory;
 import org.digidoc4j.impl.SKOnlineOCSPSource;
+import org.digidoc4j.impl.asic.AsicContainer;
 import org.digidoc4j.impl.asic.AsicSignature;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.DssContainerSigner;
@@ -45,12 +47,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.Thread.sleep;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -62,6 +67,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   private static final String ASICE_LTA_CONTAINER_PATH = "src/test/resources/testFiles/valid-containers/valid-asice-lta.asice";
   private static final String ASICE_LT_2_SIGNATURES_CONTAINER_PATH = "src/test/resources/testFiles/valid-containers/2_signatures_duplicate_id.asice";
   private static final String ASICE_LTA_2_SIGNATURES_CONTAINER_PATH = "src/test/resources/testFiles/valid-containers/2_signatures_duplicate_id_lta.asice";
+  private static final String ASICE_LT_WITH_EXPIRED_SIGNER_AND_TS_AND_OCSP = "src/test/resources/testFiles/valid-containers/asice_single_signature_with_expired_signer_and_ts_and_ocsp_certificates.asice";
 
   private String containerLocation;
 
@@ -73,7 +79,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/latvian_T_signature.asice",
             configuration);
 
-    container.extendSignatureProfile(SignatureProfile.LT);
+    validateAndExtend(container, SignatureProfile.LT);
 
     Assert.assertEquals(1, container.getSignatures().size());
     Signature signature = container.getSignatures().get(0);
@@ -93,7 +99,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/signature-level-T.asice",
             configuration);
 
-    container.extendSignatureProfile(SignatureProfile.LT);
+    validateAndExtend(container, SignatureProfile.LT);
 
     Assert.assertEquals(1, container.getSignatures().size());
     Signature signature = container.getSignatures().get(0);
@@ -118,7 +124,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
 
     container = TestDataBuilderUtil.open(containerLocation, configuration);
-    container.extendSignatureProfile(SignatureProfile.LT);
+    validateAndExtend(container, SignatureProfile.LT);
     container.saveAsFile(getFileBy("bdoc"));
 
     Assert.assertEquals(1, container.getSignatures().size());
@@ -139,7 +145,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
 
     container = TestDataBuilderUtil.open(containerLocation, configuration);
-    container.extendSignatureProfile(SignatureProfile.LT);
+    validateAndExtend(container, SignatureProfile.LT);
     container.saveAsFile(getFileBy("bdoc"));
 
     Assert.assertEquals(1, container.getSignatures().size());
@@ -165,7 +171,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
 
     container = TestDataBuilderUtil.open(containerLocation, configuration);
-    container.extendSignatureProfile(SignatureProfile.LTA);
+    validateAndExtend(container, SignatureProfile.LTA);
     container.saveAsFile(getFileBy("bdoc"));
 
     Assert.assertEquals(1, container.getSignatures().size());
@@ -184,7 +190,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
 
     container = TestDataBuilderUtil.open(containerLocation, configuration);
-    container.extendSignatureProfile(SignatureProfile.LTA);
+    validateAndExtend(container, SignatureProfile.LTA);
     container.saveAsFile(getFileBy("bdoc"));
 
     Assert.assertEquals(1, container.getSignatures().size());
@@ -210,7 +216,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
 
     container = TestDataBuilderUtil.open(containerLocation, configuration);
-    container.extendSignatureProfile(SignatureProfile.LT);
+    validateAndExtend(container, SignatureProfile.LT);
     container.saveAsFile(getFileBy("bdoc"));
 
     Assert.assertEquals(1, container.getSignatures().size());
@@ -231,7 +237,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
 
     container = TestDataBuilderUtil.open(containerLocation);
-    container.extendSignatureProfile(SignatureProfile.LT);
+    validateAndExtend(container, SignatureProfile.LT);
     container.saveAsFile(getFileBy("bdoc"));
 
     Assert.assertEquals(1, container.getSignatures().size());
@@ -252,7 +258,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
     NotSupportedException caughtException = assertThrows(
             NotSupportedException.class,
-            () -> container.extendSignatureProfile(SignatureProfile.LT_TM)
+            () -> validateAndExtend(container, SignatureProfile.LT_TM)
     );
 
     assertThat(caughtException.getMessage(), containsString(
@@ -266,7 +272,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
     NotSupportedException caughtException = assertThrows(
             NotSupportedException.class,
-            () -> container.extendSignatureProfile(SignatureProfile.LT_TM)
+            () -> validateAndExtend(container, SignatureProfile.LT_TM)
     );
 
     assertThat(caughtException.getMessage(), containsString(
@@ -280,7 +286,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
     NotSupportedException caughtException = assertThrows(
             NotSupportedException.class,
-            () -> container.extendSignatureProfile(SignatureProfile.LT)
+            () -> validateAndExtend(container, SignatureProfile.LT)
     );
 
     assertThat(caughtException.getMessage(), containsString(
@@ -294,7 +300,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
     NotSupportedException caughtException = assertThrows(
             NotSupportedException.class,
-            () -> container.extendSignatureProfile(SignatureProfile.LTA)
+            () -> validateAndExtend(container, SignatureProfile.LTA)
     );
 
     assertThat(caughtException.getMessage(), containsString(
@@ -309,7 +315,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
     NotSupportedException caughtException = assertThrows(
             NotSupportedException.class,
-            () -> container.extendSignatureProfile(SignatureProfile.LT_TM)
+            () -> validateAndExtend(container, SignatureProfile.LT_TM)
     );
 
     assertThat(caughtException.getMessage(), containsString(
@@ -324,7 +330,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
     NotSupportedException caughtException = assertThrows(
             NotSupportedException.class,
-            () -> container.extendSignatureProfile(SignatureProfile.LT_TM)
+            () -> validateAndExtend(container, SignatureProfile.LT_TM)
     );
 
     assertThat(caughtException.getMessage(), containsString(
@@ -339,7 +345,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
     NotSupportedException caughtException = assertThrows(
             NotSupportedException.class,
-            () -> container.extendSignatureProfile(SignatureProfile.B_BES)
+            () -> validateAndExtend(container, SignatureProfile.B_BES)
     );
 
     assertThat(caughtException.getMessage(), containsString(
@@ -354,7 +360,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
     NotSupportedException caughtException = assertThrows(
             NotSupportedException.class,
-            () -> container.extendSignatureProfile(SignatureProfile.B_EPES)
+            () -> validateAndExtend(container, SignatureProfile.B_EPES)
     );
 
     assertThat(caughtException.getMessage(), containsString(
@@ -368,7 +374,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
     NotSupportedException caughtException = assertThrows(
             NotSupportedException.class,
-            () -> container.extendSignatureProfile(SignatureProfile.LT)
+            () -> validateAndExtend(container, SignatureProfile.LT)
     );
 
     assertThat(caughtException.getMessage(), containsString(
@@ -382,7 +388,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
     NotSupportedException caughtException = assertThrows(
             NotSupportedException.class,
-            () -> container.extendSignatureProfile(SignatureProfile.LTA)
+            () -> validateAndExtend(container, SignatureProfile.LTA)
     );
 
     assertThat(caughtException.getMessage(), containsString(
@@ -406,7 +412,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
     NotSupportedException caughtException = assertThrows(
             NotSupportedException.class,
-            () -> deserializedContainer.extendSignatureProfile(SignatureProfile.LT)
+            () -> validateAndExtend(deserializedContainer, SignatureProfile.LT)
     );
 
     assertThat(caughtException.getMessage(), containsString(
@@ -428,7 +434,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     Assert.assertNull(container.getSignatures().get(1).getOCSPCertificate());
 
     container = TestDataBuilderUtil.open(containerLocation, configuration);
-    container.extendSignatureProfile(SignatureProfile.LT);
+    validateAndExtend(container, SignatureProfile.LT);
     String containerPath = getFileBy("bdoc");
     container.saveAsFile(containerPath);
 
@@ -456,7 +462,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     Assert.assertNull(container.getSignatures().get(1).getOCSPCertificate());
 
     container = TestDataBuilderUtil.open(containerLocation, configuration);
-    container.extendSignatureProfile(SignatureProfile.LT);
+    validateAndExtend(container, SignatureProfile.LT);
     container.saveAsFile(getFileBy("bdoc"));
 
     Assert.assertEquals(2, container.getSignatures().size());
@@ -472,7 +478,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
     sleep(1100);
 
-    container.extendSignatureProfile(SignatureProfile.LTA);
+    validateAndExtend(container, SignatureProfile.LTA);
 
     Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
     TestAssert.assertContainerIsValid(container);
@@ -485,7 +491,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     Container container = ContainerOpener
             .open("src/test/resources/testFiles/valid-containers/valid-asice-esteid2018.asice");
 
-    container.extendSignatureProfile(SignatureProfile.LTA);
+    validateAndExtend(container, SignatureProfile.LTA);
 
     Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
     TestAssert.assertContainerIsValid(container);
@@ -500,7 +506,23 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
     AlertException caughtException = assertThrows(
             AlertException.class,
-            () -> container.extendSignatureProfile(SignatureProfile.LTA)
+            () -> validateAndExtend(container, SignatureProfile.LTA)
+    );
+
+    assertThat(caughtException.getMessage(), containsString("Expired signature found"));
+    TestAssert.assertContainerIsValid(container);
+    List<TimestampToken> archiveTimestamps = getSignatureArchiveTimestamps(container, 0);
+    assertEquals("The signature must contain no archive timestamp", 0, archiveTimestamps.size());
+  }
+
+  @Test
+  public void testExtendingExpiredSignaturesFromLTtoLTAFails() {
+    Container container = ContainerOpener.open(ASICE_LT_WITH_EXPIRED_SIGNER_AND_TS_AND_OCSP, Configuration.of(Configuration.Mode.TEST));
+    Signature signature1 = container.getSignatures().get(0);
+
+    AlertException caughtException = assertThrows(
+            AlertException.class,
+            () -> validateAndExtend(container, SignatureProfile.LTA, signature1)
     );
 
     assertThat(caughtException.getMessage(), containsString("Expired signature found"));
@@ -513,7 +535,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   public void testContainerExtensionFromLTAtoLTA() {
     Container container = ContainerOpener.open(ASICE_LTA_CONTAINER_PATH, Configuration.of(Configuration.Mode.TEST));
 
-    container.extendSignatureProfile(SignatureProfile.LTA);
+    validateAndExtend(container, SignatureProfile.LTA);
 
     TestAssert.assertContainerIsValid(container);
     Assert.assertEquals(1, container.getSignatures().size());
@@ -526,7 +548,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     Container container = ContainerOpener.open(ASICE_LT_2_SIGNATURES_CONTAINER_PATH, Configuration.of(Configuration.Mode.TEST));
     Signature signature1 = container.getSignatures().get(0);
 
-    container.extendSignatureProfile(SignatureProfile.LTA, singletonList(signature1));
+    validateAndExtend(container, SignatureProfile.LTA, singletonList(signature1));
 
     TestAssert.assertContainerIsValid(container);
     Assert.assertEquals(2, container.getSignatures().size());
@@ -544,7 +566,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     Signature signature1 = container.getSignatures().get(0);
     Signature signature2 = container.getSignatures().get(1);
 
-    container.extendSignatureProfile(SignatureProfile.LTA, Arrays.asList(signature1, signature2));
+    validateAndExtend(container, SignatureProfile.LTA, Arrays.asList(signature1, signature2));
 
     TestAssert.assertContainerIsValid(container);
     Assert.assertEquals(2, container.getSignatures().size());
@@ -556,12 +578,55 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     assertEquals("The 2nd signature must contain 1 archive timestamp", 1, signature2Timestamps.size());
   }
 
+  private static void validateAndExtend(Container container, SignatureProfile targetProfile) {
+    validateAndExtend(container, targetProfile, container.getSignatures());
+  }
+
+  private static void validateAndExtend(Container container, SignatureProfile targetProfile, Signature signature) {
+    validateAndExtend(container, targetProfile, singletonList(signature));
+  }
+
+  private static void validateAndExtend(Container container, SignatureProfile targetProfile, List<Signature> signatures) {
+    // Validate and save exceptions to map
+    Map<String, DigiDoc4JException> validationErrors = ((AsicContainer) container).getExtensionValidationErrors(targetProfile, signatures);
+    try {
+      // Try real extending and catch the exception if thrown
+      container.extendSignatureProfile(targetProfile, signatures);
+    } catch (Exception e) {
+      Throwable firstValidationError = findFirstValidationError(validationErrors, signatures);
+      // Ensure the thrown exception is the same which was returned by validation of the first signature
+      assertEquals("The cause of the validation exception must be of the same type as the exception thrown on extending", firstValidationError.getClass(), e.getClass());
+      assertEquals("The cause of the validation exception must have the same error message as the exception thrown on extending", firstValidationError.getMessage(), e.getMessage());
+      throw e;
+    }
+    assertThat("Validation returned exceptions, but extension succeeded", validationErrors, is(anEmptyMap()));
+  }
+
+  private static Throwable findFirstValidationError(Map<String, DigiDoc4JException> validationErrors, List<Signature> signatures) {
+    for (Signature signature : signatures) {
+      DigiDoc4JException signatureException = validationErrors.get(signature.getUniqueId());
+      if (signatureException == null) {
+        continue;
+      }
+      // If profile extendability validation failed, NotSupportedException is thrown,
+      // which is not further wrapped into DigiDoc4JException
+      if (signatureException instanceof NotSupportedException) {
+        return signatureException;
+      } else {
+        // If DSS validation failed, AlertException is thrown,
+        // which is wrapped into DigiDoc4JException as its cause
+        return signatureException.getCause();
+      }
+    }
+    throw new RuntimeException("Error: Could not find the first validation error");
+  }
+
   @Test
   public void testExtendingSelectedSignaturesFromLTAtoLTA() {
     Container container = ContainerOpener.open(ASICE_LTA_2_SIGNATURES_CONTAINER_PATH, Configuration.of(Configuration.Mode.TEST));
     Signature signature2 = container.getSignatures().get(1);
 
-    container.extendSignatureProfile(SignatureProfile.LTA, singletonList(signature2));
+    validateAndExtend(container, SignatureProfile.LTA, singletonList(signature2));
 
     TestAssert.assertContainerIsValid(container);
     Assert.assertEquals(2, container.getSignatures().size());
@@ -579,7 +644,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
     NotSupportedException caughtException = assertThrows(
             NotSupportedException.class,
-            () -> container.extendSignatureProfile(SignatureProfile.LT)
+            () -> validateAndExtend(container, SignatureProfile.LT)
     );
 
     assertThat(caughtException.getMessage(), containsString(
@@ -597,7 +662,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
     Container container = createNonEmptyContainerByConfiguration();
     createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
-    container.extendSignatureProfile(SignatureProfile.LT);
+    validateAndExtend(container, SignatureProfile.LT);
 
     assertValidSignature(container.getSignatures().get(0));
     Mockito.verify(ocspSourceFactoryMock, Mockito.times(1)).create();
@@ -623,7 +688,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     );
     Container container = ContainerOpener.open(dssContainer.openStream(), configuration);
 
-    container.extendSignatureProfile(SignatureProfile.LTA);
+    validateAndExtend(container, SignatureProfile.LTA);
 
     Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
     ContainerValidationResult validationResult = container.validate();

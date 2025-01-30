@@ -31,6 +31,7 @@ import org.digidoc4j.impl.AbstractValidationResult;
 import org.digidoc4j.impl.ValidatableContainer;
 import org.digidoc4j.impl.asic.manifest.AsicManifest;
 import org.digidoc4j.impl.asic.xades.SignatureExtender;
+import org.digidoc4j.impl.asic.xades.SignatureExtendingValidator;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
 import org.digidoc4j.utils.Helper;
@@ -46,7 +47,9 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -503,6 +506,41 @@ public abstract class AsicContainer implements Container, ValidatableContainer {
     }
     List<Signature> extendedSignatures = extendSelectedSignaturesProfile(profile, safeSignaturesToExtend, this.signatures, dataFiles);
     replaceAllSignaturesInContainer(extendedSignatures);
+  }
+
+  /**
+   * Checks whether all the signatures in the container can be extended to target profile
+   * and returns the map with the unique ID-s of the signatures that cannot be extended.
+   *
+   * @param targetProfile target profile
+   * @return map of uniqueId->exception pairs for the signatures that cannot be extended to target profile
+   */
+  public Map<String, DigiDoc4JException> getExtensionValidationErrors(SignatureProfile targetProfile) {
+    return getExtensionValidationErrors(targetProfile, signatures);
+  }
+
+  /**
+   * Checks whether the selected signatures in the container can be extended to target profile
+   * and returns the map with the unique ID-s of the signatures that cannot be extended, together
+   * with exceptions wrapped into DigiDoc4JException.
+   *
+   * @param targetProfile target profile
+   * @param signaturesToExtend signatures selected for extension
+   * @return map of uniqueId->exception pairs for the signatures that cannot be extended to target profile.
+   *            In case of a successful validation, the map is empty.
+   */
+  public Map<String, DigiDoc4JException> getExtensionValidationErrors(SignatureProfile targetProfile, List<Signature> signaturesToExtend) {
+    Map<String, DigiDoc4JException> signatureErrors = new HashMap<>();
+    List<Signature> safeSignaturesToExtend = findSafeSignaturesToExtend(signaturesToExtend);
+    SignatureExtendingValidator extendingValidator = new SignatureExtendingValidator(dataFiles, configuration);
+    for (Signature signature : safeSignaturesToExtend) {
+      try {
+        extendingValidator.validateExtendability(signature, targetProfile);
+      } catch (DigiDoc4JException e) {
+        signatureErrors.put(signature.getUniqueId(), e);
+      }
+    }
+    return signatureErrors;
   }
 
   private void replaceAllSignaturesInContainer(List<Signature> replacementSignatures) {
