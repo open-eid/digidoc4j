@@ -69,7 +69,7 @@ public abstract class AbstractCadesDssFacade {
         setContainerType(ASiCContainerType.ASiC_S, MimeTypeEnum.ASICS);
         break;
       default:
-        throw new NotSupportedException("Unsupported container type: " + type);
+        throw new NotSupportedException("Unsupported container type: " + type.name());
     }
   }
 

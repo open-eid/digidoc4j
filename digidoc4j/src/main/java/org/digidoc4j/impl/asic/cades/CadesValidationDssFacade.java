@@ -84,7 +84,9 @@ public class CadesValidationDssFacade extends AbstractCadesDssFacade {
   }
 
   private static DSSDocument createDummyContainerDocument(MimeType mimeType) {
-    // TODO (DD4J-1083): Figure out why is this needed and document it here
+    // A container document is necessary for building the diagnostic data inside SignedDocumentValidator,
+    //  otherwise NullPointerException is thrown. On the other hand, the container document seems to be used only for
+    //  resolving the signed document name for the diagnostic data - but the name itself is permitted to be null.
     return new InMemoryDocument(ArrayUtils.EMPTY_BYTE_ARRAY, null, mimeType);
   }
 
