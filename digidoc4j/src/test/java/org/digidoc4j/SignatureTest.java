@@ -49,14 +49,9 @@ import static org.hamcrest.Matchers.matchesRegex;
 
 public class SignatureTest extends AbstractTest {
 
-  @Test // TODO DD4J-978 Lithuanian trusted list is temporarily unusable
+  @Test
   public void findOcspCertificateByHashkey() {
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
-    configuration.setSslTruststorePathFor(ExternalConnectionType.TSL, "src/test/resources/testFiles/truststores/ee-lt-lv.p12");
-    configuration.setSslTruststorePasswordFor(ExternalConnectionType.TSL, "digidoc4j-password");
-    configuration.setSslTruststoreTypeFor(ExternalConnectionType.TSL, "PKCS12");
-    configuration.setTrustedTerritories("EE", "LT");
-
     Container container = openContainerByConfiguration(
         Paths.get("src/test/resources/testFiles/valid-containers/OCSPRigaTest.asice"), configuration);
     Signature signature = container.getSignatures().get(0);
