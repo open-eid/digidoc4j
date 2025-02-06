@@ -32,6 +32,7 @@ import org.digidoc4j.impl.asic.asics.AsicSContainerTimestamp;
 import org.digidoc4j.impl.asic.cades.AsicArchiveManifest;
 import org.digidoc4j.impl.asic.manifest.ManifestValidator;
 import org.digidoc4j.test.TestAssert;
+import org.digidoc4j.test.TestConstants;
 import org.digidoc4j.test.util.TestSigningUtil;
 import org.hamcrest.core.StringContains;
 import org.junit.Assert;
@@ -94,7 +95,7 @@ public class TimeStampTokenTest extends AbstractTest {
         fromExistingFile("src/test/resources/testFiles/valid-containers/timestamptoken-ddoc.asics").build();
     AsicCompositeContainerValidationResult validationResult = (AsicCompositeContainerValidationResult) container.validate();
     TimeStampContainerValidationResult timestampValidationResult = (TimeStampContainerValidationResult) validationResult.getNestingContainerValidationResult();
-    Assert.assertEquals("SK TIMESTAMPING AUTHORITY", timestampValidationResult.getSignedBy());
+    Assert.assertEquals(TestConstants.SK_TSA_CN, timestampValidationResult.getSignedBy());
     Assert.assertEquals(Indication.TOTAL_PASSED, timestampValidationResult.getIndication());
     TestAssert.assertContainerIsValid(validationResult);
     TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
@@ -106,7 +107,7 @@ public class TimeStampTokenTest extends AbstractTest {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(configuration).
             fromExistingFile("src/test/resources/testFiles/valid-containers/1xTST-text-data-file.asics").build();
     TimeStampContainerValidationResult validate = (TimeStampContainerValidationResult) container.validate();
-    Assert.assertEquals("DEMO SK TIMESTAMPING AUTHORITY 2023E", validate.getSignedBy());
+    Assert.assertEquals(TestConstants.DEMO_SK_TSA_2023E_CN, validate.getSignedBy());
     Assert.assertEquals(Indication.TOTAL_PASSED, validate.getIndication());
     TestAssert.assertContainerIsValid(validate);
   }
@@ -241,7 +242,7 @@ public class TimeStampTokenTest extends AbstractTest {
   @Test
   public void createASICSContainerWithTst_SpecifyCustomTspSource_SpecifiedTspUsed() {
     String fileName = this.getFileBy("asics");
-    String tspSource = "http://tsa.demo.sk.ee/tsarsa";
+    String tspSource = TestConstants.DEMO_TSA_RSA_URL;
 
     int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-tspsourcearchive", tspSource, "-tst");
 

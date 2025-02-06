@@ -23,6 +23,7 @@ import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.ddoc.utils.ConfigManager;
 import org.digidoc4j.impl.asic.report.TimestampValidationReport;
+import org.digidoc4j.test.TestConstants;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.junit.Test;
 
@@ -87,7 +88,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
       assertThat(containerValidationResult.getSubIndication(timestampId), nullValue());
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(0);
-      assertThat(timestampReport.getProducedBy(), equalTo("DEMO SK TIMESTAMPING AUTHORITY 2023E"));
+      assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.DEMO_SK_TSA_2023E_CN));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-03-27T12:42:57Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
@@ -142,7 +143,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
       assertThat(containerValidationResult.getSubIndication(timestampId), nullValue());
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(0);
-      assertThat(timestampReport.getProducedBy(), equalTo("DEMO SK TIMESTAMPING AUTHORITY 2023E"));
+      assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.DEMO_SK_TSA_2023E_CN));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-03-27T12:42:57Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
@@ -157,7 +158,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
       assertThat(containerValidationResult.getSubIndication(timestampId), nullValue());
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(1);
-      assertThat(timestampReport.getProducedBy(), equalTo("DEMO SK TIMESTAMPING AUTHORITY 2023R"));
+      assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.DEMO_SK_TSA_2023R_CN));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-08-26T13:31:34Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
@@ -215,7 +216,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
       assertThat(containerValidationResult.getSubIndication(timestampId), sameInstance(SubIndication.HASH_FAILURE));
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(0);
-      assertThat(timestampReport.getProducedBy(), equalTo("DEMO SK TIMESTAMPING AUTHORITY 2023E"));
+      assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.DEMO_SK_TSA_2023E_CN));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-03-27T12:42:57Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
@@ -277,7 +278,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(0);
       assertThat(timestampReport.getWarnings(), empty());
-      assertThat(timestampReport.getProducedBy(), equalTo("DEMO SK TIMESTAMPING AUTHORITY 2023E"));
+      assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.DEMO_SK_TSA_2023E_CN));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-03-27T12:42:57Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
@@ -295,7 +296,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(1);
       assertThat(timestampReport.getWarnings(), contains("The time-stamp token does not cover container datafile!"));
-      assertThat(timestampReport.getProducedBy(), equalTo("DEMO SK TIMESTAMPING AUTHORITY 2023E"));
+      assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.DEMO_SK_TSA_2023E_CN));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-09-11T06:03:34Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
@@ -357,7 +358,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(0);
       assertThat(timestampReport.getWarnings(), empty());
-      assertThat(timestampReport.getProducedBy(), equalTo("DEMO SK TIMESTAMPING AUTHORITY 2023E"));
+      assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.DEMO_SK_TSA_2023E_CN));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-03-27T12:42:57Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
@@ -375,7 +376,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(1);
       assertThat(timestampReport.getWarnings(), contains("The time-stamp token does not cover container datafile!"));
-      assertThat(timestampReport.getProducedBy(), equalTo("DEMO SK TIMESTAMPING AUTHORITY 2023E"));
+      assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.DEMO_SK_TSA_2023E_CN));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-09-11T06:03:34Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
@@ -393,7 +394,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(2);
       assertThat(timestampReport.getWarnings(), empty());
-      assertThat(timestampReport.getProducedBy(), equalTo("DEMO SK TIMESTAMPING AUTHORITY 2023E"));
+      assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.DEMO_SK_TSA_2023E_CN));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-10-25T13:42:07Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
@@ -455,7 +456,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
       assertThat(containerValidationResult.getSubIndication(timestampId), nullValue());
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(0);
-      assertThat(timestampReport.getProducedBy(), equalTo("DEMO SK TIMESTAMPING AUTHORITY 2023E"));
+      assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.DEMO_SK_TSA_2023E_CN));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-08-26T13:19:53Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
@@ -699,7 +700,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
       assertThat(containerValidationResult.getSubIndication(timestampId), nullValue());
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(0);
-      assertThat(timestampReport.getProducedBy(), equalTo("DEMO SK TIMESTAMPING AUTHORITY 2023E"));
+      assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.DEMO_SK_TSA_2023E_CN));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-10-07T06:17:25Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);

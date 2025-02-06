@@ -25,6 +25,7 @@ import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
 import org.digidoc4j.impl.ddoc.ConfigManagerInitializer;
 import org.digidoc4j.impl.ddoc.DDocOpener;
 import org.digidoc4j.test.TestAssert;
+import org.digidoc4j.test.TestConstants;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.digidoc4j.test.util.TestTSLUtil;
 import org.digidoc4j.utils.DateUtils;
@@ -512,7 +513,7 @@ public class SignatureTest extends AbstractTest {
   @Test
   public void createSignature_CustomTspSourceForArchiveTimestampsConfigured_ValueFromConfUsed() {
     this.configuration = Configuration.of(Configuration.Mode.TEST);
-    this.configuration.setTspSourceForArchiveTimestamps("http://tsa.demo.sk.ee/tsarsa");
+    this.configuration.setTspSourceForArchiveTimestamps(TestConstants.DEMO_TSA_RSA_URL);
 
     Container container = createNonEmptyContainerByConfiguration();
     Signature signature = createSignatureBy(container, SignatureProfile.LTA, pkcs12SignatureToken);
@@ -522,8 +523,8 @@ public class SignatureTest extends AbstractTest {
             .getSubjectName(X509Cert.SubjectName.CN);
 
     assertValidSignature(signature);
-    Assert.assertEquals("DEMO SK TIMESTAMPING AUTHORITY 2023E", tsCN);
-    Assert.assertEquals("DEMO SK TIMESTAMPING AUTHORITY 2023R", archiveTsCN);
+    Assert.assertEquals(TestConstants.DEMO_TSA_CN, tsCN);
+    Assert.assertEquals(TestConstants.DEMO_TSA_RSA_CN, archiveTsCN);
   }
 
   /*

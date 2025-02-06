@@ -10,14 +10,15 @@
 
 package org.digidoc4j.impl.asic.xades;
 
-import org.digidoc4j.test.TestAssert;
-import org.junit.Assert;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Container;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
+import org.digidoc4j.test.TestAssert;
+import org.digidoc4j.test.TestConstants;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -48,7 +49,7 @@ public class LongTermSignatureTest extends AbstractTest {
 
         X509Cert timeStampTokenCertificate = longTermSignature.getTimeStampTokenCertificate();
 
-        Assert.assertEquals("C=EE, O=SK ID Solutions AS, OID.2.5.4.97=NTREE-10747013, CN=DEMO SK TIMESTAMPING AUTHORITY 2023E", timeStampTokenCertificate.getSubjectName());
+        Assert.assertEquals(TestConstants.DEMO_TSA_CN, timeStampTokenCertificate.getSubjectName(X509Cert.SubjectName.CN));
     }
 
     @Test

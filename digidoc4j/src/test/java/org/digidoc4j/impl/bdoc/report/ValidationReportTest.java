@@ -20,6 +20,7 @@ import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.ddoc.utils.ConfigManager;
 import org.digidoc4j.test.TestAssert;
+import org.digidoc4j.test.TestConstants;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -319,7 +320,7 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue(timestampUniqueId,"/SimpleReport/TimestampToken/*[position()=1][self::UniqueId]", report);
     TestAssert.assertXPathHasValue("PASSED", "/SimpleReport/TimestampToken/Indication", report);
     TestAssert.assertXPathHasValue("2024-05-28T12:24:09Z", "/SimpleReport/TimestampToken/ProductionTime", report);
-    TestAssert.assertXPathHasValue("DEMO SK TIMESTAMPING AUTHORITY 2023E", "/SimpleReport/TimestampToken/ProducedBy", report);
+    TestAssert.assertXPathHasValue(TestConstants.DEMO_SK_TSA_2023E_CN, "/SimpleReport/TimestampToken/ProducedBy", report);
     TestAssert.assertXPathHasValue("QTSA", "/SimpleReport/TimestampToken/TimestampLevel", report);
     TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/TimestampToken/TimestampScope/@name", report);
   }
@@ -352,7 +353,7 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue(timestampUniqueId,"/SimpleReport/TimestampToken/*[position()=1][self::UniqueId]", report);
     TestAssert.assertXPathHasValue("PASSED", "/SimpleReport/TimestampToken/Indication", report);
     TestAssert.assertXPathHasValue("2024-03-27T12:42:57Z", "/SimpleReport/TimestampToken/ProductionTime", report);
-    TestAssert.assertXPathHasValue("DEMO SK TIMESTAMPING AUTHORITY 2023E", "/SimpleReport/TimestampToken/ProducedBy", report);
+    TestAssert.assertXPathHasValue(TestConstants.DEMO_SK_TSA_2023E_CN, "/SimpleReport/TimestampToken/ProducedBy", report);
     TestAssert.assertXPathHasValue("QTSA", "/SimpleReport/TimestampToken/TimestampLevel", report);
     TestAssert.assertXPathHasValue("valid-bdoc-tm.bdoc", "/SimpleReport/TimestampToken/TimestampScope/@name", report);
     TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
@@ -378,14 +379,14 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue(timestamp1UniqueId,"/SimpleReport/TimestampToken[1]/UniqueId", report);
     TestAssert.assertXPathHasValue("PASSED", "/SimpleReport/TimestampToken[1]/Indication", report);
     TestAssert.assertXPathHasValue("2024-03-27T12:42:57Z", "/SimpleReport/TimestampToken[1]/ProductionTime", report);
-    TestAssert.assertXPathHasValue("DEMO SK TIMESTAMPING AUTHORITY 2023E", "/SimpleReport/TimestampToken[1]/ProducedBy", report);
+    TestAssert.assertXPathHasValue(TestConstants.DEMO_SK_TSA_2023E_CN, "/SimpleReport/TimestampToken[1]/ProducedBy", report);
     TestAssert.assertXPathHasValue("QTSA", "/SimpleReport/TimestampToken[1]/TimestampLevel", report);
     TestAssert.assertXPathHasValue("1", "count(/SimpleReport/TimestampToken[1]/TimestampScope)", report);
     TestAssert.assertXPathHasValue("valid-bdoc-tm.bdoc", "/SimpleReport/TimestampToken[1]/TimestampScope/@name", report);
     TestAssert.assertXPathHasValue(timestamp2UniqueId,"/SimpleReport/TimestampToken[2]/UniqueId", report);
     TestAssert.assertXPathHasValue("PASSED", "/SimpleReport/TimestampToken[2]/Indication", report);
     TestAssert.assertXPathHasValue("2024-08-26T13:31:34Z", "/SimpleReport/TimestampToken[2]/ProductionTime", report);
-    TestAssert.assertXPathHasValue("DEMO SK TIMESTAMPING AUTHORITY 2023R", "/SimpleReport/TimestampToken[2]/ProducedBy", report);
+    TestAssert.assertXPathHasValue(TestConstants.DEMO_SK_TSA_2023R_CN, "/SimpleReport/TimestampToken[2]/ProducedBy", report);
     TestAssert.assertXPathHasValue("QTSA", "/SimpleReport/TimestampToken[2]/TimestampLevel", report);
     TestAssert.assertXPathHasValue("3", "count(/SimpleReport/TimestampToken[2]/TimestampScope)", report);
     TestAssert.assertXPathHasValue("META-INF/ASiCArchiveManifest.xml", "/SimpleReport/TimestampToken[2]/TimestampScope[1]/@name", report);
@@ -413,7 +414,7 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue(timestampUniqueId,"/SimpleReport/TimestampToken[1]/UniqueId", report);
     TestAssert.assertXPathHasValue("FAILED", "/SimpleReport/TimestampToken/Indication", report);
     TestAssert.assertXPathHasValue("2024-03-27T12:42:57Z", "/SimpleReport/TimestampToken/ProductionTime", report);
-    TestAssert.assertXPathHasValue("DEMO SK TIMESTAMPING AUTHORITY 2023E", "/SimpleReport/TimestampToken/ProducedBy", report);
+    TestAssert.assertXPathHasValue(TestConstants.DEMO_SK_TSA_2023E_CN, "/SimpleReport/TimestampToken/ProducedBy", report);
     TestAssert.assertXPathHasValue("QTSA", "/SimpleReport/TimestampToken/TimestampLevel", report);
     TestAssert.assertXPathHasValue("0", "count(/SimpleReport/TimestampToken/TimestampScope)", report);
     TestAssert.assertXPathHasValue("1", "count(/SimpleReport/TimestampToken/Errors)", report);
@@ -445,14 +446,14 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue(timestamp1UniqueId,"/SimpleReport/TimestampToken[1]/UniqueId", report);
     TestAssert.assertXPathHasValue("PASSED", "/SimpleReport/TimestampToken[1]/Indication", report);
     TestAssert.assertXPathHasValue("2024-10-07T06:17:25Z", "/SimpleReport/TimestampToken[1]/ProductionTime", report);
-    TestAssert.assertXPathHasValue("DEMO SK TIMESTAMPING AUTHORITY 2023E", "/SimpleReport/TimestampToken[1]/ProducedBy", report);
+    TestAssert.assertXPathHasValue(TestConstants.DEMO_SK_TSA_2023E_CN, "/SimpleReport/TimestampToken[1]/ProducedBy", report);
     TestAssert.assertXPathHasValue("QTSA", "/SimpleReport/TimestampToken[1]/TimestampLevel", report);
     TestAssert.assertXPathHasValue("1", "count(/SimpleReport/TimestampToken[1]/TimestampScope)", report);
     TestAssert.assertXPathHasValue("ddoc-valid.ddoc", "/SimpleReport/TimestampToken[1]/TimestampScope/@name", report);
     TestAssert.assertXPathHasValue(timestamp2UniqueId,"/SimpleReport/TimestampToken[2]/UniqueId", report);
     TestAssert.assertXPathHasValue("PASSED", "/SimpleReport/TimestampToken[2]/Indication", report);
     TestAssert.assertXPathHasValue("2024-10-07T06:19:30Z", "/SimpleReport/TimestampToken[2]/ProductionTime", report);
-    TestAssert.assertXPathHasValue("DEMO SK TIMESTAMPING AUTHORITY 2023R", "/SimpleReport/TimestampToken[2]/ProducedBy", report);
+    TestAssert.assertXPathHasValue(TestConstants.DEMO_SK_TSA_2023R_CN, "/SimpleReport/TimestampToken[2]/ProducedBy", report);
     TestAssert.assertXPathHasValue("QTSA", "/SimpleReport/TimestampToken[2]/TimestampLevel", report);
     TestAssert.assertXPathHasValue("3", "count(/SimpleReport/TimestampToken[2]/TimestampScope)", report);
     TestAssert.assertXPathHasValue("META-INF/ASiCArchiveManifest001.xml", "/SimpleReport/TimestampToken[2]/TimestampScope[1]/@name", report);
@@ -461,7 +462,7 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue(timestamp3UniqueId,"/SimpleReport/TimestampToken[3]/UniqueId", report);
     TestAssert.assertXPathHasValue("PASSED", "/SimpleReport/TimestampToken[3]/Indication", report);
     TestAssert.assertXPathHasValue("2024-10-07T06:21:34Z", "/SimpleReport/TimestampToken[3]/ProductionTime", report);
-    TestAssert.assertXPathHasValue("DEMO SK TIMESTAMPING AUTHORITY 2023E", "/SimpleReport/TimestampToken[3]/ProducedBy", report);
+    TestAssert.assertXPathHasValue(TestConstants.DEMO_SK_TSA_2023E_CN, "/SimpleReport/TimestampToken[3]/ProducedBy", report);
     TestAssert.assertXPathHasValue("QTSA", "/SimpleReport/TimestampToken[3]/TimestampLevel", report);
     TestAssert.assertXPathHasValue("5", "count(/SimpleReport/TimestampToken[3]/TimestampScope)", report);
     TestAssert.assertXPathHasValue("META-INF/ASiCArchiveManifest.xml", "/SimpleReport/TimestampToken[3]/TimestampScope[1]/@name", report);
@@ -512,7 +513,7 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue(timestampUniqueId,"/SimpleReport/TimestampToken[1]/UniqueId", report);
     TestAssert.assertXPathHasValue("PASSED", "/SimpleReport/TimestampToken/Indication", report);
     TestAssert.assertXPathHasValue("2017-08-25T09:56:33Z", "/SimpleReport/TimestampToken/ProductionTime", report);
-    TestAssert.assertXPathHasValue("SK TIMESTAMPING AUTHORITY", "/SimpleReport/TimestampToken/ProducedBy", report);
+    TestAssert.assertXPathHasValue(TestConstants.SK_TSA_CN, "/SimpleReport/TimestampToken/ProducedBy", report);
     TestAssert.assertXPathHasValue("TSA", "/SimpleReport/TimestampToken/TimestampLevel", report);
     TestAssert.assertXPathHasValue("1", "count(/SimpleReport/TimestampToken/TimestampScope)", report);
     TestAssert.assertXPathHasValue("Test.txt", "/SimpleReport/TimestampToken/TimestampScope/@name", report);
@@ -543,7 +544,7 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue(timestamp1UniqueId,"/SimpleReport/TimestampToken[1]/UniqueId", report);
     TestAssert.assertXPathHasValue("FAILED", "/SimpleReport/TimestampToken[1]/Indication", report);
     TestAssert.assertXPathHasValue("2024-09-13T10:49:58Z", "/SimpleReport/TimestampToken[1]/ProductionTime", report);
-    TestAssert.assertXPathHasValue("SK TIMESTAMPING UNIT 2024E", "/SimpleReport/TimestampToken[1]/ProducedBy", report);
+    TestAssert.assertXPathHasValue(TestConstants.SK_TSA_2024E_CN, "/SimpleReport/TimestampToken[1]/ProducedBy", report);
     TestAssert.assertXPathHasValue("QTSA", "/SimpleReport/TimestampToken[1]/TimestampLevel", report);
     TestAssert.assertXPathHasValue("0", "count(/SimpleReport/TimestampToken[1]/TimestampScope)", report);
     TestAssert.assertXPathHasValue("1", "count(/SimpleReport/TimestampToken[1]/Errors)", report);
@@ -554,7 +555,7 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue(timestamp2UniqueId,"/SimpleReport/TimestampToken[2]/UniqueId", report);
     TestAssert.assertXPathHasValue("PASSED", "/SimpleReport/TimestampToken[2]/Indication", report);
     TestAssert.assertXPathHasValue("2024-09-13T11:20:02Z", "/SimpleReport/TimestampToken[2]/ProductionTime", report);
-    TestAssert.assertXPathHasValue("SK TIMESTAMPING UNIT 2024E", "/SimpleReport/TimestampToken[2]/ProducedBy", report);
+    TestAssert.assertXPathHasValue(TestConstants.SK_TSA_2024E_CN, "/SimpleReport/TimestampToken[2]/ProducedBy", report);
     TestAssert.assertXPathHasValue("QTSA", "/SimpleReport/TimestampToken[2]/TimestampLevel", report);
     TestAssert.assertXPathHasValue("2", "count(/SimpleReport/TimestampToken[2]/TimestampScope)", report);
     TestAssert.assertXPathHasValue("META-INF/ASiCArchiveManifest001.xml", "/SimpleReport/TimestampToken[2]/TimestampScope[1]/@name", report);
@@ -567,7 +568,7 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue(timestamp3UniqueId,"/SimpleReport/TimestampToken[3]/UniqueId", report);
     TestAssert.assertXPathHasValue("PASSED", "/SimpleReport/TimestampToken[3]/Indication", report);
     TestAssert.assertXPathHasValue("2024-10-25T13:25:59Z", "/SimpleReport/TimestampToken[3]/ProductionTime", report);
-    TestAssert.assertXPathHasValue("SK TIMESTAMPING UNIT 2024E", "/SimpleReport/TimestampToken[3]/ProducedBy", report);
+    TestAssert.assertXPathHasValue(TestConstants.SK_TSA_2024E_CN, "/SimpleReport/TimestampToken[3]/ProducedBy", report);
     TestAssert.assertXPathHasValue("QTSA", "/SimpleReport/TimestampToken[3]/TimestampLevel", report);
     TestAssert.assertXPathHasValue("5", "count(/SimpleReport/TimestampToken[3]/TimestampScope)", report);
     TestAssert.assertXPathHasValue("META-INF/ASiCArchiveManifest.xml", "/SimpleReport/TimestampToken[3]/TimestampScope[1]/@name", report);

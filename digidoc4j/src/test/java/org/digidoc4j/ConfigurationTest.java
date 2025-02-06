@@ -821,15 +821,15 @@ public class ConfigurationTest extends AbstractTest {
   @Test
   public void getTspSourceDefaultValuesForProdConfiguration() {
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
-    Assert.assertEquals("http://tsa.sk.ee", configuration.getTspSource());
-    Assert.assertEquals("http://tsa.sk.ee", configuration.getTspSourceForArchiveTimestamps());
+    Assert.assertEquals(Constant.Production.TSP_SOURCE, configuration.getTspSource());
+    Assert.assertEquals(Constant.Production.TSP_SOURCE, configuration.getTspSourceForArchiveTimestamps());
   }
 
   @Test
   public void getTspSourceDefaultValuesForTestConfiguration() {
     Configuration configuration = Configuration.of(Configuration.Mode.TEST);
-    Assert.assertEquals("http://tsa.demo.sk.ee/tsa", configuration.getTspSource());
-    Assert.assertEquals("http://tsa.demo.sk.ee/tsa", configuration.getTspSourceForArchiveTimestamps());
+    Assert.assertEquals(Constant.Test.TSP_SOURCE, configuration.getTspSource());
+    Assert.assertEquals(Constant.Test.TSP_SOURCE, configuration.getTspSourceForArchiveTimestamps());
   }
 
   @Test

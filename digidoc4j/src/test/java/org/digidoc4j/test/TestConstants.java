@@ -37,4 +37,23 @@ public final class TestConstants {
                   "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
           ));
 
+  // CN of specific timestamp providers
+  public static final String DEMO_SK_TSA_2014_CN = "DEMO of SK TSA 2014";
+  public static final String DEMO_SK_TSA_2023E_CN = "DEMO SK TIMESTAMPING AUTHORITY 2023E";
+  public static final String DEMO_SK_TSA_2023R_CN = "DEMO SK TIMESTAMPING AUTHORITY 2023R";
+  public static final String SK_TSA_CN = "SK TIMESTAMPING AUTHORITY";
+  public static final String SK_TSA_2024E_CN = "SK TIMESTAMPING UNIT 2024E";
+
+  // URLs of currently active timestamp providers
+  public static final String DEMO_TSA_ECC_URL = "http://tsa.demo.sk.ee/tsaecc";
+  public static final String DEMO_TSA_RSA_URL = "http://tsa.demo.sk.ee/tsarsa";
+
+  // CN of currently active timestamp providers
+  public static final String DEMO_TSA_ECC_CN = DEMO_SK_TSA_2023E_CN;
+  public static final String DEMO_TSA_RSA_CN = DEMO_SK_TSA_2023R_CN;
+  public static final String DEMO_TSA_CN = DEMO_TSA_ECC_CN;
+
+  private TestConstants() {
+  }
+
 }

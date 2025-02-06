@@ -20,9 +20,11 @@ import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.Timestamp;
 import org.digidoc4j.TimestampBuilder;
+import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.IllegalTimestampException;
 import org.digidoc4j.impl.asic.cades.AsicArchiveManifest;
 import org.digidoc4j.test.MatchAllCertificateStoreSelector;
+import org.digidoc4j.test.TestConstants;
 import org.junit.Test;
 
 import java.time.Instant;
@@ -137,8 +139,8 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
             equalTo(Date.from(Instant.parse("2024-05-28T12:24:09Z")))
     );
     assertThat(
-            container.getTimestamps().get(0).getCertificate().getSubjectName(),
-            equalTo("C=EE, O=SK ID Solutions AS, OID.2.5.4.97=NTREE-10747013, CN=DEMO SK TIMESTAMPING AUTHORITY 2023E")
+            container.getTimestamps().get(0).getCertificate().getSubjectName(X509Cert.SubjectName.CN),
+            equalTo(TestConstants.DEMO_SK_TSA_2023E_CN)
     );
     Collection<X509CertificateHolder> initialTimestampCertificates = container.getTimestamps().get(0)
             .getTimeStampToken().getCertificates().getMatches(new MatchAllCertificateStoreSelector());
@@ -153,8 +155,8 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
             equalTo(Date.from(Instant.parse("2024-05-28T12:24:09Z")))
     );
     assertThat(
-            container.getTimestamps().get(0).getCertificate().getSubjectName(),
-            equalTo("C=EE, O=SK ID Solutions AS, OID.2.5.4.97=NTREE-10747013, CN=DEMO SK TIMESTAMPING AUTHORITY 2023E")
+            container.getTimestamps().get(0).getCertificate().getSubjectName(X509Cert.SubjectName.CN),
+            equalTo(TestConstants.DEMO_SK_TSA_2023E_CN)
     );
     Collection<X509CertificateHolder> augmentedTimestampCertificates = container.getTimestamps().get(0)
             .getTimeStampToken().getCertificates().getMatches(new MatchAllCertificateStoreSelector());

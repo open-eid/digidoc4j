@@ -16,6 +16,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
+import org.digidoc4j.test.TestConstants;
 import org.digidoc4j.utils.ContainerUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -463,7 +464,7 @@ public class CompositeContainerBuilderTest {
             .withConfiguration(Configuration.of(Configuration.Mode.TEST))
             .buildTimestamped(timestampBuilder -> timestampBuilder
                     .withTimestampDigestAlgorithm(DigestAlgorithm.SHA384)
-                    .withTspSource("http://tsa.demo.sk.ee/tsarsa")
+                    .withTspSource(TestConstants.DEMO_TSA_RSA_URL)
             );
 
     assertThat(compositeContainer, notNullValue());
@@ -474,7 +475,7 @@ public class CompositeContainerBuilderTest {
     );
     assertThat(
             compositeContainer.getNestingContainerTimestamps().get(0).getCertificate().getSubjectName(X509Cert.SubjectName.CN),
-            equalTo("DEMO SK TIMESTAMPING AUTHORITY 2023R")
+            equalTo(TestConstants.DEMO_TSA_RSA_CN)
     );
     assertThat(
             compositeContainer.getNestingContainerTimestamps().get(0).getDigestAlgorithm(),
