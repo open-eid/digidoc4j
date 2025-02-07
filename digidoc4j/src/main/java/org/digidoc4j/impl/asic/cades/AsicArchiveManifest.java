@@ -55,7 +55,7 @@ public class AsicArchiveManifest implements Serializable {
   private transient Set<String> uniqueNonNullEntryNames;
 
   /**
-   * Creates an instance AsicArchiveManifest by wrapping the specified DSSDocument.
+   * Creates an instance of AsicArchiveManifest by wrapping the specified DSSDocument.
    * NB: the constructor does not parse the manifest! The manifest is parsed lazily as needed.
    *
    * @param manifestDocument DSSDocument of an ASiCArchiveManifest

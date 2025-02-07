@@ -10,23 +10,85 @@
 
 package org.digidoc4j.test.util;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public final class TestZipUtil {
+
+  public static List<Pair<ZipEntry, byte[]>> readEntries(byte[] inputBytes) {
+    return readEntries(new ByteArrayInputStream(inputBytes));
+  }
+
+  public static List<Pair<ZipEntry, byte[]>> readEntries(File inputFile) {
+    return readEntries(inputFile.toPath());
+  }
+
+  public static List<Pair<ZipEntry, byte[]>> readEntries(Path inputPath) {
+    try (InputStream inputStream = Files.newInputStream(inputPath, StandardOpenOption.READ)) {
+      return readEntries(inputStream);
+    } catch (IOException e) {
+        throw new IllegalStateException("Failed to read ZIP container from file", e);
+    }
+  }
+
+  public static List<Pair<ZipEntry, byte[]>> readEntries(InputStream inputStream) {
+    try (ZipInputStream zipInputStream = new ZipInputStream(inputStream)) {
+      return readEntries(zipInputStream);
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to read ZIP container from input stream", e);
+    }
+  }
+
+  public static List<Pair<ZipEntry, byte[]>> readEntries(ZipInputStream zipInputStream) {
+    List<Pair<ZipEntry, byte[]>> entries = new ArrayList<>();
+    Pair<ZipEntry, byte[]> entry = readEntryIfAvailable(zipInputStream);
+    while (entry != null) {
+      entries.add(entry);
+      entry = readEntryIfAvailable(zipInputStream);
+    }
+    return entries;
+  }
+
+  public static Pair<ZipEntry, byte[]> readEntryIfAvailable(ZipInputStream zipInputStream) {
+    ZipEntry zipEntry = readZipEntryIfAvailable(zipInputStream);
+    if (zipEntry == null) {
+      return null;
+    }
+    byte[] entryContent;
+    try {
+      entryContent = IOUtils.toByteArray(zipInputStream);
+      zipInputStream.closeEntry();
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to read ZIP entry content", e);
+    }
+    return new ImmutablePair<>(zipEntry, entryContent);
+  }
+
+  public static ZipEntry readZipEntryIfAvailable(ZipInputStream zipInputStream) {
+    try {
+      return zipInputStream.getNextEntry();
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to read ZIP entry", e);
+    }
+  }
 
   @SafeVarargs
   public static byte[] writeEntriesToByteArray(Pair<ZipEntry, byte[]>... entries) {

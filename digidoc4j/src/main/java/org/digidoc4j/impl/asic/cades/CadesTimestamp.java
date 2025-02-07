@@ -40,7 +40,7 @@ public class CadesTimestamp implements Serializable {
   private transient X509Cert certificate;
 
   /**
-   * Creates an instance CadesTimestamp by wrapping the specified DSSDocument.
+   * Creates an instance of CadesTimestamp by wrapping the specified DSSDocument.
    * NB: the constructor does not parse the timestamp token! The timestamp token is parsed lazily as needed.
    *
    * @param timestampDocument DSSDocument of a CAdES timestamp token
