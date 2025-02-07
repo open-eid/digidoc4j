@@ -27,12 +27,14 @@ import org.digidoc4j.test.MatchAllCertificateStoreSelector;
 import org.digidoc4j.test.TestConstants;
 import org.junit.Test;
 
-import java.time.Instant;
 import java.util.Collection;
-import java.util.Date;
-import java.util.List;
 
+import static org.digidoc4j.test.matcher.CommonMatchers.equalToIsoDate;
+import static org.digidoc4j.test.matcher.IsAsicArchiveManifestDataReference.isDataReferenceWithNameAndMimeType;
+import static org.digidoc4j.test.matcher.IsDataFile.isDataFileWithName;
+import static org.digidoc4j.test.matcher.IsDssDocument.isDocumentWithName;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -54,7 +56,7 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
     container.addTimestamp(timestamp);
 
     assertThat(container.getDataFiles(), hasSize(1));
-    assertThat(container.getDataFiles().get(0).getName(), equalTo("test.txt"));
+    assertThat(container.getDataFiles().get(0), isDataFileWithName("test.txt"));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(1));
     assertThat(container.getTimestamps().get(0), instanceOf(AsicSContainerTimestamp.class));
@@ -71,7 +73,7 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
     container.addTimestamp(timestamp);
 
     assertThat(container.getDataFiles(), hasSize(1));
-    assertThat(container.getDataFiles().get(0).getName(), equalTo("test.txt"));
+    assertThat(container.getDataFiles().get(0), isDataFileWithName("test.txt"));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(1));
     assertThat(container.getTimestamps().get(0), instanceOf(AsicSContainerTimestamp.class));
@@ -89,18 +91,16 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
     container.addTimestamp(timestamp);
 
     assertThat(container.getDataFiles(), hasSize(1));
-    assertThat(container.getDataFiles().get(0).getName(), equalTo("test.txt"));
+    assertThat(container.getDataFiles().get(0), isDataFileWithName("test.txt"));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(2));
     assertThat(container.getTimestamps().get(1), instanceOf(AsicSContainerTimestamp.class));
     AsicSContainerTimestamp asicsTimestamp = (AsicSContainerTimestamp) container.getTimestamps().get(1);
     assertThat(asicsTimestamp.getArchiveManifest(), notNullValue(AsicArchiveManifest.class));
-    assertThat(asicsTimestamp.getArchiveManifest().getReferencedDataObjects(), hasSize(2));
-    List<AsicArchiveManifest.DataReference> references = asicsTimestamp.getArchiveManifest().getReferencedDataObjects();
-    assertThat(references.get(0).getName(), equalTo("META-INF/timestamp.tst"));
-    assertThat(references.get(0).getMimeType(), equalTo(MimeTypeEnum.TST.getMimeTypeString()));
-    assertThat(references.get(1).getName(), equalTo("test.txt"));
-    assertThat(references.get(1).getMimeType(), equalTo(MimeTypeEnum.TEXT.getMimeTypeString()));
+    assertThat(asicsTimestamp.getArchiveManifest().getReferencedDataObjects(), contains(
+            isDataReferenceWithNameAndMimeType("META-INF/timestamp.tst", MimeTypeEnum.TST),
+            isDataReferenceWithNameAndMimeType("test.txt", MimeTypeEnum.TEXT)
+    ));
   }
 
   @Test
@@ -113,18 +113,16 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
     container.addTimestamp(timestamp);
 
     assertThat(container.getDataFiles(), hasSize(1));
-    assertThat(container.getDataFiles().get(0).getName(), equalTo("test.txt"));
+    assertThat(container.getDataFiles().get(0), isDataFileWithName("test.txt"));
     assertThat(container.getSignatures(), empty());
     assertThat(container.getTimestamps(), hasSize(2));
     assertThat(container.getTimestamps().get(1), instanceOf(AsicSContainerTimestamp.class));
     AsicSContainerTimestamp asicsTimestamp = (AsicSContainerTimestamp) container.getTimestamps().get(1);
     assertThat(asicsTimestamp.getArchiveManifest(), notNullValue(AsicArchiveManifest.class));
-    assertThat(asicsTimestamp.getArchiveManifest().getReferencedDataObjects(), hasSize(2));
-    List<AsicArchiveManifest.DataReference> references = asicsTimestamp.getArchiveManifest().getReferencedDataObjects();
-    assertThat(references.get(0).getName(), equalTo("META-INF/timestamp.tst"));
-    assertThat(references.get(0).getMimeType(), equalTo(MimeTypeEnum.TST.getMimeTypeString()));
-    assertThat(references.get(1).getName(), equalTo("test.txt"));
-    assertThat(references.get(1).getMimeType(), equalTo(MimeTypeEnum.TEXT.getMimeTypeString()));
+    assertThat(asicsTimestamp.getArchiveManifest().getReferencedDataObjects(), contains(
+            isDataReferenceWithNameAndMimeType("META-INF/timestamp.tst", MimeTypeEnum.TST),
+            isDataReferenceWithNameAndMimeType("test.txt", MimeTypeEnum.TEXT)
+    ));
   }
 
   @Test
@@ -136,7 +134,7 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
     assertThat(container.getTimestamps(), hasSize(1));
     assertThat(
             container.getTimestamps().get(0).getCreationTime(),
-            equalTo(Date.from(Instant.parse("2024-05-28T12:24:09Z")))
+            equalToIsoDate("2024-05-28T12:24:09Z")
     );
     assertThat(
             container.getTimestamps().get(0).getCertificate().getSubjectName(X509Cert.SubjectName.CN),
@@ -152,7 +150,7 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
     assertThat(container.getTimestamps(), hasSize(2));
     assertThat(
             container.getTimestamps().get(0).getCreationTime(),
-            equalTo(Date.from(Instant.parse("2024-05-28T12:24:09Z")))
+            equalToIsoDate("2024-05-28T12:24:09Z")
     );
     assertThat(
             container.getTimestamps().get(0).getCertificate().getSubjectName(X509Cert.SubjectName.CN),
@@ -172,26 +170,26 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
     );
     assertThat(container.getTimestamps(), hasSize(2));
     AsicSContainerTimestamp timestamp1 = (AsicSContainerTimestamp) container.getTimestamps().get(0);
-    assertThat(timestamp1.getCadesTimestamp().getTimestampDocument().getName(), equalTo("META-INF/timestamp.tst"));
+    assertThat(timestamp1.getCadesTimestamp().getTimestampDocument(), isDocumentWithName("META-INF/timestamp.tst"));
     assertThat(timestamp1.getArchiveManifest(), nullValue());
     AsicSContainerTimestamp timestamp2 = (AsicSContainerTimestamp) container.getTimestamps().get(1);
-    assertThat(timestamp2.getCadesTimestamp().getTimestampDocument().getName(), equalTo("META-INF/timestamp002.tst"));
+    assertThat(timestamp2.getCadesTimestamp().getTimestampDocument(), isDocumentWithName("META-INF/timestamp002.tst"));
     assertThat(timestamp2.getArchiveManifest(), notNullValue(AsicArchiveManifest.class));
     AsicArchiveManifest timestamp2Manifest = timestamp2.getArchiveManifest();
-    assertThat(timestamp2Manifest.getManifestDocument().getName(), equalTo("META-INF/ASiCArchiveManifest.xml"));
+    assertThat(timestamp2Manifest.getManifestDocument(), isDocumentWithName("META-INF/ASiCArchiveManifest.xml"));
 
     Timestamp timestamp3 = TimestampBuilder.aTimestamp(container).invokeTimestamping();
     container.addTimestamp(timestamp3);
 
     assertThat(container.getTimestamps(), hasSize(3));
     assertThat(container.getTimestamps().get(0), sameInstance(timestamp1));
-    assertThat(timestamp1.getCadesTimestamp().getTimestampDocument().getName(), equalTo("META-INF/timestamp.tst"));
+    assertThat(timestamp1.getCadesTimestamp().getTimestampDocument(), isDocumentWithName("META-INF/timestamp.tst"));
     assertThat(timestamp1.getArchiveManifest(), nullValue());
     AsicSContainerTimestamp newTimestamp2 = (AsicSContainerTimestamp) container.getTimestamps().get(1);
-    assertThat(newTimestamp2.getCadesTimestamp().getTimestampDocument().getName(), equalTo("META-INF/timestamp002.tst"));
+    assertThat(newTimestamp2.getCadesTimestamp().getTimestampDocument(), isDocumentWithName("META-INF/timestamp002.tst"));
     assertThat(newTimestamp2.getArchiveManifest(), sameInstance(timestamp2Manifest));
     AsicArchiveManifest newTimestamp2Manifest = timestamp2.getArchiveManifest();
-    assertThat(newTimestamp2Manifest.getManifestDocument().getName(), equalTo("META-INF/ASiCArchiveManifest001.xml"));
+    assertThat(newTimestamp2Manifest.getManifestDocument(), isDocumentWithName("META-INF/ASiCArchiveManifest001.xml"));
     assertArrayEquals(
             DSSUtils.toByteArray(timestamp2Manifest.getManifestDocument()),
             DSSUtils.toByteArray(newTimestamp2Manifest.getManifestDocument())
