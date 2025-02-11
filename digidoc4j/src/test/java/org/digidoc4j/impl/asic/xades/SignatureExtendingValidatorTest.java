@@ -12,12 +12,14 @@ package org.digidoc4j.impl.asic.xades;
 
 import eu.europa.esig.dss.alert.exception.AlertException;
 import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import org.digidoc4j.AbstractTest;
+import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
+import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
-import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NonExtendableSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.junit.Before;
@@ -98,7 +100,7 @@ public class SignatureExtendingValidatorTest extends AbstractTest {
   }
 
   @Test
-  public void validateExtendability_DssValidationFails_Throws() {
+  public void validateExtendability_DssValidationFailsWithAlertException_Throws() {
     when(signedDocumentValidator.getValidationData(anyList())).thenThrow(new AlertException("Error"));
 
     NonExtendableSignatureException caughtException = assertThrows(
@@ -109,6 +111,21 @@ public class SignatureExtendingValidatorTest extends AbstractTest {
     assertEquals("Validating the signature with DSS failed", caughtException.getMessage());
     assertEquals(AlertException.class, caughtException.getCause().getClass());
     assertEquals("Error", caughtException.getCause().getMessage());
+  }
+
+  @Test
+  public void validateExtendability_SignatureDoesNotCoverDatafile_Throws() {
+    Container container = ContainerOpener.open(ASICE_INVALID_SIGNATURE_DOES_NOT_COVER_DATAFILE, Configuration.of(Configuration.Mode.TEST));
+    Signature signature = container.getSignatures().get(0);
+
+    NonExtendableSignatureException caughtException = assertThrows(
+        NonExtendableSignatureException.class,
+        () -> validator.validateExtendability(signature, LTA)
+    );
+
+    assertEquals("Validating the signature with DSS failed", caughtException.getMessage());
+    assertEquals(DSSException.class, caughtException.getCause().getClass());
+    assertEquals("Cryptographic signature verification has failed / Signature verification failed against the best candidate.", caughtException.getCause().getMessage());
   }
 
   private void runValidateExtendability(SignatureProfile originalProfile, SignatureProfile targetProfile) {

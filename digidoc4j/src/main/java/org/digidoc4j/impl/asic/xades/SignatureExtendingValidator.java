@@ -12,6 +12,9 @@ package org.digidoc4j.impl.asic.xades;
 
 import eu.europa.esig.dss.alert.exception.AlertException;
 import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.DSSException;
+import eu.europa.esig.dss.validation.AdvancedSignature;
+import eu.europa.esig.dss.validation.SignatureCryptographicVerification;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
@@ -96,7 +99,7 @@ public class SignatureExtendingValidator {
     } catch (DigiDoc4JException e) {
       throw e;
     // Wrap other exception types into DigiDoc4JException or its subclass NonExtendableSignatureException
-    } catch (AlertException e) {
+    } catch (AlertException | DSSException e) {
       throw new NonExtendableSignatureException("Validating the signature with DSS failed", e);
     } catch (Exception e) {
       throw new DigiDoc4JException("Unexpected error while validating the signature with DSS", e);
@@ -130,8 +133,19 @@ public class SignatureExtendingValidator {
     AsicSignature asicSignature = (AsicSignature) signature;
     DSSDocument signatureDocument = asicSignature.getSignatureDocument();
     XAdESSignature dssSignature = asicSignature.getOrigin().getDssSignature();
+    // getValidationData() throws AlertException in case of validation failure
     xadesValidationDssFacade.openXadesValidator(signatureDocument)
         .getValidationData(Collections.singletonList(dssSignature));
+    assertSignatureIntact(dssSignature);
+  }
+
+  private void assertSignatureIntact(final AdvancedSignature signature) {
+    // Copied from eu.europa.esig.dss.xades.signature.ExtensionBuilder.assertSignatureValid() from DSS library
+    final SignatureCryptographicVerification signatureCryptographicVerification = signature.getSignatureCryptographicVerification();
+    if (!signatureCryptographicVerification.isSignatureIntact()) {
+      final String errorMessage = signatureCryptographicVerification.getErrorMessage();
+      throw new DSSException("Cryptographic signature verification has failed" + (errorMessage.isEmpty() ? "." : (" / " + errorMessage)));
+    }
   }
 
   private static boolean canExtendSignatureToProfile(Signature signature, SignatureProfile targetProfile) {

@@ -15,6 +15,7 @@ import eu.europa.esig.dss.enumerations.ASiCContainerType;
 import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 import eu.europa.esig.dss.enumerations.SignatureLevel;
 import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.model.InMemoryDocument;
 import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
@@ -527,6 +528,23 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
     assertThat(caughtException.getMessage(), containsString("Expired signature found"));
     TestAssert.assertContainerIsValid(container);
+    List<TimestampToken> archiveTimestamps = getSignatureArchiveTimestamps(container, 0);
+    assertEquals("The signature must contain no archive timestamp", 0, archiveTimestamps.size());
+  }
+
+  @Test
+  public void testExtendingSignatureWithInvalidDatafileReferenceFromLTtoLTAFails() {
+    Container container = ContainerOpener.open(ASICE_INVALID_SIGNATURE_DOES_NOT_COVER_DATAFILE, Configuration.of(Configuration.Mode.TEST));
+    Signature signature = container.getSignatures().get(0);
+
+    DSSException caughtException = assertThrows(
+            DSSException.class,
+            () -> validateAndExtend(container, SignatureProfile.LTA, signature)
+    );
+
+    assertEquals("Cryptographic signature verification has failed / Signature verification failed against the best candidate.",
+        caughtException.getMessage());
+    TestAssert.assertContainerIsInvalid(container);
     List<TimestampToken> archiveTimestamps = getSignatureArchiveTimestamps(container, 0);
     assertEquals("The signature must contain no archive timestamp", 0, archiveTimestamps.size());
   }
