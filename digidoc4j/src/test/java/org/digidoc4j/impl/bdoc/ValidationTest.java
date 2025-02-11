@@ -845,7 +845,7 @@ public class ValidationTest extends AbstractTest {
   public void loadCustomTslCerts_SignatureTypeTWithoutOcspCertWithTsaCert_notValid() {
     TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
     certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/exampleCA.cer"));
-    certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/DEMO_SK_TIMESTAMPING_AUTHORITY_2023E.der.crt"));
+    certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/DEMO_SK_TIMESTAMPING_UNIT_2025E.pem.crt"));
     this.configuration.setTSL(certificateSource);
 
     Container container = this.createNonEmptyContainerByConfiguration();
@@ -868,7 +868,7 @@ public class ValidationTest extends AbstractTest {
     TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
     certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/exampleCA.cer"));
     certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/DEMO_of_KLASS3-SK_2016_SSL_OCSP_RESPONDER_2018.der.cer"));
-    certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/DEMO_SK_TIMESTAMPING_AUTHORITY_2023E.der.crt"));
+    certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/DEMO_SK_TIMESTAMPING_UNIT_2025E.pem.crt"));
     this.configuration.setTSL(certificateSource);
 
     Container container = this.createNonEmptyContainerByConfiguration();

@@ -155,7 +155,7 @@ public class CertificateValidatorBuilderTest extends AbstractTest {
 
     source.importFromPath(Paths.get("src/test/resources/testFiles/certs"));
 
-    assertThat(source.getCertificates(), hasSize(14));
+    assertThat(source.getCertificates(), hasSize(15));
   }
 
   /*
