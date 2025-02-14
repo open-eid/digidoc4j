@@ -1,6 +1,34 @@
 DigiDoc4J Java library release notes
 ------------------------------------
 
+Release 6.0.0
+-------------
+Summary of the major changes since 6.0.0-RC.1
+---------------------------------------------
+* Added possibility to check the extendability of LT/LTA signatures before extending them
+* Improved validation of ASiC-S containers with timestamp tokens
+  - Add warnings to timestamp tokens that do not cover the data file of the container
+* Added possibility to configure custom TSP sources (via TSP source factories)
+  - Separate TSP source factories for signature timestamps and archive timestamps
+* Improvements in the presentation of validation results:
+  - Improved details in the warning message about non-fresh OCSP response
+  - Improved the propagation of ASiC container warnings to validation results and reports
+  - Added container warnings to container validation report
+  - Improved report saving functionality
+* Improved thread-safety of legacy DDoc configuration loading
+* Changes to performance tests:
+  - Fixes to accommodate changes in handling timestamped ASiC-S containers
+  - New performance tests to cover added functionality
+* Fixes and improvements to unit tests
+* Updated dependencies
+
+Known issues
+------------
+* We have noticed a decrease in performance of parsing/validating XAdES signatures that cover numerous data files since updating to DSS 6.0
+* We have noticed a slight increase in TSL loading times due to pivot LOTL support
+* We have noticed a decrease in performance with the introduction of properly accessing AIA certificate resources
+* Opening a container that contains signatures, triggers TSL loading (TSL lazy loading does not work as expected)
+
 Release 6.0.0-RC.1
 ------------------
 Summary of the major changes since 5.3.1
