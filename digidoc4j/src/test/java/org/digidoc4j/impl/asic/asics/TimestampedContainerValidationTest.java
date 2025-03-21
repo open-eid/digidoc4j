@@ -29,6 +29,8 @@ import static org.digidoc4j.test.TestAssert.assertContainsExactNumberOfErrorsAnd
 import static org.digidoc4j.test.TestAssert.assertContainsExactSetOfErrors;
 import static org.digidoc4j.test.matcher.CommonMatchers.equalToIsoDate;
 import static org.digidoc4j.test.matcher.CommonMatchers.equalToTimestampUniqueIdList;
+import static org.digidoc4j.test.matcher.IsSimpleReportXmlSignatureScope.fullDocumentScopeWithName;
+import static org.digidoc4j.test.matcher.IsSimpleReportXmlSignatureScope.manifestDocumentScopeWithName;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
@@ -37,6 +39,8 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.hamcrest.Matchers.startsWith;
+import static org.junit.Assert.assertThrows;
 
 public class TimestampedContainerValidationTest extends AbstractTest {
 
@@ -466,6 +470,268 @@ public class TimestampedContainerValidationTest extends AbstractTest {
       assertThat(timestampValidationResult.getErrors(), empty());
       assertThat(timestampValidationResult.getWarnings(), empty());
     }
+  }
+
+  @Test
+  public void validate_WhenAsicsWithSpecialCharactersInDataFileNamePercentEncodedInTimestampManifest_AllTimestampsAreValid() {
+    Container container = ContainerOpener.open(
+            "src/test/resources/testFiles/valid-containers/2xTST-datafile-with-special-characters-percentencoded-in-archive-manifest.asics",
+            Configuration.of(Configuration.Mode.TEST)
+    );
+
+    ContainerValidationResult containerValidationResult = container.validate();
+
+    assertContainerIsValid(containerValidationResult);
+    assertThat(containerValidationResult.getWarnings(), empty());
+    assertThat(containerValidationResult.getContainerErrors(), empty());
+    assertThat(containerValidationResult.getContainerWarnings(), empty());
+    assertThat(containerValidationResult.getSimpleReports(), hasSize(1));
+    assertThat(containerValidationResult.getSignatureReports(), empty());
+    assertThat(containerValidationResult.getTimestampReports(), hasSize(2));
+    assertThat(containerValidationResult.getSignatureIdList(), empty());
+    assertThat(containerValidationResult.getTimestampIdList(), hasSize(2));
+    assertThat(containerValidationResult.getTimestampIdList(), equalToTimestampUniqueIdList(container));
+    {
+      String timestampId = container.getTimestamps().get(0).getUniqueId();
+      assertThat(containerValidationResult.getIndication(timestampId), sameInstance(Indication.PASSED));
+      assertThat(containerValidationResult.getSubIndication(timestampId), nullValue());
+      assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
+      TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(0);
+      assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.DEMO_SK_TSA_2025E_CN));
+      assertThat(timestampReport.getProductionTime(), equalToIsoDate("2025-03-20T06:31:19Z"));
+      assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
+      assertThat(timestampReport.getTimestampScope(), contains(
+              fullDocumentScopeWithName("1234567890 !#$%&'()+,-.;=@[]^_`{}~ õäöü.txt")
+      ));
+      ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
+      assertThat(timestampValidationResult, notNullValue());
+      assertThat(timestampValidationResult.isValid(), equalTo(true));
+      assertThat(timestampValidationResult.getErrors(), empty());
+      assertThat(timestampValidationResult.getWarnings(), empty());
+    }
+    {
+      String timestampId = container.getTimestamps().get(1).getUniqueId();
+      assertThat(containerValidationResult.getIndication(timestampId), sameInstance(Indication.PASSED));
+      assertThat(containerValidationResult.getSubIndication(timestampId), nullValue());
+      assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
+      TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(1);
+      assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.DEMO_SK_TSA_2025E_CN));
+      assertThat(timestampReport.getProductionTime(), equalToIsoDate("2025-03-20T07:01:02Z"));
+      assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
+      assertThat(timestampReport.getTimestampScope(), contains(
+              manifestDocumentScopeWithName("META-INF/ASiCArchiveManifest.xml"),
+              fullDocumentScopeWithName("META-INF/timestamp.tst"),
+              fullDocumentScopeWithName("1234567890 !#$%&'()+,-.;=@[]^_`{}~ õäöü.txt")
+      ));
+      ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
+      assertThat(timestampValidationResult, notNullValue());
+      assertThat(timestampValidationResult.isValid(), equalTo(true));
+      assertThat(timestampValidationResult.getErrors(), empty());
+      assertThat(timestampValidationResult.getWarnings(), empty());
+    }
+  }
+
+  @Test
+  public void validate_WhenAsicsWithSpecialCharactersInDataFileNameUnencodedInTimestampManifest_AllTimestampsAreValid() {
+    Container container = ContainerOpener.open(
+            "src/test/resources/testFiles/valid-containers/2xTST-datafile-with-special-characters-unencoded-in-archive-manifest.asics",
+            Configuration.of(Configuration.Mode.TEST)
+    );
+
+    ContainerValidationResult containerValidationResult = container.validate();
+
+    assertContainerIsValid(containerValidationResult);
+    assertThat(containerValidationResult.getWarnings(), empty());
+    assertThat(containerValidationResult.getContainerErrors(), empty());
+    assertThat(containerValidationResult.getContainerWarnings(), empty());
+    assertThat(containerValidationResult.getSimpleReports(), hasSize(1));
+    assertThat(containerValidationResult.getSignatureReports(), empty());
+    assertThat(containerValidationResult.getTimestampReports(), hasSize(2));
+    assertThat(containerValidationResult.getSignatureIdList(), empty());
+    assertThat(containerValidationResult.getTimestampIdList(), hasSize(2));
+    assertThat(containerValidationResult.getTimestampIdList(), equalToTimestampUniqueIdList(container));
+    {
+      String timestampId = container.getTimestamps().get(0).getUniqueId();
+      assertThat(containerValidationResult.getIndication(timestampId), sameInstance(Indication.PASSED));
+      assertThat(containerValidationResult.getSubIndication(timestampId), nullValue());
+      assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
+      TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(0);
+      assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.DEMO_SK_TSA_2025E_CN));
+      assertThat(timestampReport.getProductionTime(), equalToIsoDate("2025-03-21T12:13:09Z"));
+      assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
+      assertThat(timestampReport.getTimestampScope(), contains(
+              fullDocumentScopeWithName("1234567890 !#$&'()+,-.;=@[]^_`{}~ õäöü.txt")
+      ));
+      ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
+      assertThat(timestampValidationResult, notNullValue());
+      assertThat(timestampValidationResult.isValid(), equalTo(true));
+      assertThat(timestampValidationResult.getErrors(), empty());
+      assertThat(timestampValidationResult.getWarnings(), empty());
+    }
+    {
+      String timestampId = container.getTimestamps().get(1).getUniqueId();
+      assertThat(containerValidationResult.getIndication(timestampId), sameInstance(Indication.PASSED));
+      assertThat(containerValidationResult.getSubIndication(timestampId), nullValue());
+      assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
+      TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(1);
+      assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.DEMO_SK_TSA_2025E_CN));
+      assertThat(timestampReport.getProductionTime(), equalToIsoDate("2025-03-21T12:13:44Z"));
+      assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
+      assertThat(timestampReport.getTimestampScope(), contains(
+              manifestDocumentScopeWithName("META-INF/ASiCArchiveManifest.xml"),
+              fullDocumentScopeWithName("META-INF/timestamp.tst"),
+              fullDocumentScopeWithName("1234567890 !#$&'()+,-.;=@[]^_`{}~ õäöü.txt")
+      ));
+      ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
+      assertThat(timestampValidationResult, notNullValue());
+      assertThat(timestampValidationResult.isValid(), equalTo(true));
+      assertThat(timestampValidationResult.getErrors(), empty());
+      assertThat(timestampValidationResult.getWarnings(), empty());
+    }
+  }
+
+  @Test
+  public void validate_WhenAsicsWithSpaceInDataFileNamePlusEncodedInTimestampManifest_TimestampWithManifestNotValid() {
+    Container container = ContainerOpener.open(
+            "src/test/resources/testFiles/invalid-containers/2xTST-datafile-with-space-plusencoded-in-archive-manifest.asics",
+            Configuration.of(Configuration.Mode.TEST)
+    );
+
+    ContainerValidationResult containerValidationResult = container.validate();
+
+    assertContainerIsValidIgnoreErrors(containerValidationResult);
+    assertContainsExactSetOfErrors(containerValidationResult.getErrors(),
+            container.getTimestamps().get(1).getUniqueId() + ") - The reference data object has not been found!"
+    );
+    assertThat(containerValidationResult.getWarnings(), empty());
+    assertThat(containerValidationResult.getContainerErrors(), empty());
+    assertThat(containerValidationResult.getContainerWarnings(), empty());
+    assertThat(containerValidationResult.getSimpleReports(), hasSize(1));
+    assertThat(containerValidationResult.getSignatureReports(), empty());
+    assertThat(containerValidationResult.getTimestampReports(), hasSize(2));
+    assertThat(containerValidationResult.getSignatureIdList(), empty());
+    assertThat(containerValidationResult.getTimestampIdList(), hasSize(2));
+    assertThat(containerValidationResult.getTimestampIdList(), equalToTimestampUniqueIdList(container));
+    {
+      String timestampId = container.getTimestamps().get(0).getUniqueId();
+      assertThat(containerValidationResult.getIndication(timestampId), sameInstance(Indication.PASSED));
+      assertThat(containerValidationResult.getSubIndication(timestampId), nullValue());
+      assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
+      TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(0);
+      assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.DEMO_SK_TSA_2025E_CN));
+      assertThat(timestampReport.getProductionTime(), equalToIsoDate("2025-03-20T07:58:57Z"));
+      assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
+      assertThat(timestampReport.getTimestampScope(), contains(
+              fullDocumentScopeWithName("with space.txt")
+      ));
+      ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
+      assertThat(timestampValidationResult, notNullValue());
+      assertThat(timestampValidationResult.isValid(), equalTo(true));
+      assertThat(timestampValidationResult.getErrors(), empty());
+      assertThat(timestampValidationResult.getWarnings(), empty());
+    }
+    {
+      String timestampId = container.getTimestamps().get(1).getUniqueId();
+      assertThat(containerValidationResult.getIndication(timestampId), sameInstance(Indication.INDETERMINATE));
+      assertThat(containerValidationResult.getSubIndication(timestampId), sameInstance(SubIndication.SIGNED_DATA_NOT_FOUND));
+      assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
+      TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(1);
+      assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.DEMO_SK_TSA_2025E_CN));
+      assertThat(timestampReport.getProductionTime(), equalToIsoDate("2025-03-20T08:05:42Z"));
+      assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
+      assertThat(timestampReport.getTimestampScope(), contains(
+              manifestDocumentScopeWithName("META-INF/ASiCArchiveManifest.xml"),
+              fullDocumentScopeWithName("META-INF/timestamp.tst")
+      ));
+      ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
+      assertThat(timestampValidationResult, notNullValue());
+      assertThat(timestampValidationResult.isValid(), equalTo(false));
+      assertContainsExactSetOfErrors(timestampValidationResult.getErrors(),
+              timestampId + ") - The reference data object has not been found!"
+      );
+      assertThat(timestampValidationResult.getWarnings(), empty());
+    }
+  }
+
+  @Test
+  public void validate_WhenAsicsWithPercent20InDataFileNameUnencodedInTimestampManifest_TimestampWithManifestNotValid() {
+    Container container = ContainerOpener.open(
+            "src/test/resources/testFiles/invalid-containers/2xTST-datafile-with-%20-unencoded-in-archive-manifest.asics",
+            Configuration.of(Configuration.Mode.TEST)
+    );
+
+    ContainerValidationResult containerValidationResult = container.validate();
+
+    assertContainerIsValidIgnoreErrors(containerValidationResult);
+    assertContainsExactSetOfErrors(containerValidationResult.getErrors(),
+            container.getTimestamps().get(1).getUniqueId() + ") - The reference data object has not been found!"
+    );
+    assertThat(containerValidationResult.getWarnings(), empty());
+    assertThat(containerValidationResult.getContainerErrors(), empty());
+    assertThat(containerValidationResult.getContainerWarnings(), empty());
+    assertThat(containerValidationResult.getSimpleReports(), hasSize(1));
+    assertThat(containerValidationResult.getSignatureReports(), empty());
+    assertThat(containerValidationResult.getTimestampReports(), hasSize(2));
+    assertThat(containerValidationResult.getSignatureIdList(), empty());
+    assertThat(containerValidationResult.getTimestampIdList(), hasSize(2));
+    assertThat(containerValidationResult.getTimestampIdList(), equalToTimestampUniqueIdList(container));
+    {
+      String timestampId = container.getTimestamps().get(0).getUniqueId();
+      assertThat(containerValidationResult.getIndication(timestampId), sameInstance(Indication.PASSED));
+      assertThat(containerValidationResult.getSubIndication(timestampId), nullValue());
+      assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
+      TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(0);
+      assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.DEMO_SK_TSA_2025E_CN));
+      assertThat(timestampReport.getProductionTime(), equalToIsoDate("2025-03-26T12:33:52Z"));
+      assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
+      assertThat(timestampReport.getTimestampScope(), contains(
+              fullDocumentScopeWithName("with%20encoding.txt")
+      ));
+      ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
+      assertThat(timestampValidationResult, notNullValue());
+      assertThat(timestampValidationResult.isValid(), equalTo(true));
+      assertThat(timestampValidationResult.getErrors(), empty());
+      assertThat(timestampValidationResult.getWarnings(), empty());
+    }
+    {
+      String timestampId = container.getTimestamps().get(1).getUniqueId();
+      assertThat(containerValidationResult.getIndication(timestampId), sameInstance(Indication.INDETERMINATE));
+      assertThat(containerValidationResult.getSubIndication(timestampId), sameInstance(SubIndication.SIGNED_DATA_NOT_FOUND));
+      assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
+      TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(1);
+      assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.DEMO_SK_TSA_2025E_CN));
+      assertThat(timestampReport.getProductionTime(), equalToIsoDate("2025-03-26T12:34:44Z"));
+      assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
+      assertThat(timestampReport.getTimestampScope(), contains(
+              manifestDocumentScopeWithName("META-INF/ASiCArchiveManifest.xml"),
+              fullDocumentScopeWithName("META-INF/timestamp.tst")
+      ));
+      ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
+      assertThat(timestampValidationResult, notNullValue());
+      assertThat(timestampValidationResult.isValid(), equalTo(false));
+      assertContainsExactSetOfErrors(timestampValidationResult.getErrors(),
+              timestampId + ") - The reference data object has not been found!"
+      );
+      assertThat(timestampValidationResult.getWarnings(), empty());
+    }
+  }
+
+  @Test
+  public void validate_WhenAsicsWithPercentInDataFileNameUnencodedInTimestampManifest_ThrowsException() {
+    Container container = ContainerOpener.open(
+            "src/test/resources/testFiles/invalid-containers/2xTST-datafile-with-percent-unencoded-in-archive-manifest.asics",
+            Configuration.of(Configuration.Mode.TEST)
+    );
+
+    IllegalArgumentException caughtException = assertThrows(
+            IllegalArgumentException.class,
+            container::validate
+    );
+
+    assertThat(
+            caughtException.getMessage(),
+            startsWith("URLDecoder: Illegal hex characters in escape (%) pattern")
+    );
   }
 
 }
