@@ -29,6 +29,7 @@ import java.util.HashSet;
 import static org.digidoc4j.test.matcher.CommonMatchers.equalToIsoDate;
 import static org.digidoc4j.test.matcher.IsAsicArchiveManifestDataReference.isDataReferenceWithNameAndMimeType;
 import static org.digidoc4j.test.matcher.IsAsicArchiveManifestDataReference.isDataReferenceWithNameAndMimeTypeAndDigestAlgorithm;
+import static org.digidoc4j.test.matcher.IsAsicArchiveManifestDataReference.isDataReferenceWithUriAndName;
 import static org.digidoc4j.test.matcher.IsAsicArchiveManifestReference.isReferenceWithMimeType;
 import static org.digidoc4j.test.matcher.IsAsicArchiveManifestReference.isReferenceWithName;
 import static org.digidoc4j.test.matcher.IsDataFile.isDataFileWithMediaType;
@@ -352,6 +353,84 @@ public class TimestampedContainerParsingTest extends AbstractTest {
             caughtException.getMessage(),
             equalTo("Unsupported evidence record entry: " + ASiCUtils.META_INF_FOLDER + entryName)
     );
+  }
+
+  @Test
+  public void openContainer_WhenAsicsWithSpecialCharactersInDataFileNamePercentEncodedInTimestampManifest_AsicsWithExpectedContentsIsOpened() {
+    Container container = ContainerOpener.open(
+            "src/test/resources/testFiles/valid-containers/2xTST-datafile-with-special-characters-percentencoded-in-archive-manifest.asics",
+            configuration
+    );
+
+    assertThat(container, instanceOf(AsicSContainer.class));
+    assertThat(container.getDataFiles(), hasSize(1));
+    assertThat(container.getDataFiles().get(0), isDataFileWithName("1234567890 !#$%&'()+,-.;=@[]^_`{}~ õäöü.txt"));
+    assertThat(container.getDataFiles().get(0), isDataFileWithMediaType(MimeTypeEnum.TEXT));
+    assertThat(container.getTimestamps(), hasSize(2));
+    assertThat(container.getTimestamps().get(0), instanceOf(AsicSContainerTimestamp.class));
+    AsicSContainerTimestamp asicsTimestamp1 = (AsicSContainerTimestamp) container.getTimestamps().get(0);
+    assertThat(asicsTimestamp1.getCadesTimestamp().getTimestampDocument(), isDocumentWithName("META-INF/timestamp.tst"));
+    assertThat(asicsTimestamp1.getCadesTimestamp().getTimestampDocument(), isDocumentWithMimeType(MimeTypeEnum.TST));
+    assertThat(asicsTimestamp1.getArchiveManifest(), nullValue());
+    assertThat(container.getTimestamps().get(1), instanceOf(AsicSContainerTimestamp.class));
+    AsicSContainerTimestamp asicsTimestamp2 = (AsicSContainerTimestamp) container.getTimestamps().get(1);
+    assertThat(asicsTimestamp2.getCadesTimestamp().getTimestampDocument(), isDocumentWithName("META-INF/timestamp002.tst"));
+    assertThat(asicsTimestamp2.getCadesTimestamp().getTimestampDocument(), isDocumentWithMimeType(MimeTypeEnum.TST));
+    assertThat(asicsTimestamp2.getArchiveManifest(), notNullValue(AsicArchiveManifest.class));
+    assertThat(asicsTimestamp2.getArchiveManifest().getManifestDocument(), isDocumentWithName("META-INF/ASiCArchiveManifest.xml"));
+    assertThat(asicsTimestamp2.getArchiveManifest().getManifestDocument(), isDocumentWithMimeType(MimeTypeEnum.XML));
+    assertThat(asicsTimestamp2.getArchiveManifest().getReferencedTimestamp(), isReferenceWithName("META-INF/timestamp002.tst"));
+    assertThat(asicsTimestamp2.getArchiveManifest().getReferencedTimestamp(), isReferenceWithMimeType(MimeTypeEnum.TST));
+    assertThat(asicsTimestamp2.getArchiveManifest().getReferencedDataObjects(), contains(
+            isDataReferenceWithUriAndName("META-INF/timestamp.tst", "META-INF/timestamp.tst"),
+            isDataReferenceWithUriAndName(
+                    "1234567890%20%21%23%24%25%26%27%28%29%2B%2C-.%3B%3D%40%5B%5D%5E_%60%7B%7D%7E%20%C3%B5%C3%A4%C3%B6%C3%BC.txt",
+                    "1234567890 !#$%&'()+,-.;=@[]^_`{}~ õäöü.txt"
+            )
+    ));
+    assertThat(asicsTimestamp2.getArchiveManifest().getNonNullEntryNames(), equalTo(new HashSet<>(Arrays.asList(
+            "1234567890 !#$%&'()+,-.;=@[]^_`{}~ õäöü.txt", "META-INF/timestamp.tst"
+    ))));
+    assertThat(container.getSignatures(), empty());
+  }
+
+  @Test
+  public void openContainer_WhenAsicsWithSpecialCharactersInDataFileNameUnencodedInTimestampManifest_AsicsWithExpectedContentsIsOpened() {
+    Container container = ContainerOpener.open(
+            "src/test/resources/testFiles/valid-containers/2xTST-datafile-with-special-characters-unencoded-in-archive-manifest.asics",
+            configuration
+    );
+
+    assertThat(container, instanceOf(AsicSContainer.class));
+    assertThat(container.getDataFiles(), hasSize(1));
+    assertThat(container.getDataFiles().get(0), isDataFileWithName("1234567890 !#$&'()+,-.;=@[]^_`{}~ õäöü.txt"));
+    assertThat(container.getDataFiles().get(0), isDataFileWithMediaType(MimeTypeEnum.TEXT));
+    assertThat(container.getTimestamps(), hasSize(2));
+    assertThat(container.getTimestamps().get(0), instanceOf(AsicSContainerTimestamp.class));
+    AsicSContainerTimestamp asicsTimestamp1 = (AsicSContainerTimestamp) container.getTimestamps().get(0);
+    assertThat(asicsTimestamp1.getCadesTimestamp().getTimestampDocument(), isDocumentWithName("META-INF/timestamp.tst"));
+    assertThat(asicsTimestamp1.getCadesTimestamp().getTimestampDocument(), isDocumentWithMimeType(MimeTypeEnum.TST));
+    assertThat(asicsTimestamp1.getArchiveManifest(), nullValue());
+    assertThat(container.getTimestamps().get(1), instanceOf(AsicSContainerTimestamp.class));
+    AsicSContainerTimestamp asicsTimestamp2 = (AsicSContainerTimestamp) container.getTimestamps().get(1);
+    assertThat(asicsTimestamp2.getCadesTimestamp().getTimestampDocument(), isDocumentWithName("META-INF/timestamp002.tst"));
+    assertThat(asicsTimestamp2.getCadesTimestamp().getTimestampDocument(), isDocumentWithMimeType(MimeTypeEnum.TST));
+    assertThat(asicsTimestamp2.getArchiveManifest(), notNullValue(AsicArchiveManifest.class));
+    assertThat(asicsTimestamp2.getArchiveManifest().getManifestDocument(), isDocumentWithName("META-INF/ASiCArchiveManifest.xml"));
+    assertThat(asicsTimestamp2.getArchiveManifest().getManifestDocument(), isDocumentWithMimeType(MimeTypeEnum.XML));
+    assertThat(asicsTimestamp2.getArchiveManifest().getReferencedTimestamp(), isReferenceWithName("META-INF/timestamp002.tst"));
+    assertThat(asicsTimestamp2.getArchiveManifest().getReferencedTimestamp(), isReferenceWithMimeType(MimeTypeEnum.TST));
+    assertThat(asicsTimestamp2.getArchiveManifest().getReferencedDataObjects(), contains(
+            isDataReferenceWithUriAndName("META-INF/timestamp.tst", "META-INF/timestamp.tst"),
+            isDataReferenceWithUriAndName(
+                    "1234567890 !#$&'()+,-.;=@[]^_`{}~ õäöü.txt",
+                    "1234567890 !#$&'()+,-.;=@[]^_`{}~ õäöü.txt"
+            )
+    ));
+    assertThat(asicsTimestamp2.getArchiveManifest().getNonNullEntryNames(), equalTo(new HashSet<>(Arrays.asList(
+            "1234567890 !#$&'()+,-.;=@[]^_`{}~ õäöü.txt", "META-INF/timestamp.tst"
+    ))));
+    assertThat(container.getSignatures(), empty());
   }
 
   @Override

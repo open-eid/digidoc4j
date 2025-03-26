@@ -14,6 +14,7 @@ import eu.europa.esig.asic.manifest.definition.ASiCManifestAttribute;
 import eu.europa.esig.asic.manifest.definition.ASiCManifestPath;
 import eu.europa.esig.dss.asic.common.validation.ASiCManifestParser;
 import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.spi.DSSUtils;
 import eu.europa.esig.dss.xml.common.definition.DSSAttribute;
 import eu.europa.esig.dss.xml.utils.DomUtils;
 import eu.europa.esig.xmldsig.definition.XMLDSigPath;
@@ -24,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -109,7 +109,7 @@ public class AsicArchiveManifest implements Serializable {
    */
   public Set<String> getNonNullEntryNames() {
     if (uniqueNonNullEntryNames == null) {
-      parseManifestContent();
+      compileEntryNameSet();
     }
 
     return uniqueNonNullEntryNames;
@@ -121,19 +121,24 @@ public class AsicArchiveManifest implements Serializable {
 
     referencedTimestamp = new Reference(DomUtils.getElement(rootElement, ASiCManifestPath.SIG_REFERENCE_PATH));
 
-    NodeList nodeList = DomUtils.getNodeList(rootElement, ASiCManifestPath.DATA_OBJECT_REFERENCE_PATH);
-    referencedDataObjects = Collections.unmodifiableList(
-            IntStream
-                    .range(0, (nodeList != null) ? nodeList.getLength() : 0)
+    referencedDataObjects = Optional
+            .ofNullable(DomUtils.getNodeList(rootElement, ASiCManifestPath.DATA_OBJECT_REFERENCE_PATH))
+            .filter(nodeList -> nodeList.getLength() > 0)
+            .map(nodeList -> IntStream
+                    .range(0, nodeList.getLength())
                     .mapToObj(nodeList::item)
                     .filter(Element.class::isInstance)
                     .map(Element.class::cast)
                     .map(DataReference::new)
                     .collect(Collectors.toList())
-    );
+            )
+            .map(Collections::unmodifiableList)
+            .orElseGet(Collections::emptyList);
+  }
 
+  private void compileEntryNameSet() {
     uniqueNonNullEntryNames = Collections.unmodifiableSet(
-            referencedDataObjects.stream()
+            getReferencedDataObjects().stream()
                     .map(Reference::getName)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toSet())
@@ -151,20 +156,27 @@ public class AsicArchiveManifest implements Serializable {
 
   public static class Reference {
 
-    private final String name;
+    private final String uri;
     private final String mimeType;
 
     Reference(Element element) {
-      name = getAttributeIfPresent(element, ASiCManifestAttribute.URI);
+      uri = getAttributeIfPresent(element, ASiCManifestAttribute.URI);
       mimeType = getAttributeIfPresent(element, ASiCManifestAttribute.MIME_TYPE);
     }
 
-    public String getName() {
-      return name;
+    public String getUri() {
+      return uri;
     }
 
     public String getMimeType() {
       return mimeType;
+    }
+
+    public String getName() {
+      return Optional
+              .ofNullable(getUri())
+              .map(DSSUtils::decodeURI)
+              .orElse(null);
     }
 
   }

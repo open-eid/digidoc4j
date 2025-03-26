@@ -15,11 +15,13 @@ import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
+import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
 import org.digidoc4j.Timestamp;
 import org.digidoc4j.TimestampBuilder;
 import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.digidoc4j.exceptions.IllegalTimestampException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.RemovingDataFileException;
 import org.digidoc4j.exceptions.RemovingTimestampException;
@@ -37,6 +39,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThrows;
 
 public class TimestampedContainerModificationTest extends AbstractTest {
@@ -182,6 +185,95 @@ public class TimestampedContainerModificationTest extends AbstractTest {
 
     container.removeTimestamp(container.getTimestamps().get(0));
     assertThat(container.getTimestamps(), empty());
+  }
+
+  @Test
+  public void removeAndAddTimestamp_WhenSpecialCharactersInDataFileNameArePercentEncodedInArchiveManifestDataReferenceUri_Succeeds() {
+    Container container = ContainerOpener.open(
+            "src/test/resources/testFiles/valid-containers/2xTST-datafile-with-special-characters-percentencoded-in-archive-manifest.asics",
+            Configuration.of(Configuration.Mode.TEST)
+    );
+    Timestamp timestamp = container.getTimestamps().get(1);
+
+    container.removeTimestamp(timestamp);
+    assertThat(container.getTimestamps(), hasSize(1));
+
+    container.addTimestamp(timestamp);
+    assertThat(container.getTimestamps(), hasSize(2));
+  }
+
+  @Test
+  public void removeAndAddTimestamp_WhenSpecialCharactersInDataFileNameAreUnencodedInArchiveManifestDataReferenceUri_Succeeds() {
+    Container container = ContainerOpener.open(
+            "src/test/resources/testFiles/valid-containers/2xTST-datafile-with-special-characters-unencoded-in-archive-manifest.asics",
+            Configuration.of(Configuration.Mode.TEST)
+    );
+    Timestamp timestamp = container.getTimestamps().get(1);
+
+    container.removeTimestamp(timestamp);
+    assertThat(container.getTimestamps(), hasSize(1));
+
+    container.addTimestamp(timestamp);
+    assertThat(container.getTimestamps(), hasSize(2));
+  }
+
+  @Test
+  public void addTimestamp_WhenReintroducingTimestampWithPlusEncodedSpaceCharacterInArchiveManifestDataReferenceUri_ThrowsException() {
+    Container container = ContainerOpener.open(
+            "src/test/resources/testFiles/invalid-containers/2xTST-datafile-with-space-plusencoded-in-archive-manifest.asics",
+            Configuration.of(Configuration.Mode.TEST)
+    );
+    Timestamp timestamp = container.getTimestamps().get(1);
+    container.removeTimestamp(timestamp);
+
+    IllegalTimestampException caughtException = assertThrows(
+            IllegalTimestampException.class,
+            () -> container.addTimestamp(timestamp)
+    );
+
+    assertThat(
+            caughtException.getMessage(),
+            equalTo("Cannot add timestamp not covering data file: with space.txt")
+    );
+  }
+
+  @Test
+  public void addTimestamp_WhenReintroducingTimestampWithUnencodedPercent20InArchiveManifestDataReferenceUri_ThrowsException() {
+    Container container = ContainerOpener.open(
+            "src/test/resources/testFiles/invalid-containers/2xTST-datafile-with-%20-unencoded-in-archive-manifest.asics",
+            Configuration.of(Configuration.Mode.TEST)
+    );
+    Timestamp timestamp = container.getTimestamps().get(1);
+    container.removeTimestamp(timestamp);
+
+    IllegalTimestampException caughtException = assertThrows(
+            IllegalTimestampException.class,
+            () -> container.addTimestamp(timestamp)
+    );
+
+    assertThat(
+            caughtException.getMessage(),
+            equalTo("Cannot add timestamp not covering data file: with%20encoding.txt")
+    );
+  }
+
+  @Test
+  public void removeTimestamp_WhenRemovingTimestampWithUnparsableDataReferenceUriInArchiveManifest_ThrowsException() {
+    Container container = ContainerOpener.open(
+            "src/test/resources/testFiles/invalid-containers/2xTST-datafile-with-percent-unencoded-in-archive-manifest.asics",
+            Configuration.of(Configuration.Mode.TEST)
+    );
+    Timestamp timestamp = container.getTimestamps().get(1);
+
+    IllegalArgumentException caughtException = assertThrows(
+            IllegalArgumentException.class,
+            () -> container.removeTimestamp(timestamp)
+    );
+
+    assertThat(
+            caughtException.getMessage(),
+            startsWith("URLDecoder: Illegal hex characters in escape (%) pattern")
+    );
   }
 
   private Container createTimestampedAsics(int timestampCount) {

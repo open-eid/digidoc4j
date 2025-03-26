@@ -21,13 +21,19 @@ import java.util.Optional;
 
 public class IsAsicArchiveManifestDataReference extends IsAsicArchiveManifestReference<AsicArchiveManifest.DataReference> {
 
+  private static final Class<AsicArchiveManifest.DataReference> TYPE = AsicArchiveManifest.DataReference.class;
+
   private final Matcher<String> digestAlgorithmMatcher;
   private final Matcher<String> digestValueMatcher;
 
   public IsAsicArchiveManifestDataReference(
-          Matcher<String> name, Matcher<String> mimeType, Matcher<String> digestAlgorithm, Matcher<String> digestValue
+          Matcher<String> uri,
+          Matcher<String> name,
+          Matcher<String> mimeType,
+          Matcher<String> digestAlgorithm,
+          Matcher<String> digestValue
   ) {
-    super(AsicArchiveManifest.DataReference.class, name, mimeType);
+    super(AsicArchiveManifest.DataReference.class, uri, name, mimeType);
     digestAlgorithmMatcher = digestAlgorithm;
     digestValueMatcher = digestValue;
   }
@@ -59,10 +65,11 @@ public class IsAsicArchiveManifestDataReference extends IsAsicArchiveManifestRef
   @Override
   public void describeTo(Description description) {
     super.describeTo(description);
-    boolean hasSubMatcher = (nameMatcher != null) || (mimeTypeMatcher != null);
+    boolean hasSubMatcher = (uriMatcher != null) || (nameMatcher != null) || (mimeTypeMatcher != null);
     if (digestAlgorithmMatcher != null) {
       (hasSubMatcher ? description.appendText(" and digest algorithm ") : description.appendText(" with digest algorithm "))
               .appendDescriptionOf(digestAlgorithmMatcher);
+      hasSubMatcher = true;
     }
     if (digestValueMatcher != null) {
       (hasSubMatcher ? description.appendText(" and digest value ") : description.appendText(" with digest value "))
@@ -70,8 +77,18 @@ public class IsAsicArchiveManifestDataReference extends IsAsicArchiveManifestRef
     }
   }
 
+  public static Matcher<AsicArchiveManifest.DataReference> isDataReferenceWithUri(Matcher<String> uriMatcher) {
+    return isReferenceWithUri(TYPE, uriMatcher);
+  }
+
+  public static Matcher<AsicArchiveManifest.DataReference> isDataReferenceWithUri(String uri) {
+    return isDataReferenceWithUri(
+            Optional.ofNullable(uri).map(Matchers::equalTo).orElseGet(() -> Matchers.nullValue(String.class))
+    );
+  }
+
   public static Matcher<AsicArchiveManifest.DataReference> isDataReferenceWithName(Matcher<String> nameMatcher) {
-    return new IsAsicArchiveManifestDataReference(nameMatcher, null, null, null);
+    return isReferenceWithName(TYPE, nameMatcher);
   }
 
   public static Matcher<AsicArchiveManifest.DataReference> isDataReferenceWithName(String name) {
@@ -81,7 +98,7 @@ public class IsAsicArchiveManifestDataReference extends IsAsicArchiveManifestRef
   }
 
   public static Matcher<AsicArchiveManifest.DataReference> isDataReferenceWithMimeType(Matcher<String> mimeTypeMatcher) {
-    return new IsAsicArchiveManifestDataReference(null, mimeTypeMatcher, null, null);
+    return isReferenceWithMimeType(TYPE, mimeTypeMatcher);
   }
 
   public static Matcher<AsicArchiveManifest.DataReference> isDataReferenceWithMimeType(String mimeType) {
@@ -97,7 +114,13 @@ public class IsAsicArchiveManifestDataReference extends IsAsicArchiveManifestRef
   }
 
   public static Matcher<AsicArchiveManifest.DataReference> isDataReferenceWithDigestAlgorithm(Matcher<String> digestAlgorithmMatcher) {
-    return new IsAsicArchiveManifestDataReference(null, null, digestAlgorithmMatcher, null);
+    return new IsAsicArchiveManifestDataReference(
+            null,
+            null,
+            null,
+            digestAlgorithmMatcher,
+            null
+    );
   }
 
   public static Matcher<AsicArchiveManifest.DataReference> isDataReferenceWithDigestAlgorithm(String digestAlgorithm) {
@@ -121,7 +144,13 @@ public class IsAsicArchiveManifestDataReference extends IsAsicArchiveManifestRef
   }
 
   public static Matcher<AsicArchiveManifest.DataReference> isDataReferenceWithDigestValue(Matcher<String> digestValueMatcher) {
-    return new IsAsicArchiveManifestDataReference(null, null, null, digestValueMatcher);
+    return new IsAsicArchiveManifestDataReference(
+            null,
+            null,
+            null,
+            null,
+            digestValueMatcher
+    );
   }
 
   public static Matcher<AsicArchiveManifest.DataReference> isDataReferenceWithDigestValue(String digestValue) {
@@ -136,11 +165,53 @@ public class IsAsicArchiveManifestDataReference extends IsAsicArchiveManifestRef
     );
   }
 
+  public static Matcher<AsicArchiveManifest.DataReference> isDataReferenceWithUriAndName(
+          Matcher<String> uriMatcher,
+          Matcher<String> nameMatcher
+  ) {
+    return isReferenceWithUriAndName(TYPE, uriMatcher, nameMatcher);
+  }
+
+  public static Matcher<AsicArchiveManifest.DataReference> isDataReferenceWithUriAndName(
+          String uri,
+          String name
+  ) {
+    return isDataReferenceWithUriAndName(
+            Optional.ofNullable(uri).map(Matchers::equalTo).orElseGet(() -> Matchers.nullValue(String.class)),
+            Optional.ofNullable(name).map(Matchers::equalTo).orElseGet(() -> Matchers.nullValue(String.class))
+    );
+  }
+
+  public static Matcher<AsicArchiveManifest.DataReference> isDataReferenceWithUriAndMimeType(
+          Matcher<String> uriMatcher,
+          Matcher<String> mimeTypeMatcher
+  ) {
+    return isReferenceWithUriAndMimeType(TYPE, uriMatcher, mimeTypeMatcher);
+  }
+
+  public static Matcher<AsicArchiveManifest.DataReference> isDataReferenceWithUriAndMimeType(
+          String uri,
+          String mimeType
+  ) {
+    return isDataReferenceWithUriAndMimeType(
+            Optional.ofNullable(uri).map(Matchers::equalTo).orElseGet(() -> Matchers.nullValue(String.class)),
+            Optional.ofNullable(mimeType).map(Matchers::equalTo).orElseGet(() -> Matchers.nullValue(String.class))
+    );
+  }
+
+  public static Matcher<AsicArchiveManifest.DataReference> isDataReferenceWithUriAndMimeType(
+          String uri,
+          MimeType mimeType
+  ) {
+    return isDataReferenceWithUriAndMimeType(uri, Optional
+            .ofNullable(mimeType).map(MimeType::getMimeTypeString).orElse(null));
+  }
+
   public static Matcher<AsicArchiveManifest.DataReference> isDataReferenceWithNameAndMimeType(
           Matcher<String> nameMatcher,
           Matcher<String> mimeTypeMatcher
   ) {
-    return new IsAsicArchiveManifestDataReference(nameMatcher, mimeTypeMatcher, null, null);
+    return isReferenceWithNameAndMimeType(TYPE, nameMatcher, mimeTypeMatcher);
   }
 
   public static Matcher<AsicArchiveManifest.DataReference> isDataReferenceWithNameAndMimeType(
@@ -165,7 +236,13 @@ public class IsAsicArchiveManifestDataReference extends IsAsicArchiveManifestRef
           Matcher<String> nameMatcher,
           Matcher<String> digestAlgorithmMatcher
   ) {
-    return new IsAsicArchiveManifestDataReference(nameMatcher, null, digestAlgorithmMatcher, null);
+    return new IsAsicArchiveManifestDataReference(
+            null,
+            nameMatcher,
+            null,
+            digestAlgorithmMatcher,
+            null
+    );
   }
 
   public static Matcher<AsicArchiveManifest.DataReference> isDataReferenceWithNameAndDigestAlgorithm(
@@ -199,7 +276,13 @@ public class IsAsicArchiveManifestDataReference extends IsAsicArchiveManifestRef
           Matcher<String> mimeTypeMatcher,
           Matcher<String> digestAlgorithmMatcher
   ) {
-    return new IsAsicArchiveManifestDataReference(nameMatcher, mimeTypeMatcher, digestAlgorithmMatcher, null);
+    return new IsAsicArchiveManifestDataReference(
+            null,
+            nameMatcher,
+            mimeTypeMatcher,
+            digestAlgorithmMatcher,
+            null
+    );
   }
 
   public static Matcher<AsicArchiveManifest.DataReference> isDataReferenceWithNameAndMimeTypeAndDigestAlgorithm(
@@ -239,7 +322,13 @@ public class IsAsicArchiveManifestDataReference extends IsAsicArchiveManifestRef
           Matcher<String> digestAlgorithmMatcher,
           Matcher<String> digestValueMatcher
   ) {
-    return new IsAsicArchiveManifestDataReference(null, null, digestAlgorithmMatcher, digestValueMatcher);
+    return new IsAsicArchiveManifestDataReference(
+            null,
+            null,
+            null,
+            digestAlgorithmMatcher,
+            digestValueMatcher
+    );
   }
 
   public static Matcher<AsicArchiveManifest.DataReference> isDataReferenceWithDigestAlgorithmAndValue(

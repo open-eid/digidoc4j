@@ -76,6 +76,7 @@ public class AsicArchiveManifestTest {
     AsicArchiveManifest.Reference result = asicArchiveManifest.getReferencedTimestamp();
 
     assertThat(result, notNullValue());
+    assertThat(result.getUri(), nullValue());
     assertThat(result.getName(), nullValue());
     assertThat(result.getMimeType(), nullValue());
   }
@@ -90,6 +91,7 @@ public class AsicArchiveManifestTest {
     AsicArchiveManifest.Reference result = asicArchiveManifest.getReferencedTimestamp();
 
     assertThat(result, notNullValue());
+    assertThat(result.getUri(), nullValue());
     assertThat(result.getName(), nullValue());
     assertThat(result.getMimeType(), nullValue());
   }
@@ -104,8 +106,55 @@ public class AsicArchiveManifestTest {
     AsicArchiveManifest.Reference result = asicArchiveManifest.getReferencedTimestamp();
 
     assertThat(result, notNullValue());
+    assertThat(result.getUri(), equalTo("custom-uri-string"));
     assertThat(result.getName(), equalTo("custom-uri-string"));
     assertThat(result.getMimeType(), equalTo("custom-mimetype-string"));
+  }
+
+  @Test
+  public void getReferencedTimestamp_WhenSigReferenceUriContainsPercentEncodedSpecialCharacters_ReturnsTimestampReferenceWithExpectedValues() {
+    DSSDocument manifestDocument = createAsicManifestXmlDocument(
+            createAsicSigReferenceXmlElement(null,
+                    "%21%23%24%25%26%27%28%29%2B%2C-.%3B%3D%40%5B%5D%5E_%60%7B%7D%7E%20%C3%B5%C3%A4%C3%B6%C3%BC")
+    );
+    AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
+
+    AsicArchiveManifest.Reference result = asicArchiveManifest.getReferencedTimestamp();
+
+    assertThat(result, notNullValue());
+    assertThat(result.getUri(),
+            equalTo("%21%23%24%25%26%27%28%29%2B%2C-.%3B%3D%40%5B%5D%5E_%60%7B%7D%7E%20%C3%B5%C3%A4%C3%B6%C3%BC"));
+    assertThat(result.getName(), equalTo("!#$%&'()+,-.;=@[]^_`{}~ õäöü"));
+    assertThat(result.getMimeType(), nullValue());
+  }
+
+  @Test
+  public void getReferencedTimestamp_WhenSigReferenceUriContainsUnencodedSpecialCharacters_ReturnsTimestampReferenceWithExpectedValues() {
+    DSSDocument manifestDocument = createAsicManifestXmlDocument(
+            createAsicSigReferenceXmlElement(null, "!#$&amp;'()+,-.;=@[]^_`{}~ õäöü")
+    );
+    AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
+
+    AsicArchiveManifest.Reference result = asicArchiveManifest.getReferencedTimestamp();
+
+    assertThat(result, notNullValue());
+    assertThat(result.getUri(), equalTo("!#$&'()+,-.;=@[]^_`{}~ õäöü"));
+    assertThat(result.getName(), equalTo("!#$&'()+,-.;=@[]^_`{}~ õäöü"));
+    assertThat(result.getMimeType(), nullValue());
+  }
+
+  @Test
+  public void getName_WhenSigReferenceUriIsUnencodedPercentCharacter_ThrowsException() {
+    DSSDocument manifestDocument = createAsicManifestXmlDocument(
+            createAsicSigReferenceXmlElement(null, "%")
+    );
+    AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
+    AsicArchiveManifest.Reference referencedTimestamp = asicArchiveManifest.getReferencedTimestamp();
+
+    assertThrows(
+            IllegalArgumentException.class,
+            referencedTimestamp::getName
+    );
   }
 
   @Test
@@ -145,6 +194,7 @@ public class AsicArchiveManifestTest {
     List<AsicArchiveManifest.DataReference> result = asicArchiveManifest.getReferencedDataObjects();
 
     assertThat(result, hasSize(1));
+    assertThat(result.get(0).getUri(), nullValue());
     assertThat(result.get(0).getName(), nullValue());
     assertThat(result.get(0).getMimeType(), nullValue());
     assertThat(result.get(0).getDigestAlgorithm(), nullValue());
@@ -165,10 +215,63 @@ public class AsicArchiveManifestTest {
     List<AsicArchiveManifest.DataReference> result = asicArchiveManifest.getReferencedDataObjects();
 
     assertThat(result, hasSize(1));
+    assertThat(result.get(0).getUri(), equalTo("custom-uri-string"));
     assertThat(result.get(0).getName(), equalTo("custom-uri-string"));
     assertThat(result.get(0).getMimeType(), equalTo("custom-mimetype-string"));
     assertThat(result.get(0).getDigestAlgorithm(), equalTo("custom-algorithm-string"));
     assertThat(result.get(0).getDigestValue(), equalTo("custom-digest-string"));
+  }
+
+  @Test
+  public void getReferencedDataObjects_WhenDataObjectReferenceUriContainsPercentEncodedSpecialCharacters_ReturnsListOfOneExpectedReference() {
+    DSSDocument manifestDocument = createAsicManifestXmlDocument(
+            createAsicDataObjectReferenceXmlElement(null,
+                    "%21%23%24%25%26%27%28%29%2B%2C-.%3B%3D%40%5B%5D%5E_%60%7B%7D%7E%20%C3%B5%C3%A4%C3%B6%C3%BC")
+    );
+    AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
+
+    List<AsicArchiveManifest.DataReference> result = asicArchiveManifest.getReferencedDataObjects();
+
+    assertThat(result, hasSize(1));
+    assertThat(result.get(0).getUri(),
+            equalTo("%21%23%24%25%26%27%28%29%2B%2C-.%3B%3D%40%5B%5D%5E_%60%7B%7D%7E%20%C3%B5%C3%A4%C3%B6%C3%BC"));
+    assertThat(result.get(0).getName(), equalTo("!#$%&'()+,-.;=@[]^_`{}~ õäöü"));
+    assertThat(result.get(0).getMimeType(), nullValue());
+    assertThat(result.get(0).getDigestAlgorithm(), nullValue());
+    assertThat(result.get(0).getDigestValue(), nullValue());
+  }
+
+  @Test
+  public void getReferencedDataObjects_WhenDataObjectReferenceUriContainsUnencodedSpecialCharacters_ReturnsListOfOneExpectedReference() {
+    DSSDocument manifestDocument = createAsicManifestXmlDocument(
+            createAsicDataObjectReferenceXmlElement(null, "!#$&amp;'()+,-.;=@[]^_`{}~ õäöü")
+    );
+    AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
+
+    List<AsicArchiveManifest.DataReference> result = asicArchiveManifest.getReferencedDataObjects();
+
+    assertThat(result, hasSize(1));
+    assertThat(result.get(0).getUri(), equalTo("!#$&'()+,-.;=@[]^_`{}~ õäöü"));
+    assertThat(result.get(0).getName(), equalTo("!#$&'()+,-.;=@[]^_`{}~ õäöü"));
+    assertThat(result.get(0).getMimeType(), nullValue());
+    assertThat(result.get(0).getDigestAlgorithm(), nullValue());
+    assertThat(result.get(0).getDigestValue(), nullValue());
+  }
+
+  @Test
+  public void getName_WhenDataObjectReferenceUriIsUnencodedPercentCharacter_ThrowsException() {
+    DSSDocument manifestDocument = createAsicManifestXmlDocument(
+            createAsicDataObjectReferenceXmlElement(null, "%")
+    );
+    AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
+    List<AsicArchiveManifest.DataReference> referencedDataObjects = asicArchiveManifest.getReferencedDataObjects();
+    assertThat(referencedDataObjects, hasSize(1));
+    AsicArchiveManifest.DataReference referencedDataObject = referencedDataObjects.get(0);
+
+    assertThrows(
+            IllegalArgumentException.class,
+            referencedDataObject::getName
+    );
   }
 
   @Test
@@ -212,6 +315,19 @@ public class AsicArchiveManifestTest {
 
     assertThat(result, hasSize(2));
     assertThat(result, containsInAnyOrder("element-3-uri", "element-4-uri"));
+  }
+
+  @Test
+  public void getNonNullEntryNames_WhenDataObjectReferenceUriIsUnencodedPercentCharacter_ThrowsException() {
+    DSSDocument manifestDocument = createAsicManifestXmlDocument(
+            createAsicDataObjectReferenceXmlElement(null, "%")
+    );
+    AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
+
+    assertThrows(
+            IllegalArgumentException.class,
+            asicArchiveManifest::getNonNullEntryNames
+    );
   }
 
 }
