@@ -28,7 +28,7 @@
         <commons-io.version>2.15.1</commons-io.version>
         <commons-lang3.version>3.14.0</commons-lang3.version>
         <contiperf.version>2.4.3</contiperf.version>
-        <dss.version>6.0.d4j.2</dss.version>
+        <dss.version>6.0.1.d4j.1</dss.version>
         <hamcrest.version>2.2</hamcrest.version>
         <httpclient5.version>5.3.1</httpclient5.version>
         <jackson.version>2.16.1</jackson.version>
