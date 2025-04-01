@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<TrustServiceStatusList xmlns="http://uri.etsi.org/02231/v2#" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:tslx="http://uri.etsi.org/02231/v2/additionaltypes#" xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" Id="ID0001" TSLTag="http://uri.etsi.org/19612/TSLTag">
+   <SchemeInformation>
+      <TSLVersionIdentifier>{TSL_VERSION_IDENTIFIER}</TSLVersionIdentifier>
+      <TSLSequenceNumber>4</TSLSequenceNumber>
+      <TSLType>http://uri.etsi.org/TrstSvc/TrustedList/TSLType/EUlistofthelists</TSLType>
+      <SchemeOperatorName>
+         <Name xml:lang="en">Information System Authority</Name>
+      </SchemeOperatorName>
+      <SchemeOperatorAddress>
+         <PostalAddresses>
+            <PostalAddress xml:lang="en">
+               <StreetAddress>139A Pärnu mnt</StreetAddress>
+               <Locality>Tallinn</Locality>
+               <StateOrProvince>Harjumaa</StateOrProvince>
+               <PostalCode>15169</PostalCode>
+               <CountryName>EE</CountryName>
+            </PostalAddress>
+         </PostalAddresses>
+         <ElectronicAddress>
+            <URI xml:lang="en">mailto:ria@ria.ee</URI>
+            <URI xml:lang="en">https://www.ria.ee</URI>
+         </ElectronicAddress>
+      </SchemeOperatorAddress>
+      <SchemeName>
+         <Name xml:lang="en">EE:Supervision/Accreditation Status List of test certification services</Name>
+      </SchemeName>
+      <SchemeInformationURI>
+         <URI xml:lang="en">https://open-eid.github.io/test-TL/</URI>
+      </SchemeInformationURI>
+      <StatusDeterminationApproach>http://uri.etsi.org/TrstSvc/TrustedList/StatusDetn/EUlistofthelists</StatusDeterminationApproach>
+      <SchemeTypeCommunityRules>
+         <URI xml:lang="en">http://uri.etsi.org/TrstSvc/TrustedList/schemerules/EUlistofthelists</URI>
+      </SchemeTypeCommunityRules>
+      <SchemeTerritory>EE</SchemeTerritory>
+      <PolicyOrLegalNotice>
+         <TSLLegalNotice xml:lang="en">The present TSL implementation of ponters to test TSL lists is not applicable to any legal frameworks</TSLLegalNotice>
+      </PolicyOrLegalNotice>
+      <HistoricalInformationPeriod>65535</HistoricalInformationPeriod>
+      <PointersToOtherTSL>
+         <OtherTSLPointer>
+            <ServiceDigitalIdentities>
+               <ServiceDigitalIdentity>
+                  <DigitalId>
+                     <X509Certificate>{OTHER_TSL_CERTIFICATE_B64}</X509Certificate>
+                  </DigitalId>
+               </ServiceDigitalIdentity>
+            </ServiceDigitalIdentities>
+            <TSLLocation>{OTHER_TSL_LOCATION}</TSLLocation>
+            <AdditionalInformation>
+               <OtherInformation>
+                  <TSLType>http://uri.etsi.org/TrstSvc/TrustedList/TSLType/EUgeneric</TSLType>
+               </OtherInformation>
+               <OtherInformation>
+                  <SchemeOperatorName>
+                     <Name xml:lang="en">SK Test Authority</Name>
+                  </SchemeOperatorName>
+               </OtherInformation>
+               <OtherInformation>
+                  <SchemeTypeCommunityRules>
+                     <URI xml:lang="en">http://uri.etsi.org/TrstSvc/TrustedList/schemerules/EUcommon</URI>
+                  </SchemeTypeCommunityRules>
+               </OtherInformation>
+               <OtherInformation>
+                  <SchemeTerritory>EE_T</SchemeTerritory>
+               </OtherInformation>
+               <OtherInformation>
+                  <tslx:MimeType>application/vnd.etsi.tsl+xml</tslx:MimeType>
+               </OtherInformation>
+            </AdditionalInformation>
+         </OtherTSLPointer>
+      </PointersToOtherTSL>
+      <ListIssueDateTime>2020-06-03T12:06:01Z</ListIssueDateTime>
+      <NextUpdate>
+         <dateTime>2027-08-21T23:00:00Z</dateTime>
+      </NextUpdate>
+      <DistributionPoints>
+         <URI>https://open-eid.github.io/test-TL/tl-mp-test-EE.xml</URI>
+      </DistributionPoints>
+   </SchemeInformation>
+</TrustServiceStatusList>
