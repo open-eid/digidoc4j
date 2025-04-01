@@ -1,12 +1,12 @@
 /* DigiDoc4J library
-*
-* This software is released under either the GNU Library General Public
-* License (see LICENSE.LGPL).
-*
-* Note that the only valid version of the LGPL license as far as this
-* project is concerned is the original GNU Library General Public License
-* Version 2.1, February 1999
-*/
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
 
 package org.digidoc4j.test.util;
 
@@ -26,7 +26,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
-public class TestSigningUtil {
+public final class TestSigningUtil {
 
   public static final String TEST_PKI_CONTAINER = "src/test/resources/testFiles/p12/sign_RSA_from_TEST_of_ESTEIDSK2015.p12";
   public static final String TEST_PKI_CONTAINER_PASSWORD = "1234";
@@ -110,17 +110,21 @@ public class TestSigningUtil {
   }
 
   /**
-   * This method digest and encrypt the given {@code InputStream} with indicated private key and signature algorithm. To find the signature object
-   * the list of registered security Providers, starting with the most preferred Provider is traversed.
+   * This method encrypts the given input using the specified private key and signature algorithm, returning an array
+   * of bytes representing the signature value.
+   * <p>
+   * To find the {@link Signature} implementation for the specified signature algorithm, the list of registered security
+   * providers, starting with the most preferred provider, is traversed.
+   * A new {@link Signature} object encapsulating the {@link java.security.SignatureSpi} implementation from the first
+   * provider that supports the specified algorithm is returned.
    *
-   * This method returns an array of bytes representing the signature value. Signature object that implements the specified signature algorithm. It traverses the list of
-   * registered security Providers, starting with the most preferred Provider. A new Signature object encapsulating the SignatureSpi implementation from the first Provider
-   * that supports the specified algorithm is returned. The {@code NoSuchAlgorithmException} exception is wrapped in a DSSException.
+   * @param signatureAlgorithm signature algorithm name
+   * @param privateKey private key to use
+   * @param bytes the data to encrypt
+   * @return signature bytes
    *
-   * @param signatureAlgorithm signature algorithm under JAVA form.
-   * @param privateKey             private key to use
-   * @param bytes                  the data to digest
-   * @return digested and encrypted array of bytes
+   * @see <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#Signature">
+   * Standard signature algorithm names</a>
    */
   public static byte[] encrypt(String signatureAlgorithm, PrivateKey privateKey, byte[] bytes) {
     try {
@@ -129,8 +133,77 @@ public class TestSigningUtil {
       signature.update(bytes);
       return signature.sign();
     } catch (GeneralSecurityException e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException("Failed to encrypt", e);
     }
+  }
+
+  /**
+   * This method encrypts the given input using the specified private key and a signature algorithm derived from the
+   * key and the specified digest algorithm.
+   * <p>
+   * The name of the signature algorithm is constructed as:
+   * <pre>{@code
+   * digestAlgorithm + "with" + privateKey.getAlgorithm()
+   * }</pre>
+   *
+   * @param privateKey private key to use
+   * @param bytes the data to encrypt
+   * @param digestAlgorithm digest algorithm name
+   * @return signature bytes
+   *
+   * @see #encrypt(String, PrivateKey, byte[])
+   */
+  public static byte[] encrypt(PrivateKey privateKey, byte[] bytes, String digestAlgorithm) {
+    String signatureAlgorithm = digestAlgorithm + "with" + privateKey.getAlgorithm();
+    return encrypt(signatureAlgorithm, privateKey, bytes);
+  }
+
+  /**
+   * This method encrypts the given input using the specified private key and a signature algorithm derived from the
+   * key and the specified digest algorithm.
+   *
+   * @param privateKey private key to use
+   * @param bytes the data to encrypt
+   * @param digestAlgorithm digest algorithm
+   * @return signature bytes
+   *
+   * @see #encrypt(PrivateKey, byte[], String)
+   */
+  public static byte[] encrypt(PrivateKey privateKey, byte[] bytes, eu.europa.esig.dss.enumerations.DigestAlgorithm digestAlgorithm) {
+    return encrypt(privateKey, bytes, digestAlgorithm.getName());
+  }
+
+  /**
+   * This method encrypts the given input using the specified private key and a signature algorithm derived from the
+   * key and the specified digest algorithm.
+   *
+   * @param privateKey private key to use
+   * @param bytes the data to encrypt
+   * @param digestAlgorithm digest algorithm
+   * @return signature bytes
+   *
+   * @see #encrypt(PrivateKey, byte[], eu.europa.esig.dss.enumerations.DigestAlgorithm)
+   */
+  public static byte[] encrypt(PrivateKey privateKey, byte[] bytes, DigestAlgorithm digestAlgorithm) {
+    return encrypt(privateKey, bytes, digestAlgorithm.getDssDigestAlgorithm());
+  }
+
+  /**
+   * This method encrypts the given input using the specified private key and a signature algorithm derived from the key.
+   * <p>
+   * The digest algorithm to be used is {@code NONE}, i.e. the name of the signature algorithm is constructed as:
+   * <pre>{@code
+   * "NONEwith" + privateKey.getAlgorithm()
+   * }</pre>
+   *
+   * @param privateKey private key to use
+   * @param bytes the data to encrypt
+   * @return signature bytes
+   *
+   * @see #encrypt(PrivateKey, byte[], String)
+   */
+  public static byte[] encrypt(PrivateKey privateKey, byte[] bytes) {
+    return encrypt(privateKey, bytes, "NONE");
   }
 
   /*
@@ -143,5 +216,7 @@ public class TestSigningUtil {
       return (X509Certificate) certificateFactory.generateCertificate(new ByteArrayInputStream(cert));
     }
   }
+
+  private TestSigningUtil() {}
 
 }
