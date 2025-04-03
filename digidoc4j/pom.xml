@@ -41,7 +41,7 @@
         <system-rules.version>1.19.0</system-rules.version>
         <wiremock.version>2.35.2</wiremock.version><!-- Java 8 is not supported since version 3.X.X -->
         <xmlsec.version>3.0.5</xmlsec.version><!-- DSS depends on xmlsec 3.0.X -->
-        <xmlunit.version>1.6</xmlunit.version>
+        <xmlunit.version>2.10.0</xmlunit.version>
 
         <buildnumber-maven-plugin.version>3.2.1</buildnumber-maven-plugin.version>
         <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
@@ -308,8 +308,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>xmlunit</groupId>
-            <artifactId>xmlunit</artifactId>
+            <groupId>org.xmlunit</groupId>
+            <artifactId>xmlunit-matchers</artifactId>
             <version>${xmlunit.version}</version>
             <scope>test</scope>
         </dependency>
@@ -338,6 +338,10 @@
                 <exclusion>
                     <groupId>commons-fileupload</groupId>
                     <artifactId>commons-fileupload</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.xmlunit</groupId>
+                    <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

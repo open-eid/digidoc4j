@@ -16,7 +16,6 @@ import eu.europa.esig.dss.enumerations.SignatureQualification;
 import eu.europa.esig.dss.enumerations.SubIndication;
 import eu.europa.esig.dss.simplereport.SimpleReport;
 import org.apache.commons.codec.binary.Base64;
-import org.custommonkey.xmlunit.XMLAssert;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.impl.Certificates;
@@ -47,6 +46,7 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.matchesRegex;
+import static org.xmlunit.matchers.CompareMatcher.isIdenticalTo;
 
 public class SignatureTest extends AbstractTest {
 
@@ -337,7 +337,8 @@ public class SignatureTest extends AbstractTest {
     container.saveAsFile("getSignatureXMLForBDOC.bdoc");
     String signatureFromContainer = Helper.extractSignature("getSignatureXMLForBDOC.bdoc", 0);
     Helper.deleteFile("getSignatureXMLForBDOC.bdoc");
-    XMLAssert.assertXMLEqual(signatureFromContainer, new String(signature.getAdESSignature()));
+
+    assertThat(signature.getAdESSignature(), isIdenticalTo(signatureFromContainer));
   }
 
   @Test

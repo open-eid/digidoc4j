@@ -1,9 +1,21 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.impl.asic.manifest;
 
-import org.custommonkey.xmlunit.XMLAssert;
 import org.digidoc4j.Constant;
 import org.digidoc4j.DataFile;
 import org.junit.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.xmlunit.matchers.CompareMatcher.isIdenticalTo;
 
 public class AsicManifestTest {
 
@@ -62,7 +74,7 @@ public class AsicManifestTest {
   private static void assertManifestBytes(AsicManifest manifest, String expectedXmlString) throws Exception {
     byte[] manifestBytes = manifest.getBytes();
 
-    XMLAssert.assertXMLEqual(expectedXmlString, new String(manifestBytes));
+    assertThat(manifestBytes, isIdenticalTo(expectedXmlString));
   }
 
 }
