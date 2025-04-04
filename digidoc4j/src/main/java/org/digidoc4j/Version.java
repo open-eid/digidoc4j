@@ -11,5 +11,5 @@
 package org.digidoc4j;
 
 public class Version {
-  public static final String VERSION = "5.3.1";
+  public static final String VERSION = "5.3.2-SNAPSHOT";
 }

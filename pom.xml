@@ -6,7 +6,7 @@
 
     <groupId>org.digidoc4j</groupId>
     <artifactId>digidoc4j-parent</artifactId>
-    <version>5.3.1</version>
+    <version>5.3.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>DigiDoc4J parent</name>
