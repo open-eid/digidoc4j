@@ -76,6 +76,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import static org.digidoc4j.Container.DocumentType.ASICE;
@@ -348,6 +349,14 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
       return file;
     } catch (Exception e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  protected File createTemporaryFileByExtension(String extension) {
+    try {
+      return testFolder.newFile(UUID.randomUUID() + "." + extension);
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to create temporary file", e);
     }
   }
 
