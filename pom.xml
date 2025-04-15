@@ -143,15 +143,15 @@
         <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
 
         <bouncycastle.version>1.80</bouncycastle.version>
-        <commons-codec.version>1.16.1</commons-codec.version>
-        <slf4j.version>2.0.12</slf4j.version>
+        <commons-codec.version>1.18.0</commons-codec.version>
+        <slf4j.version>2.0.17</slf4j.version>
 
         <dependency-check-maven.version>8.4.3</dependency-check-maven.version>
-        <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
-        <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
-        <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
-        <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
-        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
+        <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
+        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+        <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
+        <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
+        <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
 
         <javadocOpt>none</javadocOpt>
     </properties>
