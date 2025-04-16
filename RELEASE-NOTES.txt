@@ -1,6 +1,29 @@
 DigiDoc4J Java library release notes
 ------------------------------------
 
+Release 5.3.2
+-------------
+EU and its member states are expected to transition to version 6 of the EU Trust List format in the second half of May 2025.
+
+DigiDoc4j version 5.x.x users must upgrade to DigiDoc4j version 5.3.2 or 6.0.1 before EU member states adopt EU Trust List version 6.
+If the upgrade is not done, it won't be possible to load EU Trust Lists, which results in failure on signature creation and validation.
+
+Separate info will be provided for older versions, though we strongly recommend upgrading to the latest version.
+
+Summary of the major changes since 5.3.1
+----------------------------------------
+* Updated DSS to 6.0.1 (sd-dss 6.0.1.d4j.1). Check changes in DSS here: https://github.com/esig/dss/releases/tag/6.0.1
+  - Added support for EU Trust List v6; EU Trust List v5 remains supported
+* Fixes and improvements to unit tests
+* Updated dependencies
+
+Known issues
+------------
+* We have noticed a decrease in performance of parsing/validating XAdES signatures that cover numerous data files since updating to DSS 6.0
+* We have noticed a slight increase in TSL loading times due to pivot LOTL support
+* We have noticed a decrease in performance with the introduction of properly accessing AIA certificate resources
+* Opening a container that contains signatures, triggers TSL loading (TSL lazy loading does not work as expected)
+
 Release 5.3.1
 ------------------
 Summary of the major changes since 5.3.0
