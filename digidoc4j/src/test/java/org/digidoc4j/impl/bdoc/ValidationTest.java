@@ -282,20 +282,6 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-  public void revocationAndTimeStampDifferenceTooLarge() {
-    Container container = ContainerOpener
-        .open("src/test/resources/prodFiles/invalid-containers/revocation_timestamp_delta_26h.asice", PROD_CONFIGURATION);
-    SignatureValidationResult validationResult = container.validate();
-    TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
-            "(Signature ID: S0) - The difference between the OCSP response time and the signature timestamp is too large"
-    );
-    TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
-            "(Signature ID: S0) - The authority info access is not present!"
-    );
-  }
-
-  @Test
   public void moreThan24hDifferenceBetweenTimeStampAndRevocationAllowedForLatvianSignature() {
     Configuration configuration = createLatvianSignatureConfiguration();
     Container container = ContainerOpener
@@ -329,10 +315,8 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  public void revocationAndTimeStampDifferenceMoreThan15minButNotTooLarge() {
+  public void revocationAndTimeStampDifferenceMoreThan15min() {
     Configuration configuration = new Configuration(Configuration.Mode.PROD);
-    int delta27Hours = 27 * 60;
-    configuration.setRevocationAndTimestampDeltaInMinutes(delta27Hours);
     ContainerValidationResult result = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/revocation_timestamp_delta_26h.asice", configuration)
         .validate();
@@ -1076,7 +1060,7 @@ public class ValidationTest extends AbstractTest {
 
     assertContainerIsInvalid(containerValidationResult);
     assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
-            containerValidationResult.getErrors(), 14,
+            containerValidationResult.getErrors(), 13,
             "(Signature ID: id-3c2450a9540e30ef7c89d4bad355065e) - The reference data object has not been found!",
             "(Signature ID: id-6128479cd68e028c5d2a51bed115534f) - The reference data object is not intact!",
             "(Signature ID: id-6fe708387ee0f33f7112fb02f72e8044) - The reference data object is not intact!",
@@ -1087,19 +1071,19 @@ public class ValidationTest extends AbstractTest {
             "(Signature ID: id-11b9536c6b07506f4dd5b2a772258f87) - The reference data object is not intact!",
             "(Signature ID: id-811fee53ac96b318b0a9c092dc86f7ef) - The time-stamp message imprint is not intact!",
             "(Signature ID: id-811fee53ac96b318b0a9c092dc86f7ef) - Signature has an invalid timestamp",
-            "(Signature ID: id-a4b5f8ff7fc270bc86b3ff9f12b5a84c) - The difference between the OCSP response time and the signature timestamp is too large",
             "(Signature ID: id-3c2450a9540e30ef7c89d4bad355065e) - Manifest file has an entry for file <test.txt> with mimetype <text/plain> but the signature file for signature id-3c2450a9540e30ef7c89d4bad355065e does not have an entry for this file",
             "(Signature ID: id-3c2450a9540e30ef7c89d4bad355065e) - The signature file for signature id-3c2450a9540e30ef7c89d4bad355065e has an entry for file <test.xtx> with mimetype <text/plain> but the manifest file does not have an entry for this file",
             "(Signature ID: id-07db1cabd904a28dcfe0b6779eafbebc) - Manifest file has an entry for file <test.txt> with mimetype <text/plain> but the signature file for signature id-07db1cabd904a28dcfe0b6779eafbebc indicates the mimetype is <text/xml>"
     );
     assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
-            containerValidationResult.getWarnings(), 6,
+            containerValidationResult.getWarnings(), 7,
             "(Signature ID: id-3c2450a9540e30ef7c89d4bad355065e) - The signature/seal is an INDETERMINATE AdES digital signature!",
             "(Signature ID: id-6128479cd68e028c5d2a51bed115534f) - The signature/seal is not a valid AdES digital signature!",
             "(Signature ID: id-6fe708387ee0f33f7112fb02f72e8044) - The signature/seal is not a valid AdES digital signature!",
             "(Signature ID: id-cd8654a26c4f2a00f9d77d20a280aade) - The signature/seal is not a valid AdES digital signature!",
             "(Signature ID: id-11b9536c6b07506f4dd5b2a772258f87) - The signature/seal is an INDETERMINATE AdES digital signature!",
-            "(Signature ID: id-811fee53ac96b318b0a9c092dc86f7ef) - The computed message-imprint does not match the value extracted from the time-stamp!"
+            "(Signature ID: id-811fee53ac96b318b0a9c092dc86f7ef) - The computed message-imprint does not match the value extracted from the time-stamp!",
+            "(Signature ID: id-a4b5f8ff7fc270bc86b3ff9f12b5a84c) - The time difference between the signature timestamp and the OCSP response exceeds 15 minutes, rendering the OCSP response not 'fresh'."
     );
     assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
             containerValidationResult.getContainerErrors(), 3,
@@ -1213,12 +1197,12 @@ public class ValidationTest extends AbstractTest {
       String signatureId = container.getSignatures().get(7).getUniqueId();
       ValidationResult signatureValidationResult = containerValidationResult.getValidationResult(signatureId);
       assertThat(signatureValidationResult, notNullValue());
-      assertThat(signatureValidationResult.isValid(), equalTo(false));
+      assertThat(signatureValidationResult.isValid(), equalTo(true));
+      assertThat(signatureValidationResult.getErrors(), empty());
       assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
-              signatureValidationResult.getErrors(), 1,
-              "(Signature ID: id-a4b5f8ff7fc270bc86b3ff9f12b5a84c) - The difference between the OCSP response time and the signature timestamp is too large"
+              signatureValidationResult.getWarnings(), 1,
+              "(Signature ID: id-a4b5f8ff7fc270bc86b3ff9f12b5a84c) - The time difference between the signature timestamp and the OCSP response exceeds 15 minutes, rendering the OCSP response not 'fresh'."
       );
-      assertThat(signatureValidationResult.getWarnings(), empty());
     }
     {
       // Currently this introduces container error about data file mimetype mismatch between signature and manifest,

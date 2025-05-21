@@ -94,7 +94,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extendEstonianSignatureFromTToLT_After24h_ExtensionSucceedsButValidationFails() {
+  public void extendEstonianSignatureFromTToLT_After24h_ExtensionSucceedsWithValidationWarning() {
     setupCustomConfigurationWithExtendingOcspSourceFactory();
 
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/signature-level-T.asice",
@@ -107,10 +107,10 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     Assert.assertNotNull(signature.getOCSPCertificate());
     Assert.assertEquals(SignatureProfile.LT, signature.getProfile());
     ContainerValidationResult validationResult = container.validate();
-    Assert.assertFalse(validationResult.isValid());
-    Assert.assertEquals(0, validationResult.getWarnings().size());
-    Assert.assertEquals(1, validationResult.getErrors().size());
-    Assert.assertEquals("(Signature ID: id-aa0954fdd331fdf45324f117e2453a1e) - The difference between the OCSP response time and the signature timestamp is too large", validationResult.getErrors().get(0).toString());
+    TestAssert.assertContainerIsValid(container);
+    TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
+            "(Signature ID: id-aa0954fdd331fdf45324f117e2453a1e) - The time difference between the signature timestamp and the OCSP response exceeds 15 minutes, rendering the OCSP response not 'fresh'."
+    );
   }
 
   @Test

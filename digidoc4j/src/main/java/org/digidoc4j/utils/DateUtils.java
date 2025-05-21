@@ -51,7 +51,12 @@ public final class DateUtils {
     return isInRangeSeconds(date1, date2, oneMinuteInSeconds);
   }
 
+  /**
+   * @deprecated Deprecated for removal. Was only used for 24h revocation time difference check, which has been removed.
+   */
+  @Deprecated
   public static boolean isInRangeMinutes(Date date1, Date date2, int rangeInMinutes) {
+    logger.warn("Deprecated method 'isInRangeMinutes()' called.");
     int rangeInSeconds = rangeInMinutes * 60;
     return isInRangeSeconds(date1, date2, rangeInSeconds);
   }

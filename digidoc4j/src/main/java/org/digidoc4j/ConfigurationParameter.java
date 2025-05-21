@@ -17,7 +17,7 @@ public enum ConfigurationParameter {
 
   ConnectionTimeoutInMillis,
   SocketTimeoutInMillis,
-  RevocationAndTimestampDeltaInMinutes,
+  @Deprecated RevocationAndTimestampDeltaInMinutes,
   AllowedTimestampAndOCSPResponseDeltaInMinutes,
   SignatureProfile,
   SignatureDigestAlgorithm,

@@ -338,7 +338,7 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("PASSED", "/SimpleReport/TimestampToken/Indication", report);
     TestAssert.assertXPathHasValue(containerFilename, "/SimpleReport/TimestampToken/TimestampScope/@name", report);
     TestAssert.assertXPathHasValue("9", "/SimpleReport/SignaturesCount", report);
-    TestAssert.assertXPathHasValue("2", "/SimpleReport/ValidSignaturesCount", report);
+    TestAssert.assertXPathHasValue("3", "/SimpleReport/ValidSignaturesCount", report);
     TestAssert.assertXPathHasValue("9", "count(/SimpleReport/Signature)", report);
   }
 

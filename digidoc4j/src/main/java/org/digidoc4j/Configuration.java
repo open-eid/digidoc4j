@@ -1176,8 +1176,13 @@ public class Configuration implements Serializable {
    * Revocation and timestamp delta in minutes.
    *
    * @return timestamp delta in minutes.
+   *
+   * @deprecated Deprecated for removal. This method no longer affects DigiDoc4j functionality.
+   * Was only used for 24h revocation time difference check, which has been removed.
    */
+  @Deprecated
   public int getRevocationAndTimestampDeltaInMinutes() {
+    LOGGER.warn("Deprecated method 'getRevocationAndTimestampDeltaInMinutes()' called: this method no longer affects DigiDoc4j functionality.");
     return this.getConfigurationParameter(ConfigurationParameter.RevocationAndTimestampDeltaInMinutes, Integer.class);
   }
 
@@ -1185,8 +1190,13 @@ public class Configuration implements Serializable {
    * Set Revocation and timestamp delta in minutes.
    *
    * @param timeInMinutes delta in minutes.
+   *
+   * @deprecated Deprecated for removal. This method no longer affects DigiDoc4j functionality.
+   * Was only used for 24h revocation time difference check, which has been removed.
    */
+  @Deprecated
   public void setRevocationAndTimestampDeltaInMinutes(int timeInMinutes) {
+    LOGGER.warn("Deprecated method 'setRevocationAndTimestampDeltaInMinutes()' called: this method no longer affects DigiDoc4j functionality.");
     this.setConfigurationParameter(ConfigurationParameter.RevocationAndTimestampDeltaInMinutes,
         String.valueOf(timeInMinutes));
   }
