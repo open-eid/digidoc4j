@@ -12,13 +12,14 @@ package org.digidoc4j.impl.asic;
 
 import eu.europa.esig.dss.alert.SilentOnStatusAlert;
 import eu.europa.esig.dss.alert.StatusAlert;
-import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.model.x509.revocation.crl.CRL;
 import eu.europa.esig.dss.model.x509.revocation.ocsp.OCSP;
 import eu.europa.esig.dss.spi.validation.CertificateVerifier;
 import eu.europa.esig.dss.spi.validation.CommonCertificateVerifier;
 import eu.europa.esig.dss.spi.validation.RevocationDataLoadingStrategyFactory;
 import eu.europa.esig.dss.spi.validation.RevocationDataVerifier;
+import eu.europa.esig.dss.spi.validation.TimestampTokenVerifier;
+import eu.europa.esig.dss.spi.validation.TrustAnchorVerifier;
 import eu.europa.esig.dss.spi.x509.CertificateSource;
 import eu.europa.esig.dss.spi.x509.ListCertificateSource;
 import eu.europa.esig.dss.spi.x509.aia.AIASource;
@@ -110,6 +111,26 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
   }
 
   @Override
+  public TimestampTokenVerifier getTimestampTokenVerifier() {
+    return commonCertificateVerifier.getTimestampTokenVerifier();
+  }
+
+  @Override
+  public void setTimestampTokenVerifier(TimestampTokenVerifier timestampTokenVerifier) {
+    commonCertificateVerifier.setTimestampTokenVerifier(timestampTokenVerifier);
+  }
+
+  @Override
+  public TrustAnchorVerifier getTrustAnchorVerifier() {
+    return commonCertificateVerifier.getTrustAnchorVerifier();
+  }
+
+  @Override
+  public void setTrustAnchorVerifier(TrustAnchorVerifier trustAnchorVerifier) {
+    commonCertificateVerifier.setTrustAnchorVerifier(trustAnchorVerifier);
+  }
+
+  @Override
   public ListCertificateSource getTrustedCertSources() {
     return this.commonCertificateVerifier.getTrustedCertSources();
   }
@@ -140,13 +161,13 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
   }
 
   @Override
-  public void setDefaultDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
-    this.commonCertificateVerifier.setDefaultDigestAlgorithm(digestAlgorithm);
+  public void setAlertOnInvalidSignature(StatusAlert statusAlert) {
+    commonCertificateVerifier.setAlertOnInvalidSignature(statusAlert);
   }
 
   @Override
-  public DigestAlgorithm getDefaultDigestAlgorithm() {
-    return this.commonCertificateVerifier.getDefaultDigestAlgorithm();
+  public StatusAlert getAlertOnInvalidSignature() {
+    return commonCertificateVerifier.getAlertOnInvalidSignature();
   }
 
   @Override
@@ -200,28 +221,58 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
   }
 
   @Override
-  public void setAlertOnExpiredSignature(StatusAlert alertOnUncoveredPOE) {
-    this.commonCertificateVerifier.setAlertOnExpiredSignature(alertOnUncoveredPOE);
+  public void setAlertOnExpiredCertificate(StatusAlert statusAlert) {
+    commonCertificateVerifier.setAlertOnExpiredCertificate(statusAlert);
   }
 
   @Override
-  public StatusAlert getAlertOnExpiredSignature() {
-    return this.commonCertificateVerifier.getAlertOnExpiredSignature();
+  public StatusAlert getAlertOnExpiredCertificate() {
+    return commonCertificateVerifier.getAlertOnExpiredCertificate();
+  }
+
+  @Override
+  public void setAlertOnNotYetValidCertificate(StatusAlert statusAlert) {
+    commonCertificateVerifier.setAlertOnNotYetValidCertificate(statusAlert);
+  }
+
+  @Override
+  public StatusAlert getAlertOnNotYetValidCertificate() {
+    return commonCertificateVerifier.getAlertOnNotYetValidCertificate();
+  }
+
+  @Override
+  public void setAugmentationAlertOnHigherSignatureLevel(StatusAlert statusAlert) {
+    commonCertificateVerifier.setAugmentationAlertOnHigherSignatureLevel(statusAlert);
+  }
+
+  @Override
+  public StatusAlert getAugmentationAlertOnHigherSignatureLevel() {
+    return commonCertificateVerifier.getAugmentationAlertOnHigherSignatureLevel();
+  }
+
+  @Override
+  public void setAugmentationAlertOnSignatureWithoutCertificates(StatusAlert statusAlert) {
+    commonCertificateVerifier.setAugmentationAlertOnSignatureWithoutCertificates(statusAlert);
+  }
+
+  @Override
+  public StatusAlert getAugmentationAlertOnSignatureWithoutCertificates() {
+    return commonCertificateVerifier.getAugmentationAlertOnSignatureWithoutCertificates();
+  }
+
+  @Override
+  public void setAugmentationAlertOnSelfSignedCertificateChains(StatusAlert statusAlert) {
+    commonCertificateVerifier.setAugmentationAlertOnSelfSignedCertificateChains(statusAlert);
+  }
+
+  @Override
+  public StatusAlert getAugmentationAlertOnSelfSignedCertificateChains() {
+    return commonCertificateVerifier.getAugmentationAlertOnSelfSignedCertificateChains();
   }
 
   @Override
   public boolean isCheckRevocationForUntrustedChains() {
     return this.commonCertificateVerifier.isCheckRevocationForUntrustedChains();
-  }
-
-  @Override
-  public void setExtractPOEFromUntrustedChains(boolean isExtractPOEFromUntrustedChains) {
-    this.commonCertificateVerifier.setExtractPOEFromUntrustedChains(isExtractPOEFromUntrustedChains);
-  }
-
-  @Override
-  public boolean isExtractPOEFromUntrustedChains() {
-    return this.commonCertificateVerifier.isExtractPOEFromUntrustedChains();
   }
 
   @Override
