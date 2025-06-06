@@ -19,9 +19,9 @@ import eu.europa.esig.dss.model.SignatureValue;
 import eu.europa.esig.dss.model.ToBeSigned;
 import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
-import eu.europa.esig.dss.spi.tsl.TrustedListsCertificateSource;
 import eu.europa.esig.dss.spi.validation.CertificateVerifier;
 import eu.europa.esig.dss.spi.validation.CommonCertificateVerifier;
+import eu.europa.esig.dss.spi.x509.TrustedCertificateSource;
 import eu.europa.esig.dss.spi.x509.aia.AIASource;
 import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 import eu.europa.esig.dss.spi.x509.tsp.TSPSource;
@@ -43,7 +43,7 @@ public class DssContainerSigner {
   private final AIASource aiaSource;
   private final OCSPSource ocspSource;
   private final TSPSource tspSource;
-  private final TrustedListsCertificateSource tsl;
+  private final TrustedCertificateSource tsl;
   private final DigestAlgorithm signatureDigestAlgorithm;
   private final DigestAlgorithm referenceDigestAlgorithm;
 
@@ -52,7 +52,7 @@ public class DssContainerSigner {
     aiaSource = createAiaSource(configuration);
     ocspSource = createOcspSource(configuration);
     tspSource = createTspSource(configuration);
-    tsl = (TrustedListsCertificateSource) configuration.getTSL();
+    tsl = (TrustedCertificateSource) configuration.getTSL();
     signatureDigestAlgorithm = Optional
         .ofNullable(configuration.getSignatureDigestAlgorithm())
         .orElse(DigestAlgorithm.SHA512);

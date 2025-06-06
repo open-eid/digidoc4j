@@ -12,11 +12,19 @@ package org.digidoc4j.impl.asic.tsl;
 
 import eu.europa.esig.dss.enumerations.CertificateSourceType;
 import eu.europa.esig.dss.model.DSSException;
+import eu.europa.esig.dss.model.Digest;
+import eu.europa.esig.dss.model.identifier.EntityIdentifier;
+import eu.europa.esig.dss.model.tsl.CertificateTrustTime;
 import eu.europa.esig.dss.model.tsl.TLValidationJobSummary;
 import eu.europa.esig.dss.model.tsl.TrustProperties;
+import eu.europa.esig.dss.model.tsl.TrustPropertiesCertificateSource;
 import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.model.x509.X500PrincipalHelper;
-import eu.europa.esig.dss.spi.tsl.TrustedListsCertificateSource;
+import eu.europa.esig.dss.spi.x509.CertificateRef;
+import eu.europa.esig.dss.spi.x509.CertificateSource;
+import eu.europa.esig.dss.spi.x509.CertificateSourceEntity;
+import eu.europa.esig.dss.spi.x509.SignerIdentifier;
+import eu.europa.esig.dss.spi.x509.TrustedCertificateSource;
 import eu.europa.esig.dss.tsl.job.TLValidationJob;
 import org.digidoc4j.TSLCertificateSource;
 import org.digidoc4j.exceptions.TslCertificateSourceInitializationException;
@@ -27,6 +35,7 @@ import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -40,7 +49,7 @@ import java.util.Set;
  * <p>
  * To achieve that, a lazily initialized certificate source is used.
  */
-public class LazyTslCertificateSource extends TrustedListsCertificateSource implements TSLCertificateSource {
+public class LazyTslCertificateSource implements TSLCertificateSource, TrustedCertificateSource, TrustPropertiesCertificateSource {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(LazyTslCertificateSource.class);
 
@@ -59,58 +68,134 @@ public class LazyTslCertificateSource extends TrustedListsCertificateSource impl
   }
 
   @Override
-  public TLValidationJobSummary getSummary() {
-    return this.getCertificateSource().getSummary();
-  }
-
-  @Override
-  public int getNumberOfCertificates() {
-    return this.getCertificateSource().getNumberOfCertificates();
-  }
-
-  @Override
   public CertificateToken addCertificate(CertificateToken certificate) {
-    return this.getCertificateSource().addCertificate(certificate);
+    return getCertificateSource().addCertificate(certificate);
   }
 
   @Override
-  public boolean isKnown(CertificateToken token) {
-    return this.getCertificateSource().isKnown(token);
-  }
-
-  @Override
-  public List<TrustProperties> getTrustServices(CertificateToken token) {
-    return this.getCertificateSource().getTrustServices(token);
-  }
-
-  @Override
-  public CertificateSourceType getCertificateSourceType() {
-    return CertificateSourceType.TRUSTED_LIST;
+  public void addCertificate(CertificateToken certificate, List<TrustProperties> trustProperties) {
+    getCertificateSource().addCertificate(certificate, trustProperties);
   }
 
   @Override
   public void addTSLCertificate(X509Certificate certificate) {
-    this.getCertificateSource().addTSLCertificate(certificate);
+    getCertificateSource().addTSLCertificate(certificate);
   }
 
   @Override
-  public Set<CertificateToken> getBySubject(X500PrincipalHelper subject) {
-    return this.getCertificateSource().getBySubject(subject);
+  public Set<CertificateToken> findTokensFromCertRef(CertificateRef certificateRef) {
+    return getCertificateSource().findTokensFromCertRef(certificateRef);
+  }
+
+  @Override
+  public List<String> getAlternativeOCSPUrls(CertificateToken certificateToken) {
+    return getCertificateSource().getAlternativeOCSPUrls(certificateToken);
+  }
+
+  @Override
+  public List<String> getAlternativeCRLUrls(CertificateToken certificateToken) {
+    return getCertificateSource().getAlternativeCRLUrls(certificateToken);
+  }
+
+  @Override
+  public Set<CertificateToken> getByEntityKey(EntityIdentifier entityIdentifier) {
+    return getCertificateSource().getByEntityKey(entityIdentifier);
+  }
+
+  @Override
+  public Set<CertificateToken> getByCertificateDigest(Digest digest) {
+    return getCertificateSource().getByCertificateDigest(digest);
   }
 
   @Override
   public Set<CertificateToken> getByPublicKey(PublicKey publicKey) {
-    return this.getCertificateSource().getByPublicKey(publicKey);
+    return getCertificateSource().getByPublicKey(publicKey);
+  }
+
+  @Override
+  public Set<CertificateToken> getBySignerIdentifier(SignerIdentifier signerIdentifier) {
+    return getCertificateSource().getBySignerIdentifier(signerIdentifier);
+  }
+
+  @Override
+  public Set<CertificateToken> getBySki(byte[] bytes) {
+    return getCertificateSource().getBySki(bytes);
+  }
+
+  @Override
+  public Set<CertificateToken> getBySubject(X500PrincipalHelper subject) {
+    return getCertificateSource().getBySubject(subject);
   }
 
   @Override
   public List<CertificateToken> getCertificates() {
-    return this.getCertificateSource().getCertificates();
+    return getCertificateSource().getCertificates();
+  }
+
+  @Override
+  public CertificateSourceType getCertificateSourceType() {
+    // Do not invoke lazy loading, expect the source to always be trusted list
+    return CertificateSourceType.TRUSTED_LIST;
+  }
+
+  @Override
+  public List<CertificateSourceEntity> getEntities() {
+    return getCertificateSource().getEntities();
+  }
+
+  @Override
+  public int getNumberOfCertificates() {
+    return getCertificateSource().getNumberOfCertificates();
+  }
+
+  @Override
+  public int getNumberOfTrustedEntityKeys() {
+    return getCertificateSource().getNumberOfTrustedEntityKeys();
+  }
+
+  @Override
+  public TLValidationJobSummary getSummary() {
+    return getCertificateSource().getSummary();
+  }
+
+  @Override
+  public List<TrustProperties> getTrustServices(CertificateToken token) {
+    return getCertificateSource().getTrustServices(token);
+  }
+
+  @Override
+  public CertificateTrustTime getTrustTime(CertificateToken certificateToken) {
+    return getCertificateSource().getTrustTime(certificateToken);
+  }
+
+  @Override
+  public boolean isAllSelfSigned() {
+    return getCertificateSource().isAllSelfSigned();
+  }
+
+  @Override
+  public boolean isCertificateSourceEqual(CertificateSource certificateSource) {
+    return getCertificateSource().isCertificateSourceEqual(certificateSource);
+  }
+
+  @Override
+  public boolean isCertificateSourceEquivalent(CertificateSource certificateSource) {
+    return getCertificateSource().isCertificateSourceEquivalent(certificateSource);
+  }
+
+  @Override
+  public boolean isKnown(CertificateToken token) {
+    return getCertificateSource().isKnown(token);
   }
 
   @Override
   public boolean isTrusted(CertificateToken certificateToken) {
-    return isKnown(certificateToken);
+    return getCertificateSource().isTrusted(certificateToken);
+  }
+
+  @Override
+  public boolean isTrustedAtTime(CertificateToken certificateToken, Date date) {
+    return getCertificateSource().isTrustedAtTime(certificateToken, date);
   }
 
   @Override
@@ -122,6 +207,21 @@ public class LazyTslCertificateSource extends TrustedListsCertificateSource impl
   @Override
   public void refresh() {
     this.refreshTsl();
+  }
+
+  @Override
+  public void setSummary(TLValidationJobSummary tlValidationJobSummary) {
+    throw new UnsupportedOperationException("Overwriting summary is not supported for lay TSL certificate source");
+  }
+
+  @Override
+  public void setTrustPropertiesByCertificates(Map<CertificateToken, List<TrustProperties>> map) {
+    throw new UnsupportedOperationException("Adding trust properties mappings is not supported for lay TSL certificate source");
+  }
+
+  @Override
+  public void setTrustTimeByCertificates(Map<CertificateToken, List<CertificateTrustTime>> map) {
+    throw new UnsupportedOperationException("Adding trust time mappings is not supported for lay TSL certificate source");
   }
 
   /*

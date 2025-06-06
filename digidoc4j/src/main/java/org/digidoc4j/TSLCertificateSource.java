@@ -10,6 +10,7 @@
 
 package org.digidoc4j;
 
+import eu.europa.esig.dss.model.tsl.CertificateTrustTime;
 import eu.europa.esig.dss.model.tsl.TLValidationJobSummary;
 import eu.europa.esig.dss.model.tsl.TrustProperties;
 import eu.europa.esig.dss.model.x509.CertificateToken;
@@ -61,6 +62,22 @@ public interface TSLCertificateSource extends CertificateSource {
   void addCertificate(final CertificateToken certificate, final List<TrustProperties> trustProperties);
 
   /**
+   * Returns a list of alternative OCSP access point Urls for certificates issued by the current trust anchor
+   *
+   * @param trustAnchor {@link CertificateToken}
+   * @return a list of {@link String}s
+   */
+  List<String> getAlternativeOCSPUrls(CertificateToken trustAnchor);
+
+  /**
+   * Returns a list of alternative CRL access point Urls for certificates issued by the current trust anchor
+   *
+   * @param trustAnchor {@link CertificateToken}
+   * @return a list of {@link String}s
+   */
+  List<String> getAlternativeCRLUrls(CertificateToken trustAnchor);
+
+  /**
    * Retrieves the list of all certificate tokens from this source.
    *
    * @return all the TSL certificates.
@@ -76,15 +93,43 @@ public interface TSLCertificateSource extends CertificateSource {
   List<TrustProperties> getTrustServices(CertificateToken token);
 
   /**
+   * Returns trust time period for the given certificate, when the certificate is considered as a trust anchor.
+   * For an unbounded period of trust time, returns a {@code CertificateTrustTime} with empty values.
+   * When the certificate is not trusted at any time, returns not trusted {@code CertificateTrustTime} entry.
+   *
+   * @param token {@link CertificateToken}
+   * @return {@link CertificateTrustTime}
+   */
+  CertificateTrustTime getTrustTime(CertificateToken token);
+
+  /**
    * This method returns the number of stored certificates in this source
    *
    * @return number of certificates in this instance
    */
   int getNumberOfCertificates();
 
+  /**
+   * Gets TL Validation job summary
+   *
+   * @return {@link TLValidationJobSummary}
+   */
   TLValidationJobSummary getSummary();
 
-  int getNumberOfTrustedPublicKeys();
+  /**
+   * Gets the number of trusted entity keys (public key + subject name)
+   *
+   * @return the number of trusted entity keys (public key + subject name)
+   */
+  int getNumberOfTrustedEntityKeys();
+
+  /**
+   * @deprecated Deprecated for removal. Use {@link #getNumberOfTrustedEntityKeys()} instead.
+   */
+  @Deprecated
+  default int getNumberOfTrustedPublicKeys() {
+    return getNumberOfTrustedEntityKeys();
+  }
 
   /**
    * Invalidates cache
