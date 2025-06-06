@@ -11,10 +11,10 @@
 package org.digidoc4j;
 
 import eu.europa.esig.dss.enumerations.KeyUsageBit;
+import eu.europa.esig.dss.model.tsl.ConditionForQualifiers;
+import eu.europa.esig.dss.model.tsl.TrustProperties;
+import eu.europa.esig.dss.model.tsl.TrustServiceStatusAndInformationExtensions;
 import eu.europa.esig.dss.model.x509.CertificateToken;
-import eu.europa.esig.dss.spi.tsl.ConditionForQualifiers;
-import eu.europa.esig.dss.spi.tsl.TrustProperties;
-import eu.europa.esig.dss.spi.tsl.TrustServiceStatusAndInformationExtensions;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.ConfigurationException;

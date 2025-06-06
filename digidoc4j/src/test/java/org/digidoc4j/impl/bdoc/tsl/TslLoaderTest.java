@@ -12,8 +12,8 @@ package org.digidoc4j.impl.bdoc.tsl;
 
 import eu.europa.esig.dss.enumerations.Indication;
 import eu.europa.esig.dss.enumerations.SubIndication;
-import eu.europa.esig.dss.spi.tsl.LOTLInfo;
-import eu.europa.esig.dss.spi.tsl.TLInfo;
+import eu.europa.esig.dss.model.tsl.LOTLInfo;
+import eu.europa.esig.dss.model.tsl.TLInfo;
 import eu.europa.esig.dss.tsl.job.TLValidationJob;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;

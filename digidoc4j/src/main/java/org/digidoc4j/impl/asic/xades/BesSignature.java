@@ -11,12 +11,12 @@
 package org.digidoc4j.impl.asic.xades;
 
 import eu.europa.esig.dss.enumerations.SignatureAlgorithm;
+import eu.europa.esig.dss.model.signature.SignatureProductionPlace;
+import eu.europa.esig.dss.model.signature.SignerRole;
 import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.spi.DSSUtils;
-import eu.europa.esig.dss.validation.SignatureProductionPlace;
-import eu.europa.esig.dss.validation.SignerRole;
+import eu.europa.esig.dss.xades.definition.XAdESPath;
 import eu.europa.esig.dss.xml.utils.DomUtils;
-import eu.europa.esig.xades.definition.XAdESPath;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.xml.security.signature.Reference;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;

@@ -10,7 +10,7 @@
 
 package org.digidoc4j.impl.asic.tsl;
 
-import eu.europa.esig.dss.spi.tsl.TLValidationJobSummary;
+import eu.europa.esig.dss.model.tsl.TLValidationJobSummary;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerOpener;

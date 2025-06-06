@@ -28,7 +28,7 @@
         <commons-io.version>2.18.0</commons-io.version>
         <commons-lang3.version>3.17.0</commons-lang3.version>
         <contiperf.version>2.4.3</contiperf.version>
-        <dss.version>6.0.1.d4j.1</dss.version>
+        <dss.version>6.2.d4j.1</dss.version>
         <hamcrest.version>3.0</hamcrest.version>
         <httpclient5.version>5.4.3</httpclient5.version>
         <jackson.version>2.18.3</jackson.version>
@@ -206,11 +206,6 @@
         </dependency>
         <dependency>
             <groupId>${dss.groupId}</groupId>
-            <artifactId>validation-policy</artifactId>
-            <version>${dss.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${dss.groupId}</groupId>
             <artifactId>dss-asic-common</artifactId>
             <version>${dss.version}</version>
         </dependency>
@@ -257,6 +252,11 @@
         <dependency>
             <groupId>${dss.groupId}</groupId>
             <artifactId>dss-crl-parser-stream</artifactId>
+            <version>${dss.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${dss.groupId}</groupId>
+            <artifactId>dss-validation</artifactId>
             <version>${dss.version}</version>
         </dependency>
 

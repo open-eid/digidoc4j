@@ -11,10 +11,10 @@
 package org.digidoc4j.impl.asic.xades;
 
 import eu.europa.esig.dss.enumerations.SignatureLevel;
-import eu.europa.esig.dss.validation.SignaturePolicy;
+import eu.europa.esig.dss.model.signature.SignaturePolicy;
+import eu.europa.esig.dss.xades.definition.XAdESPath;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 import eu.europa.esig.dss.xml.utils.DomUtils;
-import eu.europa.esig.xades.definition.XAdESPath;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.impl.asic.TmSignaturePolicyType;
 import org.digidoc4j.utils.Helper;

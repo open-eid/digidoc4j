@@ -10,7 +10,7 @@
 
 package org.digidoc4j.test;
 
-import eu.europa.esig.dss.spi.tsl.TLValidationJobSummary;
+import eu.europa.esig.dss.model.tsl.TLValidationJobSummary;
 import org.digidoc4j.TSLRefreshCallback;
 
 import java.util.Objects;

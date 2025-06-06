@@ -10,7 +10,7 @@
 
 package org.digidoc4j.impl.asic.xades;
 
-import eu.europa.esig.asic.manifest.definition.ASiCManifestNamespace;
+import eu.europa.esig.dss.asic.common.definition.ASiCManifestNamespace;
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.enumerations.EncryptionAlgorithm;
 import eu.europa.esig.dss.enumerations.SignatureLevel;
@@ -25,14 +25,13 @@ import eu.europa.esig.dss.model.SignerLocation;
 import eu.europa.esig.dss.model.ToBeSigned;
 import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
+import eu.europa.esig.dss.spi.validation.CertificateVerifier;
 import eu.europa.esig.dss.spi.x509.CertificateSource;
 import eu.europa.esig.dss.spi.x509.ListCertificateSource;
 import eu.europa.esig.dss.spi.x509.aia.AIASource;
 import eu.europa.esig.dss.spi.x509.aia.DefaultAIASource;
 import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 import eu.europa.esig.dss.spi.x509.tsp.TSPSource;
-import eu.europa.esig.dss.validation.CertificateVerifier;
-import eu.europa.esig.dss.xades.DSSXMLUtils;
 import eu.europa.esig.dss.xades.XAdESSignatureParameters;
 import eu.europa.esig.dss.xades.signature.XAdESService;
 import eu.europa.esig.dss.xml.utils.DomUtils;
@@ -260,7 +259,7 @@ public class XadesSigningDssFacade {
     Document signatureDom = DomUtils.buildDOM(signedDocument);
     Element signatureElement = signatureDom.getDocumentElement();
     Document document = XmlDomCreator.createDocument(ASiCManifestNamespace.NS.getUri(), XmlDomCreator.ASICS_NS, signatureElement);
-    byte[] documentBytes = DSSXMLUtils.serializeNode(document);
+    byte[] documentBytes = DomUtils.serializeNode(document);
     return new InMemoryDocument(documentBytes);
   }
 
