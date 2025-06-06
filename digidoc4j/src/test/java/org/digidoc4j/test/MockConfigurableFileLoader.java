@@ -23,26 +23,13 @@ public class MockConfigurableFileLoader implements DSSFileLoader {
     DSSDocument getDocument(String url) throws DSSException;
   }
 
-  @FunctionalInterface
-  public interface Remover {
-    boolean remove(String url);
-  }
-
   private DocumentGetter getter = (url) -> {
     throw new UnsupportedOperationException("GET operations not configured");
-  };
-  private Remover remover = (url) -> {
-    throw new UnsupportedOperationException("REMOVE operations not configured");
   };
 
   @Override
   public DSSDocument getDocument(String url) throws DSSException {
     return getter.getDocument(url);
-  }
-
-  @Override
-  public boolean remove(String url) {
-    return remover.remove(url);
   }
 
   public DocumentGetter getDocumentGetter() {
@@ -55,19 +42,6 @@ public class MockConfigurableFileLoader implements DSSFileLoader {
 
   public MockConfigurableFileLoader withDocumentGetter(DocumentGetter getter) {
     setDocumentGetter(getter);
-    return this;
-  }
-
-  public Remover getRemover() {
-    return remover;
-  }
-
-  public void setRemover(Remover remover) {
-    this.remover = Objects.requireNonNull(remover);
-  }
-
-  public MockConfigurableFileLoader withRemover(Remover remover) {
-    setRemover(remover);
     return this;
   }
 

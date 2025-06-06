@@ -13,10 +13,12 @@ package org.digidoc4j.impl.asic.cades;
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.enumerations.MimeType;
 import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.Digest;
 import org.junit.Test;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -70,16 +72,33 @@ public class DssDocumentWrapperTest {
   public void getDigest_MethodCallIsDelegatedToWrappedDocumentWithoutAnyAdditionalInteractions() {
     DSSDocument dssDocument = mock(DSSDocument.class);
     DigestAlgorithm digestAlgorithm = DigestAlgorithm.WHIRLPOOL;
-    String digestValue = "digest-value";
-    doReturn(digestValue).when(dssDocument).getDigest(digestAlgorithm);
+    Digest digest = mock(Digest.class);
+    doReturn(digest).when(dssDocument).getDigest(digestAlgorithm);
     DssDocumentWrapper documentWrapper = new DssDocumentWrapper(dssDocument);
 
-    String result = documentWrapper.getDigest(digestAlgorithm);
+    Digest result = documentWrapper.getDigest(digestAlgorithm);
 
-    assertThat(result, sameInstance(digestValue));
+    assertThat(result, sameInstance(digest));
     verify(dssDocument).getName();
     verify(dssDocument).getMimeType();
     verify(dssDocument).getDigest(digestAlgorithm);
+    verifyNoMoreInteractions(dssDocument);
+    verifyNoInteractions(digest);
+  }
+
+  @Test
+  public void getDigestValue_MethodCallIsDelegatedToWrappedDocumentWithoutAnyAdditionalInteractions() {
+    DSSDocument dssDocument = mock(DSSDocument.class);
+    DigestAlgorithm digestAlgorithm = DigestAlgorithm.WHIRLPOOL;
+    doReturn("digest".getBytes(StandardCharsets.UTF_8)).when(dssDocument).getDigestValue(digestAlgorithm);
+    DssDocumentWrapper documentWrapper = new DssDocumentWrapper(dssDocument);
+
+    byte[] result = documentWrapper.getDigestValue(digestAlgorithm);
+
+    assertThat(result, is("digest".getBytes(StandardCharsets.UTF_8)));
+    verify(dssDocument).getName();
+    verify(dssDocument).getMimeType();
+    verify(dssDocument).getDigestValue(digestAlgorithm);
     verifyNoMoreInteractions(dssDocument);
   }
 

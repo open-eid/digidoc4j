@@ -16,7 +16,6 @@ import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.model.FileDocument;
 import eu.europa.esig.dss.model.InMemoryDocument;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -144,8 +143,10 @@ public class DataFile implements Serializable {
   public byte[] calculateDigest(URL method) {
     logger.debug("URL method: {}", method);
     DigestAlgorithm digestAlgorithm = DigestAlgorithm.forXML(method.toString());
-    String digestBase64String = document.getDigest(digestAlgorithm);
-    return Base64.decodeBase64(digestBase64String);
+    byte[] digestValue = document.getDigestValue(digestAlgorithm);
+    // Calculated digest values are cached inside DSSDocuments.
+    //  Return a clone of the digest value to avoid exposing the cached byte array.
+    return digestValue.clone();
   }
 
   /**

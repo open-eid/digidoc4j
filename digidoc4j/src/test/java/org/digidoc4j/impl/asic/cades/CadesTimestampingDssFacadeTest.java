@@ -134,7 +134,7 @@ public class CadesTimestampingDssFacadeTest extends AbstractCadesDssFacadeTest<C
       );
       assertThat(
               cadesTimestamp.getTimeStampToken().getTimeStampInfo().getMessageImprintDigest(),
-              is(Base64.decodeBase64(dataFile.getDigest(timestampDigestAlgorithm.getDssDigestAlgorithm())))
+              is(dataFile.getDigestValue(timestampDigestAlgorithm.getDssDigestAlgorithm()))
       );
     }
     assertThat(result.getManifestDocument(), nullValue());
@@ -260,7 +260,7 @@ public class CadesTimestampingDssFacadeTest extends AbstractCadesDssFacadeTest<C
       );
       assertThat(
               newCadesTimestamp.getTimeStampToken().getTimeStampInfo().getMessageImprintDigest(),
-              is(Base64.decodeBase64(result.getManifestDocument().getDigest(DigestAlgorithm.SHA256.getDssDigestAlgorithm())))
+              is(result.getManifestDocument().getDigestValue(DigestAlgorithm.SHA256.getDssDigestAlgorithm()))
       );
     }
     assertThat(result.getManifestDocument(), isDocumentWithNameAndMimeType("META-INF/ASiCArchiveManifest.xml", MimeTypeEnum.XML));
@@ -271,19 +271,19 @@ public class CadesTimestampingDssFacadeTest extends AbstractCadesDssFacadeTest<C
       assertThat(archiveManifest.getReferencedDataObjects(), contains(
               allOf(
                       isDataReferenceWithNameAndMimeTypeAndDigestAlgorithm("META-INF/timestamp.tst", MimeTypeEnum.TST, referenceDigestAlgorithm),
-                      isDataReferenceWithDigestValue(timestamp0.getCadesTimestamp().getTimestampDocument().getDigest(referenceDssDigestAlgorithm))
+                      isDataReferenceWithDigestValue(timestamp0.getCadesTimestamp().getTimestampDocument().getDigestValue(referenceDssDigestAlgorithm))
               ),
               allOf(
                       isDataReferenceWithNameAndMimeTypeAndDigestAlgorithm("META-INF/timestamp002.tst", MimeTypeEnum.TST, referenceDigestAlgorithm),
-                      isDataReferenceWithDigestValue(capturedDocument.getDigest(referenceDssDigestAlgorithm))
+                      isDataReferenceWithDigestValue(capturedDocument.getDigestValue(referenceDssDigestAlgorithm))
               ),
               allOf(
                       isDataReferenceWithNameAndMimeTypeAndDigestAlgorithm("META-INF/ASiCArchiveManifest001.xml", MimeTypeEnum.XML, referenceDigestAlgorithm),
-                      isDataReferenceWithDigestValue(timestamp1.getArchiveManifest().getManifestDocument().getDigest(referenceDssDigestAlgorithm))
+                      isDataReferenceWithDigestValue(timestamp1.getArchiveManifest().getManifestDocument().getDigestValue(referenceDssDigestAlgorithm))
               ),
               allOf(
                       isDataReferenceWithNameAndMimeTypeAndDigestAlgorithm("test.txt", MimeTypeEnum.TEXT, referenceDigestAlgorithm),
-                      isDataReferenceWithDigestValue(dataFile.getDigest(referenceDssDigestAlgorithm))
+                      isDataReferenceWithDigestValue(dataFile.getDigestValue(referenceDssDigestAlgorithm))
               )
       ));
     }

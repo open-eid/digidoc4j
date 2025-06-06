@@ -14,6 +14,7 @@ import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.enumerations.MimeType;
 import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 import eu.europa.esig.dss.model.DSSException;
+import eu.europa.esig.dss.model.Digest;
 import org.apache.commons.io.IOUtils;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.DataFile;
@@ -39,6 +40,11 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.HashSet;
 import java.util.Set;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.sameInstance;
 
 public class StreamDocumentTest extends AbstractTest {
 
@@ -163,8 +169,12 @@ public class StreamDocumentTest extends AbstractTest {
   }
 
   @Test
-  public void getDigest() throws Exception {
-    Assert.assertEquals("VZrq0IJk1XldOQlxjN0Fq9SVcuhP5VWQ7vMaiKCP3/0=", document.getDigest(DigestAlgorithm.SHA256));
+  public void getDigest_WhenAlgorithmIsSha256_ReturnsSha256DigestWithExpectedBase64Value() {
+    Digest result = document.getDigest(DigestAlgorithm.SHA256);
+
+    assertThat(result, notNullValue());
+    assertThat(result.getAlgorithm(), sameInstance(DigestAlgorithm.SHA256));
+    assertThat(result.getBase64Value(), equalTo("VZrq0IJk1XldOQlxjN0Fq9SVcuhP5VWQ7vMaiKCP3/0="));
   }
 
   /*

@@ -13,6 +13,7 @@ package org.digidoc4j.impl.asic.cades;
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.enumerations.MimeType;
 import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.Digest;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
@@ -85,8 +86,13 @@ public class DssDocumentWrapper implements DSSDocument {
   }
 
   @Override
-  public String getDigest(DigestAlgorithm digestAlgorithm) {
+  public Digest getDigest(DigestAlgorithm digestAlgorithm) {
     return dssDocument.getDigest(digestAlgorithm);
+  }
+
+  @Override
+  public byte[] getDigestValue(DigestAlgorithm digestAlgorithm) {
+    return dssDocument.getDigestValue(digestAlgorithm);
   }
 
 }
