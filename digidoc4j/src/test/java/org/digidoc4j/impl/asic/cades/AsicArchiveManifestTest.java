@@ -17,6 +17,7 @@ import org.digidoc4j.exceptions.TechnicalException;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -144,17 +145,29 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getName_WhenSigReferenceUriIsUnencodedPercentCharacter_ThrowsException() {
+  public void getName_WhenSigReferenceUriContainsUnencodedPlusAndPercentCharacters_ReturnsReferenceNameWithPercentEncodedPlusCharacter() {
+    DSSDocument manifestDocument = createAsicManifestXmlDocument(
+            createAsicSigReferenceXmlElement(null, "+%")
+    );
+    AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
+    AsicArchiveManifest.Reference referencedTimestamp = asicArchiveManifest.getReferencedTimestamp();
+
+    String result = referencedTimestamp.getName();
+
+    assertThat(result, equalTo("%2B%"));
+  }
+
+  @Test
+  public void getName_WhenSigReferenceUriIsUnencodedPercentCharacter_ReturnsReferenceNameAsPercentCharacter() {
     DSSDocument manifestDocument = createAsicManifestXmlDocument(
             createAsicSigReferenceXmlElement(null, "%")
     );
     AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
     AsicArchiveManifest.Reference referencedTimestamp = asicArchiveManifest.getReferencedTimestamp();
 
-    assertThrows(
-            IllegalArgumentException.class,
-            referencedTimestamp::getName
-    );
+    String result = referencedTimestamp.getName();
+
+    assertThat(result, equalTo("%"));
   }
 
   @Test
@@ -259,7 +272,22 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getName_WhenDataObjectReferenceUriIsUnencodedPercentCharacter_ThrowsException() {
+  public void getName_WhenDataObjectReferenceUriContainsUnencodedPlusAndPercentCharacters_ReturnsReferenceNameWithPercentEncodedPlusCharacter() {
+    DSSDocument manifestDocument = createAsicManifestXmlDocument(
+            createAsicDataObjectReferenceXmlElement(null, "+%")
+    );
+    AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
+    List<AsicArchiveManifest.DataReference> referencedDataObjects = asicArchiveManifest.getReferencedDataObjects();
+    assertThat(referencedDataObjects, hasSize(1));
+    AsicArchiveManifest.DataReference referencedDataObject = referencedDataObjects.get(0);
+
+    String result = referencedDataObject.getName();
+
+    assertThat(result, equalTo("%2B%"));
+  }
+
+  @Test
+  public void getName_WhenDataObjectReferenceUriIsUnencodedPercentCharacter_ReturnsReferenceNameAsPercentCharacter() {
     DSSDocument manifestDocument = createAsicManifestXmlDocument(
             createAsicDataObjectReferenceXmlElement(null, "%")
     );
@@ -268,10 +296,9 @@ public class AsicArchiveManifestTest {
     assertThat(referencedDataObjects, hasSize(1));
     AsicArchiveManifest.DataReference referencedDataObject = referencedDataObjects.get(0);
 
-    assertThrows(
-            IllegalArgumentException.class,
-            referencedDataObject::getName
-    );
+    String result = referencedDataObject.getName();
+
+    assertThat(result, equalTo("%"));
   }
 
   @Test
@@ -318,16 +345,27 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getNonNullEntryNames_WhenDataObjectReferenceUriIsUnencodedPercentCharacter_ThrowsException() {
+  public void getNonNullEntryNames_WhenDataObjectReferenceUriContainsUnencodedPlusAndPercentCharacters_ReturnsSetOfSingleValueWithPercentEncodedPlusCharacter() {
+    DSSDocument manifestDocument = createAsicManifestXmlDocument(
+            createAsicDataObjectReferenceXmlElement(null, "+%")
+    );
+    AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
+
+    Set<String> result = asicArchiveManifest.getNonNullEntryNames();
+
+    assertThat(result, equalTo(Collections.singleton("%2B%")));
+  }
+
+  @Test
+  public void getNonNullEntryNames_WhenDataObjectReferenceUriIsUnencodedPercentCharacter_ReturnsSetOfSinglePercentCharacter() {
     DSSDocument manifestDocument = createAsicManifestXmlDocument(
             createAsicDataObjectReferenceXmlElement(null, "%")
     );
     AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
 
-    assertThrows(
-            IllegalArgumentException.class,
-            asicArchiveManifest::getNonNullEntryNames
-    );
+    Set<String> result = asicArchiveManifest.getNonNullEntryNames();
+
+    assertThat(result, equalTo(Collections.singleton("%")));
   }
 
 }

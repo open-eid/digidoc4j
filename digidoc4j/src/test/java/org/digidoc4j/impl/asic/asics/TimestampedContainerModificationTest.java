@@ -218,6 +218,21 @@ public class TimestampedContainerModificationTest extends AbstractTest {
   }
 
   @Test
+  public void removeAndAddTimestamp_WhenPercentCharacterInDataFileNameIsUnencodedInArchiveManifestDataReferenceUri_Succeeds() {
+    Container container = ContainerOpener.open(
+            "src/test/resources/testFiles/valid-containers/2xTST-datafile-with-%-unencoded-in-archive-manifest.asics",
+            Configuration.of(Configuration.Mode.TEST)
+    );
+    Timestamp timestamp = container.getTimestamps().get(1);
+
+    container.removeTimestamp(timestamp);
+    assertThat(container.getTimestamps(), hasSize(1));
+
+    container.addTimestamp(timestamp);
+    assertThat(container.getTimestamps(), hasSize(2));
+  }
+
+  @Test
   public void addTimestamp_WhenReintroducingTimestampWithPlusEncodedSpaceCharacterInArchiveManifestDataReferenceUri_ThrowsException() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/invalid-containers/2xTST-datafile-with-space-plusencoded-in-archive-manifest.asics",
@@ -258,21 +273,22 @@ public class TimestampedContainerModificationTest extends AbstractTest {
   }
 
   @Test
-  public void removeTimestamp_WhenRemovingTimestampWithUnparsableDataReferenceUriInArchiveManifest_ThrowsException() {
+  public void addTimestamp_WhenReintroducingTimestampWithUnencodedPlusAndPercentInArchiveManifestDataReferenceUri_ThrowsException() {
     Container container = ContainerOpener.open(
-            "src/test/resources/testFiles/invalid-containers/2xTST-datafile-with-percent-unencoded-in-archive-manifest.asics",
+            "src/test/resources/testFiles/invalid-containers/2xTST-datafile-with-+%-unencoded-in-archive-manifest.asics",
             Configuration.of(Configuration.Mode.TEST)
     );
     Timestamp timestamp = container.getTimestamps().get(1);
+    container.removeTimestamp(timestamp);
 
-    IllegalArgumentException caughtException = assertThrows(
-            IllegalArgumentException.class,
-            () -> container.removeTimestamp(timestamp)
+    IllegalTimestampException caughtException = assertThrows(
+            IllegalTimestampException.class,
+            () -> container.addTimestamp(timestamp)
     );
 
     assertThat(
             caughtException.getMessage(),
-            startsWith("URLDecoder: Illegal hex characters in escape (%) pattern")
+            startsWith("Cannot add timestamp not covering data file: +%.txt")
     );
   }
 
