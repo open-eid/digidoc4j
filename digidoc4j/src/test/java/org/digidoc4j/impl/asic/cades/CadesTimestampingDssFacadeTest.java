@@ -270,6 +270,10 @@ public class CadesTimestampingDssFacadeTest extends AbstractCadesDssFacadeTest<C
       eu.europa.esig.dss.enumerations.DigestAlgorithm referenceDssDigestAlgorithm = referenceDigestAlgorithm.getDssDigestAlgorithm();
       assertThat(archiveManifest.getReferencedDataObjects(), contains(
               allOf(
+                      isDataReferenceWithNameAndMimeTypeAndDigestAlgorithm("test.txt", MimeTypeEnum.TEXT, referenceDigestAlgorithm),
+                      isDataReferenceWithDigestValue(dataFile.getDigestValue(referenceDssDigestAlgorithm))
+              ),
+              allOf(
                       isDataReferenceWithNameAndMimeTypeAndDigestAlgorithm("META-INF/timestamp.tst", MimeTypeEnum.TST, referenceDigestAlgorithm),
                       isDataReferenceWithDigestValue(timestamp0.getCadesTimestamp().getTimestampDocument().getDigestValue(referenceDssDigestAlgorithm))
               ),
@@ -280,10 +284,6 @@ public class CadesTimestampingDssFacadeTest extends AbstractCadesDssFacadeTest<C
               allOf(
                       isDataReferenceWithNameAndMimeTypeAndDigestAlgorithm("META-INF/ASiCArchiveManifest001.xml", MimeTypeEnum.XML, referenceDigestAlgorithm),
                       isDataReferenceWithDigestValue(timestamp1.getArchiveManifest().getManifestDocument().getDigestValue(referenceDssDigestAlgorithm))
-              ),
-              allOf(
-                      isDataReferenceWithNameAndMimeTypeAndDigestAlgorithm("test.txt", MimeTypeEnum.TEXT, referenceDigestAlgorithm),
-                      isDataReferenceWithDigestValue(dataFile.getDigestValue(referenceDssDigestAlgorithm))
               )
       ));
     }

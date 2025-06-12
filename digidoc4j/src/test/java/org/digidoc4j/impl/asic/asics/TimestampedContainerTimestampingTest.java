@@ -99,8 +99,8 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
     AsicSContainerTimestamp asicsTimestamp = (AsicSContainerTimestamp) container.getTimestamps().get(1);
     assertThat(asicsTimestamp.getArchiveManifest(), notNullValue(AsicArchiveManifest.class));
     assertThat(asicsTimestamp.getArchiveManifest().getReferencedDataObjects(), contains(
-            isDataReferenceWithNameAndMimeType("META-INF/timestamp.tst", MimeTypeEnum.TST),
-            isDataReferenceWithNameAndMimeType("test.txt", MimeTypeEnum.TEXT)
+            isDataReferenceWithNameAndMimeType("test.txt", MimeTypeEnum.TEXT),
+            isDataReferenceWithNameAndMimeType("META-INF/timestamp.tst", MimeTypeEnum.TST)
     ));
   }
 
@@ -121,8 +121,8 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
     AsicSContainerTimestamp asicsTimestamp = (AsicSContainerTimestamp) container.getTimestamps().get(1);
     assertThat(asicsTimestamp.getArchiveManifest(), notNullValue(AsicArchiveManifest.class));
     assertThat(asicsTimestamp.getArchiveManifest().getReferencedDataObjects(), contains(
-            isDataReferenceWithNameAndMimeType("META-INF/timestamp.tst", MimeTypeEnum.TST),
-            isDataReferenceWithNameAndMimeType("test.txt", MimeTypeEnum.TEXT)
+            isDataReferenceWithNameAndMimeType("test.txt", MimeTypeEnum.TEXT),
+            isDataReferenceWithNameAndMimeType("META-INF/timestamp.tst", MimeTypeEnum.TST)
     ));
   }
 
@@ -259,10 +259,10 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
     AsicSContainerTimestamp asicsTimestamp = (AsicSContainerTimestamp) container.getTimestamps().get(1);
     assertThat(asicsTimestamp.getArchiveManifest(), notNullValue(AsicArchiveManifest.class));
     assertThat(asicsTimestamp.getArchiveManifest().getReferencedDataObjects(), contains(
-            isDataReferenceWithUriAndMimeType("META-INF/timestamp.tst", MimeTypeEnum.TST),
             isDataReferenceWithUriAndMimeType(
                     "1234567890%20%21%23%24%25%26%27%28%29%2B%2C-.%3B%3D%40%5B%5D%5E_%60%7B%7D%7E%20%C3%B5%C3%A4%C3%B6%C3%BC.txt",
-                    MimeTypeEnum.TEXT)
+                    MimeTypeEnum.TEXT),
+            isDataReferenceWithUriAndMimeType("META-INF/timestamp.tst", MimeTypeEnum.TST)
     ));
   }
 
@@ -287,12 +287,12 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
     AsicSContainerTimestamp asicsTimestamp = (AsicSContainerTimestamp) container.getTimestamps().get(2);
     assertThat(asicsTimestamp.getArchiveManifest(), notNullValue(AsicArchiveManifest.class));
     assertThat(asicsTimestamp.getArchiveManifest().getReferencedDataObjects(), contains(
-            isDataReferenceWithUriAndMimeType("META-INF/timestamp.tst", MimeTypeEnum.TST),
-            isDataReferenceWithUriAndMimeType("META-INF/timestamp002.tst", MimeTypeEnum.TST),
-            isDataReferenceWithUriAndMimeType("META-INF/ASiCArchiveManifest001.xml", MimeTypeEnum.XML),
             isDataReferenceWithUriAndMimeType(
                     "1234567890%20%21%23%24%25%26%27%28%29%2B%2C-.%3B%3D%40%5B%5D%5E_%60%7B%7D%7E%20%C3%B5%C3%A4%C3%B6%C3%BC.txt",
-                    MimeTypeEnum.TEXT)
+                    MimeTypeEnum.TEXT),
+            isDataReferenceWithUriAndMimeType("META-INF/timestamp.tst", MimeTypeEnum.TST),
+            isDataReferenceWithUriAndMimeType("META-INF/timestamp002.tst", MimeTypeEnum.TST),
+            isDataReferenceWithUriAndMimeType("META-INF/ASiCArchiveManifest001.xml", MimeTypeEnum.XML)
     ));
   }
 
