@@ -156,8 +156,8 @@ public class TimestampedContainerValidationTest extends AbstractTest {
     assertContainerIsValidIgnoreErrors(containerValidationResult);
     assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
             containerValidationResult.getErrors(), 2,
-            container.getTimestamps().get(1).getUniqueId() + ") - The reference data object is not intact!",
-            container.getTimestamps().get(2).getUniqueId() + ") - The reference data object is not intact!"
+            container.getTimestamps().get(1).getUniqueId() + ") - The manifest entry object is not intact!",
+            container.getTimestamps().get(2).getUniqueId() + ") - The manifest entry object is not intact!"
     );
     assertThat(containerValidationResult.getWarnings(), empty());
     assertThat(containerValidationResult.getContainerErrors(), empty());
@@ -197,7 +197,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
       assertThat(timestampValidationResult.isValid(), equalTo(false));
       assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
               timestampValidationResult.getErrors(), 1,
-              timestampId + ") - The reference data object is not intact!"
+              timestampId + ") - The manifest entry object is not intact!"
       );
       assertThat(timestampValidationResult.getWarnings(), empty());
     }
@@ -215,7 +215,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
       assertThat(timestampValidationResult.isValid(), equalTo(false));
       assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
               timestampValidationResult.getErrors(), 1,
-              timestampId + ") - The reference data object is not intact!"
+              timestampId + ") - The manifest entry object is not intact!"
       );
       assertThat(timestampValidationResult.getWarnings(), empty());
     }
@@ -599,7 +599,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
 
     assertContainerIsValidIgnoreErrors(containerValidationResult);
     assertContainsExactSetOfErrors(containerValidationResult.getErrors(),
-            container.getTimestamps().get(1).getUniqueId() + ") - The reference data object has not been found!"
+            container.getTimestamps().get(1).getUniqueId() + ") - The manifest entry object has not been found!"
     );
     assertThat(containerValidationResult.getWarnings(), empty());
     assertThat(containerValidationResult.getContainerErrors(), empty());
@@ -645,7 +645,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
       assertThat(timestampValidationResult, notNullValue());
       assertThat(timestampValidationResult.isValid(), equalTo(false));
       assertContainsExactSetOfErrors(timestampValidationResult.getErrors(),
-              timestampId + ") - The reference data object has not been found!"
+              timestampId + ") - The manifest entry object has not been found!"
       );
       assertThat(timestampValidationResult.getWarnings(), empty());
     }
@@ -662,7 +662,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
 
     assertContainerIsValidIgnoreErrors(containerValidationResult);
     assertContainsExactSetOfErrors(containerValidationResult.getErrors(),
-            container.getTimestamps().get(1).getUniqueId() + ") - The reference data object has not been found!"
+            container.getTimestamps().get(1).getUniqueId() + ") - The manifest entry object has not been found!"
     );
     assertThat(containerValidationResult.getWarnings(), empty());
     assertThat(containerValidationResult.getContainerErrors(), empty());
@@ -708,7 +708,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
       assertThat(timestampValidationResult, notNullValue());
       assertThat(timestampValidationResult.isValid(), equalTo(false));
       assertContainsExactSetOfErrors(timestampValidationResult.getErrors(),
-              timestampId + ") - The reference data object has not been found!"
+              timestampId + ") - The manifest entry object has not been found!"
       );
       assertThat(timestampValidationResult.getWarnings(), empty());
     }
