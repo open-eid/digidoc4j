@@ -32,7 +32,6 @@ import java.nio.file.Paths;
 import static org.digidoc4j.test.TestAssert.assertContainerIsInvalid;
 import static org.digidoc4j.test.TestAssert.assertContainerIsValid;
 import static org.digidoc4j.test.TestAssert.assertContainerIsValidIgnoreErrors;
-import static org.digidoc4j.test.TestAssert.assertContainsErrors;
 import static org.digidoc4j.test.TestAssert.assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages;
 import static org.digidoc4j.test.TestAssert.assertContainsExactSetOfErrors;
 import static org.digidoc4j.test.matcher.CommonMatchers.equalToIsoDate;
@@ -188,7 +187,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
     ContainerValidationResult containerValidationResult = container.validate();
 
     assertContainerIsInvalid(containerValidationResult);
-    assertContainsErrors(containerValidationResult.getErrors(),
+    assertContainsExactSetOfErrors(containerValidationResult.getErrors(),
             container.getTimestamps().get(0).getUniqueId() + ") - The time-stamp message imprint is not intact!"
     );
     assertThat(containerValidationResult.getWarnings(), empty());
@@ -222,7 +221,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
       assertThat(timestampValidationResult, notNullValue());
       assertThat(timestampValidationResult.isValid(), equalTo(false));
-      assertContainsErrors(timestampValidationResult.getErrors(),
+      assertContainsExactSetOfErrors(timestampValidationResult.getErrors(),
               timestampId + ") - The time-stamp message imprint is not intact!"
       );
       assertThat(timestampValidationResult.getWarnings(), empty());
@@ -248,7 +247,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
     ContainerValidationResult containerValidationResult = container.validate();
 
     assertContainerIsValidIgnoreErrors(containerValidationResult);
-    assertContainsErrors(containerValidationResult.getErrors(),
+    assertContainsExactSetOfErrors(containerValidationResult.getErrors(),
             container.getTimestamps().get(0).getUniqueId() + ") - The time-stamp message imprint is not intact!"
     );
     assertContainsExactSetOfErrors(containerValidationResult.getWarnings(),
@@ -284,7 +283,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
       assertThat(timestampValidationResult, notNullValue());
       assertThat(timestampValidationResult.isValid(), equalTo(false));
-      assertContainsErrors(timestampValidationResult.getErrors(),
+      assertContainsExactSetOfErrors(timestampValidationResult.getErrors(),
               timestampId + ") - The time-stamp message imprint is not intact!"
       );
       assertThat(timestampValidationResult.getWarnings(), empty());
@@ -328,7 +327,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
     ContainerValidationResult containerValidationResult = container.validate();
 
     assertContainerIsValidIgnoreErrors(containerValidationResult);
-    assertContainsErrors(containerValidationResult.getErrors(),
+    assertContainsExactSetOfErrors(containerValidationResult.getErrors(),
             container.getTimestamps().get(0).getUniqueId() + ") - The time-stamp message imprint is not intact!"
     );
     assertContainsExactSetOfErrors(containerValidationResult.getWarnings(),
@@ -364,7 +363,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
       assertThat(timestampValidationResult, notNullValue());
       assertThat(timestampValidationResult.isValid(), equalTo(false));
-      assertContainsErrors(timestampValidationResult.getErrors(),
+      assertContainsExactSetOfErrors(timestampValidationResult.getErrors(),
               timestampId + ") - The time-stamp message imprint is not intact!"
       );
       assertThat(timestampValidationResult.getWarnings(), empty());
