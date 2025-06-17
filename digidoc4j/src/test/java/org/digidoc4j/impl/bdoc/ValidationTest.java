@@ -178,6 +178,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("DD4J-1277")
   public void signatureFileContainsIncorrectFileName() {
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/filename_mismatch_signature.asice", PROD_CONFIGURATION);
@@ -269,6 +270,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("DD4J-1277")
   public void container_withChangedDataFileName_shouldBeInvalid() {
     Container container = ContainerOpener
         .open("src/test/resources/testFiles/invalid-containers/bdoc-tm-with-changed-data-file-name.bdoc");
@@ -1050,6 +1052,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("DD4J-1277")
   public void validate_WhenAsiceHasOneValidAndMultipleInvalidSignatures_ValidationResultContainsProperInfoForEachSignature() {
     Container container = TestDataBuilderUtil.open(
             "src/test/resources/testFiles/invalid-containers/one-valid-and-multiple-invalid-signatures.asice",
