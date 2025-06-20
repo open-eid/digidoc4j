@@ -422,7 +422,7 @@ public class ValidationTest extends AbstractTest {
             "The current time is not in the validity range of the signer's certificate!",
             "The certificate validation is not conclusive!",
             "The best-signature-time is not before the expiration date of the signing certificate!",
-            "The past signature validation is not conclusive!"
+            "No long term availability and integrity of validation material is present!"
     );
   }
 
@@ -597,7 +597,7 @@ public class ValidationTest extends AbstractTest {
             "(Signature ID: S0) - The current time is not in the validity range of the signer's certificate!",
             "(Signature ID: S0) - The certificate validation is not conclusive!",
             "(Signature ID: S0) - The best-signature-time is not before the expiration date of the signing certificate!",
-            "(Signature ID: S0) - The past signature validation is not conclusive!"
+            "(Signature ID: S0) - No long term availability and integrity of validation material is present!"
     );
   }
 

@@ -159,7 +159,8 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("ŽÕRINÜWŠKY,MÄRÜ-LÖÖZ,11404176865", "/SimpleReport/Signature/SignedBy", report);
     TestAssert.assertXPathHasValue("INDETERMINATE", "/SimpleReport/Signature/Indication", report);
     TestAssert.assertXPathHasValue("REVOKED_NO_POE", "/SimpleReport/Signature/SubIndication", report);
-    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature/Errors[.='The past signature validation is not conclusive!'])", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature/Errors[.='The certificate validation is not conclusive!'])", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/Signature/Errors[.='The certificate is revoked!'])", report);
     TestAssert.assertXPathHasValue("META-INF/signatures0.xml", "/SimpleReport/Signature/DocumentName", report);
     TestAssert.assertXPathHasValue("test.txt", "/SimpleReport/Signature/SignatureScope/@name", report);
     TestAssert.assertXPathHasValue("true", "count(/SimpleReport/Signature/CertificateChain/Certificate) > 1", report);

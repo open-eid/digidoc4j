@@ -14,6 +14,7 @@ import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
+import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.test.TestAssert;
@@ -67,13 +68,13 @@ public class PadesValidationTest extends AbstractTest {
     */
     Container container = ContainerBuilder.aContainer(Container.DocumentType.PADES).withConfiguration(Configuration.of(Configuration.Mode.PROD)).
             fromExistingFile("src/test/resources/prodFiles/valid-containers/hellopades-lt-b.pdf").build();
-    SignatureValidationResult result = container.validate();
-    Assert.assertFalse(result.isValid());
-    TestAssert.assertContainsErrors(result.getErrors(),
+    ContainerValidationResult result = container.validate();
+    TestAssert.assertContainerIsInvalid(result);
+    TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
             "The certificate validation is not conclusive!",
             "The current time is not in the validity range of the signer's certificate!",
             "The best-signature-time is not before the expiration date of the signing certificate!",
-            "The past signature validation is not conclusive!",
+            "No long term availability and integrity of validation material is present!",
             "The certificate is not related to a qualified certificate issuing trust service with valid status!"
     );
   }
