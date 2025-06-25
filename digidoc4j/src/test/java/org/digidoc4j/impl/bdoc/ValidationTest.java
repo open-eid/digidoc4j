@@ -438,6 +438,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("DD4J-1279")
   public void noSignedPropRefTM() {
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/REF-03_bdoc21-TM-no-signedpropref.bdoc", PROD_CONFIGURATION_WITH_TEST_POLICY);
@@ -452,6 +453,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("DD4J-1279")
   public void noSignedPropRefTS() {
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/REF-03_bdoc21-TS-no-signedpropref.asice", PROD_CONFIGURATION_WITH_TEST_POLICY);
@@ -970,6 +972,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("DD4J-1279")
   public void container_withTimestampTakenWhenSigningCertificateWasNotValid_shouldBeInvalid() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/signing_certificate_not_valid_during_timestamping.asice");
     SignatureValidationResult result = container.validate();

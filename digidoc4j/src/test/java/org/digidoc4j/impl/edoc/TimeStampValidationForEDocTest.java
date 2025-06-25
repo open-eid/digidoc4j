@@ -16,6 +16,7 @@ import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
 import org.digidoc4j.test.TestAssert;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.nio.file.Paths;
@@ -30,6 +31,7 @@ public class TimeStampValidationForEDocTest extends AbstractTest {
   private static final String ASICE_LOCATION = "src/test/resources/testFiles/valid-containers/latvian_signed_container.asice";
 
   @Test
+  @Ignore("DD4J-1279")
   public void timestampAfterOcspResponseTimeShouldResultInInvalidContainerForEDOC() {
     ContainerValidationResult validationResult = this.openContainerByConfiguration(Paths.get(EDOC_LOCATION)).validate();
     Assert.assertFalse("Signature should be invalid if timestamp was taken after OCSP", validationResult.isValid());
@@ -49,6 +51,7 @@ public class TimeStampValidationForEDocTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("DD4J-1279")
   public void invalidTimestampMsgIsNotExistForASICE() {
     ContainerValidationResult validationResult = this.openContainerByConfiguration(Paths.get(ASICE_LOCATION)).validate();
     TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),

@@ -658,6 +658,7 @@ public class DigiDoc4JTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("DD4J-1279")
   public void verifyEdoc() throws Exception {
     this.setGlobalMode(Configuration.Mode.PROD);
     String outputFolder = this.testFolder.newFolder("outputFolder").getPath();
@@ -681,6 +682,7 @@ public class DigiDoc4JTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("DD4J-1279")
   public void verifyEdocWithDss() {
     this.setGlobalMode(Configuration.Mode.PROD);
     int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus("-in",

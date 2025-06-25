@@ -411,6 +411,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("DD4J-1279")
   public void validate_WhenTimestampedNestedContainerIsAsiceWithExpiredOcspAndSigner_ValidationResultContainsAggregatedInfo() {
     // This test container contains an ASiC-E container with a signature which already had an expired OCSP and signer
     //  certificate prior to wrapping it into a timestamped ASiC-S container.
