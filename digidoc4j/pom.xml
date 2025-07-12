@@ -26,7 +26,7 @@
         <commons-cli.version>1.9.0</commons-cli.version>
         <commons-collections4.version>4.4</commons-collections4.version>
         <commons-io.version>2.18.0</commons-io.version>
-        <commons-lang3.version>3.17.0</commons-lang3.version>
+        <commons-lang3.version>3.18.0</commons-lang3.version>
         <contiperf.version>2.4.3</contiperf.version>
         <dss.version>6.0.1.d4j.1</dss.version>
         <hamcrest.version>3.0</hamcrest.version>
