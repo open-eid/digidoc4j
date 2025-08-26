@@ -502,7 +502,6 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-1276")
   public void testContainerExtensionFromExpiredLTtoLTAFails() {
     Container container = ContainerOpener
             .open("src/test/resources/testFiles/valid-containers/valid-asice.asice");
@@ -519,7 +518,6 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-1276")
   public void testExtendingExpiredSignaturesFromLTtoLTAFails() {
     Container container = ContainerOpener.open(ASICE_LT_WITH_EXPIRED_SIGNER_AND_TS_AND_OCSP, Configuration.of(Configuration.Mode.TEST));
     Signature signature1 = container.getSignatures().get(0);

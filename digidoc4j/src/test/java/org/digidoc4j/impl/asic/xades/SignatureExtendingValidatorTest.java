@@ -11,9 +11,7 @@
 package org.digidoc4j.impl.asic.xades;
 
 import eu.europa.esig.dss.alert.exception.AlertException;
-import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.DSSException;
-import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
@@ -22,11 +20,7 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.NonExtendableSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 
@@ -36,26 +30,14 @@ import static org.digidoc4j.SignatureProfile.LT;
 import static org.digidoc4j.SignatureProfile.LTA;
 import static org.digidoc4j.SignatureProfile.LT_TM;
 import static org.digidoc4j.SignatureProfile.T;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 public class SignatureExtendingValidatorTest extends AbstractTest {
 
   private SignatureExtendingValidator validator;
-  @Mock
-  private XadesValidationDssFacade dssFacade;
-  @Mock
-  private SignedDocumentValidator signedDocumentValidator;
-
-  @Before
-  public void setUp() throws Exception {
-    when(dssFacade.openXadesValidator(any(DSSDocument.class))).thenReturn(signedDocumentValidator);
-    validator = new SignatureExtendingValidator(dssFacade);
-  }
 
   @Test
   // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
@@ -101,21 +83,22 @@ public class SignatureExtendingValidatorTest extends AbstractTest {
 
   @Test
   public void validateExtendability_DssValidationFailsWithAlertException_Throws() {
-    when(signedDocumentValidator.getValidationData(anyList())).thenThrow(new AlertException("Error"));
+    Container container = ContainerOpener.open(ASICE_WITH_TS_SIG, configuration);
+    Signature signature = container.getSignatures().get(0);
 
     NonExtendableSignatureException caughtException = assertThrows(
         NonExtendableSignatureException.class,
-        () -> runValidateExtendability(LT, LTA)
+        () -> validator.validateExtendability(signature, LTA)
     );
 
     assertEquals("Validating the signature with DSS failed", caughtException.getMessage());
     assertEquals(AlertException.class, caughtException.getCause().getClass());
-    assertEquals("Error", caughtException.getCause().getMessage());
+    assertThat(caughtException.getCause().getMessage(), containsString("Expired signature found"));
   }
 
   @Test
   public void validateExtendability_SignatureDoesNotCoverDatafile_Throws() {
-    Container container = ContainerOpener.open(ASICE_INVALID_SIGNATURE_DOES_NOT_COVER_DATAFILE, Configuration.of(Configuration.Mode.TEST));
+    Container container = ContainerOpener.open(ASICE_INVALID_SIGNATURE_DOES_NOT_COVER_DATAFILE, configuration);
     Signature signature = container.getSignatures().get(0);
 
     NonExtendableSignatureException caughtException = assertThrows(
@@ -140,12 +123,19 @@ public class SignatureExtendingValidatorTest extends AbstractTest {
     SignatureExtendingValidator.validateProfileExtendability(Collections.singletonList(signature), targetProfile);
   }
 
-    private void assertProfileExtendabilityNotAllowed(SignatureProfile originalProfile, SignatureProfile targetProfile) {
-      NotSupportedException caughtException = assertThrows(
-          NotSupportedException.class,
-          () -> runValidateProfileExtendability(originalProfile, targetProfile)
-      );
-      String expectedMessage = "Not supported: It is not possible to extend " + originalProfile + " signature to " + targetProfile + ".";
-      assertEquals(expectedMessage, caughtException.getMessage());
-    }
+  private void assertProfileExtendabilityNotAllowed(SignatureProfile originalProfile, SignatureProfile targetProfile) {
+    NotSupportedException caughtException = assertThrows(
+        NotSupportedException.class,
+        () -> runValidateProfileExtendability(originalProfile, targetProfile)
+    );
+    String expectedMessage = "Not supported: It is not possible to extend " + originalProfile + " signature to " + targetProfile + ".";
+    assertEquals(expectedMessage, caughtException.getMessage());
+  }
+
+  @Override
+  protected void before() {
+    configuration = Configuration.of(Configuration.Mode.TEST);
+    validator = new SignatureExtendingValidator(Collections.emptyList(), configuration);
+  }
+
 }

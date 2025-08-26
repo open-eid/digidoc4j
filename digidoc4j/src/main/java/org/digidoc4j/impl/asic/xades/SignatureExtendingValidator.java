@@ -15,7 +15,11 @@ import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.model.signature.SignatureCryptographicVerification;
 import eu.europa.esig.dss.spi.signature.AdvancedSignature;
+import eu.europa.esig.dss.spi.validation.CertificateVerifier;
+import eu.europa.esig.dss.spi.validation.analyzer.DocumentAnalyzer;
+import eu.europa.esig.dss.spi.validation.executor.CompleteValidationContextExecutor;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
+import eu.europa.esig.dss.xades.validation.XMLDocumentAnalyzer;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.Signature;
@@ -24,8 +28,10 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NonExtendableSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.TechnicalException;
+import org.digidoc4j.impl.AiaSourceFactory;
 import org.digidoc4j.impl.asic.AsicSignature;
 import org.digidoc4j.impl.asic.DetachedContentCreator;
+import org.digidoc4j.impl.asic.SKCommonCertificateVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +57,9 @@ public class SignatureExtendingValidator {
 
   private static final Logger logger = LoggerFactory.getLogger(SignatureExtendingValidator.class);
   private static final Map<SignatureProfile, Set<SignatureProfile>> possibleExtensions = new HashMap<>(6);
-  private final XadesValidationDssFacade xadesValidationDssFacade;
+
+  private final CertificateVerifier certificateVerifier;
+  private final List<DSSDocument> detachedContentList;
 
   static { //TODO DD4J-1042
     possibleExtensions.put(B_BES, new HashSet<>(asList(T, LT, LTA)));
@@ -75,12 +83,12 @@ public class SignatureExtendingValidator {
     } catch (Exception e) {
       throw new TechnicalException("Failed to process datafiles in the container", e);
     }
-    List<DSSDocument> detachedContentList = detachedContentCreator.getDetachedContentList();
-    xadesValidationDssFacade = new XadesValidationDssFacade(detachedContentList, configuration);
-  }
+    detachedContentList = detachedContentCreator.getDetachedContentList();
 
-  SignatureExtendingValidator(XadesValidationDssFacade xadesValidationDssFacade) {
-    this.xadesValidationDssFacade = xadesValidationDssFacade;
+    certificateVerifier = new SKCommonCertificateVerifier();
+    certificateVerifier.setCrlSource(null); //Disable CRL checks
+    certificateVerifier.setTrustedCertSources(configuration.getTSL());
+    certificateVerifier.setAIASource(new AiaSourceFactory(configuration).create());
   }
 
   /**
@@ -133,10 +141,19 @@ public class SignatureExtendingValidator {
     AsicSignature asicSignature = (AsicSignature) signature;
     DSSDocument signatureDocument = asicSignature.getSignatureDocument();
     XAdESSignature dssSignature = asicSignature.getOrigin().getDssSignature();
-    // getValidationData() throws AlertException in case of validation failure
-    xadesValidationDssFacade.openXadesValidator(signatureDocument)
-        .getValidationData(Collections.singletonList(dssSignature));
+    assertSignatureValid(dssSignature, signatureDocument);
     assertSignatureIntact(dssSignature);
+  }
+
+  private void assertSignatureValid(final AdvancedSignature signature, final DSSDocument signatureDocument) {
+    // Copied from eu.europa.esig.dss.xades.signature.XAdESLevelBaselineT#extendSignatures from DSS library
+    DocumentAnalyzer documentAnalyzer = new XMLDocumentAnalyzer(signatureDocument);
+    documentAnalyzer.setCertificateVerifier(certificateVerifier);
+    documentAnalyzer.setDetachedContents(detachedContentList);
+    // It is important that CompleteValidationContextExecutor is used in order to catch all invalid signatures
+    documentAnalyzer.setValidationContextExecutor(CompleteValidationContextExecutor.INSTANCE);
+    // getValidationData() throws AlertException in case of validation failure
+    documentAnalyzer.getValidationData(Collections.singletonList(signature));
   }
 
   private void assertSignatureIntact(final AdvancedSignature signature) {

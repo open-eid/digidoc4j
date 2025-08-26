@@ -20,7 +20,6 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.asic.AsicContainer;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -121,7 +120,6 @@ public class AsicSContainerTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-1276")
   public void testSignatureExtensionValidationFromLtToLtaWithExpiredSignerCertificate() {
     AsicContainer container = (AsicContainer) ContainerBuilder.aContainer(Container.DocumentType.ASICS)
             .fromExistingFile("src/test/resources/testFiles/valid-containers/asics-1-signature.asics").build();
