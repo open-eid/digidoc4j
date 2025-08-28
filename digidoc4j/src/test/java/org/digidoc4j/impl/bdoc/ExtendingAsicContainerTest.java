@@ -15,7 +15,6 @@ import eu.europa.esig.dss.enumerations.ASiCContainerType;
 import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 import eu.europa.esig.dss.enumerations.SignatureLevel;
 import eu.europa.esig.dss.model.DSSDocument;
-import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.model.InMemoryDocument;
 import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
@@ -41,7 +40,6 @@ import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.DssContainerSigner;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -534,18 +532,18 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-1276")
   public void testExtendingSignatureWithInvalidDatafileReferenceFromLTtoLTAFails() {
     Container container = ContainerOpener.open(ASICE_INVALID_SIGNATURE_DOES_NOT_COVER_DATAFILE, Configuration.of(Configuration.Mode.TEST));
     Signature signature = container.getSignatures().get(0);
 
-    DSSException caughtException = assertThrows(
-            DSSException.class,
+    AlertException caughtException = assertThrows(
+            AlertException.class,
             () -> validateAndExtend(container, SignatureProfile.LTA, signature)
     );
 
-    assertEquals("Cryptographic signature verification has failed / Signature verification failed against the best candidate.",
-        caughtException.getMessage());
+    assertThat(caughtException.getMessage(), containsString("Error on signature augmentation."));
+    assertThat(caughtException.getMessage(),
+            containsString("Cryptographic signature verification has failed / Signature verification failed against the best candidate."));
     TestAssert.assertContainerIsInvalid(container);
     List<TimestampToken> archiveTimestamps = getSignatureArchiveTimestamps(container, 0);
     assertEquals("The signature must contain no archive timestamp", 0, archiveTimestamps.size());

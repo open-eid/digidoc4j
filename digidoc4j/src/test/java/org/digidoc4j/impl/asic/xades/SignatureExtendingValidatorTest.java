@@ -11,7 +11,6 @@
 package org.digidoc4j.impl.asic.xades;
 
 import eu.europa.esig.dss.alert.exception.AlertException;
-import eu.europa.esig.dss.model.DSSException;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
@@ -107,8 +106,10 @@ public class SignatureExtendingValidatorTest extends AbstractTest {
     );
 
     assertEquals("Validating the signature with DSS failed", caughtException.getMessage());
-    assertEquals(DSSException.class, caughtException.getCause().getClass());
-    assertEquals("Cryptographic signature verification has failed / Signature verification failed against the best candidate.", caughtException.getCause().getMessage());
+    assertEquals(AlertException.class, caughtException.getCause().getClass());
+    assertThat(caughtException.getCause().getMessage(), containsString("Error on signature augmentation."));
+    assertThat(caughtException.getCause().getMessage(),
+            containsString("Cryptographic signature verification has failed / Signature verification failed against the best candidate."));
   }
 
   private void runValidateExtendability(SignatureProfile originalProfile, SignatureProfile targetProfile) {

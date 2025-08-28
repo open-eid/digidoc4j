@@ -13,11 +13,12 @@ package org.digidoc4j.impl.asic.xades;
 import eu.europa.esig.dss.alert.exception.AlertException;
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.DSSException;
-import eu.europa.esig.dss.model.signature.SignatureCryptographicVerification;
+import eu.europa.esig.dss.signature.SignatureRequirementsChecker;
 import eu.europa.esig.dss.spi.signature.AdvancedSignature;
 import eu.europa.esig.dss.spi.validation.CertificateVerifier;
 import eu.europa.esig.dss.spi.validation.analyzer.DocumentAnalyzer;
 import eu.europa.esig.dss.spi.validation.executor.CompleteValidationContextExecutor;
+import eu.europa.esig.dss.xades.XAdESSignatureParameters;
 import eu.europa.esig.dss.xades.validation.XAdESSignature;
 import eu.europa.esig.dss.xades.validation.XMLDocumentAnalyzer;
 import org.digidoc4j.Configuration;
@@ -157,12 +158,11 @@ public class SignatureExtendingValidator {
   }
 
   private void assertSignatureIntact(final AdvancedSignature signature) {
-    // Copied from eu.europa.esig.dss.xades.signature.ExtensionBuilder.assertSignatureValid() from DSS library
-    final SignatureCryptographicVerification signatureCryptographicVerification = signature.getSignatureCryptographicVerification();
-    if (!signatureCryptographicVerification.isSignatureIntact()) {
-      final String errorMessage = signatureCryptographicVerification.getErrorMessage();
-      throw new DSSException("Cryptographic signature verification has failed" + (errorMessage.isEmpty() ? "." : (" / " + errorMessage)));
-    }
+    XAdESSignatureParameters signatureParameters = new XAdESSignatureParameters();
+    // Use dummy signature parameters for requirements checker because signature parameters cannot be null
+    SignatureRequirementsChecker signatureRequirementsChecker = new SignatureRequirementsChecker(certificateVerifier, signatureParameters);
+    // assertSignaturesValid() throws AlertException in case of validation failure
+    signatureRequirementsChecker.assertSignaturesValid(Collections.singletonList(signature));
   }
 
   private static boolean canExtendSignatureToProfile(Signature signature, SignatureProfile targetProfile) {
