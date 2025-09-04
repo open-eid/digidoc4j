@@ -445,7 +445,6 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-1279")
   public void noSignedPropRefTM() {
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/REF-03_bdoc21-TM-no-signedpropref.bdoc", PROD_CONFIGURATION_WITH_TEST_POLICY);
@@ -453,14 +452,12 @@ public class ValidationTest extends AbstractTest {
     TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
             "(Signature ID: S0) - SignedProperties Reference element is missing",
             "(Signature ID: S0) - The signed qualifying property: neither 'message-digest' nor 'SignedProperties' is present!",
-            "(Signature ID: S0) - The current time is not in the validity range of the signer's certificate!",
-            "(Signature ID: S0) - The certificate validation is not conclusive!"
+            "(Signature ID: S0) - No long term availability and integrity of validation material is present!"
     );
-    Assert.assertEquals(4, container.getSignatures().get(0).validateSignature().getErrors().size());
+    Assert.assertEquals(3, container.getSignatures().get(0).validateSignature().getErrors().size());
   }
 
   @Test
-  @Ignore("DD4J-1279")
   public void noSignedPropRefTS() {
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/REF-03_bdoc21-TS-no-signedpropref.asice", PROD_CONFIGURATION_WITH_TEST_POLICY);
@@ -468,8 +465,7 @@ public class ValidationTest extends AbstractTest {
     TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
             "(Signature ID: S0) - SignedProperties Reference element is missing",
             "(Signature ID: S0) - The signed qualifying property: neither 'message-digest' nor 'SignedProperties' is present!",
-            "(Signature ID: S0) - The current time is not in the validity range of the signer's certificate!",
-            "(Signature ID: S0) - The certificate validation is not conclusive!"
+            "(Signature ID: S0) - No long term availability and integrity of validation material is present!"
     );
   }
 
@@ -979,14 +975,13 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-1279")
   public void container_withTimestampTakenWhenSigningCertificateWasNotValid_shouldBeInvalid() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/signing_certificate_not_valid_during_timestamping.asice");
     SignatureValidationResult result = container.validate();
     Assert.assertFalse("Signature must not be valid when timestamp was taken while signing certificate was not valid", result.isValid());
     TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
             "The best-signature-time is not before the expiration date of the signing certificate!",
-            "The past signature validation is not conclusive!",
+            "No long term availability and integrity of validation material is present!",
             "The current time is not in the validity range of the signer's certificate!",
             "The certificate validation is not conclusive!"
     );

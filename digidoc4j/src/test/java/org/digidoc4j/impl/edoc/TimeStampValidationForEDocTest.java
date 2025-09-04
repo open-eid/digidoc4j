@@ -16,7 +16,6 @@ import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
 import org.digidoc4j.test.TestAssert;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.nio.file.Paths;
@@ -31,7 +30,6 @@ public class TimeStampValidationForEDocTest extends AbstractTest {
   private static final String ASICE_LOCATION = "src/test/resources/testFiles/valid-containers/latvian_signed_container.asice";
 
   @Test
-  @Ignore("DD4J-1279")
   public void timestampAfterOcspResponseTimeShouldResultInInvalidContainerForEDOC() {
     ContainerValidationResult validationResult = this.openContainerByConfiguration(Paths.get(EDOC_LOCATION)).validate();
     Assert.assertFalse("Signature should be invalid if timestamp was taken after OCSP", validationResult.isValid());
@@ -42,7 +40,7 @@ public class TimeStampValidationForEDocTest extends AbstractTest {
             "The trust service(s) related to the time-stamp does not have the expected type identifier!",
             "Signature has an invalid timestamp",
             "The best-signature-time is not before the expiration date of the signing certificate!",
-            "The past signature validation is not conclusive!",
+            "No long term availability and integrity of validation material is present!",
             "The current time is not in the validity range of the signer's certificate!",
             "The certificate validation is not conclusive!"
     );
@@ -51,7 +49,6 @@ public class TimeStampValidationForEDocTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-1279")
   public void invalidTimestampMsgIsNotExistForASICE() {
     ContainerValidationResult validationResult = this.openContainerByConfiguration(Paths.get(ASICE_LOCATION)).validate();
     TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
@@ -59,7 +56,7 @@ public class TimeStampValidationForEDocTest extends AbstractTest {
             "The trust service(s) related to the time-stamp does not have the expected type identifier!",
             "Signature has an invalid timestamp",
             "The best-signature-time is not before the expiration date of the signing certificate!",
-            "The past signature validation is not conclusive!",
+            "No long term availability and integrity of validation material is present!",
             "The current time is not in the validity range of the signer's certificate!",
             "The certificate validation is not conclusive!"
     );

@@ -658,7 +658,6 @@ public class DigiDoc4JTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-1279")
   public void verifyEdoc() throws Exception {
     this.setGlobalMode(Configuration.Mode.PROD);
     String outputFolder = this.testFolder.newFolder("outputFolder").getPath();
@@ -673,7 +672,7 @@ public class DigiDoc4JTest extends AbstractTest {
     assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - Signature has an invalid timestamp"));
     assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The trust service(s) related to the time-stamp does not have the expected type identifier!"));
     assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The certificate is not related to a qualified certificate issuing trust service with valid status!"));
-    assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The past signature validation is not conclusive!"));
+    assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - No long term availability and integrity of validation material is present!"));
     assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The best-signature-time is not before the expiration date of the signing certificate!"));
     assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The current time is not in the validity range of the signer's certificate!"));
     assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The certificate validation is not conclusive!"));
@@ -682,7 +681,6 @@ public class DigiDoc4JTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-1279")
   public void verifyEdocWithDss() {
     this.setGlobalMode(Configuration.Mode.PROD);
     int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus("-in",
@@ -694,7 +692,7 @@ public class DigiDoc4JTest extends AbstractTest {
     assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - Signature has an invalid timestamp"));
     assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The trust service(s) related to the time-stamp does not have the expected type identifier!"));
     assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The certificate is not related to a qualified certificate issuing trust service with valid status!"));
-    assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The past signature validation is not conclusive!"));
+    assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - No long term availability and integrity of validation material is present!"));
     assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The best-signature-time is not before the expiration date of the signing certificate!"));
     assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The current time is not in the validity range of the signer's certificate!"));
     assertThat(stdOut.getLog(), containsString("Error: (Signature ID: S1) - The certificate validation is not conclusive!"));
