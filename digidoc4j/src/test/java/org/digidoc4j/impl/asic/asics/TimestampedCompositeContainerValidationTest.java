@@ -474,7 +474,6 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-1277")
   public void validate_WhenTimestampedNestedContainerIsInvalidAsiceWithMultipleSignatures_ValidationResultContainsAggregatedInfo() {
     String path = "src/test/resources/testFiles/invalid-containers/one-valid-and-multiple-invalid-signatures.asice";
     Container nestedContainer = TestDataBuilderUtil.open(path, configuration);
@@ -487,7 +486,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
     assertContainerIsInvalid(containerValidationResult);
     assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
             containerValidationResult.getErrors(), 13,
-            "(Signature ID: id-3c2450a9540e30ef7c89d4bad355065e) - The reference data object has not been found!",
+            "(Signature ID: id-3c2450a9540e30ef7c89d4bad355065e) - The reference name does not match the name of the document!",
             "(Signature ID: id-6128479cd68e028c5d2a51bed115534f) - The reference data object is not intact!",
             "(Signature ID: id-6fe708387ee0f33f7112fb02f72e8044) - The reference data object is not intact!",
             "(Signature ID: id-cd8654a26c4f2a00f9d77d20a280aade) - The signature is not intact!",
@@ -540,7 +539,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
       assertThat(signatureValidationResult.isValid(), equalTo(false));
       assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
               signatureValidationResult.getErrors(), 1,
-              "(Signature ID: id-3c2450a9540e30ef7c89d4bad355065e) - The reference data object has not been found!"
+              "(Signature ID: id-3c2450a9540e30ef7c89d4bad355065e) - The reference name does not match the name of the document!"
       );
       assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
               signatureValidationResult.getWarnings(), 1,

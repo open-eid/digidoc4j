@@ -22,7 +22,6 @@ import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -56,12 +55,11 @@ public class UriEncodingTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-1277")
   public void validateContainer_withWhitespaceEncodedAsPlus_shouldBeValid() {
     Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/M1n1 Testäöüõ!.txt-TS-d4j.bdoc"), this.configuration);
     ContainerValidationResult validationResult = container.validate();
     TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
-            "The reference data object has not been found!",
+            "The reference name does not match the name of the document!",
             "The current time is not in the validity range of the signer's certificate!",
             "The certificate validation is not conclusive!"
     );
@@ -90,7 +88,6 @@ public class UriEncodingTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-1277")
   public void validateContainer_withSpaceInDataFileNameEncodedAsPlusInSignature_shouldNotBeValid() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/invalid-containers/space-in-datafile-name-encoded-as-plus-in-signature.asice",
@@ -98,7 +95,7 @@ public class UriEncodingTest extends AbstractTest {
     );
     ContainerValidationResult validationResult = container.validate();
     TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
-            "The reference data object has not been found!",
+            "The reference name does not match the name of the document!",
             "The current time is not in the validity range of the signer's certificate!",
             "The certificate validation is not conclusive!"
     );

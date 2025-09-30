@@ -178,7 +178,6 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-1277")
   public void signatureFileContainsIncorrectFileName() {
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/filename_mismatch_signature.asice", PROD_CONFIGURATION);
@@ -270,13 +269,12 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-1277")
   public void container_withChangedDataFileName_shouldBeInvalid() {
     Container container = ContainerOpener
         .open("src/test/resources/testFiles/invalid-containers/bdoc-tm-with-changed-data-file-name.bdoc");
     SignatureValidationResult result = container.validate();
     TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
-            "(Signature ID: S0) - The reference data object has not been found!",
+            "(Signature ID: S0) - The reference name does not match the name of the document!",
             "Container contains a file named <test1.txt> which is not found in the signature file",
             "The current time is not in the validity range of the signer's certificate!",
             "The certificate validation is not conclusive!"
@@ -1059,7 +1057,6 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-1277")
   public void validate_WhenAsiceHasOneValidAndMultipleInvalidSignatures_ValidationResultContainsProperInfoForEachSignature() {
     Container container = TestDataBuilderUtil.open(
             "src/test/resources/testFiles/invalid-containers/one-valid-and-multiple-invalid-signatures.asice",
@@ -1071,7 +1068,7 @@ public class ValidationTest extends AbstractTest {
     assertContainerIsInvalid(containerValidationResult);
     assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
             containerValidationResult.getErrors(), 13,
-            "(Signature ID: id-3c2450a9540e30ef7c89d4bad355065e) - The reference data object has not been found!",
+            "(Signature ID: id-3c2450a9540e30ef7c89d4bad355065e) - The reference name does not match the name of the document!",
             "(Signature ID: id-6128479cd68e028c5d2a51bed115534f) - The reference data object is not intact!",
             "(Signature ID: id-6fe708387ee0f33f7112fb02f72e8044) - The reference data object is not intact!",
             "(Signature ID: id-cd8654a26c4f2a00f9d77d20a280aade) - The signature is not intact!",
@@ -1122,7 +1119,7 @@ public class ValidationTest extends AbstractTest {
       assertThat(signatureValidationResult.isValid(), equalTo(false));
       assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
               signatureValidationResult.getErrors(), 1,
-              "(Signature ID: id-3c2450a9540e30ef7c89d4bad355065e) - The reference data object has not been found!"
+              "(Signature ID: id-3c2450a9540e30ef7c89d4bad355065e) - The reference name does not match the name of the document!"
       );
       assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
               signatureValidationResult.getWarnings(), 1,
