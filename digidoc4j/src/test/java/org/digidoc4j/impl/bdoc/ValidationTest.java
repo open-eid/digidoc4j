@@ -10,6 +10,8 @@
 
 package org.digidoc4j.impl.bdoc;
 
+import eu.europa.esig.dss.enumerations.Indication;
+import eu.europa.esig.dss.enumerations.SubIndication;
 import eu.europa.esig.dss.i18n.I18nProvider;
 import eu.europa.esig.dss.i18n.MessageTag;
 import eu.europa.esig.dss.model.DSSException;
@@ -55,6 +57,7 @@ import java.util.List;
 
 import static org.digidoc4j.test.TestAssert.assertContainerIsInvalid;
 import static org.digidoc4j.test.TestAssert.assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages;
+import static org.digidoc4j.test.TestAssert.assertContainsExactSetOfErrors;
 import static org.digidoc4j.test.matcher.CommonMatchers.equalToSignatureUniqueIdList;
 import static org.digidoc4j.test.matcher.IsDigiDoc4JException.digiDoc4JExceptionMessageContainsString;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -62,8 +65,10 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThrows;
 
 public class ValidationTest extends AbstractTest {
@@ -1220,6 +1225,52 @@ public class ValidationTest extends AbstractTest {
       assertThat(signatureValidationResult.isValid(), equalTo(true));
       assertThat(signatureValidationResult.getErrors(), empty());
       assertThat(signatureValidationResult.getWarnings(), empty());
+    }
+  }
+
+  @Test
+  public void validate_WhenDatafileNameContainsPathSeparatorInSignatureButNotInContainer_ValidationFails() {
+    Container container = ContainerOpener.open(
+            "src/test/resources/testFiles/invalid-containers/datafile-name-in-signature-contains-path-separator.asice",
+            configuration
+    );
+
+    ContainerValidationResult containerValidationResult = container.validate();
+
+    assertContainerIsInvalid(containerValidationResult);
+    assertContainsExactSetOfErrors(containerValidationResult.getErrors(),
+            "The reference name does not match the name of the document!",
+            "Manifest file has an entry for file <a1b2c3d4-00000705-20250521.txt> with mimetype <text/plain> but the " +
+                    "signature file for signature id-55a0f3626b13b30ef34a8f6e5a7cbf27 does not have an entry for this file",
+            "The signature file for signature id-55a0f3626b13b30ef34a8f6e5a7cbf27 has an entry for file " +
+                    "<00000705/a1b2c3d4-00000705-20250521.txt> with mimetype <text/plain> but the manifest file does not have an entry for this file",
+            "Container contains a file named <a1b2c3d4-00000705-20250521.txt> which is not found in the signature file"
+    );
+    assertContainsExactSetOfErrors(containerValidationResult.getWarnings(),
+            "The signature/seal is an INDETERMINATE AdES digital signature!"
+    );
+    assertContainsExactSetOfErrors(containerValidationResult.getContainerErrors(),
+            "Manifest file has an entry for file <a1b2c3d4-00000705-20250521.txt> with mimetype <text/plain> but the " +
+                    "signature file for signature id-55a0f3626b13b30ef34a8f6e5a7cbf27 does not have an entry for this file",
+            "The signature file for signature id-55a0f3626b13b30ef34a8f6e5a7cbf27 has an entry for file " +
+                    "<00000705/a1b2c3d4-00000705-20250521.txt> with mimetype <text/plain> but the manifest file does not have an entry for this file",
+            "Container contains a file named <a1b2c3d4-00000705-20250521.txt> which is not found in the signature file"
+    );
+    assertThat(containerValidationResult.getContainerWarnings(), empty());
+    assertThat(containerValidationResult.getSignatureIdList(), hasSize(1));
+    assertThat(containerValidationResult.getSignatureIdList(), equalToSignatureUniqueIdList(container));
+    {
+      String signatureId = container.getSignatures().get(0).getUniqueId();
+      assertThat(containerValidationResult.getIndication(signatureId), sameInstance(Indication.INDETERMINATE));
+      assertThat(containerValidationResult.getSubIndication(signatureId), sameInstance(SubIndication.SIGNED_DATA_NOT_FOUND));
+      ValidationResult signatureValidationResult = containerValidationResult.getValidationResult(signatureId);
+      assertThat(signatureValidationResult.isValid(), is(false));
+      assertContainsExactSetOfErrors(signatureValidationResult.getErrors(),
+              "The reference name does not match the name of the document!"
+      );
+      assertContainsExactSetOfErrors(signatureValidationResult.getWarnings(),
+              "The signature/seal is an INDETERMINATE AdES digital signature!"
+      );
     }
   }
 
