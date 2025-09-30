@@ -14,7 +14,7 @@
     <BasicSignatureConstraints>
       <ReferenceDataExistence Level="FAIL"/>
       <ReferenceDataIntact Level="FAIL"/>
-      <ReferenceDataNameMatch Level="WARN" />
+      <ReferenceDataNameMatch Level="FAIL" />
       <ManifestEntryObjectExistence Level="WARN" />
       <ManifestEntryObjectGroup Level="WARN" />
       <ManifestEntryObjectIntact Level="FAIL" />
@@ -226,7 +226,7 @@
     <BasicSignatureConstraints>
       <ReferenceDataExistence Level="FAIL"/>
       <ReferenceDataIntact Level="FAIL"/>
-      <ReferenceDataNameMatch Level="WARN" />
+      <ReferenceDataNameMatch Level="FAIL" />
       <ManifestEntryObjectExistence Level="WARN" />
       <ManifestEntryObjectGroup Level="WARN" />
       <ManifestEntryObjectIntact Level="FAIL" />
@@ -356,7 +356,7 @@
     <BasicSignatureConstraints>
       <ReferenceDataExistence Level="FAIL"/>
       <ReferenceDataIntact Level="FAIL"/>
-      <ReferenceDataNameMatch Level="WARN" />
+      <ReferenceDataNameMatch Level="FAIL" />
       <ManifestEntryObjectExistence Level="WARN" />
       <ManifestEntryObjectGroup Level="WARN" />
       <ManifestEntryObjectIntact Level="FAIL" />
