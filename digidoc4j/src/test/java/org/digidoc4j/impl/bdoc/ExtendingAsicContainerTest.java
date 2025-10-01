@@ -72,7 +72,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   private String containerLocation;
 
   @Test
-  public void extendNonEstonianSignatureFromTToLT_After24h_ExtensionAndValidationSucceed() {
+  public void validate_WhenNonEstonianSignatureExtendedFromTToLTAfter24h_WarningIsRaised() {
     configuration = createLatvianSignatureConfiguration();
     configuration.setExtendingOcspSourceFactory(this::getOcspSource);
 
@@ -89,7 +89,9 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     ContainerValidationResult validationResult = container.validate();
     Assert.assertTrue(validationResult.isValid());
     Assert.assertEquals(0, validationResult.getErrors().size());
-    Assert.assertEquals(0, validationResult.getWarnings().size());
+    TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
+              "The time difference between the signature timestamp and the OCSP response exceeds 15 minutes, rendering the OCSP response not 'fresh'."
+    );
   }
 
   @Test

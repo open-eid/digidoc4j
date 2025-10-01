@@ -89,22 +89,15 @@ public class TimestampSignatureValidator extends XadesSignatureValidator {
       addValidationError(new TimestampAfterOCSPResponseTimeException());
       return;
     }
-    if (isSigningCertificateSuspendable()) {
-      long differenceInMinutes = DateUtils.differenceInMinutes(timestamp, ocspTime);
-      log.debug("Difference in minutes: <{}>", differenceInMinutes);
+    long differenceInMinutes = DateUtils.differenceInMinutes(timestamp, ocspTime);
+    log.debug("Difference in minutes: <{}>", differenceInMinutes);
 
-      int differenceInMinutesWarningThreshold = this.configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes();
+    int differenceInMinutesWarningThreshold = this.configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes();
 
-      if (differenceInMinutesWarningThreshold <= differenceInMinutes) {
-        log.warn("The difference (in minutes) between the OCSP response production time and the signature timestamp is <{}>, which exceeds the freshness threshold of <{}> minutes.", differenceInMinutes, differenceInMinutesWarningThreshold);
-        this.addValidationWarning(new DigiDoc4JException("The time difference between the signature timestamp and the OCSP response exceeds " + differenceInMinutesWarningThreshold + " minutes, rendering the OCSP response not 'fresh'."));
-      }
+    if (differenceInMinutesWarningThreshold <= differenceInMinutes) {
+      log.warn("The difference (in minutes) between the OCSP response production time and the signature timestamp is <{}>, which exceeds the freshness threshold of <{}> minutes.", differenceInMinutes, differenceInMinutesWarningThreshold);
+      this.addValidationWarning(new DigiDoc4JException("The time difference between the signature timestamp and the OCSP response exceeds " + differenceInMinutesWarningThreshold + " minutes, rendering the OCSP response not 'fresh'."));
     }
-  }
-
-  private boolean isSigningCertificateSuspendable() {
-    String country = this.signature.getSigningCertificate().getSubjectName(X509Cert.SubjectName.C);
-    return "EE".equals(country);
   }
 
   private void addRevocationErrors() {

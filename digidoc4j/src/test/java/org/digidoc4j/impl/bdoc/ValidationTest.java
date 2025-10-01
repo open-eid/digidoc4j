@@ -284,25 +284,29 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  public void moreThan24hDifferenceBetweenTimeStampAndRevocationAllowedForLatvianSignature() {
+  public void validate_WhenLatvianSignatureHasMoreThan24hDifferenceBetweenTimeStampAndRevocation_WarningIsRaised() {
     Configuration configuration = createLatvianSignatureConfiguration();
     Container container = ContainerOpener
         .open("src/test/resources/testFiles/valid-containers/latvian_LT_signature_with_44h_difference_between_TS_and_OCSP.asice", configuration);
     ContainerValidationResult validationResult = container.validate();
     TestAssert.assertContainerIsValid(validationResult);
     Assert.assertEquals(0, validationResult.getErrors().size());
-    Assert.assertEquals(0, validationResult.getWarnings().size());
+    TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
+              "The time difference between the signature timestamp and the OCSP response exceeds 15 minutes, rendering the OCSP response not 'fresh'."
+    );
   }
 
   @Test
-  public void moreThan15minDifferenceBetweenTimeStampAndRevocationAllowedForLatvianSignature() {
+  public void validate_WhenLatvianSignatureHasMoreThan15minDifferenceBetweenTimeStampAndRevocation_WarningIsRaised() {
     Configuration configuration = createLatvianSignatureConfiguration();
     Container container = ContainerOpener
         .open("src/test/resources/testFiles/valid-containers/latvian_LT_signature_with_22h_difference_between_TS_and_OCSP.asice", configuration);
     ContainerValidationResult validationResult = container.validate();
     TestAssert.assertContainerIsValid(validationResult);
     Assert.assertEquals(0, validationResult.getErrors().size());
-    Assert.assertEquals(0, validationResult.getWarnings().size());
+    TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
+              "The time difference between the signature timestamp and the OCSP response exceeds 15 minutes, rendering the OCSP response not 'fresh'."
+    );
   }
 
   @Test
