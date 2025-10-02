@@ -23,6 +23,7 @@ import org.digidoc4j.impl.asic.report.TimestampValidationReport;
 import org.digidoc4j.test.TestConstants;
 import org.junit.Test;
 
+import static org.digidoc4j.test.TestAssert.assertContainerIsInvalid;
 import static org.digidoc4j.test.TestAssert.assertContainerIsValid;
 import static org.digidoc4j.test.TestAssert.assertContainerIsValidIgnoreErrors;
 import static org.digidoc4j.test.TestAssert.assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages;
@@ -36,6 +37,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
@@ -329,7 +331,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenAsicsWithInvalidAndNonCoveringTimestamp_ValidationResultIsValidButContainsErrorsAndWarnings() {
+  public void validate_WhenAsicsWithInvalidAndNonCoveringTimestamp_ValidationResultIsNotValid() {
     Container container = ContainerOpener.open(
             "src/test/resources/prodFiles/invalid-containers/2xTST-text-data-file-1st-tst-invalid-2nd-tst-no-coverage.asics",
             Configuration.of(Configuration.Mode.PROD)
@@ -337,13 +339,13 @@ public class TimestampedContainerValidationTest extends AbstractTest {
 
     ContainerValidationResult containerValidationResult = container.validate();
 
-    assertContainerIsValidIgnoreErrors(containerValidationResult);
-    assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
-            containerValidationResult.getErrors(), 1,
-            container.getTimestamps().get(0).getUniqueId() + ") - The time-stamp message imprint is not intact!"
+    assertContainerIsInvalid(containerValidationResult);
+    assertContainsExactSetOfErrors(containerValidationResult.getErrors(),
+            container.getTimestamps().get(0).getUniqueId() + ") - The time-stamp message imprint is not intact!",
+            container.getTimestamps().get(1).getUniqueId() + ") - Not all signed and/or time-asserted file objects " +
+                    "referenced from previous signature, time-stamp or manifest files have been covered!"
     );
-    assertContainsExactSetOfErrors(containerValidationResult.getWarnings(),
-            container.getTimestamps().get(1).getUniqueId() + ") - The time-stamp token does not cover container datafile!");
+    assertThat(containerValidationResult.getWarnings(), empty());
     assertThat(containerValidationResult.getContainerErrors(), empty());
     assertThat(containerValidationResult.getContainerWarnings(), empty());
     assertThat(containerValidationResult.getSimpleReports(), hasSize(1));
@@ -358,13 +360,14 @@ public class TimestampedContainerValidationTest extends AbstractTest {
       assertThat(containerValidationResult.getSubIndication(timestampId), sameInstance(SubIndication.HASH_FAILURE));
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(0);
-      assertThat(timestampReport.getWarnings(), empty());
       assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.SK_TSA_2024E_CN));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-09-13T10:49:58Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
+      assertThat(timestampReport.getErrors(), contains("The time-stamp message imprint is not intact!"));
+      assertThat(timestampReport.getWarnings(), empty());
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
       assertThat(timestampValidationResult, notNullValue());
-      assertThat(timestampValidationResult.isValid(), equalTo(false));
+      assertThat(timestampValidationResult.isValid(), is(false));
       assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
               timestampValidationResult.getErrors(), 1,
               timestampId + ") - The time-stamp message imprint is not intact!"
@@ -373,26 +376,31 @@ public class TimestampedContainerValidationTest extends AbstractTest {
     }
     {
       String timestampId = container.getTimestamps().get(1).getUniqueId();
-      assertThat(containerValidationResult.getIndication(timestampId), sameInstance(Indication.PASSED));
-      assertThat(containerValidationResult.getSubIndication(timestampId), nullValue());
+      assertThat(containerValidationResult.getIndication(timestampId), sameInstance(Indication.FAILED));
+      assertThat(containerValidationResult.getSubIndication(timestampId), sameInstance(SubIndication.FORMAT_FAILURE));
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(1);
-      assertThat(timestampReport.getWarnings(), contains("The time-stamp token does not cover container datafile!"));
       assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.SK_TSA_2024E_CN));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-09-13T11:20:02Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
+      assertThat(timestampReport.getErrors(), contains(
+              "Not all signed and/or time-asserted file objects referenced from previous signature, " +
+                      "time-stamp or manifest files have been covered!"
+      ));
+      assertThat(timestampReport.getWarnings(), empty());
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
       assertThat(timestampValidationResult, notNullValue());
-      assertThat(timestampValidationResult.isValid(), equalTo(true));
-      assertThat(timestampValidationResult.getErrors(), empty());
-      assertContainsExactSetOfErrors(timestampValidationResult.getWarnings(),
-              timestampId + ") - The time-stamp token does not cover container datafile!"
+      assertThat(timestampValidationResult.isValid(), is(false));
+      assertContainsExactSetOfErrors(timestampValidationResult.getErrors(),
+              timestampId + ") - Not all signed and/or time-asserted file objects " +
+                      "referenced from previous signature, time-stamp or manifest files have been covered!"
       );
+      assertThat(timestampValidationResult.getWarnings(), empty());
     }
   }
 
   @Test
-  public void validate_WhenAsicsWithInvalidAndNonCoveringAndValidTimestamp_ValidationResultIsValidButContainsErrorsAndWarnings() {
+  public void validate_WhenAsicsWithInvalidAndNonCoveringAndValidTimestamp_ValidationResultIsValidButContainsErrors() {
     Container container = ContainerOpener.open(
             "src/test/resources/prodFiles/valid-containers/3xTST-text-data-file-1st-tst-invalid-2nd-tst-no-coverage-3rd-tst-valid.asics",
             Configuration.of(Configuration.Mode.PROD)
@@ -401,12 +409,12 @@ public class TimestampedContainerValidationTest extends AbstractTest {
     ContainerValidationResult containerValidationResult = container.validate();
 
     assertContainerIsValidIgnoreErrors(containerValidationResult);
-    assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
-            containerValidationResult.getErrors(), 1,
-            container.getTimestamps().get(0).getUniqueId() + ") - The time-stamp message imprint is not intact!"
+    assertContainsExactSetOfErrors(containerValidationResult.getErrors(),
+            container.getTimestamps().get(0).getUniqueId() + ") - The time-stamp message imprint is not intact!",
+            container.getTimestamps().get(1).getUniqueId() + ") - Not all signed and/or time-asserted file objects " +
+                    "referenced from previous signature, time-stamp or manifest files have been covered!"
     );
-    assertContainsExactSetOfErrors(containerValidationResult.getWarnings(),
-            container.getTimestamps().get(1).getUniqueId() + ") - The time-stamp token does not cover container datafile!");
+    assertThat(containerValidationResult.getWarnings(), empty());
     assertThat(containerValidationResult.getContainerErrors(), empty());
     assertThat(containerValidationResult.getContainerWarnings(), empty());
     assertThat(containerValidationResult.getSimpleReports(), hasSize(1));
@@ -421,36 +429,41 @@ public class TimestampedContainerValidationTest extends AbstractTest {
       assertThat(containerValidationResult.getSubIndication(timestampId), sameInstance(SubIndication.HASH_FAILURE));
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(0);
-      assertThat(timestampReport.getWarnings(), empty());
       assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.SK_TSA_2024E_CN));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-09-13T10:49:58Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
+      assertThat(timestampReport.getErrors(), contains("The time-stamp message imprint is not intact!"));
+      assertThat(timestampReport.getWarnings(), empty());
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
       assertThat(timestampValidationResult, notNullValue());
-      assertThat(timestampValidationResult.isValid(), equalTo(false));
-      assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(
-              timestampValidationResult.getErrors(), 1,
+      assertThat(timestampValidationResult.isValid(), is(false));
+      assertContainsExactSetOfErrors(timestampValidationResult.getErrors(),
               timestampId + ") - The time-stamp message imprint is not intact!"
       );
       assertThat(timestampValidationResult.getWarnings(), empty());
     }
     {
       String timestampId = container.getTimestamps().get(1).getUniqueId();
-      assertThat(containerValidationResult.getIndication(timestampId), sameInstance(Indication.PASSED));
-      assertThat(containerValidationResult.getSubIndication(timestampId), nullValue());
+      assertThat(containerValidationResult.getIndication(timestampId), sameInstance(Indication.FAILED));
+      assertThat(containerValidationResult.getSubIndication(timestampId), sameInstance(SubIndication.FORMAT_FAILURE));
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(1);
-      assertThat(timestampReport.getWarnings(), contains("The time-stamp token does not cover container datafile!"));
       assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.SK_TSA_2024E_CN));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-09-13T11:20:02Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
+      assertThat(timestampReport.getErrors(), contains(
+              "Not all signed and/or time-asserted file objects referenced from previous signature, " +
+                      "time-stamp or manifest files have been covered!"
+      ));
+      assertThat(timestampReport.getWarnings(), empty());
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
       assertThat(timestampValidationResult, notNullValue());
-      assertThat(timestampValidationResult.isValid(), equalTo(true));
-      assertThat(timestampValidationResult.getErrors(), empty());
-      assertContainsExactSetOfErrors(timestampValidationResult.getWarnings(),
-              timestampId + ") - The time-stamp token does not cover container datafile!"
+      assertThat(timestampValidationResult.isValid(), is(false));
+      assertContainsExactSetOfErrors(timestampValidationResult.getErrors(),
+              timestampId + ") - Not all signed and/or time-asserted file objects " +
+                      "referenced from previous signature, time-stamp or manifest files have been covered!"
       );
+      assertThat(timestampValidationResult.getWarnings(), empty());
     }
     {
       String timestampId = container.getTimestamps().get(2).getUniqueId();
@@ -458,13 +471,14 @@ public class TimestampedContainerValidationTest extends AbstractTest {
       assertThat(containerValidationResult.getSubIndication(timestampId), nullValue());
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(2);
-      assertThat(timestampReport.getWarnings(), empty());
       assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.SK_TSA_2024E_CN));
       assertThat(timestampReport.getProductionTime(), equalToIsoDate("2024-10-25T13:25:59Z"));
       assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
+      assertThat(timestampReport.getErrors(), empty());
+      assertThat(timestampReport.getWarnings(), empty());
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
       assertThat(timestampValidationResult, notNullValue());
-      assertThat(timestampValidationResult.isValid(), equalTo(true));
+      assertThat(timestampValidationResult.isValid(), is(true));
       assertThat(timestampValidationResult.getErrors(), empty());
       assertThat(timestampValidationResult.getWarnings(), empty());
     }
@@ -599,7 +613,9 @@ public class TimestampedContainerValidationTest extends AbstractTest {
 
     assertContainerIsValidIgnoreErrors(containerValidationResult);
     assertContainsExactSetOfErrors(containerValidationResult.getErrors(),
-            container.getTimestamps().get(1).getUniqueId() + ") - The manifest entry object has not been found!"
+            container.getTimestamps().get(1).getUniqueId() + ") - The manifest entry object has not been found!",
+            container.getTimestamps().get(1).getUniqueId() + ") - Not all signed and/or time-asserted file objects " +
+                    "referenced from previous signature, time-stamp or manifest files have been covered!"
     );
     assertThat(containerValidationResult.getWarnings(), empty());
     assertThat(containerValidationResult.getContainerErrors(), empty());
@@ -624,14 +640,14 @@ public class TimestampedContainerValidationTest extends AbstractTest {
       ));
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
       assertThat(timestampValidationResult, notNullValue());
-      assertThat(timestampValidationResult.isValid(), equalTo(true));
+      assertThat(timestampValidationResult.isValid(), is(true));
       assertThat(timestampValidationResult.getErrors(), empty());
       assertThat(timestampValidationResult.getWarnings(), empty());
     }
     {
       String timestampId = container.getTimestamps().get(1).getUniqueId();
-      assertThat(containerValidationResult.getIndication(timestampId), sameInstance(Indication.INDETERMINATE));
-      assertThat(containerValidationResult.getSubIndication(timestampId), sameInstance(SubIndication.SIGNED_DATA_NOT_FOUND));
+      assertThat(containerValidationResult.getIndication(timestampId), sameInstance(Indication.FAILED));
+      assertThat(containerValidationResult.getSubIndication(timestampId), sameInstance(SubIndication.FORMAT_FAILURE));
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(1);
       assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.DEMO_SK_TSA_2025E_CN));
@@ -643,9 +659,11 @@ public class TimestampedContainerValidationTest extends AbstractTest {
       ));
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
       assertThat(timestampValidationResult, notNullValue());
-      assertThat(timestampValidationResult.isValid(), equalTo(false));
+      assertThat(timestampValidationResult.isValid(), is(false));
       assertContainsExactSetOfErrors(timestampValidationResult.getErrors(),
-              timestampId + ") - The manifest entry object has not been found!"
+              timestampId + ") - The manifest entry object has not been found!",
+              timestampId + ") - Not all signed and/or time-asserted file objects " +
+                      "referenced from previous signature, time-stamp or manifest files have been covered!"
       );
       assertThat(timestampValidationResult.getWarnings(), empty());
     }
@@ -662,7 +680,9 @@ public class TimestampedContainerValidationTest extends AbstractTest {
 
     assertContainerIsValidIgnoreErrors(containerValidationResult);
     assertContainsExactSetOfErrors(containerValidationResult.getErrors(),
-            container.getTimestamps().get(1).getUniqueId() + ") - The manifest entry object has not been found!"
+            container.getTimestamps().get(1).getUniqueId() + ") - The manifest entry object has not been found!",
+            container.getTimestamps().get(1).getUniqueId() + ") - Not all signed and/or time-asserted file objects " +
+                    "referenced from previous signature, time-stamp or manifest files have been covered!"
     );
     assertThat(containerValidationResult.getWarnings(), empty());
     assertThat(containerValidationResult.getContainerErrors(), empty());
@@ -687,14 +707,14 @@ public class TimestampedContainerValidationTest extends AbstractTest {
       ));
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
       assertThat(timestampValidationResult, notNullValue());
-      assertThat(timestampValidationResult.isValid(), equalTo(true));
+      assertThat(timestampValidationResult.isValid(), is(true));
       assertThat(timestampValidationResult.getErrors(), empty());
       assertThat(timestampValidationResult.getWarnings(), empty());
     }
     {
       String timestampId = container.getTimestamps().get(1).getUniqueId();
-      assertThat(containerValidationResult.getIndication(timestampId), sameInstance(Indication.INDETERMINATE));
-      assertThat(containerValidationResult.getSubIndication(timestampId), sameInstance(SubIndication.SIGNED_DATA_NOT_FOUND));
+      assertThat(containerValidationResult.getIndication(timestampId), sameInstance(Indication.FAILED));
+      assertThat(containerValidationResult.getSubIndication(timestampId), sameInstance(SubIndication.FORMAT_FAILURE));
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(1);
       assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.DEMO_SK_TSA_2025E_CN));
@@ -706,9 +726,11 @@ public class TimestampedContainerValidationTest extends AbstractTest {
       ));
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
       assertThat(timestampValidationResult, notNullValue());
-      assertThat(timestampValidationResult.isValid(), equalTo(false));
+      assertThat(timestampValidationResult.isValid(), is(false));
       assertContainsExactSetOfErrors(timestampValidationResult.getErrors(),
-              timestampId + ") - The manifest entry object has not been found!"
+              timestampId + ") - The manifest entry object has not been found!",
+              timestampId + ") - Not all signed and/or time-asserted file objects " +
+                      "referenced from previous signature, time-stamp or manifest files have been covered!"
       );
       assertThat(timestampValidationResult.getWarnings(), empty());
     }
@@ -784,7 +806,9 @@ public class TimestampedContainerValidationTest extends AbstractTest {
 
     assertContainerIsValidIgnoreErrors(containerValidationResult);
     assertContainsExactSetOfErrors(containerValidationResult.getErrors(),
-            container.getTimestamps().get(1).getUniqueId() + ") - The manifest entry object has not been found!"
+            container.getTimestamps().get(1).getUniqueId() + ") - The manifest entry object has not been found!",
+            container.getTimestamps().get(1).getUniqueId() + ") - Not all signed and/or time-asserted file objects " +
+                    "referenced from previous signature, time-stamp or manifest files have been covered!"
     );
     assertThat(containerValidationResult.getWarnings(), empty());
     assertThat(containerValidationResult.getContainerErrors(), empty());
@@ -809,14 +833,14 @@ public class TimestampedContainerValidationTest extends AbstractTest {
       ));
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
       assertThat(timestampValidationResult, notNullValue());
-      assertThat(timestampValidationResult.isValid(), equalTo(true));
+      assertThat(timestampValidationResult.isValid(), is(true));
       assertThat(timestampValidationResult.getErrors(), empty());
       assertThat(timestampValidationResult.getWarnings(), empty());
     }
     {
       String timestampId = container.getTimestamps().get(1).getUniqueId();
-      assertThat(containerValidationResult.getIndication(timestampId), sameInstance(Indication.INDETERMINATE));
-      assertThat(containerValidationResult.getSubIndication(timestampId), sameInstance(SubIndication.SIGNED_DATA_NOT_FOUND));
+      assertThat(containerValidationResult.getIndication(timestampId), sameInstance(Indication.FAILED));
+      assertThat(containerValidationResult.getSubIndication(timestampId), sameInstance(SubIndication.FORMAT_FAILURE));
       assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.QTSA));
       TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(1);
       assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.DEMO_SK_TSA_2025E_CN));
@@ -828,9 +852,11 @@ public class TimestampedContainerValidationTest extends AbstractTest {
       ));
       ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
       assertThat(timestampValidationResult, notNullValue());
-      assertThat(timestampValidationResult.isValid(), equalTo(false));
+      assertThat(timestampValidationResult.isValid(), is(false));
       assertContainsExactSetOfErrors(timestampValidationResult.getErrors(),
-              timestampId + ") - The manifest entry object has not been found!"
+              timestampId + ") - The manifest entry object has not been found!",
+              timestampId + ") - Not all signed and/or time-asserted file objects " +
+                      "referenced from previous signature, time-stamp or manifest files have been covered!"
       );
       assertThat(timestampValidationResult.getWarnings(), empty());
     }
