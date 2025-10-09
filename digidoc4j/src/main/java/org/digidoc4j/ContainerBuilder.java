@@ -11,6 +11,7 @@
 package org.digidoc4j;
 
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
+import eu.europa.esig.dss.model.DSSDocument;
 import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.exceptions.NotSupportedException;
@@ -30,6 +31,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -323,22 +325,24 @@ public abstract class ContainerBuilder {
     public boolean isStream;
 
     public ContainerDataFile(String filePath, String mimeType) {
+      validateDataFile(filePath, mimeType);
       this.filePath = filePath;
       this.mimeType = mimeType;
       isStream = false;
-      validateDataFile();
     }
 
     public ContainerDataFile(InputStream inputStream, String filePath, String mimeType) {
+      validateDataFile(filePath, mimeType);
+      validateFileName(filePath);
       this.filePath = filePath;
       this.mimeType = mimeType;
       this.inputStream = inputStream;
       isStream = true;
-      validateDataFile();
-      validateFileName();
     }
 
     public ContainerDataFile(DataFile dataFile) {
+      validateDataFile(dataFile.getName(), dataFile.getMediaType());
+      validateDataFileDocumentName(dataFile);
       this.dataFile = dataFile;
       isStream = false;
     }
@@ -347,7 +351,7 @@ public abstract class ContainerBuilder {
       return dataFile != null;
     }
 
-    private void validateDataFile() {
+    private static void validateDataFile(String filePath, String mimeType) {
       if (StringUtils.isBlank(filePath)) {
         throw new InvalidDataFileException("File name/path cannot be empty");
       }
@@ -356,14 +360,19 @@ public abstract class ContainerBuilder {
       }
     }
 
-    private void validateFileName() {
-      if (Helper.hasSpecialCharacters(filePath)) {
-        throw new InvalidDataFileException("File name " + filePath
-            + " must not contain special characters like: "
-            + Helper.SPECIAL_CHARACTERS);
+    private static void validateFileName(String fileName) {
+      if (Helper.hasSpecialCharacters(fileName)) {
+        throw new InvalidDataFileException("File name " + fileName
+                + " must not contain special characters like: "
+                + Helper.SPECIAL_CHARACTERS);
       }
     }
 
+    private static void validateDataFileDocumentName(DataFile dataFile) {
+      Optional
+              .ofNullable(dataFile.getDocument())
+              .map(DSSDocument::getName)
+              .ifPresent(ContainerDataFile::validateFileName);
+    }
   }
-
 }
