@@ -25,6 +25,7 @@ import org.digidoc4j.test.CustomConfiguration;
 import org.digidoc4j.test.CustomContainer;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
+import org.digidoc4j.utils.Helper;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -135,6 +136,31 @@ public class ContainerBuilderTest extends AbstractTest {
   @Test(expected = InvalidDataFileException.class)
   public void buildContainer_withNullFilePath_shouldThrowException() throws Exception {
     ContainerBuilder.aContainer().withDataFile((String) null, "text/plain").build();
+  }
+
+  @Test
+  public void withDatafile_whenIllegalCharactersInFileName_invalidDataFileExceptionIsThrown() {
+    String illegalFileName = "00000705/a1b2c3d4-00000705-20250521.txt";
+    String mimeType = "text/plain";
+    byte[] fileContent = {1, 2, 3};
+
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer();
+    DataFile dataFile = new DataFile(
+            new ByteArrayInputStream(fileContent),
+            illegalFileName,
+            mimeType
+    );
+
+    InvalidDataFileException exception = assertThrows(
+            InvalidDataFileException.class,
+            () -> containerBuilder.withDataFile(dataFile));
+
+    String expectedMessage = String.format(
+            "File name %s must not contain special characters like: %s",
+            illegalFileName,
+            Helper.SPECIAL_CHARACTERS
+    );
+    Assert.assertEquals(expectedMessage, exception.getMessage());
   }
 
   @Test(expected = InvalidDataFileException.class)
