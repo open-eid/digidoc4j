@@ -432,7 +432,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void valid3xTimestampedContainerWithNestedValidDdoc() throws Exception {
+  public void test_valid3xTimestampedContainerWithNestedValidDdoc_includesSHA1ContainerWarning() throws Exception {
     // TODO (DD4J-1123): Currently JDigiDoc configuration (for validating DDoc containers and signatures) is
     //  automatically initialized only once per process, and thus is dependent on the order the unit tests are run.
     //  This workaround helps to avoid unit test failures caused by incompatible configuration being loaded.
@@ -474,10 +474,13 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
     TestAssert.assertXPathHasValue("1", "/SimpleReport/ValidSignaturesCount", report);
     TestAssert.assertXPathHasValue("0", "count(/SimpleReport/Signature)", report);
+    TestAssert.assertXPathHasValue("The algorithm SHA1 used in DDOC" +
+            " is no longer considered reliable for signature creation!", "/SimpleReport/ContainerWarning[1]", report);
+
   }
 
   @Test
-  public void validTimestampedContainerWithNestedInvalidDdocWithMultipleSignatures() throws Exception {
+  public void test_validTimestampedContainerWithNestedInvalidDdocWithMultipleSignatures_includesSHA1ContainerWarning() throws Exception {
     String containerPath = "src/test/resources/testFiles/invalid-containers/one-valid-and-multiple-invalid-signatures.ddoc";
     String containerFilename = Paths.get(containerPath).getFileName().toString();
     // TODO (DD4J-1123): Currently JDigiDoc configuration (for validating DDoc containers and signatures) is
@@ -496,6 +499,8 @@ public class ValidationReportTest extends AbstractTest {
     TestAssert.assertXPathHasValue("7", "/SimpleReport/SignaturesCount", report);
     TestAssert.assertXPathHasValue("1", "/SimpleReport/ValidSignaturesCount", report);
     TestAssert.assertXPathHasValue("0", "count(/SimpleReport/Signature)", report);
+    TestAssert.assertXPathHasValue("The algorithm SHA1 used in DDOC" +
+            " is no longer considered reliable for signature creation!", "/SimpleReport/ContainerWarning[1]", report);
   }
 
   @Test

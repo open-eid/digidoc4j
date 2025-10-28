@@ -761,6 +761,9 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
     assertThat(containerValidationResult.getWarnings(), empty());
     assertThat(containerValidationResult.getSimpleReports(), hasSize(1));
     assertThat(containerValidationResult.getSignatureReports(), empty());
+    assertContainsExactSetOfErrors(containerValidationResult.getContainerWarnings(),
+            "The algorithm SHA1 used in DDOC is no longer considered reliable for signature creation!"
+    );
     assertThat(containerValidationResult.getTimestampReports(), hasSize(1));
     assertThat(containerValidationResult.getSignatureIdList(), hasSize(1));
     assertThat(containerValidationResult.getSignatureIdList(), equalToSignatureUniqueIdList(nestedContainer));
@@ -797,10 +800,11 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
 
     assertContainerIsValid(nestedValidationResult);
     assertThat(nestedValidationResult.getWarnings(), empty());
+    assertThat(nestedValidationResult.getContainerWarnings(), hasSize(1));
   }
 
   @Test
-  public void validate_WhenTimestampedNestedContainerIsInvalidDdocWithMultipleSignatures_ValidationResultContainsAggregatedInfo() {
+  public void validate_WhenAsicsWithTimestampAfterTeraSupportAndNestedContainerIsInvalidDdocWithMultipleSignaturesAndSha1Warning_ValidationResultContainsAggregatedInfo() {
     String path = "src/test/resources/testFiles/invalid-containers/one-valid-and-multiple-invalid-signatures.ddoc";
     Container nestedContainer = TestDataBuilderUtil.open(path, configuration);
     Container container = CompositeContainerBuilder
@@ -821,6 +825,9 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
             "ERROR: 90 - Signature has no OCSP confirmation!"
     );
     assertThat(containerValidationResult.getWarnings(), empty());
+    assertContainsExactSetOfErrors(containerValidationResult.getContainerWarnings(),
+            "The algorithm SHA1 used in DDOC is no longer considered reliable for signature creation!"
+    );
     assertThat(containerValidationResult.getSimpleReports(), hasSize(1));
     assertThat(containerValidationResult.getSignatureReports(), empty());
     assertThat(containerValidationResult.getTimestampReports(), hasSize(1));
@@ -922,6 +929,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
     assertContainerIsInvalid(nestedValidationResult);
     assertThat(nestedValidationResult.getErrors(), hasSize(7));
     assertThat(nestedValidationResult.getWarnings(), empty());
+    assertThat(nestedValidationResult.getContainerWarnings(), hasSize(1));
   }
 
   @Override

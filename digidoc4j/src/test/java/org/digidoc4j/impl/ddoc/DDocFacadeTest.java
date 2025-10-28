@@ -35,6 +35,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Paths;
+import java.util.Date;
 import java.util.List;
 
 public class DDocFacadeTest extends AbstractTest {
@@ -65,7 +66,7 @@ public class DDocFacadeTest extends AbstractTest {
   @Test
   public void testRemoveDuplicatesExceptions() {
     DDocFacade facade = openDDocFacade("src/test/resources/prodFiles/invalid-containers/23060-1.ddoc");
-    ContainerValidationResult result = facade.validate();
+    ContainerValidationResult result = facade.validate(new Date());
     Assert.assertEquals(1, result.getContainerErrors().size());
     Assert.assertEquals(21, result.getContainerErrors().get(0).getErrorCode());
     Assert.assertEquals("Invalid digest length", result.getContainerErrors().get(0).getMessage());
@@ -79,7 +80,7 @@ public class DDocFacadeTest extends AbstractTest {
   @Test
   public void testValidateNoDuplicateExceptions() {
     DDocFacade facade = openDDocFacade("src/test/resources/prodFiles/invalid-containers/Belgia_kandeavaldus_LIV.ddoc");
-    ContainerValidationResult result = facade.validate();
+    ContainerValidationResult result = facade.validate(new Date());
     Assert.assertEquals(3, result.getErrors().size());
   }
 
