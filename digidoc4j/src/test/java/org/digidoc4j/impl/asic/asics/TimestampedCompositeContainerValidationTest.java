@@ -677,7 +677,75 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenTimestampedNestedContainerIsValidDdoc_ValidationResultContainsAggregatedInfo() {
+  public void validate_WhenAsicsWithTimeStampBeforeTeraSupportEndAndNestedContainerIsDdoc_ContainerValidationResultHasNoSha1WarningNestedValidationResultHasSha1Warning(){
+    Configuration configuration = Configuration.of(Configuration.Mode.PROD);
+
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/timestamptoken-ddoc.asics", configuration);
+    Container nestedContainer = TestDataBuilderUtil.open(
+            container.getDataFiles().get(0),
+            configuration
+    );
+
+    ContainerValidationResult containerValidationResult = container.validate();
+
+    assertContainerIsValid(containerValidationResult);
+    assertContainsExactSetOfErrors(containerValidationResult.getWarnings(),
+            "(Signature ID: T-D1EEC694EF475DCFAEBC2B3C82A734AC655072FBA3E6E36EAD5166C19DFF3128) - " +
+                    "The certificate is not related to a granted status at time-stamp lowest POE time!");
+    assertContainsExactSetOfErrors(containerValidationResult.getContainerWarnings(),
+            "Found a timestamp token not related to granted status. " +
+                    "If not yet covered with a fresh timestamp token, this container might become invalid in the future."
+    );
+    assertThat(containerValidationResult.getSimpleReports(), hasSize(1));
+    assertThat(containerValidationResult.getSignatureReports(), empty());
+    assertThat(containerValidationResult.getSignatureIdList(), hasSize(1));
+    assertThat(containerValidationResult.getSignatureIdList(), equalToSignatureUniqueIdList(nestedContainer));
+    assertThat(containerValidationResult.getTimestampIdList(), hasSize(1));
+    assertThat(containerValidationResult.getTimestampIdList(), equalToTimestampUniqueIdList(container));
+    {
+      String signatureId = nestedContainer.getSignatures().get(0).getUniqueId();
+      assertThat(containerValidationResult.getIndication(signatureId), nullValue());
+      assertThat(containerValidationResult.getSubIndication(signatureId), nullValue());
+      assertThat(containerValidationResult.getSignatureQualification(signatureId), nullValue());
+      ValidationResult signatureValidationResult = containerValidationResult.getValidationResult(signatureId);
+      assertThat(signatureValidationResult, notNullValue());
+      assertThat(signatureValidationResult.isValid(), equalTo(true));
+      assertThat(signatureValidationResult.getErrors(), empty());
+      assertThat(signatureValidationResult.getWarnings(), empty());
+    }
+    {
+      String timestampId = container.getTimestamps().get(0).getUniqueId();
+      assertThat(containerValidationResult.getIndication(timestampId), sameInstance(Indication.PASSED));
+      assertThat(containerValidationResult.getSubIndication(timestampId), nullValue());
+      assertThat(containerValidationResult.getTimestampQualification(timestampId), sameInstance(TimestampQualification.TSA));
+      TimestampValidationReport timestampReport = containerValidationResult.getTimestampReports().get(0);
+      assertThat(timestampReport.getProducedBy(), equalTo(TestConstants.SK_TSA_CN));
+      assertThat(timestampReport.getProductionTime(), equalToIsoDate("2017-08-17T09:35:32Z"));
+      assertThat(timestampReport.getUniqueId(), equalTo(timestampId));
+      ValidationResult timestampValidationResult = containerValidationResult.getValidationResult(timestampId);
+      assertThat(timestampValidationResult, notNullValue());
+      assertThat(timestampValidationResult.isValid(), equalTo(true));
+      assertThat(timestampValidationResult.getErrors(), empty());
+      assertContainsExactSetOfErrors(containerValidationResult.getWarnings(),
+              "(Signature ID: " + timestampId + ") - " +
+                      "The certificate is not related to a granted status at time-stamp lowest POE time!"
+      );
+    }
+
+    // Validate the nested DDOC container separately —
+    // unlike the outer ASiC-S (timestamped before Tera support ended),
+    // the DDOC itself uses the deprecated SHA-1 algorithm and should produce a SHA-1 warning.
+    ContainerValidationResult nestedValidationResult = nestedContainer.validate();
+
+    assertContainerIsValid(nestedValidationResult);
+    assertThat(nestedValidationResult.getWarnings(), empty());
+    assertContainsExactSetOfErrors(nestedValidationResult.getContainerWarnings(),
+            "The algorithm SHA1 used in DDOC is no longer considered reliable for signature creation!"
+    );
+  }
+
+  @Test
+  public void validate_WhenAsicsWithTimestampAfterTeraSupportAndNestedContainerIsValidDdocWithSha1Warning_ValidationResultContainsAggregatedInfo() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/1xTST-valid-ddoc-data-file.asics",
             configuration

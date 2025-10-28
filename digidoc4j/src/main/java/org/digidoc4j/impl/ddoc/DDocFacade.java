@@ -33,10 +33,14 @@ import java.io.File;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.security.cert.X509Certificate;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.digidoc4j.ddoc.DigiDocException.WARN_WEAK_DIGEST;
 
 /**
  * Offers validation specific functionality of a DDOC container.
@@ -45,6 +49,7 @@ public class DDocFacade implements Serializable {
   private static final Logger logger = LoggerFactory.getLogger(DDocFacade.class);
 
   private static final String HASHCODE_CONTENT_TYPE = "HASHCODE";
+  private static final Instant TERA_SUPPORT_END = Instant.parse("2018-07-01T00:00:00Z");
 
   protected SignedDoc ddoc;
   private ArrayList<DigiDocException> openContainerExceptions = new ArrayList<>();
@@ -185,7 +190,15 @@ public class DDocFacade implements Serializable {
     return Container.DocumentType.DDOC;
   }
 
+  /**
+   * @deprecated Deprecated for removal. Use {@link #validate(Date)} instead.
+   */
+  @Deprecated
   public ContainerValidationResult validate() {
+    return validate(new Date());
+  }
+
+  public ContainerValidationResult validate(Date validationTime) {
     logger.debug("Validating DDoc container ...");
     Map<String, ValidationResult> signatureResults = new LinkedHashMap<>();
 
@@ -218,6 +231,12 @@ public class DDocFacade implements Serializable {
             signatureResults,
             ddoc.getFormat()
     );
+
+    if (isSha1WarningRequired(validationTime)) {
+      result.getContainerWarnings().add(new DigiDoc4JException(WARN_WEAK_DIGEST,
+              "The algorithm SHA1 used in DDOC is no longer considered reliable for signature creation!"
+      ));
+    }
     result.print(this.configuration);
     return result;
   }
@@ -280,6 +299,10 @@ public class DDocFacade implements Serializable {
       logger.debug("Unverifiable signature '{}' has no validation errors; returning fatal error", signature.getId());
       return validationResult;
     }
+  }
+
+  private static boolean isSha1WarningRequired(Date validationTime) {
+    return validationTime == null || validationTime.toInstant().isAfter(TERA_SUPPORT_END);
   }
 
 }

@@ -19,6 +19,7 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.Timestamp;
 import org.digidoc4j.exceptions.NotSupportedException;
+import org.digidoc4j.impl.ValidatableContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,12 +28,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.List;
 
 /**
  * Offers functionality for handling DDoc containers.
  */
-public class DDocContainer implements Container {
+public class DDocContainer implements Container, ValidatableContainer {
 
   private static final Logger logger = LoggerFactory.getLogger(DDocContainer.class);
   private static final String NOT_FOR_THIS_CONTAINER = "Not for DDOC container";
@@ -126,7 +128,12 @@ public class DDocContainer implements Container {
 
   @Override
   public ContainerValidationResult validate() {
-    return ddoc4jFacade.validate();
+    return validateAt(new Date());
+  }
+
+  @Override
+  public ContainerValidationResult validateAt(Date validationTime) {
+    return ddoc4jFacade.validate(validationTime);
   }
 
   @Override
@@ -185,4 +192,5 @@ public class DDocContainer implements Container {
   public String getFormat() {
     return ddoc4jFacade.getFormat();
   }
+
 }

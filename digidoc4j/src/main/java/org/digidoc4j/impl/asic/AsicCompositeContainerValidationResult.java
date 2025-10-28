@@ -174,7 +174,10 @@ public class AsicCompositeContainerValidationResult implements ContainerValidati
             .map(Throwable::getMessage)
             .collect(Collectors.toList())
     );
-
+    containerValidationReport.setContainerWarnings(getContainerWarnings().stream()
+            .map(Throwable::getMessage)
+            .collect(Collectors.toList())
+    );
     containerValidationReport.setSignaturesCount(getSignatureIdList().size());
     containerValidationReport.setValidSignaturesCount((int) getSignatureIdList().stream()
             .map(this::getValidationResult)

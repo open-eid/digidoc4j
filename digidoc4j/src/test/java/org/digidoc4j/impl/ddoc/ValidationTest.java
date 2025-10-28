@@ -24,7 +24,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import static org.digidoc4j.test.TestAssert.assertContainerIsInvalid;
+import static org.digidoc4j.test.TestAssert.assertContainerIsValid;
 import static org.digidoc4j.test.TestAssert.assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages;
+import static org.digidoc4j.test.TestAssert.assertContainsExactSetOfErrors;
 import static org.digidoc4j.test.matcher.CommonMatchers.equalToSignatureUniqueIdList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
@@ -189,6 +191,22 @@ public class ValidationTest extends AbstractTest {
       );
       assertThat(signatureValidationResult.getWarnings(), empty());
     }
+  }
+
+  @Test
+  public void validate_whenDDOCValidated_containerValidationResultContainsSHA1Warning() {
+    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
+    Container container = ContainerBuilder.aContainer()
+            .withConfiguration(this.configuration)
+            .fromExistingFile("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc")
+            .build();
+
+    ContainerValidationResult result = container.validate();
+
+    assertContainerIsValid(result);
+    assertContainsExactSetOfErrors(result.getContainerWarnings(),
+            "The algorithm SHA1 used in DDOC is no longer considered reliable for signature creation!"
+    );
   }
 
     /*
