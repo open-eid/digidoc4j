@@ -158,7 +158,7 @@ public class ContainerBuilderTest extends AbstractTest {
     String expectedMessage = String.format(
             "File name %s must not contain special characters like: %s",
             illegalFileName,
-            Helper.SPECIAL_CHARACTERS
+            Helper.FORBIDDEN_CHARACTERS
     );
     Assert.assertEquals(expectedMessage, exception.getMessage());
   }

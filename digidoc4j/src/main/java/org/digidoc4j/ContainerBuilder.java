@@ -364,7 +364,7 @@ public abstract class ContainerBuilder {
       if (Helper.hasSpecialCharacters(fileName)) {
         throw new InvalidDataFileException("File name " + fileName
                 + " must not contain special characters like: "
-                + Helper.SPECIAL_CHARACTERS);
+                + Helper.FORBIDDEN_CHARACTERS);
       }
     }
 

@@ -70,11 +70,19 @@ import static java.nio.file.Files.deleteIfExists;
  */
 public final class Helper {
 
-  public static final String SPECIAL_CHARACTERS = "[\\\\<>:\"/|?*]";
+  public static final String FORBIDDEN_CHARACTERS = "\\<>:\"/|?*";
+  public static final String SPECIAL_CHARACTERS_REGEX= "[" + Pattern.quote(FORBIDDEN_CHARACTERS) + "]";
+  public static final Pattern SPECIAL_CHARACTERS_PATTERN = Pattern.compile(SPECIAL_CHARACTERS_REGEX);
   private static final Logger logger = LoggerFactory.getLogger(Helper.class);
   private static final int ZIP_VERIFICATION_CODE = 0x504b0304;
   private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
   private static final Random random = new SecureRandom();
+
+  /**
+   * @deprecated Deprecated for removal. Use {@link #SPECIAL_CHARACTERS_REGEX} instead.
+   */
+  @Deprecated
+  public static final String SPECIAL_CHARACTERS = SPECIAL_CHARACTERS_REGEX;
 
   private Helper() {
   }
@@ -318,8 +326,7 @@ public final class Helper {
    * @return true if file name contains following symbols: <>:"/\|?*
    */
   public static boolean hasSpecialCharacters(String fileName) {
-    Pattern special = Pattern.compile(SPECIAL_CHARACTERS);
-    Matcher hasSpecial = special.matcher(fileName);
+    Matcher hasSpecial = SPECIAL_CHARACTERS_PATTERN.matcher(fileName);
     return hasSpecial.find();
   }
 
