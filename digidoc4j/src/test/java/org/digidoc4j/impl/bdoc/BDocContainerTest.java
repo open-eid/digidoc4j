@@ -1179,20 +1179,33 @@ public class BDocContainerTest extends AbstractTest {
     Assert.assertSame(1, validationResult.getContainerErrors().size());
     Assert.assertEquals(validationResult.getContainerErrors().get(0).getMessage(), "Duplicate signature files: META-INF/signatures1.xml");
 
-    Assert.assertSame(4, validationResult.getWarnings().size());
+    Assert.assertSame(8, validationResult.getWarnings().size());
+    TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
+            "The authority info access is not present!",
+            "The algorithm SHA1 is no longer considered reliable for signature's certificate chain!",
+            "The algorithm SHA1 is no longer considered reliable for revocation data signature!",
+            "The signature/seal is an INDETERMINATE AdES digital signature!",
+            "The authority info access is not present!",
+            "The algorithm SHA1 is no longer considered reliable for signature's certificate chain!",
+            "The algorithm SHA1 is no longer considered reliable for revocation data signature!",
+            "The signature/seal is an INDETERMINATE AdES digital signature!"
+    );
 
     Assert.assertSame(11, validationResult.getErrors().size());
     List<DigiDoc4JException> errors = validationResult.getErrors();
-    Assert.assertEquals(errors.get(0).getMessage(), "Wrong policy identifier: 1.3.6.1.4.1.10015.1000.3.1.1");
-    Assert.assertEquals(errors.get(1).getMessage(), "The signature policy is not available!");
-    Assert.assertEquals(errors.get(2).getMessage(), "The certificate validation is not conclusive!");
-    Assert.assertEquals(errors.get(3).getMessage(), "The current time is not in the validity range of the signer's certificate!");
-    Assert.assertEquals(errors.get(4).getMessage(), "OCSP nonce is invalid");
-    Assert.assertEquals(errors.get(5).getMessage(), "Wrong policy identifier: 1.3.6.1.4.1.10015.1000.3.1.1");
-    Assert.assertEquals(errors.get(6).getMessage(), "The signature policy is not available!");
-    Assert.assertEquals(errors.get(7).getMessage(), "The certificate validation is not conclusive!");
-    Assert.assertEquals(errors.get(8).getMessage(), "The current time is not in the validity range of the signer's certificate!");
-    Assert.assertEquals(errors.get(9).getMessage(), "OCSP nonce is invalid");
+    TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
+            "Wrong policy identifier: 1.3.6.1.4.1.10015.1000.3.1.1",
+            "The signature policy is not available!",
+            "The certificate validation is not conclusive!",
+            "The current time is not in the validity range of the signer's certificate!",
+            "OCSP nonce is invalid",
+            "Wrong policy identifier: 1.3.6.1.4.1.10015.1000.3.1.1",
+            "The signature policy is not available!",
+            "The certificate validation is not conclusive!",
+            "The current time is not in the validity range of the signer's certificate!",
+            "OCSP nonce is invalid",
+            "Duplicate signature files: META-INF/signatures1.xml"
+    );
 
     DigiDoc4JException duplicateSigFileEx = errors.get(10);
     Assert.assertTrue(duplicateSigFileEx instanceof DuplicateSignatureFilesException);
