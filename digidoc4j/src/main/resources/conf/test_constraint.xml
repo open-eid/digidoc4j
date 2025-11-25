@@ -507,10 +507,10 @@
       <Algo>SHA3-384</Algo>
       <Algo>SHA3-512</Algo>
     </AcceptableDigestAlgo>
-    <AlgoExpirationDate Level="WARN" Format="yyyy-MM-dd" UpdateDate="2025-01-01" LevelAfterUpdate="WARN">
+    <AlgoExpirationDate Level="FAIL" Format="yyyy-MM-dd" UpdateDate="2025-01-01" LevelAfterUpdate="WARN">
       <!-- Previously omitted encryption and digest algorithms are removed from this block. -->
       <!-- Digest algorithms -->
-      <Algo Date="2012-08-01">SHA1</Algo> <!-- ETSI TS 119 312 v1.5.1 -->
+      <Algo>SHA1</Algo>  <!-- CUSTOM -->
       <Algo Date="2026-01-01">SHA224</Algo> <!-- CUSTOM -->
       <Algo>SHA256</Algo> <!-- ETSI TS 119 312 v1.5.1 --> <!-- R -->
       <Algo>SHA384</Algo> <!-- ETSI TS 119 312 v1.5.1 --> <!-- R -->

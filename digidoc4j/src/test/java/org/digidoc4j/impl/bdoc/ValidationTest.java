@@ -332,9 +332,7 @@ public class ValidationTest extends AbstractTest {
     TestAssert.assertContainerIsValid(result);
     TestAssert.assertContainsExactSetOfErrors(result.getWarnings(),
             "The time difference between the signature timestamp and the OCSP response exceeds 15 minutes, rendering the OCSP response not 'fresh'.",
-            "The authority info access is not present!",
-            "The algorithm SHA1 is no longer considered reliable for signature's certificate chain!",
-            "The algorithm SHA1 is no longer considered reliable for revocation data signature!"
+            "The authority info access is not present!"
     );
   }
 
