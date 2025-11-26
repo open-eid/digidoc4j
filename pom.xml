@@ -146,7 +146,6 @@
         <commons-codec.version>1.20.0</commons-codec.version>
         <slf4j.version>2.0.17</slf4j.version>
 
-        <dependency-check-maven.version>8.4.3</dependency-check-maven.version>
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
         <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
         <maven-enforcer-plugin.version>3.6.2</maven-enforcer-plugin.version>
@@ -353,31 +352,6 @@
                                         </fileSet>
                                     </fileSets>
                                 </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>dependency-check</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.owasp</groupId>
-                        <artifactId>dependency-check-maven</artifactId>
-                        <version>${dependency-check-maven.version}</version>
-                        <configuration>
-                            <skipTestScope>false</skipTestScope>
-                            <skipDependencyManagement>false</skipDependencyManagement>
-                            <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
-                            <failOnError>false</failOnError>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>aggregate</goal>
-                                </goals>
                             </execution>
                         </executions>
                     </plugin>
