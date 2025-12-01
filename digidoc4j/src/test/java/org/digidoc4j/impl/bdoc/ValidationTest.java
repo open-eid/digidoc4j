@@ -429,7 +429,8 @@ public class ValidationTest extends AbstractTest {
             "The current time is not in the validity range of the signer's certificate!",
             "The certificate validation is not conclusive!",
             "The best-signature-time is not before the expiration date of the signing certificate!",
-            "No long term availability and integrity of validation material is present!"
+            "No long term availability and integrity of validation material is present!",
+            "The algorithm RSA with key size 1024 is no longer considered reliable for signature creation!"
     );
   }
 
@@ -535,7 +536,8 @@ public class ValidationTest extends AbstractTest {
     SignatureValidationResult result = container.validate();
     TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
             "(Signature ID: S0) - Unable to build a certificate chain up to a trusted list!",
-            "The certificate chain for signature is not trusted, it does not contain a trust anchor."
+            "The certificate chain for signature is not trusted, it does not contain a trust anchor.",
+            "The algorithm RSA with key size 1024 is no longer considered reliable for signature creation!"
     );
   }
 
@@ -543,8 +545,10 @@ public class ValidationTest extends AbstractTest {
   public void invalidUnknownCa() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/SS-4_teadmataCA.4.asice");
     SignatureValidationResult result = container.validate();
-    TestAssert.assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(result.getErrors(), 2,
-            "(Signature ID: S0) - Unable to build a certificate chain up to a trusted list!"
+    TestAssert.assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(result.getErrors(), 3,
+            "(Signature ID: S0) - Unable to build a certificate chain up to a trusted list!",
+            "The certificate chain for signature is not trusted, it does not contain a trust anchor.",
+            "The algorithm RSA with key size 1024 is no longer considered reliable for signature creation!"
     );
   }
 
@@ -602,7 +606,8 @@ public class ValidationTest extends AbstractTest {
             "(Signature ID: S0) - The current time is not in the validity range of the signer's certificate!",
             "(Signature ID: S0) - The certificate validation is not conclusive!",
             "(Signature ID: S0) - The best-signature-time is not before the expiration date of the signing certificate!",
-            "(Signature ID: S0) - No long term availability and integrity of validation material is present!"
+            "(Signature ID: S0) - No long term availability and integrity of validation material is present!",
+            "(Signature ID: S0) - The algorithm RSA with key size 1024 is no longer considered reliable for signature creation!"
     );
   }
 

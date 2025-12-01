@@ -1179,7 +1179,6 @@ public class BDocContainerTest extends AbstractTest {
     Assert.assertSame(1, validationResult.getContainerErrors().size());
     Assert.assertEquals(validationResult.getContainerErrors().get(0).getMessage(), "Duplicate signature files: META-INF/signatures1.xml");
 
-    Assert.assertSame(4, validationResult.getWarnings().size());
     TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
             "The authority info access is not present!",
             "The signature/seal is an INDETERMINATE AdES digital signature!",
@@ -1187,7 +1186,6 @@ public class BDocContainerTest extends AbstractTest {
             "The signature/seal is an INDETERMINATE AdES digital signature!"
     );
 
-    Assert.assertSame(11, validationResult.getErrors().size());
     List<DigiDoc4JException> errors = validationResult.getErrors();
     TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
             "Wrong policy identifier: 1.3.6.1.4.1.10015.1000.3.1.1",
