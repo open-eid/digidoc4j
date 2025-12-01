@@ -31,16 +31,6 @@
         <developerConnection>scm:git:git@github.com:open-eid/digidoc4j.git</developerConnection>
         <url>https://github.com/open-eid/digidoc4j.git</url>
     </scm>
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
 
     <developers>
         <developer>
