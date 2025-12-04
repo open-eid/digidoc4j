@@ -387,7 +387,7 @@
     </SignedAttributes>
     <TSAGeneralNameContentMatch Level="IGNORE" />
     <AtsHashIndex Level="WARN" />
-    <ContainerSignedAndTimestampedFilesCovered Level="FAIL" />
+    <ContainerSignedAndTimestampedFilesCovered Level="IGNORE" />
   </Timestamp>
   <Revocation>
     <UnknownStatus Level="FAIL" />
