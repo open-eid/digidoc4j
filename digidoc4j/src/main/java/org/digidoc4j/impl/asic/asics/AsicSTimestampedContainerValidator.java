@@ -10,14 +10,19 @@
 
 package org.digidoc4j.impl.asic.asics;
 
+import eu.europa.esig.dss.diagnostic.jaxb.XmlSignatureScope;
+import eu.europa.esig.dss.enumerations.Indication;
 import eu.europa.esig.dss.enumerations.TimestampType;
+import eu.europa.esig.dss.simplereport.jaxb.XmlTimestamp;
 import eu.europa.esig.dss.validation.reports.Reports;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.digidoc4j.ContainerValidationResult;
+import org.digidoc4j.DataFile;
 import org.digidoc4j.Timestamp;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -42,6 +47,8 @@ import java.util.stream.Collectors;
  * A validator for ASiC-S containers with timestamp tokens.
  */
 public class AsicSTimestampedContainerValidator {
+
+  private static final String NO_DATA_FILE_COVERAGE = "The time-stamp token does not cover container datafile!";
 
   private final AsicSContainer asicsContainer;
   private final Date validationTime;
@@ -111,13 +118,13 @@ public class AsicSTimestampedContainerValidator {
             });
   }
 
-  private static List<TimestampValidationData> extractTimestampValidationData(Reports reports) {
+  private List<TimestampValidationData> extractTimestampValidationData(Reports reports) {
     return reports.getDiagnosticData().getTimestampsByType(TimestampType.CONTAINER_TIMESTAMP).stream()
-            .map(t -> createTimestampValidationData(t.getId(), reports))
+            .map(t -> createTimestampValidationData(t.getId(), t.getTimestampScopes(), reports))
             .collect(Collectors.toList());
   }
 
-  private static TimestampValidationData createTimestampValidationData(String id, Reports reports) {
+  private TimestampValidationData createTimestampValidationData(String id, List<XmlSignatureScope> scopes, Reports reports) {
     SimpleValidationResult validationResult = new SimpleValidationResult("Timestamp Token");
     ReportedMessagesExtractor messagesExtractor = new ReportedMessagesExtractor(reports);
 
@@ -128,7 +135,38 @@ public class AsicSTimestampedContainerValidator {
             messagesExtractor.extractReportedTokenWarnings(id)
     ));
 
+    addWarningIfTimestampDoesNotCoverDataFile(id, scopes, reports, validationResult);
+
     return new TimestampValidationData(id, reports, validationResult);
+  }
+
+  private void addWarningIfTimestampDoesNotCoverDataFile(
+          String id,
+          List<XmlSignatureScope> scopes,
+          Reports reports,
+          SimpleValidationResult validationResult
+  ) {
+    if (!isValidTimestamp(id, reports)) {
+      return;
+    }
+
+    boolean isCovered = CollectionUtils.isNotEmpty(scopes) && asicsContainer.getDataFiles().stream()
+            .map(DataFile::getName)
+            .allMatch(dataFileName -> scopes.stream()
+                    .anyMatch(scope -> StringUtils.equals(scope.getName(), dataFileName))
+            );
+
+    if (!isCovered) {
+      validationResult.getWarnings().add(new DigiDoc4JException(NO_DATA_FILE_COVERAGE, id));
+    }
+  }
+
+  private boolean isValidTimestamp(String id, Reports reports) {
+    return reports.getSimpleReportJaxb().getSignatureOrTimestampOrEvidenceRecord().stream()
+            .filter(XmlTimestamp.class::isInstance)
+            .map(XmlTimestamp.class::cast)
+            .anyMatch(timestamp -> StringUtils.equals(timestamp.getId(), id) &&
+                    Indication.PASSED.equals(timestamp.getIndication()));
   }
 
   private static List<DigiDoc4JException> collectExceptions(
