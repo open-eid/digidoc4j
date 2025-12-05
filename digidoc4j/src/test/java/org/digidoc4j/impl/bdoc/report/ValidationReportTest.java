@@ -560,19 +560,18 @@ public class ValidationReportTest extends AbstractTest {
             "/SimpleReport/TimestampToken[1]/Errors[1]", report);
     TestAssert.assertXPathHasValue("0", "count(/SimpleReport/TimestampToken[1]/Warnings)", report);
     TestAssert.assertXPathHasValue(timestamp2UniqueId,"/SimpleReport/TimestampToken[2]/UniqueId", report);
-    TestAssert.assertXPathHasValue("FAILED", "/SimpleReport/TimestampToken[2]/Indication", report);
-    TestAssert.assertXPathHasValue("FORMAT_FAILURE", "/SimpleReport/TimestampToken[2]/SubIndication", report);
+    TestAssert.assertXPathHasValue("PASSED", "/SimpleReport/TimestampToken[2]/Indication", report);
     TestAssert.assertXPathHasValue("2024-09-13T11:20:02Z", "/SimpleReport/TimestampToken[2]/ProductionTime", report);
     TestAssert.assertXPathHasValue(TestConstants.SK_TSA_2024E_CN, "/SimpleReport/TimestampToken[2]/ProducedBy", report);
     TestAssert.assertXPathHasValue("QTSA", "/SimpleReport/TimestampToken[2]/TimestampLevel", report);
     TestAssert.assertXPathHasValue("2", "count(/SimpleReport/TimestampToken[2]/TimestampScope)", report);
     TestAssert.assertXPathHasValue("META-INF/ASiCArchiveManifest001.xml", "/SimpleReport/TimestampToken[2]/TimestampScope[1]/@name", report);
     TestAssert.assertXPathHasValue("META-INF/timestamp.tst", "/SimpleReport/TimestampToken[2]/TimestampScope[2]/@name", report);
-    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/TimestampToken[2]/Errors)", report);
+    TestAssert.assertXPathHasValue("0", "count(/SimpleReport/TimestampToken[2]/Errors)", report);
+    TestAssert.assertXPathHasValue("1", "count(/SimpleReport/TimestampToken[2]/Warnings)", report);
     TestAssert.assertXPathHasValue(
-            "Not all signed and/or time-asserted file objects referenced from previous signature, time-stamp or manifest files have been covered!",
-            "/SimpleReport/TimestampToken[2]/Errors[1]", report);
-    TestAssert.assertXPathHasValue("0", "count(/SimpleReport/TimestampToken[2]/Warnings)", report);
+            "The time-stamp token does not cover container datafile!",
+            "/SimpleReport/TimestampToken[2]/Warnings[1]", report);
     TestAssert.assertXPathHasValue(timestamp3UniqueId,"/SimpleReport/TimestampToken[3]/UniqueId", report);
     TestAssert.assertXPathHasValue("PASSED", "/SimpleReport/TimestampToken[3]/Indication", report);
     TestAssert.assertXPathHasValue("2024-10-25T13:25:59Z", "/SimpleReport/TimestampToken[3]/ProductionTime", report);
