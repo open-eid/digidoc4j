@@ -1,6 +1,46 @@
 DigiDoc4J Java library release notes
 ------------------------------------
 
+Release 6.1.0
+-------------
+Summary of the major changes since 6.0.1
+----------------------------------------
+* Updated DSS to 6.2 (sd-dss 6.2.d4j.1):
+  - Check changes in open-eid/sd-dss here: https://github.com/open-eid/sd-dss/releases/tag/dss-6.2.d4j.1
+  - Check changes in esig/dss since 6.0 here:
+    - DSS 6.1.RC1: https://github.com/esig/dss/releases/tag/6.1.RC1
+    - DSS 6.1: https://github.com/esig/dss/releases/tag/6.1
+    - DSS 6.2.RC1: https://github.com/esig/dss/releases/tag/6.2.RC1
+    - DSS 6.2: https://github.com/esig/dss/releases/tag/6.2
+  - Performance decrease related to validating XAdES signatures that cover numerous data files has been fixed
+* Changes in validation policies:
+  - Changes in accepted cryptographic algorithms (as enforced in default constraint files):
+    - DSA is no longer considered as accepted encryption algorithm
+    - SHA3-224 and RIPEMD160 are no longer considered as accepted digest algorithms
+    - Minimum accepted key size for ECDSA was unified to 256 for all signature components
+    - RSA and RSASSA-PSS encryption algorithms with key sizes less than 1900 are considered expired since 2019-10-01
+    - SHA224 digest algorithm is considered expired since 2026-01-01
+  - Signatures with revocation data taken more than 24h after signature timestamp are no longer considered as invalid; instead, a warning is issued
+  - Add SHA-1 validation warning to DDoc signatures which have not been wrapped into timestamped ASiC-S containers before 2018-07-01
+* API changes in TSLCertificateSource interface, caused by changes in DSS:
+  - New API methods:
+    - List<String> getAlternativeOCSPUrls(CertificateToken)
+    - List<String> getAlternativeCRLUrls(CertificateToken)
+    - CertificateTrustTime getTrustTime(CertificateToken)
+    - int getNumberOfTrustedEntityKeys()
+  - Deprecated API methods:
+    - int getNumberOfTrustedPublicKeys()
+* Improved reference URI handling in ASiCArchiveManifest for timestamped ASiC-S containers
+* Improved datafile name validation via ContainerBuilder
+* Fixes and improvements to unit tests
+* Updated dependencies
+
+Known issues
+------------
+* We have noticed a slight increase in TSL loading times due to pivot LOTL support
+* We have noticed a decrease in performance with the introduction of properly accessing AIA certificate resources
+* Opening a container that contains signatures, triggers TSL loading (TSL lazy loading does not work as expected)
+
 Release 6.0.1
 -------------
 EU and its member states are expected to transition to version 6 of the EU Trust List format in the second half of May 2025.
