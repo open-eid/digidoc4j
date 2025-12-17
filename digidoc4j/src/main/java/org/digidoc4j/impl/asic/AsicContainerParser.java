@@ -292,7 +292,6 @@ public abstract class AsicContainerParser {
     parseResult.setDataFiles(new ArrayList<>(files));
     parseResult.setCurrentUsedSignatureFileIndex(currentSignatureFileIndex);
     parseResult.setDetachedContents(detachedContents);
-    parseResult.setSignatures(parseSignatures());
     parseResult.setManifestParser(manifestParser);
     parseResult.setZipFileComment(zipFileComment);
     parseResult.setAsicEntries(asicEntries);
@@ -303,12 +302,13 @@ public abstract class AsicContainerParser {
       parseResult.setTimestamps(timestampProcessor.getTimestampsInInitialOrder());
     }
     parseResult.setMimeType(mimeType);
+    parseResult.setSignatures(parseSignatures(configuration, parseResult, signatures));
   }
 
-  private List<XadesSignatureWrapper> parseSignatures() {
-    AsicSignatureParser signatureParser = new AsicSignatureParser(parseResult.getDetachedContents(), configuration);
+  protected List<XadesSignatureWrapper> parseSignatures(Configuration config, AsicParseResult result, List<DSSDocument> sigs) {
+    AsicSignatureParser signatureParser = new AsicSignatureParser(result.getDetachedContents(), config);
     List<XadesSignatureWrapper> parsedSignatures = new ArrayList<>();
-    for (DSSDocument signatureDocument : signatures) {
+    for (DSSDocument signatureDocument : sigs) {
       XadesSignature signature = signatureParser.parse(signatureDocument);
       parsedSignatures.add(new XadesSignatureWrapper(signature, signatureDocument));
     }
