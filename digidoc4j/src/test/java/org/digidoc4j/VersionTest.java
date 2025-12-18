@@ -11,10 +11,11 @@
 package org.digidoc4j;
 
 import org.digidoc4j.test.util.PropertiesUtil;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Properties;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class VersionTest {
 
@@ -23,7 +24,7 @@ public class VersionTest {
     Properties properties = PropertiesUtil.getTestProperties();
     String expectedVersionString = properties.getProperty(PropertiesUtil.VERSION);
 
-    Assert.assertEquals(expectedVersionString, Version.VERSION);
+    assertEquals(Version.VERSION, expectedVersionString);
   }
 
 }

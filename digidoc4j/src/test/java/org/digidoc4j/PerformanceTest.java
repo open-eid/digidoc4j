@@ -28,6 +28,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.nio.file.Paths;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 @Ignore
 public class PerformanceTest extends AbstractTest {
 
@@ -170,22 +172,22 @@ public class PerformanceTest extends AbstractTest {
   @PerfTest(invocations = INVOCATIONS)
   public void openBDocTmContainerDetails() {
     Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"));
-    Assert.assertEquals("test.txt", container.getDataFiles().get(0).getName());
+    assertEquals("test.txt", container.getDataFiles().get(0).getName());
     Signature signature = container.getSignatures().get(0);
-    Assert.assertEquals("id-6a5d6671af7a9e0ab9a5e4d49d69800d", signature.getId());
-    Assert.assertEquals(1457964829000L, signature.getTrustedSigningTime().getTime());
-    Assert.assertEquals("ESTEID", signature.getSigningCertificate().getSubjectName(X509Cert.SubjectName.O));
+    assertEquals("id-6a5d6671af7a9e0ab9a5e4d49d69800d", signature.getId());
+    assertEquals(1457964829000L, signature.getTrustedSigningTime().getTime());
+    assertEquals("ESTEID", signature.getSigningCertificate().getSubjectName(X509Cert.SubjectName.O));
   }
 
   @Test
   @PerfTest(invocations = INVOCATIONS)
   public void openAsiceContainerDetails() {
     Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-asice.asice"));
-    Assert.assertEquals("test.txt", container.getDataFiles().get(0).getName());
+    assertEquals("test.txt", container.getDataFiles().get(0).getName());
     Signature signature = container.getSignatures().get(0);
-    Assert.assertEquals("id-8c2a30729f251c6cb8336844b97f0657", signature.getId());
-    Assert.assertEquals(1542975844000L, signature.getTrustedSigningTime().getTime());
-    Assert.assertEquals("ESTEID", signature.getSigningCertificate().getSubjectName(X509Cert.SubjectName.O));
+    assertEquals("id-8c2a30729f251c6cb8336844b97f0657", signature.getId());
+    assertEquals(1542975844000L, signature.getTrustedSigningTime().getTime());
+    assertEquals("ESTEID", signature.getSigningCertificate().getSubjectName(X509Cert.SubjectName.O));
   }
 
   @Test

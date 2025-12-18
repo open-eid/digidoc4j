@@ -18,7 +18,8 @@ import eu.europa.esig.dss.simplereport.jaxb.XmlDetails;
 import eu.europa.esig.dss.simplereport.jaxb.XmlSignatureScope;
 import eu.europa.esig.dss.simplereport.jaxb.XmlTimestamp;
 import eu.europa.esig.dss.simplereport.jaxb.XmlTimestampLevel;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 
 import java.util.Date;
 

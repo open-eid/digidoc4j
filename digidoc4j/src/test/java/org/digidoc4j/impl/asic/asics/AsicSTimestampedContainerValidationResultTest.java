@@ -13,10 +13,11 @@ package org.digidoc4j.impl.asic.asics;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.test.MockValidationResult;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
+
 
 import java.util.Arrays;
 import java.util.Collections;

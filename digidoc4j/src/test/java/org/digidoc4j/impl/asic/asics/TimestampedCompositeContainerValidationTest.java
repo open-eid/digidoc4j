@@ -25,7 +25,8 @@ import org.digidoc4j.ddoc.utils.ConfigManager;
 import org.digidoc4j.impl.asic.report.TimestampValidationReport;
 import org.digidoc4j.test.TestConstants;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 
 import java.nio.file.Paths;
 

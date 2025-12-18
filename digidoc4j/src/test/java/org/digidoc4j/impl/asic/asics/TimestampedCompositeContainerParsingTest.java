@@ -22,8 +22,7 @@ import org.digidoc4j.Timestamp;
 import org.digidoc4j.TimestampBuilder;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.test.util.TestZipUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -44,6 +43,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TimestampedCompositeContainerParsingTest extends AbstractTest {
 
@@ -197,7 +197,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
     ));
     File file = saveContainerToTemporaryFile(container);
 
-    TechnicalException caughtException = Assert.assertThrows(
+    TechnicalException caughtException = assertThrows(
             TechnicalException.class,
             () -> ContainerOpener.open(file.getPath(), configuration)
     );
@@ -212,7 +212,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
             MimeTypeEnum.ASICE.getMimeTypeString()
     ));
 
-    TechnicalException caughtException = Assert.assertThrows(
+    TechnicalException caughtException = assertThrows(
             TechnicalException.class,
             () -> ContainerOpener.open(container.saveAsStream(), configuration)
     );
@@ -320,7 +320,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
     ));
     File file = saveContainerToTemporaryFile(container);
 
-    TechnicalException caughtException = Assert.assertThrows(
+    TechnicalException caughtException = assertThrows(
             TechnicalException.class,
             () -> ContainerOpener.open(file.getPath(), configuration)
     );
@@ -335,7 +335,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
             MimeTypeEnum.ASICS.getMimeTypeString()
     ));
 
-    TechnicalException caughtException = Assert.assertThrows(
+    TechnicalException caughtException = assertThrows(
             TechnicalException.class,
             () -> ContainerOpener.open(container.saveAsStream(), configuration)
     );
@@ -395,7 +395,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
     ));
     File file = saveContainerToTemporaryFile(container);
 
-    TechnicalException caughtException = Assert.assertThrows(
+    TechnicalException caughtException = assertThrows(
             TechnicalException.class,
             () -> ContainerOpener.open(file.getPath(), configuration)
     );
@@ -410,7 +410,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
             MimeTypeEnum.ASICE.getMimeTypeString()
     ));
 
-    TechnicalException caughtException = Assert.assertThrows(
+    TechnicalException caughtException = assertThrows(
             TechnicalException.class,
             () -> ContainerOpener.open(container.saveAsStream(), configuration)
     );

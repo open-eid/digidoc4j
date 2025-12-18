@@ -13,7 +13,7 @@ package org.digidoc4j.impl.asic.manifest;
 import eu.europa.esig.dss.model.FileDocument;
 import eu.europa.esig.dss.model.InMemoryDocument;
 import org.digidoc4j.DataFile;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Map;

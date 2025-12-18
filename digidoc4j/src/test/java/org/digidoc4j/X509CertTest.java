@@ -21,9 +21,13 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.digidoc4j.test.TestConstants;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class X509CertTest {
 
@@ -33,50 +37,50 @@ public class X509CertTest {
   @Test
   public void testGetX509Certificate() throws Exception {
     X509Certificate x509Certificate = this.certificate.getX509Certificate();
-    Assert.assertEquals("SERIALNUMBER=60001013739, GIVENNAME=MARY ÄNN, SURNAME=O’CONNEŽ-ŠUSLIK TESTNUMBER, " +
+    assertEquals("SERIALNUMBER=60001013739, GIVENNAME=MARY ÄNN, SURNAME=O’CONNEŽ-ŠUSLIK TESTNUMBER, " +
             "CN=\"O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739\", C=EE",
         x509Certificate.getSubjectDN().getName());
   }
 
   @Test
   public void testGetSerialNumber() {
-    Assert.assertEquals("6ec00b8b8c54c4f76082bd843e3a1526", this.certificate.getSerial());
+    assertEquals("6ec00b8b8c54c4f76082bd843e3a1526", this.certificate.getSerial());
   }
 
   @Test
   public void testGetIssuerName() {
-    Assert.assertEquals("cn=test of esteid-sk 2015, oid.2.5.4.97=ntree-10747013, o=as sertifitseerimiskeskus, c=ee",
+    assertEquals("cn=test of esteid-sk 2015, oid.2.5.4.97=ntree-10747013, o=as sertifitseerimiskeskus, c=ee",
         this.certificate.issuerName().toLowerCase());
   }
 
   @Test
   public void testGetIssuerNameByPart() {
-    Assert.assertNull(this.certificate.issuerName(X509Cert.Issuer.EMAILADDRESS));
-    Assert.assertEquals("as sertifitseerimiskeskus", this.certificate.issuerName(X509Cert.Issuer.O).toLowerCase());
-    Assert.assertEquals("test of esteid-sk 2015", this.certificate.issuerName(X509Cert.Issuer.CN).toLowerCase());
-    Assert.assertEquals("ee", this.certificate.issuerName(X509Cert.Issuer.C).toLowerCase());
+    assertNull(this.certificate.issuerName(X509Cert.Issuer.EMAILADDRESS));
+    assertEquals("as sertifitseerimiskeskus", this.certificate.issuerName(X509Cert.Issuer.O).toLowerCase());
+    assertEquals("test of esteid-sk 2015", this.certificate.issuerName(X509Cert.Issuer.CN).toLowerCase());
+    assertEquals("ee", this.certificate.issuerName(X509Cert.Issuer.C).toLowerCase());
   }
 
   @Test
   public void testGetPolicies() throws IOException {
-    Assert.assertEquals(2, this.certificate.getCertificatePolicies().size());
+    assertEquals(2, this.certificate.getCertificatePolicies().size());
   }
 
   @Test
   public void testIsValidAtSpecifiedDate() {
-    Assert.assertTrue(this.certificate.isValid(new Date()));
+    assertTrue(this.certificate.isValid(new Date()));
   }
 
   @Test
   public void testIsNotValidYet() throws ParseException {
     Date certValidFrom = this.dateFormat.parse("17.04.2014");
-    Assert.assertFalse(this.certificate.isValid(new Date(certValidFrom.getTime() - TestConstants.ONE_DAY_IN_MILLIS)));
+    assertFalse(this.certificate.isValid(new Date(certValidFrom.getTime() - TestConstants.ONE_DAY_IN_MILLIS)));
   }
 
   @Test
   public void testIsNoLongerValid() throws ParseException {
     Date certValidFrom = this.dateFormat.parse("12.04.2016");
-    Assert.assertFalse(this.certificate.isValid(new Date(certValidFrom.getTime() + TestConstants.ONE_DAY_IN_MILLIS)));
+    assertFalse(this.certificate.isValid(new Date(certValidFrom.getTime() + TestConstants.ONE_DAY_IN_MILLIS)));
   }
 
   @Test
@@ -95,28 +99,28 @@ public class X509CertTest {
 
   @Test
   public void testIsCertValidToday() {
-    Assert.assertTrue(this.certificate.isValid());
+    assertTrue(this.certificate.isValid());
   }
 
   @Test
   public void testKeyUsage() {
-    Assert.assertEquals(Arrays.asList(X509Cert.KeyUsage.NON_REPUDIATION), this.certificate.getKeyUsages());
+    assertEquals(Arrays.asList(X509Cert.KeyUsage.NON_REPUDIATION), this.certificate.getKeyUsages());
   }
 
   @Test
   public void testGetPartOfSubjectName() throws Exception {
-    Assert.assertEquals("60001013739", this.certificate.getSubjectName(X509Cert.SubjectName.SERIALNUMBER));
-    Assert.assertEquals("mary änn", this.certificate.getSubjectName(X509Cert.SubjectName.GIVENNAME).toLowerCase());
-    Assert.assertEquals("o’connež-šuslik testnumber", this.certificate.getSubjectName(X509Cert.SubjectName.SURNAME).toLowerCase());
-    Assert.assertEquals("\"o’connež-šuslik testnumber,mary änn,60001013739\"", this.certificate.getSubjectName(X509Cert.SubjectName.CN).toLowerCase());
-    Assert.assertEquals("ee", this.certificate.getSubjectName(X509Cert.SubjectName.C).toLowerCase());
-    Assert.assertNull(this.certificate.getSubjectName(X509Cert.SubjectName.OU));
-    Assert.assertNull(this.certificate.getSubjectName(X509Cert.SubjectName.O));
+    assertEquals("60001013739", this.certificate.getSubjectName(X509Cert.SubjectName.SERIALNUMBER));
+    assertEquals("mary änn", this.certificate.getSubjectName(X509Cert.SubjectName.GIVENNAME).toLowerCase());
+    assertEquals("o’connež-šuslik testnumber", this.certificate.getSubjectName(X509Cert.SubjectName.SURNAME).toLowerCase());
+    assertEquals("\"o’connež-šuslik testnumber,mary änn,60001013739\"", this.certificate.getSubjectName(X509Cert.SubjectName.CN).toLowerCase());
+    assertEquals("ee", this.certificate.getSubjectName(X509Cert.SubjectName.C).toLowerCase());
+    assertNull(this.certificate.getSubjectName(X509Cert.SubjectName.OU));
+    assertNull(this.certificate.getSubjectName(X509Cert.SubjectName.O));
   }
 
   @Test
   public void testGetSubjectName() throws Exception {
-    Assert.assertEquals("SERIALNUMBER=60001013739, GIVENNAME=MARY ÄNN, SURNAME=O’CONNEŽ-ŠUSLIK TESTNUMBER, " +
+    assertEquals("SERIALNUMBER=60001013739, GIVENNAME=MARY ÄNN, SURNAME=O’CONNEŽ-ŠUSLIK TESTNUMBER, " +
         "CN=\"O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739\", C=EE", this.certificate.getSubjectName());
   }
 
@@ -124,7 +128,7 @@ public class X509CertTest {
   public void testDateCompare() throws Exception {
     Date startTime = Calendar.getInstance().getTime();
     Date usageTime = Calendar.getInstance().getTime();
-    Assert.assertTrue(usageTime.compareTo(startTime) >= 0);
+    assertTrue(usageTime.compareTo(startTime) >= 0);
   }
 
 }

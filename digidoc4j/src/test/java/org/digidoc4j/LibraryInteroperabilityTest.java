@@ -12,7 +12,7 @@ package org.digidoc4j;
 
 import org.digidoc4j.test.TestAssert;
 import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class LibraryInteroperabilityTest extends AbstractTest {
 

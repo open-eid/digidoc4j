@@ -14,10 +14,10 @@ import org.digidoc4j.AbstractTest;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.test.TestAssert;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class EmptyDataFilesAsicSContainerTimestampFinalizerTest extends AbstractTest {
 
@@ -30,7 +30,7 @@ public class EmptyDataFilesAsicSContainerTimestampFinalizerTest extends Abstract
             () -> new AsicSContainerTimestampFinalizer(configuration, dataFile, null)
     );
 
-    Assert.assertEquals("Cannot timestamp empty datafile: empty-file.txt", caughtException.getMessage());
+    assertEquals("Cannot timestamp empty datafile: empty-file.txt", caughtException.getMessage());
     TestAssert.assertSuppressed(caughtException, InvalidDataFileException.class);
   }
 

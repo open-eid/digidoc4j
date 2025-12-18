@@ -23,7 +23,7 @@ import org.digidoc4j.DataFile;
 import org.digidoc4j.TimestampBuilder;
 import org.digidoc4j.impl.asic.cades.TimestampAndManifestPair;
 import org.digidoc4j.test.util.TestZipUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

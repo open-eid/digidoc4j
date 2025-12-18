@@ -12,7 +12,8 @@ package org.digidoc4j;
 
 import org.digidoc4j.test.TestAssert;
 import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
@@ -46,15 +47,15 @@ public class AiaOcspTest extends AbstractTest {
     @Test
     public void signAsiceContainerUsingAiaOcsp() {
         Configuration configuration = new Configuration(Configuration.Mode.TEST);
-        assertTrue(configuration.isAiaOcspPreferred());
+        Assertions.assertTrue(configuration.isAiaOcspPreferred());
         File testFile1 = this.createTemporaryFileBy("testFile.txt", "TEST");
         Container container = ContainerBuilder.aContainer()
                 .withDataFile(testFile1.getPath(), "text/plain")
                 .withConfiguration(configuration)
                 .build();
         this.createSignatureBy(container, pkcs12SignatureToken);
-        assertTrue(container.validate().isValid());
-        assertEquals("C=EE, O=SK ID Solutions AS, OU=OCSP, CN=DEMO of ESTEID-SK 2015 AIA OCSP RESPONDER 2018", container.getSignatures().get(0).getOCSPCertificate().getSubjectName());
+        Assertions.assertTrue(container.validate().isValid());
+        Assertions.assertEquals("C=EE, O=SK ID Solutions AS, OU=OCSP, CN=DEMO of ESTEID-SK 2015 AIA OCSP RESPONDER 2018", container.getSignatures().get(0).getOCSPCertificate().getSubjectName());
     }
 
     @Test

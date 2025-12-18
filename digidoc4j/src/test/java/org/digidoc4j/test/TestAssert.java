@@ -23,7 +23,6 @@ import org.digidoc4j.impl.SkDataLoader;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.xades.XadesSignature;
 import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -47,6 +46,12 @@ import java.util.regex.Pattern;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)
@@ -57,26 +62,26 @@ public final class TestAssert {
   private static final Logger log = LoggerFactory.getLogger(TestAssert.class);
 
   public static void assertOCSPSource(Configuration configuration, SKOnlineOCSPSource source, String userAgentPart) {
-    Assert.assertSame(configuration, source.getConfiguration());
-    Assert.assertNotNull(source.getDataLoader());
-    Assert.assertThat(((SkDataLoader) source.getDataLoader()).getUserAgent(), CoreMatchers.containsString(userAgentPart));
+    assertSame(configuration, source.getConfiguration());
+    assertNotNull(source.getDataLoader());
+    assertThat(((SkDataLoader) source.getDataLoader()).getUserAgent(), CoreMatchers.containsString(userAgentPart));
   }
 
   public static void assertXPathHasValue(String expectedValue, String xPathExpression, String xmlInput) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-    Assert.assertEquals("Value at \"" + xPathExpression + "\" should equal to \"" + expectedValue + "\"",
+    assertEquals("Value at \"" + xPathExpression + "\" should equal to \"" + expectedValue + "\"",
             expectedValue, getXPathValue(xPathExpression, xmlInput));
   }
 
   public static void assertXPathHasValue(Pattern expectedValue, String xPathExpression, String xmlInput) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-    Assert.assertTrue("Value at \"" + xPathExpression + "\" should match " + expectedValue.pattern(),
-            expectedValue.matcher(getXPathValue(xPathExpression, xmlInput)).matches());
+    assertTrue(expectedValue.matcher(getXPathValue(xPathExpression, xmlInput)).matches(),
+            "Value at \"" + xPathExpression + "\" should match " + expectedValue.pattern());
   }
 
   public static void assertDSSDocumentIsSigned(DSSDocument document) throws IOException {
-    Assert.assertNotNull(document);
+    assertNotNull(document);
     byte[] bytes = IOUtils.toByteArray(document.openStream());
-    Assert.assertNotNull(bytes);
-    Assert.assertTrue(bytes.length > 0);
+    assertNotNull(bytes);
+    assertTrue(bytes.length > 0);
   }
 
   public static void assertContainsError(String expectedError, List<DigiDoc4JException> errors) {
@@ -86,7 +91,7 @@ public final class TestAssert {
         return;
       }
     }
-    Assert.fail(String.format("Expected <%s> was not found", expectedError));
+    fail(String.format("Expected <%s> was not found", expectedError));
   }
 
   public static void assertContainsErrors(List<DigiDoc4JException> errors, String... errorsToExpect) {
@@ -106,7 +111,7 @@ public final class TestAssert {
     } else {
       stringBuilder.append("No errors found!");
     }
-    Assert.fail(stringBuilder.toString());
+    fail(stringBuilder.toString());
   }
 
   public static void assertContainsExactSetOfErrors(List<DigiDoc4JException> errors, String... allExpectedErrors) {
@@ -133,7 +138,7 @@ public final class TestAssert {
         stringBuilder.append(System.lineSeparator()).append('\t').append(exception);
       }
     }
-    Assert.fail(stringBuilder.toString());
+    fail(stringBuilder.toString());
   }
 
   public static void assertContainsError(Class<? extends DigiDoc4JException> expectedErrorType, List<DigiDoc4JException> errors) {
@@ -142,15 +147,15 @@ public final class TestAssert {
         return;
       }
     }
-    Assert.fail(String.format("Expected <%s> was not found", expectedErrorType.getSimpleName()));
+    fail(String.format("Expected <%s> was not found", expectedErrorType.getSimpleName()));
   }
 
   public static void assertSignatureMetadataContainsFileName(Signature signature, String fileName) {
-    Assert.assertNotNull(TestAssert.findSignedFile(signature, fileName));
+    assertNotNull(TestAssert.findSignedFile(signature, fileName));
   }
 
   public static void assertContainerIsValidIgnoreErrors(ContainerValidationResult containerValidationResult) {
-    Assert.assertTrue("Container is invalid", containerValidationResult.isValid());
+    assertTrue(containerValidationResult.isValid(), "Container is invalid");
   }
 
   public static void assertContainerIsValidIgnoreErrors(Container container) {
@@ -165,7 +170,7 @@ public final class TestAssert {
       for (DigiDoc4JException exception : containerValidationResult.getErrors()) {
         stringBuilder.append(System.lineSeparator()).append('\t').append(exception);
       }
-      Assert.fail(stringBuilder.toString());
+      fail(stringBuilder.toString());
     }
   }
 
@@ -174,7 +179,7 @@ public final class TestAssert {
   }
 
   public static void assertContainerIsInvalid(ContainerValidationResult containerValidationResult) {
-    Assert.assertFalse("Container is valid", containerValidationResult.isValid());
+    assertFalse(containerValidationResult.isValid(), "Container is valid");
   }
 
   public static void assertContainerIsInvalid(Container container) {
@@ -182,15 +187,15 @@ public final class TestAssert {
   }
 
   public static void assertContainerIsOpened(Container container, Container.DocumentType documentType) {
-    Assert.assertEquals(documentType.name(), container.getType());
-    Assert.assertFalse(container.getDataFiles().isEmpty());
-    Assert.assertFalse(container.getSignatures().isEmpty());
+    assertEquals(documentType.name(), container.getType());
+    assertFalse(container.getDataFiles().isEmpty());
+    assertFalse(container.getSignatures().isEmpty());
   }
 
   public static void assertFolderContainsFile(String folderName, String fileName) {
     File folder = new File(folderName);
     File file = new File(folder, fileName);
-    Assert.assertTrue(String.format("<%s> is not present in dir <%s>", file, StringUtils.join(folder.list(), "/")), file.exists());
+    assertTrue(file.exists(), String.format("<%s> is not present in dir <%s>", file, StringUtils.join(folder.list(), "/")));
   }
 
   public static void assertSaveAsStream(Container container) throws IOException {
@@ -200,12 +205,12 @@ public final class TestAssert {
 
   public static void assertSuppressed(Throwable throwable, Class<?> suppressedType, String... suppressedMessages) {
     Throwable[] suppressedList = throwable.getSuppressed();
-    Assert.assertNotNull(suppressedList);
-    Assert.assertEquals(suppressedMessages.length, suppressedList.length);
+    assertNotNull(suppressedList);
+    assertEquals(suppressedMessages.length, suppressedList.length);
     for (int i = 0; i < suppressedMessages.length; ++i) {
-      Assert.assertNotNull(suppressedList[i]);
-      Assert.assertTrue(suppressedType.isInstance(suppressedList[i]));
-      Assert.assertEquals(suppressedMessages[i], suppressedList[i].getMessage());
+      assertNotNull(suppressedList[i]);
+      assertTrue(suppressedType.isInstance(suppressedList[i]));
+      assertEquals(suppressedMessages[i], suppressedList[i].getMessage());
     }
   }
 
@@ -213,11 +218,11 @@ public final class TestAssert {
     Instant timeAsInstant = time.toInstant();
     notBefore = notBefore.minus(clockSkew);
     if (timeAsInstant.isBefore(notBefore)) {
-      Assert.fail(String.format("Time '%s' is before 'not-before' (%s)", timeAsInstant, notBefore));
+      fail(String.format("Time '%s' is before 'not-before' (%s)", timeAsInstant, notBefore));
     }
     Instant notAfter = Instant.now().plus(clockSkew);
     if (timeAsInstant.isAfter(notAfter)) {
-      Assert.fail(String.format("Time '%s' is after 'not-after' (%s)", timeAsInstant, notAfter));
+      fail(String.format("Time '%s' is after 'not-after' (%s)", timeAsInstant, notAfter));
     }
   }
 
@@ -247,7 +252,7 @@ public final class TestAssert {
   }
 
   private static void assertContainerStream(InputStream stream) throws IOException {
-    Assert.assertTrue(IOUtils.toByteArray(stream).length > 0);
+    assertTrue(IOUtils.toByteArray(stream).length > 0);
   }
 
   private static boolean errorListContainsAllExpectedStrings(List<DigiDoc4JException> errorList, String... expectedStrings) {

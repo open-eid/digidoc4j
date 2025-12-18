@@ -46,10 +46,9 @@ import org.digidoc4j.test.util.TestSigningUtil;
 import org.digidoc4j.test.util.TestTSLUtil;
 import org.digidoc4j.utils.Helper;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.internal.AssumptionViolatedException;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestWatcher;
@@ -77,6 +76,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -87,6 +87,11 @@ import static org.digidoc4j.Container.DocumentType.DDOC;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Janar Rahumeel (CGI Estonia)
@@ -116,48 +121,48 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   protected static final PKCS12SignatureToken pkcs12Esteid2018SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/sign_ECC_from_TEST_of_ESTEID2018.p12", "1234".toCharArray());
   protected Configuration configuration;
 
-  @Rule
+  @TempDir
   public TemporaryFolder testFolder = new TargetTemporaryFolderRule("tmp");
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+//  @Rule
+//  public ExpectedException expectedException = ExpectedException.none();
 
-  @Rule
-  public TestWatcher watcher = new TestWatcher() {
-
-    private final Logger log = LoggerFactory.getLogger(AbstractTest.class);
-    private long startTimestamp;
-
-    @Override
-    protected void starting(Description description) {
-      String starting = String.format("Starting <%s.%s>", description.getClassName(), description.getMethodName());
-      LOGGER.info(StringUtils.rightPad("-", starting.length(), '-'));
-      LOGGER.info(starting);
-      LOGGER.info(StringUtils.rightPad("-", starting.length(), '-'));
-      this.startTimestamp = System.currentTimeMillis();
-    }
-
-    @Override
-    protected void succeeded(Description description) {
-      long endTimestamp = System.currentTimeMillis();
-      LOGGER.info("Finished <{}.{}> - took <{}> ms", description.getClassName(), description.getMethodName(),
-          endTimestamp - this.startTimestamp);
-    }
-
-    @Override
-    protected void failed(Throwable e, Description description) {
-      LOGGER.error(String.format("Finished <%s.%s> - failed", description.getClassName(), description.getMethodName()), e);
-    }
-
-    @Override
-    protected void skipped(AssumptionViolatedException e, Description description) {
-      String skipped = String.format("Skipped <%s.%s>", description.getClassName(), description.getMethodName());
-      LOGGER.debug(StringUtils.rightPad("-", skipped.length(), '-'));
-      LOGGER.debug(skipped);
-      LOGGER.debug(StringUtils.rightPad("-", skipped.length(), '-'));
-    }
-
-  };
+//  @Rule
+//  public TestWatcher watcher = new TestWatcher() {
+//
+//    private final Logger log = LoggerFactory.getLogger(AbstractTest.class);
+//    private long startTimestamp;
+//
+//    @Override
+//    protected void starting(Description description) {
+//      String starting = String.format("Starting <%s.%s>", description.getClassName(), description.getMethodName());
+//      LOGGER.info(StringUtils.rightPad("-", starting.length(), '-'));
+//      LOGGER.info(starting);
+//      LOGGER.info(StringUtils.rightPad("-", starting.length(), '-'));
+//      this.startTimestamp = System.currentTimeMillis();
+//    }
+//
+//    @Override
+//    protected void succeeded(Description description) {
+//      long endTimestamp = System.currentTimeMillis();
+//      LOGGER.info("Finished <{}.{}> - took <{}> ms", description.getClassName(), description.getMethodName(),
+//          endTimestamp - this.startTimestamp);
+//    }
+//
+//    @Override
+//    protected void failed(Throwable e, Description description) {
+//      LOGGER.error(String.format("Finished <%s.%s> - failed", description.getClassName(), description.getMethodName()), e);
+//    }
+//
+//    @Override
+//    protected void skipped(AssumptionViolatedException e, Description description) {
+//      String skipped = String.format("Skipped <%s.%s>", description.getClassName(), description.getMethodName());
+//      LOGGER.debug(StringUtils.rightPad("-", skipped.length(), '-'));
+//      LOGGER.debug(skipped);
+//      LOGGER.debug(StringUtils.rightPad("-", skipped.length(), '-'));
+//    }
+//
+//  };
 
   @Before
   public void beforeMethod() {
@@ -245,7 +250,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   private static Path getDocumentPath(String filePath) {
     try {
-      return Paths.get(AbstractTest.class.getClassLoader().getResource(filePath).toURI());
+      return Paths.get(Objects.requireNonNull(AbstractTest.class.getClassLoader().getResource(filePath)).toURI());
     } catch (URISyntaxException e) {
       throw new RuntimeException(e);
     }
@@ -605,92 +610,92 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   }
 
   protected void assertBDocContainer(Container container) {
-    Assert.assertNotNull(container);
-    Assert.assertTrue(container instanceof BDocContainer);
-    Assert.assertEquals(BDOC.name(), container.getType());
+    assertNotNull(container);
+    assertInstanceOf(BDocContainer.class, container);
+    assertEquals(BDOC.name(), container.getType());
   }
 
   protected void assertAsicEContainer(Container container) {
-    Assert.assertNotNull(container);
-    Assert.assertTrue(container instanceof AsicEContainer);
-    Assert.assertEquals(ASICE.name(), container.getType());
+    assertNotNull(container);
+    assertInstanceOf(AsicEContainer.class, container);
+    assertEquals(ASICE.name(), container.getType());
   }
 
   protected void assertAsicSContainer(Container container) {
-    Assert.assertNotNull(container);
-    Assert.assertTrue(container instanceof AsicSContainer);
-    Assert.assertEquals(ASICS.name(), container.getType());
+    assertNotNull(container);
+    assertInstanceOf(AsicSContainer.class, container);
+    assertEquals(ASICS.name(), container.getType());
   }
 
   protected void assertDDocContainer(Container container) {
-    Assert.assertNotNull(container);
-    Assert.assertTrue(container instanceof DDocContainer);
-    Assert.assertEquals(DDOC.name(), container.getType());
+    assertNotNull(container);
+    assertInstanceOf(DDocContainer.class, container);
+    assertEquals(DDOC.name(), container.getType());
   }
 
   protected void assertTimemarkSignature(Signature signature) {
-    Assert.assertNotNull(signature);
-    Assert.assertTrue(signature instanceof BDocSignature);
-    Assert.assertEquals(SignatureProfile.LT_TM, signature.getProfile());
+    assertNotNull(signature);
+    assertInstanceOf(BDocSignature.class, signature);
+    assertEquals(SignatureProfile.LT_TM, signature.getProfile());
   }
 
   protected void assertLtSignature(Signature signature) {
-    Assert.assertNotNull(signature);
-    Assert.assertTrue(signature instanceof AsicESignature);
-    Assert.assertEquals(SignatureProfile.LT, signature.getProfile());
+    assertNotNull(signature);
+    assertInstanceOf(AsicESignature.class, signature);
+    assertEquals(SignatureProfile.LT, signature.getProfile());
   }
 
   protected void assertTimestampSignature(Signature signature) {
-    Assert.assertNotNull(signature);
-    Assert.assertTrue(signature instanceof AsicESignature);
-    Assert.assertEquals(SignatureProfile.T, signature.getProfile());
+    assertNotNull(signature);
+    assertInstanceOf(AsicESignature.class, signature);
+    assertEquals(SignatureProfile.T, signature.getProfile());
   }
 
   protected void assertArchiveTimestampSignature(Signature signature) {
-    Assert.assertNotNull(signature);
-    Assert.assertTrue(signature instanceof AsicESignature);
-    Assert.assertEquals(SignatureProfile.LTA, signature.getProfile());
+    assertNotNull(signature);
+    assertInstanceOf(AsicESignature.class, signature);
+    assertEquals(SignatureProfile.LTA, signature.getProfile());
   }
 
   protected void assertBEpesSignature(Signature signature) {
-    Assert.assertNotNull(signature);
-    Assert.assertTrue(signature instanceof BDocSignature);
-    Assert.assertEquals(SignatureProfile.B_EPES, signature.getProfile());
+    assertNotNull(signature);
+    assertInstanceOf(BDocSignature.class, signature);
+    assertEquals(SignatureProfile.B_EPES, signature.getProfile());
   }
 
   protected void assertBBesSignature(Signature signature) {
-    Assert.assertNotNull(signature);
-    Assert.assertTrue(signature instanceof AsicESignature);
-    Assert.assertEquals(SignatureProfile.B_BES, signature.getProfile());
+    assertNotNull(signature);
+    assertInstanceOf(AsicESignature.class, signature);
+    assertEquals(SignatureProfile.B_BES, signature.getProfile());
   }
 
   protected static void assertValidSignature(Signature signature) {
     ValidationResult validationResult = signature.validateSignature();
-    Assert.assertTrue("Expected signature to be valid", validationResult.isValid());
+    assertTrue(validationResult.isValid(), "Expected signature to be valid");
     assertHasNoWarnings(validationResult);
     assertHasNoErrors(validationResult);
   }
 
   protected static void assertValidSignatureWithWarnings(Signature signature) {
     ValidationResult validationResult = signature.validateSignature();
-    Assert.assertTrue("Expected signature to be valid", validationResult.isValid());
-    Assert.assertTrue("Expected validation warnings but none found", validationResult.hasWarnings());
+    assertTrue(validationResult.isValid(), "Expected signature to be valid");
+    assertTrue(validationResult.hasWarnings(), "Expected validation warnings but none found");
     assertHasNoErrors(validationResult);
   }
 
   protected static void assertSignatureWith(Signature signature, Consumer<List<DigiDoc4JException>> errorsVerifier, Consumer<List<DigiDoc4JException>> warningsVerifier) {
     ValidationResult validationResult = signature.validateSignature();
-    Assert.assertEquals(errorsVerifier == null, validationResult.isValid());
+    assertEquals(errorsVerifier == null, validationResult.isValid());
     if (errorsVerifier != null) {
       List<DigiDoc4JException> errors = validationResult.getErrors();
-      Assert.assertTrue("Expected validation errors but none found", CollectionUtils.isNotEmpty(errors));
+      assertTrue(CollectionUtils.isNotEmpty(errors), "Expected validation errors but none found");
       errorsVerifier.accept(errors);
     } else {
       assertHasNoErrors(validationResult);
     }
     if (warningsVerifier != null) {
       List<DigiDoc4JException> warnings = validationResult.getWarnings();
-      Assert.assertTrue("Expected validation warnings but none found", CollectionUtils.isNotEmpty(warnings));
+      assertTrue(CollectionUtils.isNotEmpty(warnings), "Expected validation warnings but none found");
       warningsVerifier.accept(warnings);
     } else {
       assertHasNoWarnings(validationResult);
@@ -716,9 +721,9 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected static void assertHasNoErrors(ValidationResult validationResult) {
     List<DigiDoc4JException> errors = validationResult.getErrors();
-    Assert.assertEquals(validationResult.isValid(), CollectionUtils.isEmpty(errors));
+    assertEquals(validationResult.isValid(), CollectionUtils.isEmpty(errors));
     if (CollectionUtils.isNotEmpty(errors)) {
-      Assert.fail(String.format(
+      fail(String.format(
               "Expected no validation errors, but found %d errors: %s",
               errors.size(), errors
       ));
@@ -727,9 +732,9 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected static void assertHasNoWarnings(ValidationResult validationResult) {
     List<DigiDoc4JException> warnings = validationResult.getWarnings();
-    Assert.assertEquals(validationResult.hasWarnings(), CollectionUtils.isNotEmpty(warnings));
+    assertEquals(validationResult.hasWarnings(), CollectionUtils.isNotEmpty(warnings));
     if (CollectionUtils.isNotEmpty(warnings)) {
-      Assert.fail(String.format(
+      fail(String.format(
               "Expected no validation warnings, but found %d warnings: %s",
               warnings.size(), warnings
       ));

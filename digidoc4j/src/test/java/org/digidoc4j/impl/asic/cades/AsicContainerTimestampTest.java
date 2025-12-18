@@ -16,8 +16,7 @@ import org.bouncycastle.tsp.TimeStampToken;
 import org.bouncycastle.tsp.TimeStampTokenInfo;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.X509Cert;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
@@ -25,7 +24,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -235,7 +234,7 @@ public abstract class AsicContainerTimestampTest<T extends AsicContainerTimestam
     doReturn(objectIdentifier).when(timeStampTokenInfo).getMessageImprintAlgOID();
     T asicContainerTimestamp = createDefaultAsicContainerTimestampWith(cadesTimestamp);
 
-    IllegalStateException caughtException = Assert.assertThrows(
+    IllegalStateException caughtException = assertThrows(
             IllegalStateException.class,
             asicContainerTimestamp::getDigestAlgorithm
     );

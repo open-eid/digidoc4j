@@ -18,7 +18,7 @@ import eu.europa.esig.dss.spi.x509.tsp.TimestampToken;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerOpener;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;

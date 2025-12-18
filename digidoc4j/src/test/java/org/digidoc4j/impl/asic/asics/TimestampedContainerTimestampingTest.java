@@ -25,7 +25,7 @@ import org.digidoc4j.exceptions.IllegalTimestampException;
 import org.digidoc4j.impl.asic.cades.AsicArchiveManifest;
 import org.digidoc4j.test.MatchAllCertificateStoreSelector;
 import org.digidoc4j.test.TestConstants;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 
@@ -44,7 +44,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TimestampedContainerTimestampingTest extends AbstractTest {
 

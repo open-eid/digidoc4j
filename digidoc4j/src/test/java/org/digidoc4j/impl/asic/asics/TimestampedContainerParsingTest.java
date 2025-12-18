@@ -19,7 +19,7 @@ import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.exceptions.IllegalContainerContentException;
 import org.digidoc4j.impl.asic.cades.AsicArchiveManifest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -47,7 +47,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TimestampedContainerParsingTest extends AbstractTest {
 

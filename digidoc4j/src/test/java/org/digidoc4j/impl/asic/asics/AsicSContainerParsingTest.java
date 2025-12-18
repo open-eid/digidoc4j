@@ -16,7 +16,7 @@ import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.exceptions.IllegalContainerContentException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -26,7 +26,7 @@ import static org.digidoc4j.test.util.TestZipUtil.createStoredEntry;
 import static org.digidoc4j.test.util.TestZipUtil.writeEntriesToByteArray;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AsicSContainerParsingTest extends AbstractTest {
 
