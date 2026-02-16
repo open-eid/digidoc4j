@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -69,8 +70,8 @@ public class KeyStoreDocumentTest extends AbstractTest {
     }
 
     @Test
-    public void testKeyStoreFailsToLoadWhenNotExisting() {
-        String nonExistingPath = new File(testFolder.getRoot(), "non-existing-keystore" + KEYSTORE_EXTENSION).getPath();
+    public void testKeyStoreFailsToLoadWhenNotExisting() throws IOException {
+        String nonExistingPath = String.valueOf(testFolder.resolve("non-existing-keystore" + KEYSTORE_EXTENSION));
         Duration minValidationInterval = Duration.ofMinutes(1L);
         Period maxWarningPeriod = Period.ofDays(1);
 
@@ -257,7 +258,7 @@ public class KeyStoreDocumentTest extends AbstractTest {
         for (Map.Entry<String, Certificate> entry : certificates.entrySet()) {
             keyStore.setCertificateEntry(entry.getKey(), entry.getValue());
         }
-        File keyStoreFile = testFolder.newFile(UUID.randomUUID().toString() + KEYSTORE_EXTENSION);
+        File keyStoreFile = Files.createTempFile(testFolder, null, KEYSTORE_EXTENSION).toFile();
         try (OutputStream outputStream = new FileOutputStream(keyStoreFile)) {
             keyStore.store(outputStream, KEYSTORE_PASSWORD.toCharArray());
         }

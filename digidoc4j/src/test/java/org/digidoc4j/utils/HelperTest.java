@@ -109,7 +109,7 @@ public class HelperTest extends AbstractTest {
   @Test
   public void testSaveFileNamesFromString() {
     String pathToContainer = "src/test/resources/testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc";
-    String folder = this.testFolder.getRoot().getPath();
+    String folder = testFolder.toString();
     Helper.saveAllFilesFromContainerPathToFolder(pathToContainer, folder);
     assertTrue(new File(folder + File.separator + "DigiDocService_spec_est.pdf").exists());
     assertTrue(new File(folder + File.separator + "sample_file.pdf").exists());
@@ -119,7 +119,7 @@ public class HelperTest extends AbstractTest {
   public void testSaveFileNamesFromContainer() {
     Container container = ContainerBuilder.aContainer().
         fromExistingFile("src/test/resources/testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc").build();
-    String folder = this.testFolder.getRoot().getPath();
+    String folder = testFolder.toString();
     Helper.saveAllFilesFromContainerToFolder(container, folder);
     assertTrue(new File(folder + File.separator + "DigiDocService_spec_est.pdf").exists());
     assertTrue(new File(folder + File.separator + "sample_file.pdf").exists());
@@ -129,7 +129,7 @@ public class HelperTest extends AbstractTest {
   public void testGetFilesFromString() {
     Container container = ContainerBuilder.aContainer().
         fromExistingFile("src/test/resources/testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc").        build();
-    String folder = this.testFolder.getRoot().getPath();
+    String folder = testFolder.toString();
     String helperFolder = "src/test/resources/testFiles/helper-files";
     List<byte[]> files = Helper.getAllFilesFromContainerAsBytes(container);
     assertEquals(2, files.size());
@@ -145,7 +145,7 @@ public class HelperTest extends AbstractTest {
   @Test
   public void testGetFilesFromContainer() {
     String containerFile = "src/test/resources/testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc";
-    String folder = this.testFolder.getRoot().getPath();
+    String folder = testFolder.toString();
     String helperFolder = "src/test/resources/testFiles/helper-files";
     List<byte[]> files = Helper.getAllFilesFromContainerPathAsBytes(containerFile);
     assertEquals(2, files.size());

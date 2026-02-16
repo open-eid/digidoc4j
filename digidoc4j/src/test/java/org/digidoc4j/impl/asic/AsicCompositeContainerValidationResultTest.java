@@ -949,7 +949,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   public void saveXmlReports_WhenValidPathIsGiven_RequestIsDelegatedToBothValidationResults() throws Exception {
     AsicCompositeContainerValidationResult compositeValidationResultSpy = spy(compositeValidationResult);
     doReturn("Mock report string").when(compositeValidationResultSpy).getReport();
-    Path path = testFolder.newFolder("outputFolder").toPath();
+    Path path = createDirectoryInTestFolderAndReturnPath("outputFolder");
 
     compositeValidationResultSpy.saveXmlReports(path);
 

@@ -25,7 +25,7 @@ public class FileNameTest extends AbstractTest {
 
   @Test(expected = InvalidDataFileException.class)
   public void createContainerWithSpecialCharactersInFileName() throws Exception {
-    File folder = this.testFolder.newFolder("tmp");
+    File folder = Files.createDirectory(testFolder.resolve("tmp")).toFile();
     try (FileInputStream stream = new FileInputStream("src/test/resources/testFiles/special-char-files/dds_acrobat.pdf")) {
       Container container = ContainerBuilder.aContainer().withDataFile(stream,
           "xxx,%2003:1737,%2031.08.2015.a.pdf", MimeTypeEnum.PDF.getMimeTypeString())
@@ -38,7 +38,7 @@ public class FileNameTest extends AbstractTest {
 
   @Test
   public void createContainer() throws Exception {
-    File folder = this.testFolder.newFolder("tmp");
+    File folder = createTempDirectoryInTestFolderAndReturnFile();
     try (FileInputStream stream = new FileInputStream("src/test/resources/testFiles/special-char-files/dds_acrobat.pdf")) {
       Container container = ContainerBuilder.aContainer().withDataFile(stream, "cgi.pdf", MimeTypeEnum.PDF.getMimeTypeString())
           .usingTempDirectory(folder.getPath()).build();

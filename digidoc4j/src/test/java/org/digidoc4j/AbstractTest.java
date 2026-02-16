@@ -19,7 +19,6 @@ import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
 import eu.europa.esig.dss.spi.DSSUtils;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -53,6 +52,7 @@ import org.junit.runner.Description;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +76,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -121,8 +120,6 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   protected static final PKCS12SignatureToken pkcs12Esteid2018SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/sign_ECC_from_TEST_of_ESTEID2018.p12", "1234".toCharArray());
   protected Configuration configuration;
 
-  @Rule
-  public TemporaryFolder testFolder = new TargetTemporaryFolderRule("tmp");
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -161,6 +158,8 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
       LOGGER.debug(skipped);
       LOGGER.debug(StringUtils.rightPad("-", skipped.length(), '-'));
     }
+  @TempDir
+  protected Path testFolder;
 
   @BeforeEach
   public void beforeMethod() {
@@ -173,11 +172,6 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   @AfterEach
   public void afterMethod() {
-    try {
-      FileUtils.deleteDirectory(this.testFolder.getRoot());
-    } catch (IOException e) {
-      LOGGER.warn("Unable to clean folder <{}>", this.testFolder.getRoot());
-    }
     after();
   }
 
@@ -252,6 +246,10 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
     } catch (URISyntaxException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  protected Path createDirectoryInTestFolderAndReturnPath(String name) throws IOException {
+    return Files.createDirectory(testFolder.resolve(name));
   }
 
   @SuppressWarnings("unchecked")
@@ -351,14 +349,16 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   }
 
   protected File createTemporaryFile() throws IOException {
-    return this.testFolder.newFile();
+    return Files.createTempFile(testFolder, null, null).toFile();
+  }
+
+  protected File createTempDirectoryInTestFolderAndReturnFile() throws IOException {
+    return Files.createTempDirectory(testFolder, null).toFile();
   }
 
   protected File createTemporaryFileBy(String name, String content) {
     try {
-      File file = this.testFolder.newFile(name);
-      FileUtils.writeStringToFile(file, "Banana Pancakes");
-      return file;
+      return writeFile(testFolder, name, content);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -366,8 +366,8 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected File createTemporaryFileBy(String content) {
     try {
-      File file = this.testFolder.newFile();
-      FileUtils.writeStringToFile(file, content);
+      File file = createTemporaryFile();
+      Files.write(file.toPath(), content.getBytes(StandardCharsets.UTF_8));
       return file;
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -376,10 +376,25 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected File createTemporaryFileByExtension(String extension) {
     try {
-      return testFolder.newFile(UUID.randomUUID() + "." + extension);
+      String fileName = UUID.randomUUID() + "." + extension;
+      Path filePath = testFolder.resolve(fileName);
+      Files.createFile(filePath);
+      return filePath.toFile();
     } catch (IOException e) {
       throw new IllegalStateException("Failed to create temporary file", e);
     }
+  }
+
+  protected File createDirectoryInTestFolderAndReturnFile(String name) throws IOException {
+    return Files.createDirectory(testFolder.resolve(name)).toFile();
+  }
+
+  protected File createFileInTestFolderAndReturnFile(String name) throws IOException {
+    return Files.createFile(testFolder.resolve(name)).toFile();
+  }
+
+  protected File writeFile(Path folder, String fileName, String content) throws IOException {
+    return Files.write(folder.resolve(fileName), content.getBytes(StandardCharsets.UTF_8)).toFile();
   }
 
   protected String getFileContent(InputStream stream) {
@@ -395,15 +410,23 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   }
 
   protected String getFileBy(String extension, boolean create) {
-    String file = String.format("%s/%s.%s", this.testFolder.getRoot().getPath(), RandomUtils.nextInt(), extension);
+    Path filePath = testFolder.resolve(RandomUtils.nextInt() + "." + extension);
     if (create) {
       try {
-        Files.createFile(Paths.get(file));
+        Files.createFile(filePath);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
     }
-    return file;
+    return filePath.toString();
+  }
+
+  protected String createFileInTestFolderAndReturnString(String name) throws IOException {
+    return Files.createFile(testFolder.resolve(name)).toString();
+  }
+
+  protected String createDirectoryInTestFolderAndReturnString(String name) throws IOException {
+    return Files.createDirectory(testFolder.resolve(name)).toString();
   }
 
   @SuppressWarnings("unchecked")

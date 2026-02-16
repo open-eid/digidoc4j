@@ -35,7 +35,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.zip.ZipFile;
 
 import static org.digidoc4j.Container.DocumentType.ASICE;
@@ -204,7 +203,7 @@ public class ContainerBuilderTest extends AbstractTest {
   public void saveContainerWithoutSignaturesToFile() throws Exception {
     File dataFile = TestDataBuilderUtil.createTestFile(testFolder);
     Container container = TestDataBuilderUtil.createContainerWithFile(dataFile.getPath());
-    String filePath = testFolder.newFile("test-container.bdoc").getPath();
+    String filePath = createFileInTestFolderAndReturnString("test-container.bdoc");
     File containerFile = container.saveAsFile(filePath);
     assertTrue(FileUtils.sizeOf(containerFile) > 0);
     try (ZipFile zip = new ZipFile(filePath)) {
@@ -218,7 +217,7 @@ public class ContainerBuilderTest extends AbstractTest {
   public void signAndSaveContainerToFile() throws Exception {
     Container container = createNonEmptyContainer();
     TestDataBuilderUtil.signContainer(container);
-    String filePath = testFolder.newFile("test-container.bdoc").getPath();
+    String filePath = createFileInTestFolderAndReturnString("test-container.bdoc");
     assertEquals(1, container.getSignatures().size());
     File file = container.saveAsFile(filePath);
     assertTrue(FileUtils.sizeOf(file) > 0);
@@ -656,7 +655,7 @@ public class ContainerBuilderTest extends AbstractTest {
 
   @Test
   public void openDDocContainerWithTempDirectory() throws Exception {
-    File folder = this.testFolder.newFolder();
+    File folder = createTempDirectoryInTestFolderAndReturnFile();
     assertTrue(folder.list().length == 0);
     ContainerBuilder.aContainer(DDOC).
         fromExistingFile("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc").
@@ -666,7 +665,7 @@ public class ContainerBuilderTest extends AbstractTest {
 
   @Test
   public void openDDocContainerWithTempDirectoryAndConfiguration() throws Exception {
-    File folder = this.testFolder.newFolder();
+    File folder = createTempDirectoryInTestFolderAndReturnFile();
     assertTrue(folder.list().length == 0);
     ContainerBuilder.aContainer(DDOC).
         fromExistingFile("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc").
@@ -676,7 +675,7 @@ public class ContainerBuilderTest extends AbstractTest {
 
   @Test
   public void openDDocContainerFromStreamWithTempDirectory() throws Exception {
-    File folder = this.testFolder.newFolder();
+    File folder = createTempDirectoryInTestFolderAndReturnFile();
     assertTrue(folder.list().length == 0);
     InputStream stream = FileUtils.openInputStream(new File(DDOC_TEST_FILE));
     ContainerBuilder.aContainer(DDOC).fromStream(stream).
@@ -686,7 +685,7 @@ public class ContainerBuilderTest extends AbstractTest {
 
   @Test
   public void openDDocContainerFromStreamWithTempDirectoryAndConfiguration() throws Exception {
-    File folder = this.testFolder.newFolder();
+    File folder = createTempDirectoryInTestFolderAndReturnFile();
     assertTrue(folder.list().length == 0);
     InputStream stream = FileUtils.openInputStream(new File(DDOC_TEST_FILE));
     ContainerBuilder.aContainer(DDOC).withConfiguration(Configuration.of(Configuration.Mode.TEST))

@@ -10,7 +10,6 @@
 
 package org.digidoc4j.test.util;
 
-import org.apache.commons.io.FileUtils;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
@@ -20,42 +19,44 @@ import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
-import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestDataBuilderUtil {
 
-  public static Container createContainerWithFile(TemporaryFolder folder) throws IOException {
+  public static Container createContainerWithFile(Path folder) throws IOException {
     return TestDataBuilderUtil.createContainerWithFile(folder, Container.DocumentType.BDOC, Configuration.Mode.TEST);
   }
 
-  public static Container createContainerWithFile(TemporaryFolder folder, String containerType) throws IOException {
+  public static Container createContainerWithFile(Path folder, String containerType) throws IOException {
     return TestDataBuilderUtil.createContainerWithFile(folder, containerType, Configuration.Mode.TEST);
   }
 
-  public static Container createContainerWithFile(TemporaryFolder folder, Container.DocumentType containerType) throws IOException {
+  public static Container createContainerWithFile(Path folder, Container.DocumentType containerType) throws IOException {
     return TestDataBuilderUtil.createContainerWithFile(folder, containerType, Configuration.Mode.TEST);
   }
 
-  public static Container createContainerWithFile(TemporaryFolder folder, String containerType, Configuration.Mode mode) throws IOException {
+  public static Container createContainerWithFile(Path folder, String containerType, Configuration.Mode mode) throws IOException {
     return TestDataBuilderUtil.createContainerWithFile(folder, containerType, Configuration.of(mode));
   }
 
-  public static Container createContainerWithFile(TemporaryFolder folder, String containerType, Configuration configuration) throws IOException {
+  public static Container createContainerWithFile(Path folder, String containerType, Configuration configuration) throws IOException {
     return TestDataBuilderUtil.populateContainerBuilderWithFile(ContainerBuilder.aContainer(containerType), folder, configuration);
   }
 
-  public static Container createContainerWithFile(TemporaryFolder folder, Container.DocumentType type, Configuration.Mode mode) throws IOException {
+  public static Container createContainerWithFile(Path folder, Container.DocumentType type, Configuration.Mode mode) throws IOException {
     return TestDataBuilderUtil.createContainerWithFile(folder, type, Configuration.of(mode));
   }
 
-  public static Container createContainerWithFile(TemporaryFolder folder, Container.DocumentType type, Configuration configuration) throws IOException {
+  public static Container createContainerWithFile(Path folder, Container.DocumentType type, Configuration configuration) throws IOException {
     return TestDataBuilderUtil.populateContainerBuilderWithFile(ContainerBuilder.aContainer(type), folder, configuration);
   }
 
@@ -124,7 +125,7 @@ public class TestDataBuilderUtil {
     }
   }
 
-  private static Container populateContainerBuilderWithFile(ContainerBuilder builder, TemporaryFolder testFolder, Configuration configuration) throws IOException {
+  private static Container populateContainerBuilderWithFile(ContainerBuilder builder, Path testFolder, Configuration configuration) throws IOException {
     File testFile = TestDataBuilderUtil.createTestFile(testFolder);
     return builder.withConfiguration(configuration).withDataFile(testFile.getPath(), "text/plain").build();
   }
@@ -134,10 +135,10 @@ public class TestDataBuilderUtil {
         withSignatureProfile(SignatureProfile.LT).withSigningCertificate(TestSigningUtil.getSigningCertificate());
   }
 
-  public static File createTestFile(TemporaryFolder testFolder) throws IOException {
-    File testFile = testFolder.newFile();
-    FileUtils.writeStringToFile(testFile, "Banana Pancakes", StandardCharsets.UTF_8);
-    return testFile;
+  public static File createTestFile(Path testFolder) throws IOException {
+    Path testFile = Files.createTempFile(testFolder, null, ".txt");
+    Files.write(testFile, "Banana Pancakes".getBytes(StandardCharsets.UTF_8));
+    return testFile.toFile();
   }
 
 }

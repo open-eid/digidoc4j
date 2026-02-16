@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
@@ -354,12 +354,12 @@ public class DigiDoc4JTest extends AbstractTest {
 
   @Test
   public void createMultipleSignedContainers_withinInputDirectory() throws Exception {
-    String inputFolder = createDirectoryInTestFolderAndReturnString("inputFolder");
+    Path inputFolder = createDirectoryInTestFolderAndReturnPath("inputFolder");
     String outputFolder = createDirectoryInTestFolderAndReturnString("outputFolder");
-    FileUtils.writeStringToFile(new File(inputFolder, "firstDoc.txt"), "Hello daddy");
-    FileUtils.writeStringToFile(new File(inputFolder, "secondDoc.pdf"), "John Matrix");
-    FileUtils.writeStringToFile(new File(inputFolder, "thirdDoc.acc"), "Major General Franklin Kirby");
-    String[] parameters = new String[]{"-inputDir", inputFolder, "-outputDir", outputFolder,
+    writeFile(inputFolder, "firstDoc.txt", "Hello daddy");
+    writeFile(inputFolder, "secondDoc.pdf", "John Matrix");
+    writeFile(inputFolder, "thirdDoc.acc", "Major General Franklin Kirby");
+    String[] parameters = new String[]{"-inputDir", inputFolder.toString(), "-outputDir", outputFolder,
         "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD};
     int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
     assertEquals(0, caughtExitStatus);
@@ -371,11 +371,11 @@ public class DigiDoc4JTest extends AbstractTest {
 
   @Test
   public void createMultipleSignedContainers_withoutOutputDirectory_shouldCreateOutputDir() throws Exception {
-    String inputFolder = createDirectoryInTestFolderAndReturnString("inputFolder");
-    String outputFolder = new File(inputFolder, "notExistingOutputFolder").getPath();
-    FileUtils.writeStringToFile(new File(inputFolder, "firstDoc.txt"), "Hello daddy");
-    FileUtils.writeStringToFile(new File(inputFolder, "secondDoc.pdf"), "John Matrix");
-    String[] parameters = new String[]{"-inputDir", inputFolder, "-outputDir", outputFolder,
+    Path inputFolder = createDirectoryInTestFolderAndReturnPath("inputFolder");
+    String outputFolder = new File(inputFolder.toString(), "notExistingOutputFolder").getPath();
+    writeFile(inputFolder, "firstDoc.txt", "Hello daddy");
+    writeFile(inputFolder, "secondDoc.pdf", "John Matrix");
+    String[] parameters = new String[]{"-inputDir", inputFolder.toString(), "-outputDir", outputFolder,
         "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD,
         "-type", "BDOC"};
     int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
@@ -390,11 +390,11 @@ public class DigiDoc4JTest extends AbstractTest {
 
   @Test
   public void createMultipleSignedContainers_withExistingSavedContainers_shouldThrowException() throws Exception {
-    String inputFolder = createDirectoryInTestFolderAndReturnString("inputFolder");
-    String outputFolder = createDirectoryInTestFolderAndReturnString("outputFolder");
-    FileUtils.writeStringToFile(new File(inputFolder, "firstDoc.txt"), "Hello daddy");
-    FileUtils.writeStringToFile(new File(outputFolder, "firstDoc.asice"), "John Matrix");
-    String[] parameters = new String[]{"-inputDir", inputFolder, "-outputDir", outputFolder,
+    Path inputFolder = createDirectoryInTestFolderAndReturnPath("inputFolder");
+    Path outputFolder = createDirectoryInTestFolderAndReturnPath("outputFolder");
+    writeFile(inputFolder, "firstDoc.txt", "Hello daddy");
+    writeFile(outputFolder, "firstDoc.asice", "John Matrix");
+    String[] parameters = new String[]{"-inputDir", inputFolder.toString(), "-outputDir", outputFolder.toString(),
         "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD};
     int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
     assertEquals(7, caughtExitStatus);
@@ -402,11 +402,11 @@ public class DigiDoc4JTest extends AbstractTest {
 
   @Test
   public void createSignedContainer_forEachFile_withInputDirectoryAndMimeType() throws Exception {
-    String inputFolder = createDirectoryInTestFolderAndReturnString("inputFolder");
+    Path inputFolder = createDirectoryInTestFolderAndReturnPath("inputFolder");
     String outputFolder = createDirectoryInTestFolderAndReturnString("outputFolder");
-    FileUtils.writeStringToFile(new File(inputFolder, "firstDoc.txt"), "Hello daddy");
-    FileUtils.writeStringToFile(new File(inputFolder, "secondDoc.pdf"), "John Matrix");
-    String[] parameters = new String[]{"-inputDir", inputFolder, "-mimeType", "text/xml", "-outputDir", outputFolder,
+    writeFile(inputFolder, "firstDoc.txt", "Hello daddy");
+    writeFile(inputFolder, "secondDoc.pdf", "John Matrix");
+    String[] parameters = new String[]{"-inputDir", inputFolder.toString(), "-mimeType", "text/xml", "-outputDir", outputFolder,
         "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD};
     int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
     assertEquals(0, caughtExitStatus);
@@ -631,9 +631,10 @@ public class DigiDoc4JTest extends AbstractTest {
 
   @Test
   public void extractDataFile_withNonExistingFile_shouldThrowException() throws Exception {
+    String outputFolder = createDirectoryInTestFolderAndReturnString("outputFolder");
     String[] parameters = new String[]{"-in",
             "src/test/resources/testFiles/valid-containers/one_signature.bdoc", "-extract",
-            "notExistingFile.dmc", Files.createFile(testFolder.resolve("outputFolder")) + "/output.txt"};
+            "notExistingFile.dmc", outputFolder + "/output.txt"};
     int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
     assertEquals(4, caughtExitStatus);
   }
@@ -803,7 +804,7 @@ public class DigiDoc4JTest extends AbstractTest {
 
   @Test
   public void verifyBDocFullReport() throws Exception {
-    String outputFolder = Files.createFile(testFolder.resolve("outputFolder")).toString();
+    String outputFolder = createDirectoryInTestFolderAndReturnString("outputFolder");
     String[] parameters = new String[]{"-in",
             "src/test/resources/testFiles/invalid-containers/tundmatuocsp.asice", "-v",
             "-r", outputFolder, "-showerrors"};
@@ -848,8 +849,8 @@ public class DigiDoc4JTest extends AbstractTest {
   }
 
   private void assertExtractingDataFile(String containerPath, String fileToExtract) throws IOException {
-    final String outputPath = String.format("%s%s%s",
-            Files.createDirectory(testFolder.resolve("outputFolder")), File.pathSeparator, "output.txt");
+    String outputFolder = createDirectoryInTestFolderAndReturnString("outputFolder");
+    final String outputPath = String.format("%s%s%s", outputFolder, File.pathSeparator, "output.txt");
     int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus("-in", containerPath, "-extract", fileToExtract, outputPath);
     assertEquals(0, caughtExitStatus);
     TestCommonUtil.sleepInSeconds(1);
@@ -858,7 +859,7 @@ public class DigiDoc4JTest extends AbstractTest {
 
   @Test
   public void createAndValidateDetachedXades() {
-    String xadesSignaturePath = "singatures0.xml";
+    String xadesSignaturePath = "signatures0.xml";
     String[] parameters1 = new String[]{"-xades",
             "-digFile", "test.txt", "n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg", "text/plain",
             "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD,

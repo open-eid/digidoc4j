@@ -21,8 +21,8 @@ import org.digidoc4j.DataFile;
 import org.digidoc4j.test.MockStreamDocument;
 import org.digidoc4j.utils.Helper;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,20 +47,19 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StreamDocumentTest extends AbstractTest {
 
   private static final Logger logger = LoggerFactory.getLogger(StreamDocumentTest.class);
-  private static final Path readOnlyPath = Paths.get("target/tmp/readOnly");
+  private static Path readOnlyPath;
   private StreamDocument document;
 
   @BeforeAll
-  public static void beforeClass() throws IOException {
-    if (!Files.exists(StreamDocumentTest.readOnlyPath)) {
-      Files.createDirectory(StreamDocumentTest.readOnlyPath);
-    }
+  public static void beforeClass(@TempDir Path tempDir) throws IOException {
+    readOnlyPath = tempDir.resolve("readOnly");
+    Files.createDirectories(readOnlyPath);
+
     if (Files.isWritable(StreamDocumentTest.readOnlyPath)) {
       // setting directory testFiles/tmp/readonly permissions to "read only"
       if (System.getProperty("os.name").startsWith("Windows")) {
