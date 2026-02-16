@@ -185,7 +185,7 @@ public class StreamDocumentTest extends AbstractTest {
     NB! If this test fails then ensure that directory testFiles/tmp/readonly is read-only!
    */
   @Test
-  public void saveWhenNoAccessRights() throws Exception {
+  public void saveWhenNoAccessRights() {
     File tmp = StreamDocumentTest.readOnlyPath.toFile();
     String dataFileName = tmp.getAbsolutePath() + File.separator + "no_access.txt";
 
@@ -215,17 +215,17 @@ public class StreamDocumentTest extends AbstractTest {
   }
 
   @Test
-  public void testGetBytesThrowsException() throws Exception {
+  public void testGetBytesThrowsException() {
     assertThrows(DSSException.class, () -> new MockStreamDocument().openStream());
   }
 
   @Test
-  public void testOpenStreamThrowsException() throws Exception {
+  public void testOpenStreamThrowsException() {
     assertThrows(DSSException.class, () -> new MockStreamDocument().openStream());
   }
 
   @Test
-  public void testGetDigestThrowsException() throws Exception {
+  public void testGetDigestThrowsException() {
     assertThrows(DSSException.class, () -> new MockStreamDocument().getDigest(DigestAlgorithm.SHA1));
   }
 

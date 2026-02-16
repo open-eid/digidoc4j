@@ -31,7 +31,7 @@ import org.digidoc4j.impl.asic.TimeStampContainerValidationResult;
 import org.digidoc4j.impl.asic.asics.AsicSContainerTimestamp;
 import org.digidoc4j.impl.asic.cades.AsicArchiveManifest;
 import org.digidoc4j.impl.asic.manifest.ManifestValidator;
-import org.digidoc4j.test.TestAssert;
+import org.digidoc4j.main.InvocationResult;
 import org.digidoc4j.test.TestConstants;
 import org.digidoc4j.test.util.TestSigningUtil;
 import org.hamcrest.core.StringContains;
@@ -48,7 +48,9 @@ import static org.digidoc4j.test.TestAssert.assertContainerIsValid;
 import static org.digidoc4j.test.TestAssert.assertContainsExactSetOfErrors;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -63,9 +65,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class TimeStampTokenTest extends AbstractTest {
 
   public static final String META_INF_TIMESTAMP_TST = "META-INF/timestamp.tst";
-
-  @Rule
-  public final SystemOutRule stdOut = new SystemOutRule().enableLog();
 
   @Test
   public void buildTimestampedContainer_ReadFromFile_ValidationSuccess() {
@@ -208,43 +207,46 @@ public class TimeStampTokenTest extends AbstractTest {
   @Test
   public void createASICSContainerWithTst_AddDataFileAndTimestampTwice_Error() {
     String fileName = getFileBy("asics");
-    String[] parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
+    String[] parameters1 = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-datst", "SHA256", "-tst"};
-    int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
-    assertEquals(0, caughtExitStatus);
+    String[] parameters2 = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/dds_колючей стерне.txt",
+        "text/plain", "-datst", "SHA256", "-tst"};
 
-    parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/dds_колючей стерне.txt",
-        "text/plain", "-datst", "SHA256", "-tst"};
-    caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
-    assertEquals(1, caughtExitStatus);
-    assertThat(this.stdOut.getLog(), StringContains.containsString(
+    InvocationResult result1 = invokeDigiDoc4jAndReturnInvocationResult(parameters1);
+    assertThat(result1.getExitStatus(), is(0));
+
+    InvocationResult result2 = invokeDigiDoc4jAndReturnInvocationResult(parameters2);
+    assertThat(result2.getExitStatus(), is(1));
+    assertThat(result2.getStdOut(), StringContains.containsString(
         "Datafiles cannot be added to an already timestamped container"));
   }
 
   @Test
   public void createASICSContainerWithTst_AddDataFileTwice_Error() {
     String fileName = getFileBy("asics");
-    String[] parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
-        "text/plain", "-datst", "SHA256", "-tst"};
-    int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
-    assertEquals(0, caughtExitStatus);
+    String[] parameters1 = new String[]{"-in", fileName, "-type", "ASICS", "-add",
+            "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-datst", "SHA256", "-tst"};
+    String[] parameters2 = new String[]{"-in", fileName, "-type", "ASICS", "-add",
+            "src/test/resources/testFiles/helper-files/dds_колючей стерне.txt", "text/plain"};
 
-    parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/dds_колючей стерне.txt",
-        "text/plain"};
-    caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
-    assertEquals(1, caughtExitStatus);
-    assertThat(this.stdOut.getLog(), StringContains.containsString(
+    InvocationResult result1 = invokeDigiDoc4jAndReturnInvocationResult(parameters1);
+    assertThat(result1.getExitStatus(), is(0));
+
+    InvocationResult result2 = invokeDigiDoc4jAndReturnInvocationResult(parameters2);
+    assertThat(result2.getExitStatus(), is(1));
+    assertThat(result2.getStdOut(), StringContains.containsString(
         "Datafiles cannot be added to an already timestamped container"));
   }
 
   @Test
   public void createASICSContainerWithTst_AddTimestampTwice_Success() {
-    int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-tst");
-    assertEquals(0, caughtExitStatus);
     String fileName = getFileBy("asics");
+    int caughtExitStatus1 = invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-add",
+            "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-tst");
+    assertEquals(0, caughtExitStatus1);
 
-    caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-tst");
-    assertEquals(0, caughtExitStatus);
+    int caughtExitStatus2 = invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-tst");
+    assertEquals(0, caughtExitStatus2);
 
     Container container = ContainerOpener.open(fileName);
     assertTrue(container.validate().isValid());
@@ -257,10 +259,13 @@ public class TimeStampTokenTest extends AbstractTest {
     String fileName = getFileBy("asics");
     String tspSource = TestConstants.DEMO_TSA_RSA_URL;
 
-    int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-tspsourcearchive", tspSource, "-tst");
+    InvocationResult result = invokeDigiDoc4jAndReturnInvocationResult("-in", fileName, "-add",
+            "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-tspsourcearchive", tspSource, "-tst");
 
-    assertEquals(0, caughtExitStatus);
-    assertThat(this.stdOut.getLog(), StringContains.containsString("Following properties will be used for timestamping: TSP Source " + tspSource));
+    assertThat(result.getExitStatus(), is(0));
+    assertThat(result.getStdOut(),
+            StringContains.containsString("Following properties will be used for timestamping: TSP Source " + tspSource));
+
     Container container = ContainerOpener.open(fileName);
     assertTrue(container.validate().isValid());
     assertEquals(1, container.getTimestamps().size());
@@ -271,10 +276,11 @@ public class TimeStampTokenTest extends AbstractTest {
     String fileName = getFileBy("asics");
     String tspSource = "http://10.255.255.1/";
 
-    int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-tspsourcearchive", tspSource, "-tst");
+    InvocationResult result = invokeDigiDoc4jAndReturnInvocationResult("-in", fileName, "-add",
+            "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-tspsourcearchive", tspSource, "-tst");
 
-    assertEquals(1, caughtExitStatus);
-    assertThat(this.stdOut.getLog(), anyOf(
+    assertThat(result.getExitStatus(), is(1));
+    assertThat(result.getStdOut(), anyOf(
             StringContains.containsString(String.format("Connection to TSP service <%s> timed out", tspSource)),
             StringContains.containsString(String.format("Unable to process <TSP> POST call for service <%s>", tspSource))
     ));
@@ -282,17 +288,19 @@ public class TimeStampTokenTest extends AbstractTest {
 
   @Test
   public void createASICSContainerWithTst_SpecifyDigestAlgo_SpecifiedDigestAlgoUsed() {
-    String digestAlgo = "SHA384";
+    String digestAlgo1 = "SHA384";
+    String digestAlgo2 = "SHA512";
     String refDigestAlgo = "SHA224";
     String fileName = getFileBy("asics");
 
-    invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-tst", "-datst", digestAlgo);
-    assertThat(this.stdOut.getLog(), StringContains.containsString("timestamp digest algorithm " + digestAlgo));
+    InvocationResult result1 = invokeDigiDoc4jAndReturnInvocationResult("-in", fileName, "-add",
+            "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-tst", "-datst", digestAlgo1);
+    assertThat(result1.getStdOut(), StringContains.containsString("timestamp digest algorithm " + digestAlgo1));
 
-    digestAlgo = "SHA512";
-    invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-tst", "-datst", digestAlgo, "-refdatst", refDigestAlgo);
-    assertThat(this.stdOut.getLog(), StringContains.containsString("timestamp digest algorithm " + digestAlgo));
-    assertThat(this.stdOut.getLog(), StringContains.containsString("reference digest algorithm " + refDigestAlgo));
+    InvocationResult result2 = invokeDigiDoc4jAndReturnInvocationResult("-in", fileName,
+            "-tst", "-datst", digestAlgo2, "-refdatst", refDigestAlgo);
+    assertThat(result2.getStdOut(), StringContains.containsString("timestamp digest algorithm " + digestAlgo2));
+    assertThat(result2.getStdOut(), StringContains.containsString("reference digest algorithm " + refDigestAlgo));
 
     Container container = ContainerOpener.open(fileName);
     assertTrue(container.validate().isValid());
@@ -315,17 +323,18 @@ public class TimeStampTokenTest extends AbstractTest {
   @Test
   public void addPKCS12Signature_ContainerAlreadyTimestamped_Error() {
     String fileName = getFileBy("asics");
-    String[] parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
-        "text/plain", "-datst", "SHA256", "-tst"};
-    int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
-    assertEquals(0, caughtExitStatus);
+    String[] parameters1 = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
+            "text/plain", "-datst", "SHA256", "-tst"};
+    String[] parameters2 = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/dds_колючей стерне.txt",
+            "text/plain", "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD};
 
-    parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/dds_колючей стерне.txt",
-        "text/plain", "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD};
-    caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
-    assertEquals(1, caughtExitStatus);
-    assertThat(this.stdOut.getLog(), StringContains.containsString(
-        "Signing of ASiCS container is not supported."));
+    InvocationResult result1 = invokeDigiDoc4jAndReturnInvocationResult(parameters1);
+    assertThat(result1.getExitStatus(), is(0));
+
+    InvocationResult result2 = invokeDigiDoc4jAndReturnInvocationResult(parameters2);
+    assertThat(result2.getExitStatus(), is(1));
+    assertThat(result2.getStdOut(), StringContains.containsString(
+            "Signing of ASiCS container is not supported."));
   }
 
   @Test
@@ -333,9 +342,11 @@ public class TimeStampTokenTest extends AbstractTest {
     String fileName = getFileBy("asics");
     String[] parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/dds_колючей стерне.txt",
         "text/plain", "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD};
-    int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
-    assertEquals(1, caughtExitStatus);
-    assertThat(this.stdOut.getLog(), StringContains.containsString("Signing of ASiCS container is not supported."));
+
+    InvocationResult result = invokeDigiDoc4jAndReturnInvocationResult(parameters);
+
+    assertThat(result.getExitStatus(), is(1));
+    assertThat(result.getStdOut(), containsString("Signing of ASiCS container is not supported."));
   }
 
   /*

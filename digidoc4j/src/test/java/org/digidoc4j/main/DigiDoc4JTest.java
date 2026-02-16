@@ -1012,40 +1012,32 @@ public class DigiDoc4JTest extends AbstractTest {
   @Test
   public void extendSignatureProfile_NoSignatures_Failure() {
     String fileName = getFileBy("asice");
+    assertEquals(0, invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain"));
 
-    String output = captureStdOut(() -> {
-      assertEquals(
-              0,
-              invokeDigiDoc4jAndReturnExitStatus(
-                      "-in", fileName,
-                      "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain"
-              )
-      );
-      assertEquals(1, invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-profile", "LTA"));
-    });
+    InvocationResult result = invokeDigiDoc4jAndReturnInvocationResult("-in", fileName, "-profile", "LTA");
 
-    assertThat(output, containsString("There are no signatures to extend in the provided container"));
+    assertThat(result.getExitStatus(), is(1));
+    assertThat(result.getStdOut(), containsString("There are no signatures to extend in the provided container"));
   }
 
   @Test
   public void extendSignatureProfile_ToIncorrectProfile_Failure() {
-    String output = captureStdOut(() -> {
-      String fileName = createContainerWithUtilAndGetFileName("LTA");
-      assertEquals(1, invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-profile", "ABRAKADABRA"));
-    });
+    String fileName = createContainerWithUtilAndGetFileName("LTA");
 
-    assertThat(output, containsString("Unknown signature profile ABRAKADABRA"));
+    InvocationResult result = invokeDigiDoc4jAndReturnInvocationResult("-in", fileName, "-profile", "ABRAKADABRA");
+
+    assertThat(result.getExitStatus(), is(1));
+    assertThat(result.getStdOut(), containsString("Unknown signature profile ABRAKADABRA"));
   }
 
   @Test
   public void extendSignatureProfile_NonAsice_Failure() {
     for (String extension : Arrays.asList("bdoc", "asics", "ddoc", "pdf")) {
-      String output = captureStdOut(() -> {
-        String fileName = this.getFileBy(extension);
-        assertEquals(1, invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-profile", "LTA"));
-      });
+      String fileName = getFileBy(extension);
+      InvocationResult result = invokeDigiDoc4jAndReturnInvocationResult("-in", fileName, "-profile", "LTA");
 
-      assertThat(output, containsString("Extension of signature(s) is applicable for ASiC-E containers only"));
+      assertThat(result.getExitStatus(), is(1));
+      assertThat(result.getStdOut(), containsString("Extension of signature(s) is applicable for ASiC-E containers only"));
     }
   }
 
@@ -1068,11 +1060,10 @@ public class DigiDoc4JTest extends AbstractTest {
   }
 
   private Container extend(String fileName, String targetProfile) {
-    String output = captureStdOut(() -> {
-      assertEquals(0, invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-profile", targetProfile));
-    });
+    InvocationResult result = invokeDigiDoc4jAndReturnInvocationResult("-in", fileName, "-profile", targetProfile);
 
-    assertThat(output, containsString("Extending existing signature(s) to profile " + targetProfile));
+    assertThat(result.getExitStatus(), is(0));
+    assertThat(result.getStdOut(), containsString("Extending existing signature(s) to profile " + targetProfile));
     return ContainerOpener.open(fileName);
   }
 

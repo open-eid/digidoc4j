@@ -10,10 +10,21 @@
 
 package org.digidoc4j.main;
 
+import static org.digidoc4j.test.util.OutputCaptureUtils.captureStdOut;
+
 public final class TestDigiDoc4JUtil {
 
   public static int invokeDigiDoc4jAndReturnExitStatus(String... params) {
     return DigiDoc4J.executeAndReturnExitStatus(params);
   }
 
+  public static InvocationResult invokeDigiDoc4jAndReturnInvocationResult(String... params) {
+    final InvocationResult invocationResult = new InvocationResult();
+    String capturedStdOut = captureStdOut(() -> {
+      int returnedExitStatus = invokeDigiDoc4jAndReturnExitStatus(params);
+      invocationResult.setExitStatus(returnedExitStatus);
+    });
+    invocationResult.setStdOut(capturedStdOut);
+    return invocationResult;
+  }
 }

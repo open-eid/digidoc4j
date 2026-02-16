@@ -17,8 +17,6 @@ import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.test.TestAssert;
-import org.junit.Rule;
-import org.junit.contrib.java.lang.system.SystemOutRule;
 import org.junit.jupiter.api.Test;
 
 import static org.digidoc4j.main.TestDigiDoc4JUtil.invokeDigiDoc4jAndReturnExitStatus;
@@ -32,9 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * Created by Andrei on 20.11.2017.
  */
 public class PadesValidationTest extends AbstractTest {
-
-  @Rule
-  public final SystemOutRule stdOut = new SystemOutRule().enableLog();
 
   @Test
   public void invalidPDFProvided_shouldThrowException() {
