@@ -38,16 +38,11 @@ import org.digidoc4j.impl.asic.asics.AsicSContainer;
 import org.digidoc4j.impl.asic.xades.XadesSigningDssFacade;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.signers.PKCS12SignatureToken;
-import org.digidoc4j.test.TargetTemporaryFolderRule;
+import org.digidoc4j.test.util.LoggingTestWatcher;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.digidoc4j.test.util.TestSigningUtil;
 import org.digidoc4j.test.util.TestTSLUtil;
 import org.digidoc4j.utils.Helper;
-import org.junit.Rule;
-import org.junit.internal.AssumptionViolatedException;
-import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -95,6 +90,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * @author Janar Rahumeel (CGI Estonia)
  */
 
+@ExtendWith(LoggingTestWatcher.class)
 public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTest.class);
@@ -119,41 +115,6 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   protected static final PKCS12SignatureToken pkcs12Esteid2018SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/sign_ECC_from_TEST_of_ESTEID2018.p12", "1234".toCharArray());
   protected Configuration configuration;
 
-
-  @Rule
-  public TestWatcher watcher = new TestWatcher() {
-
-    private final Logger log = LoggerFactory.getLogger(AbstractTest.class);
-    private long startTimestamp;
-
-    @Override
-    protected void starting(Description description) {
-      String starting = String.format("Starting <%s.%s>", description.getClassName(), description.getMethodName());
-      LOGGER.info(StringUtils.rightPad("-", starting.length(), '-'));
-      LOGGER.info(starting);
-      LOGGER.info(StringUtils.rightPad("-", starting.length(), '-'));
-      this.startTimestamp = System.currentTimeMillis();
-    }
-
-    @Override
-    protected void succeeded(Description description) {
-      long endTimestamp = System.currentTimeMillis();
-      LOGGER.info("Finished <{}.{}> - took <{}> ms", description.getClassName(), description.getMethodName(),
-          endTimestamp - this.startTimestamp);
-    }
-
-    @Override
-    protected void failed(Throwable e, Description description) {
-      LOGGER.error(String.format("Finished <%s.%s> - failed", description.getClassName(), description.getMethodName()), e);
-    }
-
-    @Override
-    protected void skipped(AssumptionViolatedException e, Description description) {
-      String skipped = String.format("Skipped <%s.%s>", description.getClassName(), description.getMethodName());
-      LOGGER.debug(StringUtils.rightPad("-", skipped.length(), '-'));
-      LOGGER.debug(skipped);
-      LOGGER.debug(StringUtils.rightPad("-", skipped.length(), '-'));
-    }
   @TempDir
   protected Path testFolder;
 
