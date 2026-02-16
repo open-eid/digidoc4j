@@ -90,7 +90,7 @@ public class PadesValidationTest extends AbstractTest {
   }
 
   @Test
-  public void verboseMode() throws Exception {
+  public void verboseMode() {
     int result = invokeDigiDoc4jAndReturnExitStatus(
             "-in", "src/test/resources/testFiles/invalid-containers/hello_signed_INCSAVE_signed_EDITED.pdf",
             "-verify"

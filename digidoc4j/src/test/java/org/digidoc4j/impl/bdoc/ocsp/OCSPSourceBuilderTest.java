@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 public class OCSPSourceBuilderTest extends AbstractTest {
 
   @Test
-  public void buildTimestampOCSPSource_whenProfileIsNotSet() throws Exception {
+  public void buildTimestampOCSPSource_whenProfileIsNotSet() {
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withConfiguration(
             configuration).build();
     assertEquals(CommonOCSPSource.class, source.getClass());
@@ -38,7 +38,7 @@ public class OCSPSourceBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void buildTimestampOCSPSource() throws Exception {
+  public void buildTimestampOCSPSource() {
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withSignatureProfile(
             SignatureProfile.LT).withConfiguration(configuration).build();
     assertEquals(CommonOCSPSource.class, source.getClass());
@@ -46,7 +46,7 @@ public class OCSPSourceBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void buildTimemarkOCSPSource() throws Exception {
+  public void buildTimemarkOCSPSource() {
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withSignatureProfile(
             SignatureProfile.LT_TM).withSignatureValue(new byte[]{1, 2, 3}).withConfiguration(configuration).build();
     assertEquals(BDocTMOcspSource.class, source.getClass());

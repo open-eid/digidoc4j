@@ -35,7 +35,7 @@ public class X509CertTest {
   private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
 
   @Test
-  public void testGetX509Certificate() throws Exception {
+  public void testGetX509Certificate() {
     X509Certificate x509Certificate = certificate.getX509Certificate();
     assertEquals("SERIALNUMBER=60001013739, GIVENNAME=MARY ÄNN, SURNAME=O’CONNEŽ-ŠUSLIK TESTNUMBER, " +
             "CN=\"O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739\", C=EE",
@@ -108,7 +108,7 @@ public class X509CertTest {
   }
 
   @Test
-  public void testGetPartOfSubjectName() throws Exception {
+  public void testGetPartOfSubjectName() {
     assertEquals("60001013739", certificate.getSubjectName(X509Cert.SubjectName.SERIALNUMBER));
     assertEquals("mary änn", certificate.getSubjectName(X509Cert.SubjectName.GIVENNAME).toLowerCase());
     assertEquals("o’connež-šuslik testnumber", certificate.getSubjectName(X509Cert.SubjectName.SURNAME).toLowerCase());
@@ -119,13 +119,13 @@ public class X509CertTest {
   }
 
   @Test
-  public void testGetSubjectName() throws Exception {
+  public void testGetSubjectName() {
     assertEquals("SERIALNUMBER=60001013739, GIVENNAME=MARY ÄNN, SURNAME=O’CONNEŽ-ŠUSLIK TESTNUMBER, " +
         "CN=\"O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739\", C=EE", certificate.getSubjectName());
   }
 
   @Test
-  public void testDateCompare() throws Exception {
+  public void testDateCompare() {
     Date startTime = Calendar.getInstance().getTime();
     Date usageTime = Calendar.getInstance().getTime();
     assertTrue(usageTime.compareTo(startTime) >= 0);

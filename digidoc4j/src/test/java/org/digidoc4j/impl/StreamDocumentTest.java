@@ -118,17 +118,17 @@ public class StreamDocumentTest extends AbstractTest {
   }
 
   @Test
-  public void getAbsolutePath() throws Exception {
+  public void getAbsolutePath() {
     assertTrue(document.temporaryFile.getAbsolutePath().matches(".*digidoc4j.*.\\.tmp"), document.temporaryFile.getAbsolutePath());
   }
 
   @Test
-  public void getMimeType() throws Exception {
+  public void getMimeType() {
     assertEquals("text/plain", document.getMimeType().getMimeTypeString());
   }
 
   @Test
-  public void setMimeType() throws Exception {
+  public void setMimeType() {
     document.setMimeType(MimeTypeEnum.XML);
     assertEquals("text/xml", document.getMimeType().getMimeTypeString());
   }

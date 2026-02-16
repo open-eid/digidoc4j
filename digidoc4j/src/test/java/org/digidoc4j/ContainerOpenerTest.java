@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ContainerOpenerTest extends AbstractTest {
 
   @Test
-  public void openBDocContainer() throws Exception {
+  public void openBDocContainer() {
     Container container = ContainerOpener.open(BDOC_WITH_TM_SIG, configuration);
     assertBDocContainer(container);
     TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
@@ -52,7 +52,7 @@ public class ContainerOpenerTest extends AbstractTest {
   }
 
   @Test
-  public void openDDocContainer() throws Exception {
+  public void openDDocContainer() {
     Container container = ContainerOpener.open(DDOC_TEST_FILE, configuration);
     assertDDocContainer(container);
     TestAssert.assertContainerIsOpened(container, Container.DocumentType.DDOC);
@@ -200,7 +200,7 @@ public class ContainerOpenerTest extends AbstractTest {
   }
 
   @Test
-  public void containerOpener_streamWithZipBomb() throws FileNotFoundException {
+  public void containerOpener_streamWithZipBomb() {
     TechnicalException exception = assertThrows(
             TechnicalException.class,
             () -> ContainerOpener.open(new FileInputStream("src/test/resources/testFiles/invalid-containers/zip-bomb-package-zip-1gb.bdoc"), configuration)

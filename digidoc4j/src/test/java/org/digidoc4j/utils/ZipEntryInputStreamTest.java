@@ -97,7 +97,7 @@ class ZipEntryInputStreamTest {
   }
 
   @Test
-  public void markSupportedShouldDelegateToZipInputStreamMarkSupported() throws IOException {
+  public void markSupportedShouldDelegateToZipInputStreamMarkSupported() {
     Mockito.doReturn(true).when(zipInputStream).markSupported();
 
     boolean result = zipEntryInputStream.markSupported();

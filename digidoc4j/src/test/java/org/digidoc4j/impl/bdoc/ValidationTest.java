@@ -200,7 +200,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  public void signaturePolicyIsPolicyImplied(){
+  public void signaturePolicyIsPolicyImplied() {
     Container container = ContainerOpener
             .open("src/test/resources/testFiles/valid-containers/policyImplied.asice",
                     configuration);
@@ -1016,7 +1016,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  public void container_withPssSignature_shouldBeValid(){
+  public void container_withPssSignature_shouldBeValid() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/PSS-signature.asice");
     TestAssert.assertContainerIsValid(container);
   }

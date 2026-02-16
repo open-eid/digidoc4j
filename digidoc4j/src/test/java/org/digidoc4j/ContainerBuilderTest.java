@@ -53,7 +53,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ContainerBuilderTest extends AbstractTest {
 
   @Test
-  public void buildEmptyContainer() throws Exception {
+  public void buildEmptyContainer() {
     ContainerBuilder builder = ContainerBuilder.aContainer();
     Container container = builder.build();
     assertEquals("ASICE", container.getType());
@@ -69,7 +69,7 @@ public class ContainerBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void buildBDocContainer() throws Exception {
+  public void buildBDocContainer() {
     configuration = new Configuration(Configuration.Mode.TEST);
     configuration.setTspSource("test-value");
     Container container = ContainerBuilder.aContainer(BDOC).withConfiguration(configuration).build();
@@ -79,7 +79,7 @@ public class ContainerBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void buildBDocContainerWithDataFiles() throws Exception {
+  public void buildBDocContainerWithDataFiles() {
     File testFile1 = createTemporaryFileBy("testFile.txt", "TEST");
     File testFile2 = createTemporaryFileBy("testFile2.txt", "TEST");
     LargeDataFile largeDataFile = new LargeDataFile(new ByteArrayInputStream(new byte[]{1, 2, 3}), "largeStreamFile.txt", "text/plain");
@@ -204,7 +204,7 @@ public class ContainerBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void signAndValidateContainer() throws Exception {
+  public void signAndValidateContainer() {
     Container container = createNonEmptyContainer();
     TestDataBuilderUtil.signContainer(container);
     ContainerValidationResult result = container.validate();
@@ -262,14 +262,14 @@ public class ContainerBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void buildCustomContainerWithCustomImplementation() throws Exception {
+  public void buildCustomContainerWithCustomImplementation() {
     ContainerBuilder.setContainerImplementation("TEST-FORMAT", CustomContainer.class);
     Container container = ContainerBuilder.aContainer("TEST-FORMAT").build();
     assertEquals("TEST-FORMAT", container.getType());
   }
 
   @Test
-  public void overrideExistingBDocContainerImplementation() throws Exception {
+  public void overrideExistingBDocContainerImplementation() {
     ContainerBuilder.setContainerImplementation("ASICE", CustomContainer.class);
     Container container = ContainerBuilder.aContainer().build();
     assertEquals("TEST-FORMAT", container.getType());
@@ -277,7 +277,7 @@ public class ContainerBuilderTest extends AbstractTest {
 
   @Disabled
   @Test
-  public void useExtendedBDocContainerImplementation() throws Exception {
+  public void useExtendedBDocContainerImplementation() {
     ContainerBuilder.setContainerImplementation("BDOC", BDocContainer.class);
     Container container = ContainerBuilder.
         aContainer("BDOC").
@@ -286,7 +286,7 @@ public class ContainerBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void clearCustomContainerImplementations_shouldUseDefaultContainerImplementation() throws Exception {
+  public void clearCustomContainerImplementations_shouldUseDefaultContainerImplementation() {
     ContainerBuilder.setContainerImplementation("ASICE", AsicEContainer.class);
     ContainerBuilder.removeCustomContainerImplementations();
     Container container = ContainerBuilder.aContainer().build();
@@ -294,7 +294,7 @@ public class ContainerBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void createCustomContainerWithConfiguration() throws Exception {
+  public void createCustomContainerWithConfiguration() {
     configuration = Configuration.of(Configuration.Mode.TEST);
     ContainerBuilder.setContainerImplementation("TEST-FORMAT", CustomContainer.class);
     Container container = ContainerBuilder.aContainer("TEST-FORMAT").
@@ -304,7 +304,7 @@ public class ContainerBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void createCustomContainerWithCustomConfiguration() throws Exception {
+  public void createCustomContainerWithCustomConfiguration() {
     ContainerBuilder.setContainerImplementation("TEST-FORMAT", CustomContainer.class);
     CustomConfiguration configuration = new CustomConfiguration();
     Container container = ContainerBuilder.aContainer("TEST-FORMAT").
@@ -314,13 +314,13 @@ public class ContainerBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void openDefaultContainerFromFile() throws Exception {
+  public void openDefaultContainerFromFile() {
     Container container = ContainerBuilder.aContainer().fromExistingFile(BDOC_WITH_TM_SIG).build();
     TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
   }
 
   @Test
-  public void openDefaultContainerFromFileWithConfiguration() throws Exception {
+  public void openDefaultContainerFromFileWithConfiguration() {
     configuration = new Configuration(Configuration.Mode.TEST);
     configuration.setTspSource("test-value");
     Container container = ContainerBuilder.aContainer().withConfiguration(configuration).
@@ -330,19 +330,19 @@ public class ContainerBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void openDDocContainerFromFile_whenUsingDefaultContainer() throws Exception {
+  public void openDDocContainerFromFile_whenUsingDefaultContainer() {
     Container container = ContainerBuilder.aContainer().fromExistingFile(DDOC_TEST_FILE).build();
     TestAssert.assertContainerIsOpened(container, DDOC);
   }
 
   @Test
-  public void openDDocContainerFromFile() throws Exception {
+  public void openDDocContainerFromFile() {
     Container container = ContainerBuilder.aContainer("DDOC").fromExistingFile(DDOC_TEST_FILE).build();
     TestAssert.assertContainerIsOpened(container, DDOC);
   }
 
   @Test
-  public void openCustomContainerFromFile() throws Exception {
+  public void openCustomContainerFromFile() {
     File testFile = createTemporaryFileBy("testFile.txt", "TEST");
     ContainerBuilder.setContainerImplementation("TEST-FORMAT", CustomContainer.class);
     Container container = ContainerBuilder.aContainer("TEST-FORMAT").fromExistingFile(testFile.getPath()).build();
@@ -351,7 +351,7 @@ public class ContainerBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void openCustomContainerFromFile_withConfiguration() throws Exception {
+  public void openCustomContainerFromFile_withConfiguration() {
     configuration = Configuration.of(Configuration.Mode.TEST);
     File testFile = createTemporaryFileBy("testFile.txt", "TEST");
     ContainerBuilder.setContainerImplementation("TEST-FORMAT", CustomContainer.class);
@@ -363,7 +363,7 @@ public class ContainerBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void openCustomContainerFromFile_withCustomConfiguration() throws Exception {
+  public void openCustomContainerFromFile_withCustomConfiguration() {
     CustomConfiguration configuration = new CustomConfiguration(Configuration.Mode.TEST);
     File testFile = createTemporaryFileBy("testFile.txt", "TEST");
     ContainerBuilder.setContainerImplementation("TEST-FORMAT", CustomContainer.class);

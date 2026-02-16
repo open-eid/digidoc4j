@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class LazyTslLoadingTest extends AbstractTest {
 
   @Test
-  public void createLazyCertificatePool() throws Exception {
+  public void createLazyCertificatePool() {
     TSLCertificateSource tsl = configuration.getTSL();
     SKCommonCertificateVerifier certificateVerifier = new SKCommonCertificateVerifier();
     certificateVerifier.setTrustedCertSources(tsl);
@@ -37,7 +37,7 @@ public class LazyTslLoadingTest extends AbstractTest {
   }
 
   @Test
-  public void populateParameters_withoutDownloadingTsl() throws Exception {
+  public void populateParameters_withoutDownloadingTsl() {
     evictTSLCache();
     assertTrue(isTSLCacheEmpty());
     TSLCertificateSource tsl = configuration.getTSL();
@@ -52,7 +52,7 @@ public class LazyTslLoadingTest extends AbstractTest {
   }
 
   @Test
-  public void tslCertSource_shouldNotRenewTslAutomatically_whenCacheIsNotExpired() throws Exception {
+  public void tslCertSource_shouldNotRenewTslAutomatically_whenCacheIsNotExpired() {
     configuration.setTslCacheExpirationTime(10000);
     evictTSLCache();
     assertTrue(isTSLCacheEmpty());
@@ -67,7 +67,7 @@ public class LazyTslLoadingTest extends AbstractTest {
   }
 
   @Test
-  public void tslCertCource_shouldRenewTslAutomatically_whenCacheIsExpired() throws Exception {
+  public void tslCertCource_shouldRenewTslAutomatically_whenCacheIsExpired() {
     configuration.setTslCacheExpirationTime(100);
     evictTSLCache();
     assertTrue(isTSLCacheEmpty());

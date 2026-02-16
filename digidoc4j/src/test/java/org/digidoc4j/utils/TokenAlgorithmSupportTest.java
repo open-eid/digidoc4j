@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class TokenAlgorithmSupportTest {
 
   @Test
-  public void getDefaultDigestAlgorithm_shouldReturnSha256() throws Exception {
+  public void getDefaultDigestAlgorithm_shouldReturnSha256() {
     PKCS12SignatureToken testSignatureToken = new PKCS12SignatureToken(TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD.toCharArray());
     DigestAlgorithm digestAlgorithm = TokenAlgorithmSupport.determineSignatureDigestAlgorithm(testSignatureToken.getCertificate());
     assertEquals(DigestAlgorithm.SHA256, digestAlgorithm);

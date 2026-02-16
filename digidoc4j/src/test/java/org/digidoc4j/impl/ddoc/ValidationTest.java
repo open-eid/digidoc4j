@@ -57,7 +57,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  public void defaultOcspResponderSuccessful(){
+  public void defaultOcspResponderSuccessful() {
     ConfigManagerInitializer.forceInitConfigManager(configuration);
     Container container = ContainerOpener
             .open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");

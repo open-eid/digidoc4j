@@ -30,27 +30,27 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class AsicContainerParserTest extends AbstractTest {
 
   @Test
-  public void findingNextSignatureFileIndex_onEmptyContainer_shouldReturn_null() throws Exception {
+  public void findingNextSignatureFileIndex_onEmptyContainer_shouldReturn_null() {
     assertNull(getParseResultFromFile(Paths.get("src/test/resources/testFiles/invalid-containers/asics_without_signatures.bdoc")).getCurrentUsedSignatureFileIndex());
   }
 
   @Test
-  public void findingNextSignatureFileIndex_onContainerWithOneSignature_withoutIndex_shouldReturn_null() throws Exception {
+  public void findingNextSignatureFileIndex_onContainerWithOneSignature_withoutIndex_shouldReturn_null() {
     assertNull(getParseResultFromFile(Paths.get("src/test/resources/testFiles/invalid-containers/asics_for_testing.bdoc")).getCurrentUsedSignatureFileIndex());
   }
 
   @Test
-  public void findingNextSignatureFileIndex_onContainerWithOneSignature_withIndex0_shouldReturn_0() throws Exception {
+  public void findingNextSignatureFileIndex_onContainerWithOneSignature_withIndex0_shouldReturn_0() {
     assertEquals(Integer.valueOf(0), getParseResultFromFile(Paths.get("src/test/resources/testFiles/valid-containers/asics_with_one_signature.bdoc")).getCurrentUsedSignatureFileIndex());
   }
 
   @Test
-  public void findingNextSignatureFileIndex_onContainerWithTwoSignature_shouldReturn_1() throws Exception {
+  public void findingNextSignatureFileIndex_onContainerWithTwoSignature_shouldReturn_1() {
     assertEquals(Integer.valueOf(1), getParseResultFromFile(Paths.get("src/test/resources/testFiles/valid-containers/asics_testing_two_signatures.bdoc")).getCurrentUsedSignatureFileIndex());
   }
 
   @Test
-  public void parseBdocContainer() throws Exception {
+  public void parseBdocContainer() {
     assertParseResultValid(getParseResultFromFile(Paths.get("src/test/resources/testFiles/invalid-containers/two_signatures.bdoc")));
   }
 
@@ -60,7 +60,7 @@ public class AsicContainerParserTest extends AbstractTest {
   }
 
   @Test
-  public void parseBDoc_containingSignaturesFile_withNonNumericCharacters() throws Exception {
+  public void parseBDoc_containingSignaturesFile_withNonNumericCharacters() {
     AsicParseResult result = getParseResultFromFile(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-ts-signature-file-name-with-non-numeric-characters.asice"));
     assertIsAsiceContainer(result);
     assertEquals("META-INF/l77Tsignaturesn00B.xml", result.getSignatures().get(0).getSignatureDocument().getName());
@@ -68,7 +68,7 @@ public class AsicContainerParserTest extends AbstractTest {
   }
 
   @Test
-  public void parseBDocFromFile() throws Exception {
+  public void parseBDocFromFile() {
     AsicParseResult result = getParseResultFromFile
         (Paths.get("src/test/resources/testFiles/valid-containers/23147_weak-warning-sha1.bdoc"));
     for (DataFile dataFile : result.getDataFiles()){

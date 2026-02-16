@@ -37,26 +37,26 @@ public class ThreadPoolManagerTest extends AbstractTest {
   private ThreadPoolManager manager;
 
   @Test
-  public void getDefaultThreadExecutor() throws Exception {
+  public void getDefaultThreadExecutor() {
     assertNotNull(manager.getThreadExecutor());
   }
 
   @Test
-  public void setDefaultThreadExecutor() throws Exception {
+  public void setDefaultThreadExecutor() {
     ExecutorService executor = Executors.newSingleThreadExecutor();
     ThreadPoolManager.setDefaultThreadExecutor(executor);
     assertSame(executor, manager.getThreadExecutor());
   }
 
   @Test
-  public void setThreadExecutorInConfiguration() throws Exception {
+  public void setThreadExecutorInConfiguration() {
     ExecutorService executor = Executors.newSingleThreadExecutor();
     configuration.setThreadExecutor(executor);
     assertSame(executor, manager.getThreadExecutor());
   }
 
   @Test
-  public void submitTaskToThreadExecutorSetInConfiguration() throws Exception {
+  public void submitTaskToThreadExecutorSetInConfiguration() {
     CustomExecutorService executor = new CustomExecutorService();
     configuration.setThreadExecutor(executor);
     Callable callable = new Callable<Object>() {
@@ -72,7 +72,7 @@ public class ThreadPoolManagerTest extends AbstractTest {
   }
 
   @Test
-  public void validateContainerWithCustomThreadExecutor() throws Exception {
+  public void validateContainerWithCustomThreadExecutor() {
     CustomExecutorService executor = new CustomExecutorService();
     configuration.setThreadExecutor(executor);
     SignatureValidationResult result = openContainerByConfiguration(Paths.get("src/test/resources/testFiles/invalid-containers/two_signatures.bdoc"), configuration).validate();

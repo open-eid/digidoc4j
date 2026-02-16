@@ -673,7 +673,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenAsicsWithTimeStampBeforeTeraSupportEndAndNestedContainerIsDdoc_ContainerValidationResultHasNoSha1WarningNestedValidationResultHasSha1Warning(){
+  public void validate_WhenAsicsWithTimeStampBeforeTeraSupportEndAndNestedContainerIsDdoc_ContainerValidationResultHasNoSha1WarningNestedValidationResultHasSha1Warning() {
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
 
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/timestamptoken-ddoc.asics", configuration);

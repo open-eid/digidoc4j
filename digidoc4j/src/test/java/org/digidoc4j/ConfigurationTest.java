@@ -862,7 +862,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void configurationStreamIsNotYamlFormatThrowsException() throws Exception {
+  public void configurationStreamIsNotYamlFormatThrowsException() {
     String fileName = "src/test/resources/testFiles/helper-files/test.txt";
     String expectedErrorMessage = "Configuration from stream is not correctly formatted";
 
@@ -955,7 +955,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void exceptionIsThrownWhenLotlTruststoreIsNotFound() throws IOException {
+  public void exceptionIsThrownWhenLotlTruststoreIsNotFound() {
     configuration = Configuration.of(Configuration.Mode.PROD);
     configuration.setLotlTruststorePath("not/existing/path");
 
@@ -1754,7 +1754,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void testConfigureNewAiaOcspThroughYaml_missingIssuerCN() throws Exception {
+  public void testConfigureNewAiaOcspThroughYaml_missingIssuerCN() {
     ConfigurationException exception = assertThrows(
             ConfigurationException.class,
             () -> loadConfigurationFromString(configuration, "AIA_OCSPS:",
@@ -1766,7 +1766,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void testConfigureNewAiaOcspThroughYaml_missingOcspSource() throws Exception {
+  public void testConfigureNewAiaOcspThroughYaml_missingOcspSource() {
     ConfigurationException exception = assertThrows(
             ConfigurationException.class,
             () -> loadConfigurationFromString(configuration, "AIA_OCSPS:", 
@@ -1778,7 +1778,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void testConfigureNewAiaOcspThroughYaml_missingUseNonce() throws Exception {
+  public void testConfigureNewAiaOcspThroughYaml_missingUseNonce() {
     ConfigurationException exception = assertThrows(ConfigurationException.class,
             () -> loadConfigurationFromString(configuration, "AIA_OCSPS:",
                     "  - ISSUER_CN: OCSP NAME",

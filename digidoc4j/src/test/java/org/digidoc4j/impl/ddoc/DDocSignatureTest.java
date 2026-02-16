@@ -36,7 +36,7 @@ public class DDocSignatureTest extends AbstractTest {
   }
 
   @Test
-  public void testSignatureExceptionHandling(){
+  public void testSignatureExceptionHandling() {
     Container container = new DDocOpener().open("src/test/resources/prodFiles/invalid-containers/Belgia_kandeavaldus_LIV.ddoc");
     Signature signature = container.getSignatures().get(1);
     ValidationResult validationResult = signature.validateSignature();

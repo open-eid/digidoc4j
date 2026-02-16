@@ -52,38 +52,38 @@ public class PKCS11SignatureTokenTest extends AbstractTest {
   private SignatureToken signatureToken;
 
   @Test
-  public void signContainerWithSmartCard() throws Exception {
+  public void signContainerWithSmartCard() {
     Container container = createNonEmptyContainer();
     createSignatureBy(container, DigestAlgorithm.SHA256, signatureToken);
     TestAssert.assertContainerIsValid(container);
   }
 
   @Test
-  public void signDDocContainerWithSmartCard() throws Exception {
+  public void signDDocContainerWithSmartCard() {
     Container container = createNonEmptyContainerBy(Container.DocumentType.DDOC);
     createSignatureBy(container, DigestAlgorithm.SHA1, signatureToken);
     TestAssert.assertContainerIsValid(container);
   }
 
   @Test
-  public void fetchCertificateFromSmartCard() throws Exception {
+  public void fetchCertificateFromSmartCard() {
     X509Certificate certificate = signatureToken.getCertificate();
     assertNotNull(certificate);
     assertThat(certificate.getSubjectDN().getName(), Matchers.containsString("CN"));
   }
 
   @Test
-  public void signHashWithSmartCard() throws Exception {
+  public void signHashWithSmartCard() {
     assertSignatureHash(signatureToken, DigestAlgorithm.SHA256, dataToSign, expectedSignatureinHex);
   }
 
   @Test
-  public void signSha512HashWithSmartCard() throws Exception {
+  public void signSha512HashWithSmartCard() {
     assertSignatureHash(signatureToken, DigestAlgorithm.SHA512, dataToSign, expectedSignatureinHexWithSha512);
   }
 
   @Test
-  public void selectPrivateKeyAndSignHash() throws Exception {
+  public void selectPrivateKeyAndSignHash() {
     PKCS11SignatureToken token = (PKCS11SignatureToken) signatureToken;
     List<DSSPrivateKeyEntry> privateKeyEntries = token.getPrivateKeyEntries();
     DSSPrivateKeyEntry keyEntry = privateKeyEntries.get(0);
@@ -92,7 +92,7 @@ public class PKCS11SignatureTokenTest extends AbstractTest {
   }
 
   @Test
-  public void selectCertificateWithPasswordCallback() throws Exception {
+  public void selectCertificateWithPasswordCallback() {
     PasswordInputCallback passwordCallback = new PrefilledPasswordCallback(new KeyStore.PasswordProtection("22975".toCharArray()));
     PKCS11SignatureToken signatureToken = new PKCS11SignatureToken(PKCS11SignatureTokenTest.PKCS_11_MODULE_PATH, passwordCallback, 2);
     List<DSSPrivateKeyEntry> privateKeyEntries = signatureToken.getPrivateKeyEntries();

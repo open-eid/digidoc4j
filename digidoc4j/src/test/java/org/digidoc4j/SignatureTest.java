@@ -75,7 +75,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void testTimeStampCreationTimeForBDoc() throws ParseException {
+  public void testTimeStampCreationTimeForBDoc() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/test.asice");
     Date timeStampCreationTime = container.getSignatures().get(0).getTimeStampCreationTime();
     Date expectedDate = Date.from(OffsetDateTime.of(

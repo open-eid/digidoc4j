@@ -28,7 +28,7 @@ public class AsicManifestTest {
           "</manifest:manifest>";
 
   @Test
-  public void getBytes_WhenContainerTypeIsNotSpecified_ReturnsASiCEManifest() throws Exception {
+  public void getBytes_WhenContainerTypeIsNotSpecified_ReturnsASiCEManifest() {
     AsicManifest manifest = new AsicManifest();
     addFileEntry(manifest, "text/plain");
 
@@ -38,7 +38,7 @@ public class AsicManifestTest {
   }
 
   @Test
-  public void getBytes_WhenContainerTypeIsASiCE_ReturnsASiCEManifest() throws Exception {
+  public void getBytes_WhenContainerTypeIsASiCE_ReturnsASiCEManifest() {
     AsicManifest manifest = new AsicManifest(Constant.ASICE_CONTAINER_TYPE);
     addFileEntry(manifest, "text/plain");
 
@@ -48,7 +48,7 @@ public class AsicManifestTest {
   }
 
   @Test
-  public void getBytes_WhenContainerTypeIsASiCS_ReturnsASiCSManifest() throws Exception {
+  public void getBytes_WhenContainerTypeIsASiCS_ReturnsASiCSManifest() {
     AsicManifest manifest = new AsicManifest(Constant.ASICS_CONTAINER_TYPE);
     addFileEntry(manifest, "text/plain");
 
@@ -58,7 +58,7 @@ public class AsicManifestTest {
   }
 
   @Test
-  public void getBytes_WhenContainerMimeTypeIsGiven_ReturnsManifestContainingEntryWithGivenMimeType() throws Exception {
+  public void getBytes_WhenContainerMimeTypeIsGiven_ReturnsManifestContainingEntryWithGivenMimeType() {
     AsicManifest manifest = new AsicManifest();
     addFileEntry(manifest, "application/octet-stream");
 
@@ -71,7 +71,7 @@ public class AsicManifestTest {
     manifest.addFileEntry(new DataFile("src/test/resources/testFiles/helper-files/test.txt", fileEntryMimeType));
   }
 
-  private static void assertManifestBytes(AsicManifest manifest, String expectedXmlString) throws Exception {
+  private static void assertManifestBytes(AsicManifest manifest, String expectedXmlString) {
     byte[] manifestBytes = manifest.getBytes();
 
     assertThat(manifestBytes, isIdenticalTo(expectedXmlString));

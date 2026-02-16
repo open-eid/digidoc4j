@@ -122,7 +122,7 @@ public class DDocFacadeTest extends AbstractTest {
   }
 
   @Test
-  public void containerWithFileNameThrowsException() throws Exception {
+  public void containerWithFileNameThrowsException() {
     assertThrows(
             DigiDoc4JException.class,
             () -> openDDocFacade("file_not_exists")
@@ -206,7 +206,7 @@ public class DDocFacadeTest extends AbstractTest {
   }
 
   @Test
-  public void configManagerShouldBeInitializedOnlyOnce() throws Exception {
+  public void configManagerShouldBeInitializedOnlyOnce() {
     DDocFacade.configManagerInitializer = new MockConfigManagerInitializer();
     assertFalse(ConfigManagerInitializer.isConfigManagerInitialized());
     assertEquals(0, MockConfigManagerInitializer.configManagerCallCount);

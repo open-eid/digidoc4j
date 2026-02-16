@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 public class MultiSignatureThreadSafetyTest extends AbstractTest {
 
   @Test
-  public void signingTwiceDoesNotCauseAThreadingProblemWithSkOnlineOCSPSource() throws InterruptedException {
+  public void signingTwiceDoesNotCauseAThreadingProblemWithSkOnlineOCSPSource() {
     for (int i = 0; i < 2; i++) {
       sign();
     }
