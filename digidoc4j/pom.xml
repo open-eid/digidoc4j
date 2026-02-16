@@ -439,9 +439,6 @@
                             <includeScope>compile</includeScope>
                             <outputDirectory>${dss.zip.lib}</outputDirectory>
                             <overWriteIfNewer>true</overWriteIfNewer>
-                            <excludeArtifactIds>
-                                contiperf
-                            </excludeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>
@@ -488,7 +485,6 @@
                         <additionalClasspathElement>${project.basedir}/src/main/lib/esteidtestcerts.jar
                         </additionalClasspathElement>
                     </additionalClasspathElements>
-
                 </configuration>
             </plugin>
             <plugin>
