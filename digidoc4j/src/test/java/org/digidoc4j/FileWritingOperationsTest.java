@@ -67,7 +67,7 @@ public class FileWritingOperationsTest extends AbstractTest {
     TestAssert.assertSaveAsStream(container);
   }
 
-  @Ignore("Fail in travis")
+
   @Test
   public void creatingNewContainer_shouldNotStoreDataFilesOnDisk_byDefault() throws Throwable {
     Container container = createNonEmptyContainerIncludingPDFFileBy(Container.DocumentType.BDOC);
@@ -75,7 +75,6 @@ public class FileWritingOperationsTest extends AbstractTest {
     TestAssert.assertSaveAsStream(container);
   }
 
-  @Ignore("Fail in travis")
   @Test
   public void creatingDataFiles_shouldNotStoreDataFilesOnDisk_byDefault() throws Exception {
     Container container = createNonEmptyContainerBy(Container.DocumentType.BDOC);
