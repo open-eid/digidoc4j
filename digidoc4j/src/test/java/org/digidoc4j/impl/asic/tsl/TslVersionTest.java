@@ -11,8 +11,8 @@
 package org.digidoc4j.impl.asic.tsl;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.FileDocument;
 import eu.europa.esig.dss.model.x509.CertificateToken;
@@ -34,9 +34,9 @@ import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.test.util.KeyStoreManager;
 import org.digidoc4j.test.util.TestCertificateUtil;
 import org.digidoc4j.test.util.TestKeyPairUtil;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.File;
 import java.security.KeyStore;
@@ -66,23 +66,21 @@ public class TslVersionTest extends AbstractTest {
   private static final String TRUSTSTORE_PASSWORD = "pass";
   private static final String TRUSTSTORE_TYPE = "PKCS12";
 
-  @Rule
-  public WireMockRule instanceRule = new WireMockRule(Options.DYNAMIC_PORT);
-
   @BeforeAll
   public static void setUpStatic() {
     Security.addProvider(new BouncyCastleProvider());
   }
 
+  @RegisterExtension
+  static WireMockExtension wireMockServer =
+          WireMockExtension.newInstance()
+                  .options(WireMockConfiguration.options().dynamicPort())
+                  .build();
+
   @Override
   protected void before() {
     configuration = Configuration.of(Configuration.Mode.TEST);
     configuration.getTSL().invalidateCache();
-  }
-
-  @After
-  public void tearDown() {
-    WireMock.reset();
   }
 
   @Test
@@ -234,9 +232,9 @@ public class TslVersionTest extends AbstractTest {
     stubGetResponse(tlPath, DSSUtils.toByteArray(tlGenerator.apply(tslSigner)));
 
     String lotlPath = "/lotl-" + UUID.randomUUID() + ".xml";
-    stubGetResponse(lotlPath, DSSUtils.toByteArray(lotlGenerator.apply(tslSigner, instanceRule.url(tlPath))));
+    stubGetResponse(lotlPath, DSSUtils.toByteArray(lotlGenerator.apply(tslSigner, wireMockServer.url(tlPath))));
 
-    configuration.setLotlLocation(instanceRule.url(lotlPath));
+    configuration.setLotlLocation(wireMockServer.url(lotlPath));
     configuration.setLotlPivotSupportEnabled(false);
     configuration.setRequiredTerritories("EE_T");
     configuration.setTrustedTerritories("EE_T");
@@ -253,7 +251,7 @@ public class TslVersionTest extends AbstractTest {
   }
 
   private void stubGetResponse(String path, byte[] responseBody) {
-    instanceRule.stubFor(WireMock.get(path).willReturn(WireMock
+    wireMockServer.stubFor(WireMock.get(path).willReturn(WireMock
             .aResponse().withStatus(200).withBody(responseBody)));
   }
 

@@ -11,17 +11,16 @@
 package org.digidoc4j.impl;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import eu.europa.esig.dss.service.http.commons.OCSPDataLoader;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import org.bouncycastle.cert.ocsp.OCSPResp;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.ServiceType;
 import org.digidoc4j.exceptions.ConnectionTimedOutException;
 import org.digidoc4j.exceptions.ServiceAccessDeniedException;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -43,13 +42,10 @@ public class SkOCSPDataLoaderTest extends AbstractTest {
 
   private static final String MOCK_PROXY_URL = "http://localhost:";
 
-  @Rule
-  public WireMockRule instanceRule = new WireMockRule(Options.DYNAMIC_PORT);
-
-  @After
-  public void tearDown() {
-    WireMock.reset();
-  }
+  @RegisterExtension
+  static WireMockExtension wireMockServer = WireMockExtension.newInstance()
+          .options(WireMockConfiguration.options().dynamicPort())
+          .build();
 
   @Test
   public void getServiceType() {
@@ -65,13 +61,13 @@ public class SkOCSPDataLoaderTest extends AbstractTest {
 
   @Test
   public void successfulResponseFromOCSPService() {
-    instanceRule.stubFor(post("/").withHeader("User-Agent", equalTo(USER_AGENT_STRING))
+    wireMockServer.stubFor(post("/").withHeader("User-Agent", equalTo(USER_AGENT_STRING))
             .willReturn(WireMock.aResponse().withStatus(200).withBody(new byte[] {0, 1, 2, 3})));
     ServiceAccessListener listener = Mockito.mock(ServiceAccessListener.class);
 
     SkOCSPDataLoader dataLoader = new SkOCSPDataLoader(Configuration.of(TEST));
     dataLoader.setUserAgent(USER_AGENT_STRING);
-    String serviceUrl = MOCK_PROXY_URL + instanceRule.port() + "/";
+    String serviceUrl = MOCK_PROXY_URL + wireMockServer.getPort() + "/";
 
     try (ServiceAccessScope scope = new ServiceAccessScope(listener)) {
       byte[] response = dataLoader.post(serviceUrl, new byte[] {1});
@@ -79,20 +75,20 @@ public class SkOCSPDataLoaderTest extends AbstractTest {
     }
 
     ServiceAccessEvent capturedEvent = verifyAndCaptureServiceAccessEvent(listener);
-    assertEquals(MOCK_PROXY_URL + instanceRule.port() + "/", capturedEvent.getServiceUrl());
+    assertEquals(MOCK_PROXY_URL + wireMockServer.getPort() + "/", capturedEvent.getServiceUrl());
     assertEquals(ServiceType.OCSP, capturedEvent.getServiceType());
     assertTrue(capturedEvent.isSuccess());
   }
 
   @Test
   public void accessDeniedToOCSPService() {
-    instanceRule.stubFor(post("/").withHeader("User-Agent", equalTo(USER_AGENT_STRING))
+    wireMockServer.stubFor(post("/").withHeader("User-Agent", equalTo(USER_AGENT_STRING))
             .willReturn(WireMock.aResponse().withStatus(403)));
     ServiceAccessListener listener = Mockito.mock(ServiceAccessListener.class);
 
     SkOCSPDataLoader dataLoader = new SkOCSPDataLoader(Configuration.of(TEST));
     dataLoader.setUserAgent(USER_AGENT_STRING);
-    String serviceUrl = MOCK_PROXY_URL + instanceRule.port() + "/";
+    String serviceUrl = MOCK_PROXY_URL + wireMockServer.getPort() + "/";
 
     try (ServiceAccessScope scope = new ServiceAccessScope(listener)) {
       dataLoader.post(serviceUrl, new byte[] {1});
@@ -103,21 +99,21 @@ public class SkOCSPDataLoaderTest extends AbstractTest {
     }
 
     ServiceAccessEvent capturedEvent = verifyAndCaptureServiceAccessEvent(listener);
-    assertEquals(MOCK_PROXY_URL + instanceRule.port() + "/", capturedEvent.getServiceUrl());
+    assertEquals(MOCK_PROXY_URL + wireMockServer.getPort() + "/", capturedEvent.getServiceUrl());
     assertEquals(ServiceType.OCSP, capturedEvent.getServiceType());
     assertFalse(capturedEvent.isSuccess());
   }
 
   @Test
   public void connectionToOCSPServiceTimedOut() {
-    instanceRule.stubFor(post("/").withHeader("User-Agent", equalTo(USER_AGENT_STRING))
+    wireMockServer.stubFor(post("/").withHeader("User-Agent", equalTo(USER_AGENT_STRING))
             .willReturn(WireMock.aResponse().withFixedDelay(200)));
     ServiceAccessListener listener = Mockito.mock(ServiceAccessListener.class);
 
     SkOCSPDataLoader dataLoader = new SkOCSPDataLoader(Configuration.of(TEST));
     dataLoader.setTimeoutResponse(100);
     dataLoader.setUserAgent(USER_AGENT_STRING);
-    String serviceUrl = MOCK_PROXY_URL + instanceRule.port() + "/";
+    String serviceUrl = MOCK_PROXY_URL + wireMockServer.getPort() + "/";
 
     try (ServiceAccessScope scope = new ServiceAccessScope(listener)) {
       dataLoader.post(serviceUrl, new byte[] {1});
@@ -128,7 +124,7 @@ public class SkOCSPDataLoaderTest extends AbstractTest {
     }
 
     ServiceAccessEvent capturedEvent = verifyAndCaptureServiceAccessEvent(listener);
-    assertEquals(MOCK_PROXY_URL + instanceRule.port() + "/", capturedEvent.getServiceUrl());
+    assertEquals(MOCK_PROXY_URL + wireMockServer.getPort() + "/", capturedEvent.getServiceUrl());
     assertEquals(ServiceType.OCSP, capturedEvent.getServiceType());
     assertFalse(capturedEvent.isSuccess());
   }
@@ -136,15 +132,15 @@ public class SkOCSPDataLoaderTest extends AbstractTest {
   @Test
   public void getOcspViaSpy() throws Exception {
     Configuration configuration = Configuration.of(TEST);
-    instanceRule.stubFor(post("/").willReturn(WireMock.aResponse().proxiedFrom(configuration.getOcspSource())));
+    wireMockServer.stubFor(post("/").willReturn(WireMock.aResponse().proxiedFrom(configuration.getOcspSource())));
     byte[] ocspRequest = new byte[]{48, 120, 48, 118, 48, 77, 48, 75, 48, 73, 48, 9, 6, 5, 43, 14, 3, 2, 26, 5, 0, 4, 20, -20, -37, 96, 16, 51, -48, 76, 118, -7, -123, -78, 28, -40, 58, -45, -98, 2, -101, -109, 49, 4, 20, 73, -64, -14, 68, 57, 101, -43, -101, 70, 59, 13, 56, 96, -125, -79, -42, 45, 40, -122, -90, 2, 16, 83, 11, -28, 27, -68, 89, 124, 68, 87, 14, 43, 124, 19, -68, -6, 12, -94, 37, 48, 35, 48, 33, 6, 9, 43, 6, 1, 5, 5, 7, 48, 1, 2, 4, 20, -55, 25, 66, -2, -90, 61, 30, -49, 20, -82, 91, 49, -4, -52, -64, 23, 106, 12, -114, 67};
     SkDataLoader dataLoader = new SkOCSPDataLoader(configuration);
     dataLoader.setUserAgent(USER_AGENT_STRING);
-    String serviceUrl = MOCK_PROXY_URL + instanceRule.port() + "/";
+    String serviceUrl = MOCK_PROXY_URL + wireMockServer.getPort() + "/";
     byte[] response = dataLoader.post(serviceUrl, ocspRequest);
     OCSPResp ocspResp = new OCSPResp(response);
-    WireMock.verify(postRequestedFor(urlMatching("/"))
     assertNotNull(ocspResp.getResponseObject());
+    wireMockServer.verify(postRequestedFor(urlMatching("/"))
           .withHeader("Content-Type", containing("application/ocsp-request"))
           .withHeader("User-Agent", containing(USER_AGENT_STRING)));
   }

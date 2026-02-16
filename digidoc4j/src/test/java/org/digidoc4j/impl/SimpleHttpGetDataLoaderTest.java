@@ -15,20 +15,18 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.spi.DSSUtils;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.hamcrest.collection.IsIterableContainingInOrder;
-import org.junit.Rule;
-import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
@@ -46,6 +44,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -64,16 +63,18 @@ public class SimpleHttpGetDataLoaderTest {
   private static final String REDIRECT_PATH_2 = "/another/redirect/location";
   private static final String LOCATION_HEADER = "Location";
 
-  @Rule
-  public RestoreSystemProperties systemPropertiesRule = new RestoreSystemProperties();
-  @Rule
-  public WireMockRule instanceRule = new WireMockRule(Options.DYNAMIC_PORT);
-  @Rule
-  public WireMockRule instanceRuleHTTPS = new WireMockRule(WireMockConfiguration.wireMockConfig().httpsPort(Options.DYNAMIC_PORT)
+  @RegisterExtension
+  static WireMockExtension wireMock = WireMockExtension.newInstance()
+          .options(WireMockConfiguration.wireMockConfig().dynamicPort())
+          .build();
+
+  @RegisterExtension
+  static WireMockExtension wireMockHttps = WireMockExtension.newInstance()
+          .options(WireMockConfiguration.wireMockConfig().dynamicHttpsPort()
           .keystorePath("src/test/resources/testFiles/keystores/server-localhost.jks")
           .keystorePassword("digidoc4j-password")
-          .keyManagerPassword("digidoc4j-password")
-          .keystoreType("JKS"));
+          .keyManagerPassword("digidoc4j-password").keystoreType("JKS"))
+          .build();
 
   private Appender<ILoggingEvent> mockedAppender;
 
@@ -85,17 +86,13 @@ public class SimpleHttpGetDataLoaderTest {
     logger.setLevel(Level.DEBUG);
   }
 
-  @After
-  public void tearDown() {
-    instanceRule.resetAll();
-  }
 
   @Test
   public void requestShouldReturnResponseBytesOnHttp200_NoContentLengthHeader() {
-    instanceRule.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(200).withBody(MOCK_RESPONSE)));
-    byte[] response = createDataLoader(0).request(instanceRule.url(REQUEST_PATH), true);
+    wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(200).withBody(MOCK_RESPONSE)));
+    byte[] response = createDataLoader(0).request(wireMock.url(REQUEST_PATH), true);
     assertResponseForStatus(200, MOCK_RESPONSE, response);
-    instanceRule.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
+    wireMock.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
     assertLogInOrder(
             Matchers.equalTo("Reading response of unspecified size")
     );
@@ -103,11 +100,11 @@ public class SimpleHttpGetDataLoaderTest {
 
   @Test
   public void requestShouldReturnResponseBytesOnHttp200_ValidContentLengthHeader() {
-    instanceRule.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(200)
+    wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(200)
             .withHeader("Content-Length", Integer.toString(MOCK_RESPONSE.length)).withBody(MOCK_RESPONSE)));
-    byte[] response = createDataLoader(0).request(instanceRule.url(REQUEST_PATH), true);
+    byte[] response = createDataLoader(0).request(wireMock.url(REQUEST_PATH), true);
     assertResponseForStatus(200, MOCK_RESPONSE, response);
-    instanceRule.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
+    wireMock.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
     assertLogInOrder(
             Matchers.equalTo("Reading response of specific size: " + MOCK_RESPONSE.length)
     );
@@ -115,107 +112,114 @@ public class SimpleHttpGetDataLoaderTest {
 
   @Test
   public void requestShouldFailToReturnResponseOnHttp200_ContentLengthHeaderTooLarge() {
-    instanceRule.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(200)
+    wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(200)
             .withHeader("Content-Length", Long.toString(Integer.MAX_VALUE + 1L)).withBody(new byte[1])));
     try {
-      createDataLoader(0).request(instanceRule.url(REQUEST_PATH), true);
+      createDataLoader(0).request(wireMock.url(REQUEST_PATH), true);
       fail("Should have thrown an exception");
     } catch (Exception ex) {
       assertEquals("Unsupported Content-Length: " + (Integer.MAX_VALUE + 1L), ex.getMessage());
     }
-    instanceRule.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
+    wireMock.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
   }
 
   @Test
+  // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
   public void requestShouldNotRedirectOnHttp3xx_RedirectsNotEnabled() {
     for (int status = 300; status <= 399; ++status) {
-      instanceRule.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status).withBody(MOCK_REDIRECT_RESPONSE)));
-      byte[] response = createDataLoader(0).request(instanceRule.url(REQUEST_PATH), true);
+      wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status).withBody(MOCK_REDIRECT_RESPONSE)));
+      byte[] response = createDataLoader(0).request(wireMock.url(REQUEST_PATH), true);
       assertResponseForStatus(status, MOCK_REDIRECT_RESPONSE, response);
-      instanceRule.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
-      instanceRule.resetAll();
+      wireMock.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
+      wireMock.resetAll();
     }
   }
 
   @Test
+  // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
   public void requestShouldNotRedirectOnHttp3xx_NoLocationProvided_RedirectsEnabled() {
     for (int status = 300; status <= 399; ++status) {
-      instanceRule.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status).withBody(MOCK_REDIRECT_RESPONSE)));
-      byte[] response = createDataLoader(1).request(instanceRule.url(REQUEST_PATH), true);
+      wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status).withBody(MOCK_REDIRECT_RESPONSE)));
+      byte[] response = createDataLoader(1).request(wireMock.url(REQUEST_PATH), true);
       assertResponseForStatus(status, MOCK_REDIRECT_RESPONSE, response);
-      instanceRule.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
-      instanceRule.resetAll();
+      wireMock.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
+      wireMock.resetAll();
     }
   }
 
   @Test
+  // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
   public void requestShouldNotFollowRedirectOnUnallowedHttp3xx_RedirectsEnabled() {
     for (int status = 300; status <= 399; ++status) {
       if (ALLOWED_REDIRECT_STATUSES.contains(status))
         continue;
 
-      instanceRule.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status).withBody(MOCK_REDIRECT_RESPONSE)));
-      byte[] response = createDataLoader(1).request(instanceRule.url(REQUEST_PATH), true);
+      wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status).withBody(MOCK_REDIRECT_RESPONSE)));
+      byte[] response = createDataLoader(1).request(wireMock.url(REQUEST_PATH), true);
       assertResponseForStatus(status, MOCK_REDIRECT_RESPONSE, response);
-      instanceRule.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
-      instanceRule.resetAll();
+      wireMock.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
+      wireMock.resetAll();
     }
   }
 
   @Test
+  // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
   public void requestShouldFollowRedirectOnAllowedHttp3xx_RedirectsEnabled() {
     for (int status : ALLOWED_REDIRECT_STATUSES) {
-      instanceRule.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status).withHeader(LOCATION_HEADER, instanceRule.url(REDIRECT_PATH))));
-      instanceRule.stubFor(get(REDIRECT_PATH).willReturn(WireMock.aResponse().withStatus(200).withBody(MOCK_RESPONSE)));
-      byte[] response = createDataLoader(1).request(instanceRule.url(REQUEST_PATH), true);
+      wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status).withHeader(LOCATION_HEADER, wireMock.url(REDIRECT_PATH))));
+      wireMock.stubFor(get(REDIRECT_PATH).willReturn(WireMock.aResponse().withStatus(200).withBody(MOCK_RESPONSE)));
+      byte[] response = createDataLoader(1).request(wireMock.url(REQUEST_PATH), true);
       assertResponseForStatus(status, MOCK_RESPONSE, response);
-      instanceRule.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
-      instanceRule.verify(1, getRequestedFor(urlEqualTo(REDIRECT_PATH)));
-      instanceRule.resetAll();
+      wireMock.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
+      wireMock.verify(1, getRequestedFor(urlEqualTo(REDIRECT_PATH)));
+      wireMock.resetAll();
     }
   }
 
   @Test
+  // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
   public void requestShouldFollowMultipleRedirectsOnAllowedHttp3xx_RedirectsEnabled() {
     for (int status : ALLOWED_REDIRECT_STATUSES) {
-      instanceRule.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status).withHeader(LOCATION_HEADER, instanceRule.url(REDIRECT_PATH))));
-      instanceRule.stubFor(get(REDIRECT_PATH).willReturn(WireMock.aResponse().withStatus(status).withHeader(LOCATION_HEADER, instanceRule.url(REDIRECT_PATH_2))));
-      instanceRule.stubFor(get(REDIRECT_PATH_2).willReturn(WireMock.aResponse().withStatus(200).withBody(MOCK_RESPONSE)));
-      byte[] response = createDataLoader(2).request(instanceRule.url(REQUEST_PATH), true);
+      wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status).withHeader(LOCATION_HEADER, wireMock.url(REDIRECT_PATH))));
+      wireMock.stubFor(get(REDIRECT_PATH).willReturn(WireMock.aResponse().withStatus(status).withHeader(LOCATION_HEADER, wireMock.url(REDIRECT_PATH_2))));
+      wireMock.stubFor(get(REDIRECT_PATH_2).willReturn(WireMock.aResponse().withStatus(200).withBody(MOCK_RESPONSE)));
+      byte[] response = createDataLoader(2).request(wireMock.url(REQUEST_PATH), true);
       assertResponseForStatus(status, MOCK_RESPONSE, response);
-      instanceRule.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
-      instanceRule.verify(1, getRequestedFor(urlEqualTo(REDIRECT_PATH)));
-      instanceRule.verify(1, getRequestedFor(urlEqualTo(REDIRECT_PATH_2)));
-      instanceRule.resetAll();
+      wireMock.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
+      wireMock.verify(1, getRequestedFor(urlEqualTo(REDIRECT_PATH)));
+      wireMock.verify(1, getRequestedFor(urlEqualTo(REDIRECT_PATH_2)));
+      wireMock.resetAll();
     }
   }
 
   @Test
+  // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
   public void requestShouldFollowLimitedAmountOfRedirectsOnAllowedHttp3xx_RedirectsEnabled() {
     for (int status : ALLOWED_REDIRECT_STATUSES) {
-      instanceRule.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status)
-              .withHeader(LOCATION_HEADER, instanceRule.url(REDIRECT_PATH)).withBody(MOCK_REDIRECT_RESPONSE)));
-      instanceRule.stubFor(get(REDIRECT_PATH).willReturn(WireMock.aResponse().withStatus(status)
-              .withHeader(LOCATION_HEADER, instanceRule.url(REDIRECT_PATH_2)).withBody(MOCK_REDIRECT_RESPONSE_2)));
-      byte[] response = createDataLoader(1).request(instanceRule.url(REQUEST_PATH), true);
+      wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status)
+              .withHeader(LOCATION_HEADER, wireMock.url(REDIRECT_PATH)).withBody(MOCK_REDIRECT_RESPONSE)));
+      wireMock.stubFor(get(REDIRECT_PATH).willReturn(WireMock.aResponse().withStatus(status)
+              .withHeader(LOCATION_HEADER, wireMock.url(REDIRECT_PATH_2)).withBody(MOCK_REDIRECT_RESPONSE_2)));
+      byte[] response = createDataLoader(1).request(wireMock.url(REQUEST_PATH), true);
       assertResponseForStatus(status, MOCK_REDIRECT_RESPONSE_2, response);
-      instanceRule.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
-      instanceRule.verify(1, getRequestedFor(urlEqualTo(REDIRECT_PATH)));
-      instanceRule.verify(0, getRequestedFor(urlEqualTo(REDIRECT_PATH_2)));
-      instanceRule.resetAll();
+      wireMock.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
+      wireMock.verify(1, getRequestedFor(urlEqualTo(REDIRECT_PATH)));
+      wireMock.verify(0, getRequestedFor(urlEqualTo(REDIRECT_PATH_2)));
+      wireMock.resetAll();
     }
   }
 
   @Test
+  // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
   public void requestShouldFollowRedirectOnAllowedHttp3xx_RelativeLocation_RedirectsEnabled() {
     for (int status : ALLOWED_REDIRECT_STATUSES) {
-      instanceRule.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status).withHeader(LOCATION_HEADER, REDIRECT_PATH)));
-      instanceRule.stubFor(get(REDIRECT_PATH).willReturn(WireMock.aResponse().withStatus(200).withBody(MOCK_RESPONSE)));
-      byte[] response = createDataLoader(1).request(instanceRule.url(REQUEST_PATH), true);
+      wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status).withHeader(LOCATION_HEADER, REDIRECT_PATH)));
+      wireMock.stubFor(get(REDIRECT_PATH).willReturn(WireMock.aResponse().withStatus(200).withBody(MOCK_RESPONSE)));
+      byte[] response = createDataLoader(1).request(wireMock.url(REQUEST_PATH), true);
       assertResponseForStatus(status, MOCK_RESPONSE, response);
-      instanceRule.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
-      instanceRule.verify(1, getRequestedFor(urlEqualTo(REDIRECT_PATH)));
-      instanceRule.resetAll();
+      wireMock.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
+      wireMock.verify(1, getRequestedFor(urlEqualTo(REDIRECT_PATH)));
+      wireMock.resetAll();
     }
   }
 
@@ -232,15 +236,15 @@ public class SimpleHttpGetDataLoaderTest {
     System.setProperty("javax.net.ssl.trustStorePassword", "digidoc4j-password");
     System.setProperty("javax.net.ssl.trustStoreType", "JKS");
     for (int status : ALLOWED_REDIRECT_STATUSES) {
-      instanceRule.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status).withHeader(LOCATION_HEADER, instanceRuleHTTPS.url(REDIRECT_PATH))));
-      instanceRuleHTTPS.stubFor(get(REDIRECT_PATH).willReturn(WireMock.aResponse().withStatus(200).withBody(MOCK_RESPONSE)));
-      byte[] response = createDataLoader(1).request(instanceRule.url(REQUEST_PATH), true);
+      wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status).withHeader(LOCATION_HEADER, wireMockHttps.url(REDIRECT_PATH))));
+      wireMockHttps.stubFor(get(REDIRECT_PATH).willReturn(WireMock.aResponse().withStatus(200).withBody(MOCK_RESPONSE)));
+      byte[] response = createDataLoader(1).request(wireMock.url(REQUEST_PATH), true);
       assertResponseForStatus(status, MOCK_RESPONSE, response);
-      instanceRule.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
-      instanceRule.verify(0, getRequestedFor(urlEqualTo(REDIRECT_PATH)));
-      instanceRule.resetAll();
-      instanceRuleHTTPS.verify(1, getRequestedFor(urlEqualTo(REDIRECT_PATH)));
-      instanceRuleHTTPS.resetAll();
+      wireMock.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
+      wireMock.verify(0, getRequestedFor(urlEqualTo(REDIRECT_PATH)));
+      wireMock.resetAll();
+      wireMockHttps.verify(1, getRequestedFor(urlEqualTo(REDIRECT_PATH)));
+      wireMockHttps.resetAll();
     }
   }
 
@@ -257,15 +261,15 @@ public class SimpleHttpGetDataLoaderTest {
     System.setProperty("javax.net.ssl.trustStorePassword", "digidoc4j-password");
     System.setProperty("javax.net.ssl.trustStoreType", "JKS");
     for (int status : ALLOWED_REDIRECT_STATUSES) {
-      instanceRuleHTTPS.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status).withHeader(LOCATION_HEADER, instanceRule.url(REDIRECT_PATH))));
-      instanceRule.stubFor(get(REDIRECT_PATH).willReturn(WireMock.aResponse().withStatus(200).withBody(MOCK_RESPONSE)));
-      byte[] response = createDataLoader(1).request(instanceRuleHTTPS.url(REQUEST_PATH), true);
+      wireMockHttps.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status).withHeader(LOCATION_HEADER, wireMock.url(REDIRECT_PATH))));
+      wireMock.stubFor(get(REDIRECT_PATH).willReturn(WireMock.aResponse().withStatus(200).withBody(MOCK_RESPONSE)));
+      byte[] response = createDataLoader(1).request(wireMockHttps.url(REQUEST_PATH), true);
       assertResponseForStatus(status, MOCK_RESPONSE, response);
-      instanceRuleHTTPS.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
-      instanceRuleHTTPS.verify(0, getRequestedFor(urlEqualTo(REDIRECT_PATH)));
-      instanceRuleHTTPS.resetAll();
-      instanceRule.verify(1, getRequestedFor(urlEqualTo(REDIRECT_PATH)));
-      instanceRule.resetAll();
+      wireMockHttps.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
+      wireMockHttps.verify(0, getRequestedFor(urlEqualTo(REDIRECT_PATH)));
+      wireMockHttps.resetAll();
+      wireMock.verify(1, getRequestedFor(urlEqualTo(REDIRECT_PATH)));
+      wireMock.resetAll();
     }
   }
 
@@ -290,105 +294,108 @@ public class SimpleHttpGetDataLoaderTest {
   }
 
   @Test
+  // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
   public void requestShouldNotFollowRedirectOnAllowedHttp3xx_UnsupportedProtocol_RedirectsEnabled() {
     for (int status : ALLOWED_REDIRECT_STATUSES) {
-      instanceRule.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status).withHeader(LOCATION_HEADER, "ftp://host:1234/path")));
+      wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status).withHeader(LOCATION_HEADER, "ftp://host:1234/path")));
       try {
-        createDataLoader(1).request(instanceRule.url(REQUEST_PATH), true);
-        Assert.fail("Should have thrown an exception!");
+        createDataLoader(1).request(wireMock.url(REQUEST_PATH), true);
+        fail("Should have thrown an exception!");
       } catch (Exception ex) {
-        Assert.assertEquals("Unsupported protocol: ftp", ex.getMessage());
+        assertEquals("Unsupported protocol: ftp", ex.getMessage());
       }
-      instanceRule.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
-      instanceRule.resetAll();
+      wireMock.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
+      wireMock.resetAll();
     }
   }
 
   @Test
   public void requestShouldFailOn404() {
-    instanceRule.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(404)));
+    wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(404)));
     try {
-      createDataLoader(1).request(instanceRule.url(REQUEST_PATH), true);
-      Assert.fail("Should have thrown an exception!");
+      createDataLoader(1).request(wireMock.url(REQUEST_PATH), true);
+      fail("Should have thrown an exception!");
     } catch (Exception ex) {
-      Assert.assertTrue(ex.getCause() instanceof FileNotFoundException);
-      Assert.assertEquals(instanceRule.url(REQUEST_PATH), ex.getCause().getMessage());
+      assertInstanceOf(FileNotFoundException.class, ex.getCause());
+      assertEquals(wireMock.url(REQUEST_PATH), ex.getCause().getMessage());
     }
-    instanceRule.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
+    wireMock.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
   }
 
   @Test
   public void requestShouldFailOn410() {
-    instanceRule.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(410)));
+    wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(410)));
     try {
-      createDataLoader(1).request(instanceRule.url(REQUEST_PATH), true);
-      Assert.fail("Should have thrown an exception!");
+      createDataLoader(1).request(wireMock.url(REQUEST_PATH), true);
+      fail("Should have thrown an exception!");
     } catch (Exception ex) {
-      Assert.assertTrue(ex.getCause() instanceof FileNotFoundException);
-      Assert.assertEquals(instanceRule.url(REQUEST_PATH), ex.getCause().getMessage());
+      assertInstanceOf(FileNotFoundException.class, ex.getCause());
+      assertEquals(wireMock.url(REQUEST_PATH), ex.getCause().getMessage());
     }
-    instanceRule.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
+    wireMock.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
   }
 
   @Test
+  // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
   public void requestShouldFailOnClientError() {
     for (int status = 400; status <= 499; ++status) {
       if (Arrays.asList(404, 410).contains(status))
         continue;
 
-      instanceRule.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status)));
+      wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status)));
       try {
-        createDataLoader(1).request(instanceRule.url(REQUEST_PATH), true);
-        Assert.fail("Should have thrown an exception!");
+        createDataLoader(1).request(wireMock.url(REQUEST_PATH), true);
+        fail("Should have thrown an exception!");
       } catch (Exception ex) {
-        Assert.assertEquals(String.format("Failed to read from '%s': Server returned HTTP response code: %d for URL: %s",
-                instanceRule.url(REQUEST_PATH), status, instanceRule.url(REQUEST_PATH)),
+        assertEquals(String.format("Failed to read from '%s': Server returned HTTP response code: %d for URL: %s",
+                wireMock.url(REQUEST_PATH), status, wireMock.url(REQUEST_PATH)),
                 ex.getMessage());
       }
-      instanceRule.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
-      instanceRule.resetAll();
+      wireMock.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
+      wireMock.resetAll();
     }
   }
 
   @Test
+  // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
   public void requestShouldFailOnServerError() {
     for (int status = 500; status <= 599; ++status) {
-      instanceRule.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status)));
+      wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status)));
       try {
-        createDataLoader(1).request(instanceRule.url(REQUEST_PATH), true);
-        Assert.fail("Should have thrown an exception!");
+        createDataLoader(1).request(wireMock.url(REQUEST_PATH), true);
+        fail("Should have thrown an exception!");
       } catch (Exception ex) {
-        Assert.assertEquals(String.format("Failed to read from '%s': Server returned HTTP response code: %d for URL: %s",
-                instanceRule.url(REQUEST_PATH), status, instanceRule.url(REQUEST_PATH)),
+        assertEquals(String.format("Failed to read from '%s': Server returned HTTP response code: %d for URL: %s",
+                wireMock.url(REQUEST_PATH), status, wireMock.url(REQUEST_PATH)),
                 ex.getMessage());
       }
-      instanceRule.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
-      instanceRule.resetAll();
+      wireMock.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
+      wireMock.resetAll();
     }
   }
 
   @Test
   public void requestShouldFailWhenReadTimeoutIsReached() {
-    instanceRule.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(200).withFixedDelay(1500)));
+    wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(200).withFixedDelay(1500)));
     SimpleHttpGetDataLoader dataLoader = createDataLoader(0);
     dataLoader.setConnectTimeout(1000);
     dataLoader.setReadTimeout(1000);
     try {
-      dataLoader.request(instanceRule.url(REQUEST_PATH), true);
-      Assert.fail("Should have thrown an exception!");
+      dataLoader.request(wireMock.url(REQUEST_PATH), true);
+      fail("Should have thrown an exception!");
     } catch (Exception ex) {
-      Assert.assertEquals("Failed to read from '" + instanceRule.url(REQUEST_PATH) + "': Read timed out", ex.getMessage());
+      assertEquals("Failed to read from '" + wireMock.url(REQUEST_PATH) + "': Read timed out", ex.getMessage());
     }
-    instanceRule.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
+    wireMock.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
   }
 
   @Test
   public void requestShouldIncludeSpecificUserAgentHeaderIfSpecified() {
-    instanceRule.stubFor(get(REQUEST_PATH).willReturn(WireMock.ok()));
+    wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.ok()));
     SimpleHttpGetDataLoader dataLoader = new SimpleHttpGetDataLoader();
     dataLoader.setUserAgent("test-user-agent-string");
-    dataLoader.request(instanceRule.url(REQUEST_PATH), true);
-    instanceRule.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH))
+    dataLoader.request(wireMock.url(REQUEST_PATH), true);
+    wireMock.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH))
             .withHeader("User-Agent", equalTo("test-user-agent-string")));
   }
 
@@ -407,9 +414,9 @@ public class SimpleHttpGetDataLoaderTest {
 
   private static void assertResponseForStatus(int status, byte[] expectedResponse, byte[] receivedResponse) {
     if (status == HttpURLConnection.HTTP_NOT_MODIFIED) { // 304 returns no body
-      Assert.assertArrayEquals(new byte[0], receivedResponse);
+      assertArrayEquals(new byte[0], receivedResponse);
     } else {
-      Assert.assertArrayEquals(expectedResponse, receivedResponse);
+      assertArrayEquals(expectedResponse, receivedResponse);
     }
   }
 
