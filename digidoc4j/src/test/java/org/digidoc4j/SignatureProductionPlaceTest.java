@@ -10,8 +10,9 @@
 
 package org.digidoc4j;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SignatureProductionPlaceTest {
 
@@ -19,28 +20,28 @@ public class SignatureProductionPlaceTest {
   public void setCity() throws Exception {
     SignatureProductionPlace signatureProductionPlace = new SignatureProductionPlace();
     signatureProductionPlace.setCity("City");
-    Assert.assertEquals("City", signatureProductionPlace.getCity());
+    assertEquals("City", signatureProductionPlace.getCity());
   }
 
   @Test
   public void setStateOrProvince() throws Exception {
     SignatureProductionPlace signatureProductionPlace = new SignatureProductionPlace();
     signatureProductionPlace.setStateOrProvince("StateOrProvince");
-    Assert.assertEquals("StateOrProvince", signatureProductionPlace.getStateOrProvince());
+    assertEquals("StateOrProvince", signatureProductionPlace.getStateOrProvince());
   }
 
   @Test
   public void setPostalCode() throws Exception {
     SignatureProductionPlace signatureProductionPlace = new SignatureProductionPlace();
     signatureProductionPlace.setPostalCode("PostalCode");
-    Assert.assertEquals("PostalCode", signatureProductionPlace.getPostalCode());
+    assertEquals("PostalCode", signatureProductionPlace.getPostalCode());
   }
 
   @Test
   public void setCountry() throws Exception {
     SignatureProductionPlace signatureProductionPlace = new SignatureProductionPlace();
     signatureProductionPlace.setCountry("Country");
-    Assert.assertEquals("Country", signatureProductionPlace.getCountry());
+    assertEquals("Country", signatureProductionPlace.getCountry());
   }
 
 }

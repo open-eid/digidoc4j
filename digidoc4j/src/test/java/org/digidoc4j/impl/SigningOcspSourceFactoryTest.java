@@ -14,13 +14,17 @@ import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.OCSPSourceFactory;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
+@ExtendWith(MockitoExtension.class)
 public class SigningOcspSourceFactoryTest extends AbstractTest {
 
   @Test
@@ -31,7 +35,7 @@ public class SigningOcspSourceFactoryTest extends AbstractTest {
 
     configuration.setSigningOcspSourceFactory(mockSigningOcspSourceFactory);
     OCSPSource ocspSource = new SigningOcspSourceFactory(configuration).create();
-    Assert.assertSame(mockOCSPSource, ocspSource);
+    assertSame(mockOCSPSource, ocspSource);
 
     Mockito.verify(mockSigningOcspSourceFactory, Mockito.times(1)).create();
     Mockito.verifyNoMoreInteractions(mockSigningOcspSourceFactory, mockOCSPSource);
@@ -44,7 +48,7 @@ public class SigningOcspSourceFactoryTest extends AbstractTest {
 
     configuration.setSigningOcspSourceFactory(mockSigningOcspSourceFactory);
     OCSPSource ocspSource = new SigningOcspSourceFactory(configuration).create();
-    Assert.assertNull(ocspSource);
+    assertNull(ocspSource);
 
     Mockito.verify(mockSigningOcspSourceFactory, Mockito.times(1)).create();
     Mockito.verifyNoMoreInteractions(mockSigningOcspSourceFactory);
@@ -54,8 +58,8 @@ public class SigningOcspSourceFactoryTest extends AbstractTest {
   public void testCreateReturnsDefaultImplIfFactoryUnsetInConfiguration() {
     OCSPSource ocspSource = new SigningOcspSourceFactory(configuration).create();
 
-    Assert.assertNotNull(ocspSource);
-    Assert.assertEquals(CommonOCSPSource.class, ocspSource.getClass());
+    assertNotNull(ocspSource);
+    assertEquals(CommonOCSPSource.class, ocspSource.getClass());
   }
 
   @Override

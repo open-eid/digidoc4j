@@ -11,8 +11,8 @@
 package org.digidoc4j;
 
 import org.digidoc4j.test.TestAssert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
@@ -22,9 +22,9 @@ import static org.digidoc4j.test.TestConstants.DEMO_SK_ESTEID2018_OCSP_CN;
 import static org.digidoc4j.test.TestConstants.TEST_ESTEID2018_OCSP_CN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.matchesRegex;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AiaOcspTest extends AbstractTest {
 
@@ -33,12 +33,12 @@ public class AiaOcspTest extends AbstractTest {
         Configuration configuration = new Configuration(Configuration.Mode.TEST);
         configuration.setPreferAiaOcsp(false);
 
-        File testFile1 = this.createTemporaryFileBy("testFile.txt", "TEST");
+        File testFile1 = createTemporaryFileBy("testFile.txt", "TEST");
         Container container = ContainerBuilder.aContainer()
                 .withDataFile(testFile1.getPath(), "text/plain")
                 .withConfiguration(configuration)
                 .build();
-        this.createSignatureBy(container, pkcs12Esteid2018SignatureToken);
+        createSignatureBy(container, pkcs12Esteid2018SignatureToken);
         assertContainerIsValid(container);
         assertThat(
                 container.getSignatures().get(0).getOCSPCertificate().getSubjectName(X509Cert.SubjectName.CN),
@@ -50,12 +50,12 @@ public class AiaOcspTest extends AbstractTest {
     public void signAsiceContainerUsingAiaOcsp() {
         Configuration configuration = new Configuration(Configuration.Mode.TEST);
         assertTrue(configuration.isAiaOcspPreferred());
-        File testFile1 = this.createTemporaryFileBy("testFile.txt", "TEST");
+        File testFile1 = createTemporaryFileBy("testFile.txt", "TEST");
         Container container = ContainerBuilder.aContainer()
                 .withDataFile(testFile1.getPath(), "text/plain")
                 .withConfiguration(configuration)
                 .build();
-        this.createSignatureBy(container, pkcs12SignatureToken);
+        createSignatureBy(container, pkcs12SignatureToken);
         assertTrue(container.validate().isValid());
         assertEquals(DEMO_SK_ESTEID2015_OCSP_CN, container.getSignatures().get(0).getOCSPCertificate().getSubjectName(X509Cert.SubjectName.CN));
     }
@@ -64,12 +64,12 @@ public class AiaOcspTest extends AbstractTest {
     public void signAsiceContainerWithEccTokenUsingAiaOcsp() {
         Configuration configuration = new Configuration(Configuration.Mode.TEST);
         assertTrue(configuration.isAiaOcspPreferred());
-        File testFile1 = this.createTemporaryFileBy("testFile.txt", "TEST");
+        File testFile1 = createTemporaryFileBy("testFile.txt", "TEST");
         Container container = ContainerBuilder.aContainer()
                 .withDataFile(testFile1.getPath(), "text/plain")
                 .withConfiguration(configuration)
                 .build();
-        this.createSignatureBy(container, pkcs12EccSignatureToken);
+        createSignatureBy(container, pkcs12EccSignatureToken);
         assertTrue(container.validate().isValid());
         assertEquals(DEMO_SK_ESTEID2015_OCSP_CN, container.getSignatures().get(0).getOCSPCertificate().getSubjectName(X509Cert.SubjectName.CN));
     }
@@ -78,12 +78,12 @@ public class AiaOcspTest extends AbstractTest {
     public void signAsiceContainerWithEsteid2018UsingAiaOcsp() {
         Configuration configuration = new Configuration(Configuration.Mode.TEST);
         assertTrue(configuration.isAiaOcspPreferred());
-        File testFile1 = this.createTemporaryFileBy("testFile.txt", "TEST");
+        File testFile1 = createTemporaryFileBy("testFile.txt", "TEST");
         Container container = ContainerBuilder.aContainer()
                 .withDataFile(testFile1.getPath(), "text/plain")
                 .withConfiguration(configuration)
                 .build();
-        this.createSignatureBy(container, pkcs12Esteid2018SignatureToken);
+        createSignatureBy(container, pkcs12Esteid2018SignatureToken);
         ContainerValidationResult validationResult = container.validate();
         TestAssert.assertContainerIsValid(validationResult);
         assertHasNoWarnings(validationResult);
@@ -97,29 +97,29 @@ public class AiaOcspTest extends AbstractTest {
         configuration.setOcspSource("http://aia.demo.sk.ee/esteid2015");
         configuration.setUseOcspNonce(false);
 
-        File testFile1 = this.createTemporaryFileBy("testFile.txt", "TEST");
+        File testFile1 = createTemporaryFileBy("testFile.txt", "TEST");
         Container container = ContainerBuilder.aContainer()
                 .withDataFile(testFile1.getPath(), "text/plain")
                 .withConfiguration(configuration)
                 .build();
-        this.createSignatureBy(container, pkcs12SignatureToken);
+        createSignatureBy(container, pkcs12SignatureToken);
         assertTrue(container.validate().isValid());
         assertEquals(DEMO_SK_ESTEID2015_OCSP_CN, container.getSignatures().get(0).getOCSPCertificate().getSubjectName(X509Cert.SubjectName.CN));
     }
 
     @Test
-    @Ignore("Fix by adding AdditionalServiceInformation to TEST of ESTEID-SK 2015 in test TSL")
+    @Disabled("Fix by adding AdditionalServiceInformation to TEST of ESTEID-SK 2015 in test TSL")
     public void signAsiceContainerWithManuallyConfiguredOlderAiaOcsp_whileUsingOcspNonce_thenOcspRetrievalShouldFail() {
         Configuration configuration = new Configuration(Configuration.Mode.TEST);
         configuration.setPreferAiaOcsp(false);
         configuration.setOcspSource("http://aia.demo.sk.ee/esteid2015");
 
-        File testFile1 = this.createTemporaryFileBy("testFile.txt", "TEST");
+        File testFile1 = createTemporaryFileBy("testFile.txt", "TEST");
         Container container = ContainerBuilder.aContainer()
                 .withDataFile(testFile1.getPath(), "text/plain")
                 .withConfiguration(configuration)
                 .build();
-        this.createSignatureBy(container, pkcs12SignatureToken);
+        createSignatureBy(container, pkcs12SignatureToken);
         ValidationResult result = container.validate();
         assertFalse(result.isValid());
         assertTrue(result.getErrors().get(0).getMessage().contains("No revocation data for the certificate"));

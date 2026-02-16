@@ -13,15 +13,21 @@ package org.digidoc4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.function.Function;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DataFileTest extends AbstractTest {
 
@@ -33,55 +39,55 @@ public class DataFileTest extends AbstractTest {
   @Test
   public void testGetFileSize() {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
-    Assert.assertEquals(15, dataFile.getFileSize());
+    assertEquals(15, dataFile.getFileSize());
   }
 
   @Test
   public void testIsFileEmpty() {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
-    Assert.assertFalse(dataFile.isFileEmpty());
+    assertFalse(dataFile.isFileEmpty());
   }
 
   @Test
   public void testIsFileEmptyForEmptyFile() {
     DataFile dataFile = new DataFile(EMPTY_FILE_PATH, TEST_FILE_MIMETYPE);
-    Assert.assertTrue(dataFile.isFileEmpty());
+    assertTrue(dataFile.isFileEmpty());
   }
 
   @Test
   public void testGetFileSizeForInMemoryDocument() {
     DataFile dataFile = new DataFile(new byte[]{1, 2}, TEST_FILE_NAME, TEST_FILE_MIMETYPE);
-    Assert.assertEquals(2, dataFile.getFileSize());
+    assertEquals(2, dataFile.getFileSize());
   }
 
   @Test
   public void testIsFileEmptyForInMemoryDocument() {
     DataFile dataFile = new DataFile(new byte[]{1, 2}, TEST_FILE_NAME, TEST_FILE_MIMETYPE);
-    Assert.assertFalse(dataFile.isFileEmpty());
+    assertFalse(dataFile.isFileEmpty());
   }
 
   @Test
   public void testIsFileEmptyForEmptyInMemoryDocument() {
     DataFile dataFile = new DataFile(new byte[0], TEST_FILE_NAME, TEST_FILE_MIMETYPE);
-    Assert.assertTrue(dataFile.isFileEmpty());
+    assertTrue(dataFile.isFileEmpty());
   }
 
   @Test
   public void testGetMediaType() {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
-    Assert.assertEquals(TEST_FILE_MIMETYPE, dataFile.getMediaType());
+    assertEquals(TEST_FILE_MIMETYPE, dataFile.getMediaType());
   }
 
   @Test
   public void testGetFileName() {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
-    Assert.assertEquals(TEST_FILE_NAME, dataFile.getName());
+    assertEquals(TEST_FILE_NAME, dataFile.getName());
   }
 
   @Test
   public void testCalculateDigest() {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
-    Assert.assertArrayEquals(
+    assertArrayEquals(
             Base64.decodeBase64("RqDqtqi3rTsWj07rrWc5kATAZIw7T1XHP/NPLCF05RU="),
             dataFile.calculateDigest()
     );
@@ -90,7 +96,7 @@ public class DataFileTest extends AbstractTest {
   @Test
   public void testCalculateDigestWithEnumTypeSHA1() {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
-    Assert.assertArrayEquals(
+    assertArrayEquals(
             Base64.decodeBase64("OQj17m9Rt2vPXYrry+v/KHpf98Q="),
             dataFile.calculateDigest(DigestAlgorithm.SHA1)
     );
@@ -99,7 +105,7 @@ public class DataFileTest extends AbstractTest {
   @Test
   public void testCalculateDigestWithEnumTypeSHA224() {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
-    Assert.assertArrayEquals(
+    assertArrayEquals(
             Base64.decodeBase64("w/fpCafC/Rcn3uKW2ExwxyzTW42KAhfU8eljcQ=="),
             dataFile.calculateDigest(DigestAlgorithm.SHA224)
     );
@@ -108,7 +114,7 @@ public class DataFileTest extends AbstractTest {
   @Test
   public void testCalculateDigestWithEnumTypeSHA256() {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
-    Assert.assertArrayEquals(
+    assertArrayEquals(
             Base64.decodeBase64("RqDqtqi3rTsWj07rrWc5kATAZIw7T1XHP/NPLCF05RU="),
             dataFile.calculateDigest(DigestAlgorithm.SHA256)
     );
@@ -117,7 +123,7 @@ public class DataFileTest extends AbstractTest {
   @Test
   public void testCalculateDigestWithEnumTypeSHA384() {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
-    Assert.assertArrayEquals(
+    assertArrayEquals(
             Base64.decodeBase64("i6PjAerb6Wuzt21+fISlv2SngAxfFfh+ZxrZDhdtwv0x8t8zXAPrtW/mi5aqpFig"),
             dataFile.calculateDigest(DigestAlgorithm.SHA384)
     );
@@ -126,7 +132,7 @@ public class DataFileTest extends AbstractTest {
   @Test
   public void testCalculateDigestWithEnumTypeSHA512() {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
-    Assert.assertArrayEquals(
+    assertArrayEquals(
             Base64.decodeBase64("ucUB3sbDkP0cjlo+T0PSLMfICMQm9P6pHq+byFo7Ytw0cG9uiA1QoAPQihQKDsBoInbgFpFZftPvghS3AgsM+A=="),
             dataFile.calculateDigest(DigestAlgorithm.SHA512)
     );
@@ -135,12 +141,12 @@ public class DataFileTest extends AbstractTest {
   @Test
   public void testSaveToFile() throws IOException {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
-    String file = this.getFileBy("txt");
+    String file = getFileBy("txt");
     dataFile.saveAs(file);
-    Assert.assertTrue(new File(file).exists());
+    assertTrue(new File(file).exists());
     byte[] testFileContent = FileUtils.readFileToByteArray(new File(TEST_FILE_PATH));
     byte[] savedFileContent = FileUtils.readFileToByteArray(new File(file));
-    Assert.assertArrayEquals(testFileContent, savedFileContent);
+    assertArrayEquals(testFileContent, savedFileContent);
   }
 
   @Test
@@ -149,20 +155,20 @@ public class DataFileTest extends AbstractTest {
     try (ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
       dataFile.saveAs(stream);
       stream.flush();
-      Assert.assertEquals("see on testfail", stream.toString());
+      assertEquals("see on testfail", stream.toString());
     }
   }
 
   @Test
   public void incorrectMimeType() {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, "incorrect");
-    Assert.assertNotNull(dataFile.getMediaType());
+    assertNotNull(dataFile.getMediaType());
   }
 
   @Test
   public void incorrectMimeTypeByteArrayConstructor() {
     DataFile dataFile = new DataFile(new byte[]{0x041}, TEST_FILE_PATH, "incorrect");
-    Assert.assertNotNull(dataFile.getMediaType());
+    assertNotNull(dataFile.getMediaType());
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -178,7 +184,7 @@ public class DataFileTest extends AbstractTest {
   @Test
   public void testInMemoryDocumentRetrievesFileName() {
     DataFile dataFile = new DataFile(new byte[]{0x041}, "suura.txt", "text/plain");
-    Assert.assertEquals("suura.txt", dataFile.getName());
+    assertEquals("suura.txt", dataFile.getName());
   }
 
   @Test
@@ -189,17 +195,17 @@ public class DataFileTest extends AbstractTest {
   @Test
   public void testGetBytes() throws Exception {
     DataFile dataFile = new DataFile(new byte[]{0x041}, "suura.txt", "text/plain");
-    Assert.assertArrayEquals(new byte[]{0x041}, dataFile.getBytes());
+    assertArrayEquals(new byte[]{0x041}, dataFile.getBytes());
   }
 
   @Test
   public void createDocumentFromStream() throws Exception {
-    String file = this.getFileBy("txt");
+    String file = getFileBy("txt");
     try (ByteArrayInputStream stream = new ByteArrayInputStream("tere tere tipajalga".getBytes())) {
       DataFile dataFile = new DataFile(stream, "test.txt", "text/plain");
       dataFile.saveAs(file);
       DataFile dataFileToCompare = new DataFile(file, "text/plain");
-      Assert.assertArrayEquals("tere tere tipajalga".getBytes(), dataFileToCompare.getBytes());
+      assertArrayEquals("tere tere tipajalga".getBytes(), dataFileToCompare.getBytes());
     }
   }
 
@@ -207,8 +213,8 @@ public class DataFileTest extends AbstractTest {
   public void createDocumentFromInoutStreamThrowsException() throws IOException {
     try (ByteArrayInputStream stream = new ByteArrayInputStream("test".getBytes())) {
       DataFile dataFile = new DataFile(stream, "test.txt", "unknown");
-      Assert.assertNotNull(dataFile.getMediaType());
-      Assert.assertArrayEquals("test".getBytes(), dataFile.getBytes());
+      assertNotNull(dataFile.getMediaType());
+      assertArrayEquals("test".getBytes(), dataFile.getBytes());
     }
   }
 
@@ -216,7 +222,7 @@ public class DataFileTest extends AbstractTest {
   public void testGetFileNameForStreamedFile() throws Exception {
     try (ByteArrayInputStream stream = new ByteArrayInputStream("tere tere tipajalga".getBytes())) {
       DataFile dataFile = new DataFile(stream, "test.txt", "text/plain");
-      Assert.assertEquals("test.txt", dataFile.getName());
+      assertEquals("test.txt", dataFile.getName());
     }
   }
 
@@ -235,7 +241,7 @@ public class DataFileTest extends AbstractTest {
   public void calculateSizeForStreamedFile() throws Exception {
     try (ByteArrayInputStream stream = new ByteArrayInputStream("tere tere tipajalga".getBytes())) {
       DataFile dataFile = new DataFile(stream, "test.txt", "text/plain");
-      Assert.assertEquals(19, dataFile.getFileSize());
+      assertEquals(19, dataFile.getFileSize());
     }
   }
 
@@ -248,16 +254,16 @@ public class DataFileTest extends AbstractTest {
     DataFile dataFile;
 
     dataFile = dataFileFactory.apply(fileName);
-    Assert.assertEquals(fileName, dataFile.getName());
+    assertEquals(fileName, dataFile.getName());
 
     dataFile = dataFileFactory.apply(String.format("dir%s%s", File.separator, fileName));
-    Assert.assertEquals(fileName, dataFile.getName());
+    assertEquals(fileName, dataFile.getName());
 
     dataFile = dataFileFactory.apply(String.format("..%s%s", File.separator, fileName));
-    Assert.assertEquals(fileName, dataFile.getName());
+    assertEquals(fileName, dataFile.getName());
 
     dataFile = dataFileFactory.apply(String.format("..%s..%sdir%s..%s%s", File.separator, File.separator, File.separator, File.separator, fileName));
-    Assert.assertEquals(fileName, dataFile.getName());
+    assertEquals(fileName, dataFile.getName());
   }
 
 }

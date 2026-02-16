@@ -44,13 +44,13 @@ import org.digidoc4j.test.util.TestCertificateUtil;
 import org.digidoc4j.test.util.TestKeyPairUtil;
 import org.digidoc4j.test.util.TestOcspUtil;
 import org.hamcrest.Matchers;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.security.PrivateKey;
@@ -65,13 +65,13 @@ import java.util.function.Function;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.matchesPattern;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CommonOCSPSourceTest extends AbstractTest {
 
   private static final String MOCK_OCSP_URL = "mock://issuer/ocsp";
@@ -84,7 +84,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
 
   private TSLCertificateSourceImpl tslCertificateSource;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpStatic() {
     Security.addProvider(new BouncyCastleProvider());
   }

@@ -15,19 +15,22 @@ import eu.europa.esig.dss.service.http.proxy.ProxyConfig;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.ExternalConnectionType;
 import org.digidoc4j.utils.KeyStoreDocument;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DataLoaderDecoratorTest {
 
   private static final String KEYSTORE_PATH = "classpath:testFiles/keystores/keystore.jks";
@@ -202,7 +205,7 @@ public class DataLoaderDecoratorTest {
 
     ArgumentCaptor<String[]> argumentCaptor = ArgumentCaptor.forClass(String[].class);
     Mockito.verify(dataLoader, Mockito.times(1)).setSupportedSSLProtocols(argumentCaptor.capture());
-    Assert.assertArrayEquals(new String[]{"sslProtocol1", "sslProtocol2"}, argumentCaptor.getValue());
+    assertArrayEquals(new String[]{"sslProtocol1", "sslProtocol2"}, argumentCaptor.getValue());
     Mockito.verifyNoMoreInteractions(dataLoader);
   }
 
@@ -217,7 +220,7 @@ public class DataLoaderDecoratorTest {
 
       ArgumentCaptor<String[]> argumentCaptor = ArgumentCaptor.forClass(String[].class);
       Mockito.verify(dataLoader, Mockito.times(1)).setSupportedSSLProtocols(argumentCaptor.capture());
-      Assert.assertArrayEquals(new String[]{"sslProtocol1", "sslProtocol2"}, argumentCaptor.getValue());
+      assertArrayEquals(new String[]{"sslProtocol1", "sslProtocol2"}, argumentCaptor.getValue());
       Mockito.verifyNoMoreInteractions(dataLoader);
 
       Mockito.reset(configuration, dataLoader);
@@ -234,7 +237,7 @@ public class DataLoaderDecoratorTest {
 
     ArgumentCaptor<String[]> argumentCaptor = ArgumentCaptor.forClass(String[].class);
     Mockito.verify(dataLoader, Mockito.times(1)).setSupportedSSLCipherSuites(argumentCaptor.capture());
-    Assert.assertArrayEquals(new String[]{"sslCipherSuite1", "sslCipherSuite2"}, argumentCaptor.getValue());
+    assertArrayEquals(new String[]{"sslCipherSuite1", "sslCipherSuite2"}, argumentCaptor.getValue());
     Mockito.verifyNoMoreInteractions(dataLoader);
   }
 
@@ -249,7 +252,7 @@ public class DataLoaderDecoratorTest {
 
       ArgumentCaptor<String[]> argumentCaptor = ArgumentCaptor.forClass(String[].class);
       Mockito.verify(dataLoader, Mockito.times(1)).setSupportedSSLCipherSuites(argumentCaptor.capture());
-      Assert.assertArrayEquals(new String[]{"sslCipherSuite1", "sslCipherSuite2"}, argumentCaptor.getValue());
+      assertArrayEquals(new String[]{"sslCipherSuite1", "sslCipherSuite2"}, argumentCaptor.getValue());
       Mockito.verifyNoMoreInteractions(dataLoader);
 
       Mockito.reset(configuration, dataLoader);
@@ -280,11 +283,11 @@ public class DataLoaderDecoratorTest {
 
     ArgumentCaptor<String[]> protocolsCaptor = ArgumentCaptor.forClass(String[].class);
     Mockito.verify(dataLoader, Mockito.times(1)).setSupportedSSLProtocols(protocolsCaptor.capture());
-    Assert.assertArrayEquals(new String[]{"sslProtocol1", "sslProtocol2"}, protocolsCaptor.getValue());
+    assertArrayEquals(new String[]{"sslProtocol1", "sslProtocol2"}, protocolsCaptor.getValue());
 
     ArgumentCaptor<String[]> cipherSuitedCaptor = ArgumentCaptor.forClass(String[].class);
     Mockito.verify(dataLoader, Mockito.times(1)).setSupportedSSLCipherSuites(cipherSuitedCaptor.capture());
-    Assert.assertArrayEquals(new String[]{"sslCipherSuite1", "sslCipherSuite2"}, cipherSuitedCaptor.getValue());
+    assertArrayEquals(new String[]{"sslCipherSuite1", "sslCipherSuite2"}, cipherSuitedCaptor.getValue());
 
     Mockito.verifyNoMoreInteractions(dataLoader);
   }
@@ -314,11 +317,11 @@ public class DataLoaderDecoratorTest {
 
       ArgumentCaptor<String[]> protocolsCaptor = ArgumentCaptor.forClass(String[].class);
       Mockito.verify(dataLoader, Mockito.times(1)).setSupportedSSLProtocols(protocolsCaptor.capture());
-      Assert.assertArrayEquals(new String[]{"sslProtocol1", "sslProtocol2"}, protocolsCaptor.getValue());
+      assertArrayEquals(new String[]{"sslProtocol1", "sslProtocol2"}, protocolsCaptor.getValue());
 
       ArgumentCaptor<String[]> cipherSuitedCaptor = ArgumentCaptor.forClass(String[].class);
       Mockito.verify(dataLoader, Mockito.times(1)).setSupportedSSLCipherSuites(cipherSuitedCaptor.capture());
-      Assert.assertArrayEquals(new String[]{"sslCipherSuite1", "sslCipherSuite2"}, cipherSuitedCaptor.getValue());
+      assertArrayEquals(new String[]{"sslCipherSuite1", "sslCipherSuite2"}, cipherSuitedCaptor.getValue());
 
       Mockito.verifyNoMoreInteractions(dataLoader);
       Mockito.reset(configuration, dataLoader);
@@ -355,7 +358,7 @@ public class DataLoaderDecoratorTest {
 
     DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
     ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
-    Assert.assertNull(capturedProxyConfig);
+    assertNull(capturedProxyConfig);
   }
 
   @Test
@@ -371,7 +374,7 @@ public class DataLoaderDecoratorTest {
 
       DataLoaderDecorator.decorateWithProxySettingsFor(connectionType, dataLoader, configuration);
       ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
-      Assert.assertNull(capturedProxyConfig);
+      assertNull(capturedProxyConfig);
 
       Mockito.reset(configuration, dataLoader);
     }
@@ -391,7 +394,7 @@ public class DataLoaderDecoratorTest {
 
     DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
     ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
-    Assert.assertNull(capturedProxyConfig);
+    assertNull(capturedProxyConfig);
   }
 
   @Test
@@ -409,7 +412,7 @@ public class DataLoaderDecoratorTest {
 
       DataLoaderDecorator.decorateWithProxySettingsFor(connectionType, dataLoader, configuration);
       ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
-      Assert.assertNull(capturedProxyConfig);
+      assertNull(capturedProxyConfig);
 
       Mockito.reset(configuration, dataLoader);
     }
@@ -423,14 +426,14 @@ public class DataLoaderDecoratorTest {
 
     DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
     ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
-    Assert.assertNotNull(capturedProxyConfig.getHttpProperties());
-    Assert.assertNull(capturedProxyConfig.getHttpsProperties());
+    assertNotNull(capturedProxyConfig.getHttpProperties());
+    assertNull(capturedProxyConfig.getHttpsProperties());
 
-    Assert.assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
-    Assert.assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
-    Assert.assertNull(capturedProxyConfig.getHttpProperties().getExcludedHosts());
-    Assert.assertNull(capturedProxyConfig.getHttpProperties().getUser());
-    Assert.assertNull(capturedProxyConfig.getHttpProperties().getPassword());
+    assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
+    assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
+    assertNull(capturedProxyConfig.getHttpProperties().getExcludedHosts());
+    assertNull(capturedProxyConfig.getHttpProperties().getUser());
+    assertNull(capturedProxyConfig.getHttpProperties().getPassword());
   }
 
   @Test
@@ -442,14 +445,14 @@ public class DataLoaderDecoratorTest {
 
       DataLoaderDecorator.decorateWithProxySettingsFor(connectionType, dataLoader, configuration);
       ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
-      Assert.assertNotNull(capturedProxyConfig.getHttpProperties());
-      Assert.assertNull(capturedProxyConfig.getHttpsProperties());
+      assertNotNull(capturedProxyConfig.getHttpProperties());
+      assertNull(capturedProxyConfig.getHttpsProperties());
 
-      Assert.assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
-      Assert.assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
-      Assert.assertNull(capturedProxyConfig.getHttpProperties().getExcludedHosts());
-      Assert.assertNull(capturedProxyConfig.getHttpProperties().getUser());
-      Assert.assertNull(capturedProxyConfig.getHttpProperties().getPassword());
+      assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
+      assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
+      assertNull(capturedProxyConfig.getHttpProperties().getExcludedHosts());
+      assertNull(capturedProxyConfig.getHttpProperties().getUser());
+      assertNull(capturedProxyConfig.getHttpProperties().getPassword());
 
       Mockito.reset(configuration, dataLoader);
     }
@@ -463,14 +466,14 @@ public class DataLoaderDecoratorTest {
 
     DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
     ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
-    Assert.assertNull(capturedProxyConfig.getHttpProperties());
-    Assert.assertNotNull(capturedProxyConfig.getHttpsProperties());
+    assertNull(capturedProxyConfig.getHttpProperties());
+    assertNotNull(capturedProxyConfig.getHttpsProperties());
 
-    Assert.assertEquals(473, capturedProxyConfig.getHttpsProperties().getPort());
-    Assert.assertEquals("httpsProxyHost", capturedProxyConfig.getHttpsProperties().getHost());
-    Assert.assertNull(capturedProxyConfig.getHttpsProperties().getExcludedHosts());
-    Assert.assertNull(capturedProxyConfig.getHttpsProperties().getUser());
-    Assert.assertNull(capturedProxyConfig.getHttpsProperties().getPassword());
+    assertEquals(473, capturedProxyConfig.getHttpsProperties().getPort());
+    assertEquals("httpsProxyHost", capturedProxyConfig.getHttpsProperties().getHost());
+    assertNull(capturedProxyConfig.getHttpsProperties().getExcludedHosts());
+    assertNull(capturedProxyConfig.getHttpsProperties().getUser());
+    assertNull(capturedProxyConfig.getHttpsProperties().getPassword());
   }
 
   @Test
@@ -482,14 +485,14 @@ public class DataLoaderDecoratorTest {
 
       DataLoaderDecorator.decorateWithProxySettingsFor(connectionType, dataLoader, configuration);
       ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
-      Assert.assertNull(capturedProxyConfig.getHttpProperties());
-      Assert.assertNotNull(capturedProxyConfig.getHttpsProperties());
+      assertNull(capturedProxyConfig.getHttpProperties());
+      assertNotNull(capturedProxyConfig.getHttpsProperties());
 
-      Assert.assertEquals(473, capturedProxyConfig.getHttpsProperties().getPort());
-      Assert.assertEquals("httpsProxyHost", capturedProxyConfig.getHttpsProperties().getHost());
-      Assert.assertNull(capturedProxyConfig.getHttpsProperties().getExcludedHosts());
-      Assert.assertNull(capturedProxyConfig.getHttpsProperties().getUser());
-      Assert.assertNull(capturedProxyConfig.getHttpsProperties().getPassword());
+      assertEquals(473, capturedProxyConfig.getHttpsProperties().getPort());
+      assertEquals("httpsProxyHost", capturedProxyConfig.getHttpsProperties().getHost());
+      assertNull(capturedProxyConfig.getHttpsProperties().getExcludedHosts());
+      assertNull(capturedProxyConfig.getHttpsProperties().getUser());
+      assertNull(capturedProxyConfig.getHttpsProperties().getPassword());
 
       Mockito.reset(configuration, dataLoader);
     }
@@ -505,14 +508,14 @@ public class DataLoaderDecoratorTest {
 
     DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
     ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
-    Assert.assertNotNull(capturedProxyConfig.getHttpProperties());
-    Assert.assertNull(capturedProxyConfig.getHttpsProperties());
+    assertNotNull(capturedProxyConfig.getHttpProperties());
+    assertNull(capturedProxyConfig.getHttpsProperties());
 
-    Assert.assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
-    Assert.assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
-    Assert.assertNull(capturedProxyConfig.getHttpProperties().getExcludedHosts());
-    Assert.assertEquals("httpProxyUser", capturedProxyConfig.getHttpProperties().getUser());
-    Assert.assertArrayEquals("httpProxyPassword".toCharArray(), capturedProxyConfig.getHttpProperties().getPassword());
+    assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
+    assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
+    assertNull(capturedProxyConfig.getHttpProperties().getExcludedHosts());
+    assertEquals("httpProxyUser", capturedProxyConfig.getHttpProperties().getUser());
+    assertArrayEquals("httpProxyPassword".toCharArray(), capturedProxyConfig.getHttpProperties().getPassword());
   }
 
   @Test
@@ -526,14 +529,14 @@ public class DataLoaderDecoratorTest {
 
       DataLoaderDecorator.decorateWithProxySettingsFor(connectionType, dataLoader, configuration);
       ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
-      Assert.assertNotNull(capturedProxyConfig.getHttpProperties());
-      Assert.assertNull(capturedProxyConfig.getHttpsProperties());
+      assertNotNull(capturedProxyConfig.getHttpProperties());
+      assertNull(capturedProxyConfig.getHttpsProperties());
 
-      Assert.assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
-      Assert.assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
-      Assert.assertNull(capturedProxyConfig.getHttpProperties().getExcludedHosts());
-      Assert.assertEquals("httpProxyUser", capturedProxyConfig.getHttpProperties().getUser());
-      Assert.assertArrayEquals("httpProxyPassword".toCharArray(), capturedProxyConfig.getHttpProperties().getPassword());
+      assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
+      assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
+      assertNull(capturedProxyConfig.getHttpProperties().getExcludedHosts());
+      assertEquals("httpProxyUser", capturedProxyConfig.getHttpProperties().getUser());
+      assertArrayEquals("httpProxyPassword".toCharArray(), capturedProxyConfig.getHttpProperties().getPassword());
 
       Mockito.reset(configuration, dataLoader);
     }
@@ -549,14 +552,14 @@ public class DataLoaderDecoratorTest {
 
     DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
     ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
-    Assert.assertNull(capturedProxyConfig.getHttpProperties());
-    Assert.assertNotNull(capturedProxyConfig.getHttpsProperties());
+    assertNull(capturedProxyConfig.getHttpProperties());
+    assertNotNull(capturedProxyConfig.getHttpsProperties());
 
-    Assert.assertEquals(473, capturedProxyConfig.getHttpsProperties().getPort());
-    Assert.assertEquals("httpsProxyHost", capturedProxyConfig.getHttpsProperties().getHost());
-    Assert.assertNull(capturedProxyConfig.getHttpsProperties().getExcludedHosts());
-    Assert.assertEquals("httpsProxyUser", capturedProxyConfig.getHttpsProperties().getUser());
-    Assert.assertArrayEquals("httpsProxyPassword".toCharArray(), capturedProxyConfig.getHttpsProperties().getPassword());
+    assertEquals(473, capturedProxyConfig.getHttpsProperties().getPort());
+    assertEquals("httpsProxyHost", capturedProxyConfig.getHttpsProperties().getHost());
+    assertNull(capturedProxyConfig.getHttpsProperties().getExcludedHosts());
+    assertEquals("httpsProxyUser", capturedProxyConfig.getHttpsProperties().getUser());
+    assertArrayEquals("httpsProxyPassword".toCharArray(), capturedProxyConfig.getHttpsProperties().getPassword());
   }
 
   @Test
@@ -570,14 +573,14 @@ public class DataLoaderDecoratorTest {
 
       DataLoaderDecorator.decorateWithProxySettingsFor(connectionType, dataLoader, configuration);
       ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
-      Assert.assertNull(capturedProxyConfig.getHttpProperties());
-      Assert.assertNotNull(capturedProxyConfig.getHttpsProperties());
+      assertNull(capturedProxyConfig.getHttpProperties());
+      assertNotNull(capturedProxyConfig.getHttpsProperties());
 
-      Assert.assertEquals(473, capturedProxyConfig.getHttpsProperties().getPort());
-      Assert.assertEquals("httpsProxyHost", capturedProxyConfig.getHttpsProperties().getHost());
-      Assert.assertNull(capturedProxyConfig.getHttpsProperties().getExcludedHosts());
-      Assert.assertEquals("httpsProxyUser", capturedProxyConfig.getHttpsProperties().getUser());
-      Assert.assertArrayEquals("httpsProxyPassword".toCharArray(), capturedProxyConfig.getHttpsProperties().getPassword());
+      assertEquals(473, capturedProxyConfig.getHttpsProperties().getPort());
+      assertEquals("httpsProxyHost", capturedProxyConfig.getHttpsProperties().getHost());
+      assertNull(capturedProxyConfig.getHttpsProperties().getExcludedHosts());
+      assertEquals("httpsProxyUser", capturedProxyConfig.getHttpsProperties().getUser());
+      assertArrayEquals("httpsProxyPassword".toCharArray(), capturedProxyConfig.getHttpsProperties().getPassword());
 
       Mockito.reset(configuration, dataLoader);
     }
@@ -595,20 +598,20 @@ public class DataLoaderDecoratorTest {
 
     DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
     ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
-    Assert.assertNotNull(capturedProxyConfig.getHttpProperties());
-    Assert.assertNotNull(capturedProxyConfig.getHttpsProperties());
+    assertNotNull(capturedProxyConfig.getHttpProperties());
+    assertNotNull(capturedProxyConfig.getHttpsProperties());
 
-    Assert.assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
-    Assert.assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
-    Assert.assertNull(capturedProxyConfig.getHttpProperties().getExcludedHosts());
-    Assert.assertNull(capturedProxyConfig.getHttpProperties().getUser());
-    Assert.assertNull(capturedProxyConfig.getHttpProperties().getPassword());
+    assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
+    assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
+    assertNull(capturedProxyConfig.getHttpProperties().getExcludedHosts());
+    assertNull(capturedProxyConfig.getHttpProperties().getUser());
+    assertNull(capturedProxyConfig.getHttpProperties().getPassword());
 
-    Assert.assertEquals(473, capturedProxyConfig.getHttpsProperties().getPort());
-    Assert.assertEquals("httpsProxyHost", capturedProxyConfig.getHttpsProperties().getHost());
-    Assert.assertNull(capturedProxyConfig.getHttpsProperties().getExcludedHosts());
-    Assert.assertEquals("httpsProxyUser", capturedProxyConfig.getHttpsProperties().getUser());
-    Assert.assertArrayEquals("httpsProxyPassword".toCharArray(), capturedProxyConfig.getHttpsProperties().getPassword());
+    assertEquals(473, capturedProxyConfig.getHttpsProperties().getPort());
+    assertEquals("httpsProxyHost", capturedProxyConfig.getHttpsProperties().getHost());
+    assertNull(capturedProxyConfig.getHttpsProperties().getExcludedHosts());
+    assertEquals("httpsProxyUser", capturedProxyConfig.getHttpsProperties().getUser());
+    assertArrayEquals("httpsProxyPassword".toCharArray(), capturedProxyConfig.getHttpsProperties().getPassword());
   }
 
   @Test
@@ -624,20 +627,20 @@ public class DataLoaderDecoratorTest {
 
       DataLoaderDecorator.decorateWithProxySettingsFor(connectionType, dataLoader, configuration);
       ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
-      Assert.assertNotNull(capturedProxyConfig.getHttpProperties());
-      Assert.assertNotNull(capturedProxyConfig.getHttpsProperties());
+      assertNotNull(capturedProxyConfig.getHttpProperties());
+      assertNotNull(capturedProxyConfig.getHttpsProperties());
 
-      Assert.assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
-      Assert.assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
-      Assert.assertNull(capturedProxyConfig.getHttpProperties().getExcludedHosts());
-      Assert.assertNull(capturedProxyConfig.getHttpProperties().getUser());
-      Assert.assertNull(capturedProxyConfig.getHttpProperties().getPassword());
+      assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
+      assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
+      assertNull(capturedProxyConfig.getHttpProperties().getExcludedHosts());
+      assertNull(capturedProxyConfig.getHttpProperties().getUser());
+      assertNull(capturedProxyConfig.getHttpProperties().getPassword());
 
-      Assert.assertEquals(473, capturedProxyConfig.getHttpsProperties().getPort());
-      Assert.assertEquals("httpsProxyHost", capturedProxyConfig.getHttpsProperties().getHost());
-      Assert.assertNull(capturedProxyConfig.getHttpsProperties().getExcludedHosts());
-      Assert.assertEquals("httpsProxyUser", capturedProxyConfig.getHttpsProperties().getUser());
-      Assert.assertArrayEquals("httpsProxyPassword".toCharArray(), capturedProxyConfig.getHttpsProperties().getPassword());
+      assertEquals(473, capturedProxyConfig.getHttpsProperties().getPort());
+      assertEquals("httpsProxyHost", capturedProxyConfig.getHttpsProperties().getHost());
+      assertNull(capturedProxyConfig.getHttpsProperties().getExcludedHosts());
+      assertEquals("httpsProxyUser", capturedProxyConfig.getHttpsProperties().getUser());
+      assertArrayEquals("httpsProxyPassword".toCharArray(), capturedProxyConfig.getHttpsProperties().getPassword());
 
       Mockito.reset(configuration, dataLoader);
     }
@@ -655,20 +658,20 @@ public class DataLoaderDecoratorTest {
 
     DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
     ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
-    Assert.assertNotNull(capturedProxyConfig.getHttpProperties());
-    Assert.assertNotNull(capturedProxyConfig.getHttpsProperties());
+    assertNotNull(capturedProxyConfig.getHttpProperties());
+    assertNotNull(capturedProxyConfig.getHttpsProperties());
 
-    Assert.assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
-    Assert.assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
-    Assert.assertNull(capturedProxyConfig.getHttpProperties().getExcludedHosts());
-    Assert.assertEquals("httpProxyUser", capturedProxyConfig.getHttpProperties().getUser());
-    Assert.assertArrayEquals("httpProxyPassword".toCharArray(), capturedProxyConfig.getHttpProperties().getPassword());
+    assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
+    assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
+    assertNull(capturedProxyConfig.getHttpProperties().getExcludedHosts());
+    assertEquals("httpProxyUser", capturedProxyConfig.getHttpProperties().getUser());
+    assertArrayEquals("httpProxyPassword".toCharArray(), capturedProxyConfig.getHttpProperties().getPassword());
 
-    Assert.assertEquals(473, capturedProxyConfig.getHttpsProperties().getPort());
-    Assert.assertEquals("httpsProxyHost", capturedProxyConfig.getHttpsProperties().getHost());
-    Assert.assertNull(capturedProxyConfig.getHttpsProperties().getExcludedHosts());
-    Assert.assertNull(capturedProxyConfig.getHttpsProperties().getUser());
-    Assert.assertNull(capturedProxyConfig.getHttpsProperties().getPassword());
+    assertEquals(473, capturedProxyConfig.getHttpsProperties().getPort());
+    assertEquals("httpsProxyHost", capturedProxyConfig.getHttpsProperties().getHost());
+    assertNull(capturedProxyConfig.getHttpsProperties().getExcludedHosts());
+    assertNull(capturedProxyConfig.getHttpsProperties().getUser());
+    assertNull(capturedProxyConfig.getHttpsProperties().getPassword());
   }
 
   @Test
@@ -684,20 +687,20 @@ public class DataLoaderDecoratorTest {
 
       DataLoaderDecorator.decorateWithProxySettingsFor(connectionType, dataLoader, configuration);
       ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
-      Assert.assertNotNull(capturedProxyConfig.getHttpProperties());
-      Assert.assertNotNull(capturedProxyConfig.getHttpsProperties());
+      assertNotNull(capturedProxyConfig.getHttpProperties());
+      assertNotNull(capturedProxyConfig.getHttpsProperties());
 
-      Assert.assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
-      Assert.assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
-      Assert.assertNull(capturedProxyConfig.getHttpProperties().getExcludedHosts());
-      Assert.assertEquals("httpProxyUser", capturedProxyConfig.getHttpProperties().getUser());
-      Assert.assertArrayEquals("httpProxyPassword".toCharArray(), capturedProxyConfig.getHttpProperties().getPassword());
+      assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
+      assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
+      assertNull(capturedProxyConfig.getHttpProperties().getExcludedHosts());
+      assertEquals("httpProxyUser", capturedProxyConfig.getHttpProperties().getUser());
+      assertArrayEquals("httpProxyPassword".toCharArray(), capturedProxyConfig.getHttpProperties().getPassword());
 
-      Assert.assertEquals(473, capturedProxyConfig.getHttpsProperties().getPort());
-      Assert.assertEquals("httpsProxyHost", capturedProxyConfig.getHttpsProperties().getHost());
-      Assert.assertNull(capturedProxyConfig.getHttpsProperties().getExcludedHosts());
-      Assert.assertNull(capturedProxyConfig.getHttpsProperties().getUser());
-      Assert.assertNull(capturedProxyConfig.getHttpsProperties().getPassword());
+      assertEquals(473, capturedProxyConfig.getHttpsProperties().getPort());
+      assertEquals("httpsProxyHost", capturedProxyConfig.getHttpsProperties().getHost());
+      assertNull(capturedProxyConfig.getHttpsProperties().getExcludedHosts());
+      assertNull(capturedProxyConfig.getHttpsProperties().getUser());
+      assertNull(capturedProxyConfig.getHttpsProperties().getPassword());
 
       Mockito.reset(configuration, dataLoader);
     }
@@ -717,20 +720,20 @@ public class DataLoaderDecoratorTest {
 
     DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
     ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
-    Assert.assertNotNull(capturedProxyConfig.getHttpProperties());
-    Assert.assertNotNull(capturedProxyConfig.getHttpsProperties());
+    assertNotNull(capturedProxyConfig.getHttpProperties());
+    assertNotNull(capturedProxyConfig.getHttpsProperties());
 
-    Assert.assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
-    Assert.assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
-    Assert.assertNull(capturedProxyConfig.getHttpProperties().getExcludedHosts());
-    Assert.assertEquals("httpProxyUser", capturedProxyConfig.getHttpProperties().getUser());
-    Assert.assertArrayEquals("httpProxyPassword".toCharArray(), capturedProxyConfig.getHttpProperties().getPassword());
+    assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
+    assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
+    assertNull(capturedProxyConfig.getHttpProperties().getExcludedHosts());
+    assertEquals("httpProxyUser", capturedProxyConfig.getHttpProperties().getUser());
+    assertArrayEquals("httpProxyPassword".toCharArray(), capturedProxyConfig.getHttpProperties().getPassword());
 
-    Assert.assertEquals(473, capturedProxyConfig.getHttpsProperties().getPort());
-    Assert.assertEquals("httpsProxyHost", capturedProxyConfig.getHttpsProperties().getHost());
-    Assert.assertNull(capturedProxyConfig.getHttpsProperties().getExcludedHosts());
-    Assert.assertEquals("httpsProxyUser", capturedProxyConfig.getHttpsProperties().getUser());
-    Assert.assertArrayEquals("httpsProxyPassword".toCharArray(), capturedProxyConfig.getHttpsProperties().getPassword());
+    assertEquals(473, capturedProxyConfig.getHttpsProperties().getPort());
+    assertEquals("httpsProxyHost", capturedProxyConfig.getHttpsProperties().getHost());
+    assertNull(capturedProxyConfig.getHttpsProperties().getExcludedHosts());
+    assertEquals("httpsProxyUser", capturedProxyConfig.getHttpsProperties().getUser());
+    assertArrayEquals("httpsProxyPassword".toCharArray(), capturedProxyConfig.getHttpsProperties().getPassword());
   }
 
   @Test
@@ -748,20 +751,20 @@ public class DataLoaderDecoratorTest {
 
       DataLoaderDecorator.decorateWithProxySettingsFor(connectionType, dataLoader, configuration);
       ProxyConfig capturedProxyConfig = verifyDataLoaderProxyConfigSetAndCaptureProxyConfig();
-      Assert.assertNotNull(capturedProxyConfig.getHttpProperties());
-      Assert.assertNotNull(capturedProxyConfig.getHttpsProperties());
+      assertNotNull(capturedProxyConfig.getHttpProperties());
+      assertNotNull(capturedProxyConfig.getHttpsProperties());
 
-      Assert.assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
-      Assert.assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
-      Assert.assertNull(capturedProxyConfig.getHttpProperties().getExcludedHosts());
-      Assert.assertEquals("httpProxyUser", capturedProxyConfig.getHttpProperties().getUser());
-      Assert.assertArrayEquals("httpProxyPassword".toCharArray(), capturedProxyConfig.getHttpProperties().getPassword());
+      assertEquals(8073, capturedProxyConfig.getHttpProperties().getPort());
+      assertEquals("httpProxyHost", capturedProxyConfig.getHttpProperties().getHost());
+      assertNull(capturedProxyConfig.getHttpProperties().getExcludedHosts());
+      assertEquals("httpProxyUser", capturedProxyConfig.getHttpProperties().getUser());
+      assertArrayEquals("httpProxyPassword".toCharArray(), capturedProxyConfig.getHttpProperties().getPassword());
 
-      Assert.assertEquals(473, capturedProxyConfig.getHttpsProperties().getPort());
-      Assert.assertEquals("httpsProxyHost", capturedProxyConfig.getHttpsProperties().getHost());
-      Assert.assertNull(capturedProxyConfig.getHttpsProperties().getExcludedHosts());
-      Assert.assertEquals("httpsProxyUser", capturedProxyConfig.getHttpsProperties().getUser());
-      Assert.assertArrayEquals("httpsProxyPassword".toCharArray(), capturedProxyConfig.getHttpsProperties().getPassword());
+      assertEquals(473, capturedProxyConfig.getHttpsProperties().getPort());
+      assertEquals("httpsProxyHost", capturedProxyConfig.getHttpsProperties().getHost());
+      assertNull(capturedProxyConfig.getHttpsProperties().getExcludedHosts());
+      assertEquals("httpsProxyUser", capturedProxyConfig.getHttpsProperties().getUser());
+      assertArrayEquals("httpsProxyPassword".toCharArray(), capturedProxyConfig.getHttpsProperties().getPassword());
 
       Mockito.reset(configuration, dataLoader);
     }

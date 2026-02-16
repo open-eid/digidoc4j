@@ -1,7 +1,7 @@
 package org.digidoc4j.impl.asic;
 
 import org.digidoc4j.Configuration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.FileInputStream;
 import java.io.IOException;

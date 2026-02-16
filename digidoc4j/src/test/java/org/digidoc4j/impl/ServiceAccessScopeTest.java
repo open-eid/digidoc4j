@@ -11,13 +11,12 @@
 package org.digidoc4j.impl;
 
 import org.digidoc4j.ServiceType;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +26,11 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ServiceAccessScopeTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@ExtendWith(MockitoExtension.class)
+class ServiceAccessScopeTest {
 
   @Mock
   private ServiceAccessEvent mockedEvent;
@@ -37,13 +39,9 @@ public class ServiceAccessScopeTest {
   @Mock
   private Supplier<ServiceAccessEvent> mockedEventSupplier;
 
-  @Before
-  public void setUpMockedEventSupplier() {
-    Mockito.doReturn(mockedEvent).when(mockedEventSupplier).get();
-  }
-
   @Test
   public void listenerShouldBeNotifiedFromInsideServiceAccessScope() {
+    Mockito.doReturn(mockedEvent).when(mockedEventSupplier).get();
     try (ServiceAccessScope scope = new ServiceAccessScope(mockedListener)) {
       ServiceAccessScope.notifyExternalServiceAccessListenerIfPresent(mockedEventSupplier);
     }
@@ -91,19 +89,18 @@ public class ServiceAccessScopeTest {
       executorService.submit(() -> notifyExternalServiceAccessListenerWithoutExplicitScope(ServiceType.AIA_OCSP));
 
       Future<ThreadSafeListener> result = executorService.submit(() -> notifyExternalServiceAccessListenerInLocalScope(ServiceType.AIA_OCSP));
-      Assert.assertEquals(1, result.get().getReceivedEvents().size());
+      assertEquals(1, result.get().getReceivedEvents().size());
 
       executorService.shutdown();
-      Assert.assertTrue(
-              "Abnormal termination of " + executorService.getClass().getSimpleName(),
-              executorService.awaitTermination(10L, TimeUnit.SECONDS)
-      );
+      assertTrue(
+              executorService.awaitTermination(10L, TimeUnit.SECONDS),
+              "Abnormal termination of " + executorService.getClass().getSimpleName());
     } finally {
       executorService.shutdownNow();
     }
 
     List<ServiceAccessEvent> receivedEvents = threadSafeListener.getReceivedEvents();
-    Assert.assertEquals(2, receivedEvents.size());
+    assertEquals(2, receivedEvents.size());
 
     assertEventFromCurrentThread(ServiceType.TSP, receivedEvents.get(0));
     assertEventFromCurrentThread(ServiceType.OCSP, receivedEvents.get(1));
@@ -119,14 +116,14 @@ public class ServiceAccessScopeTest {
       notifyExternalServiceAccessListenerWithoutExplicitScope(serviceType);
     }
     List<ServiceAccessEvent> receivedEvents = threadSafeListener.getReceivedEvents();
-    Assert.assertEquals(1, receivedEvents.size());
+    assertEquals(1, receivedEvents.size());
     assertEventFromCurrentThread(serviceType, receivedEvents.get(0));
     return threadSafeListener;
   }
 
   static void assertEventFromCurrentThread(ServiceType expectedServiceType, ServiceAccessEvent actualEvent) {
-    Assert.assertEquals(Thread.currentThread().getName() + "/" + expectedServiceType, actualEvent.getServiceUrl());
-    Assert.assertEquals(expectedServiceType, actualEvent.getServiceType());
+    assertEquals(Thread.currentThread().getName() + "/" + expectedServiceType, actualEvent.getServiceUrl());
+    assertEquals(expectedServiceType, actualEvent.getServiceType());
   }
 
   static class ThreadSafeListener implements ServiceAccessListener {

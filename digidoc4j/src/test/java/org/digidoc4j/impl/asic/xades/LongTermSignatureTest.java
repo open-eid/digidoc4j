@@ -18,16 +18,18 @@ import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.TestConstants;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
-import org.junit.Assert;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LongTermSignatureTest extends AbstractTest {
 
@@ -40,7 +42,7 @@ public class LongTermSignatureTest extends AbstractTest {
 
         SignatureProfile profile = longTermSignature.getProfile();
 
-        Assert.assertEquals(SignatureProfile.LT, profile);
+        assertEquals(SignatureProfile.LT, profile);
     }
 
     @Test
@@ -49,7 +51,7 @@ public class LongTermSignatureTest extends AbstractTest {
 
         X509Cert timeStampTokenCertificate = longTermSignature.getTimeStampTokenCertificate();
 
-        Assert.assertEquals(TestConstants.DEMO_TSA_CN, timeStampTokenCertificate.getSubjectName(X509Cert.SubjectName.CN));
+        assertEquals(TestConstants.DEMO_TSA_CN, timeStampTokenCertificate.getSubjectName(X509Cert.SubjectName.CN));
     }
 
     @Test

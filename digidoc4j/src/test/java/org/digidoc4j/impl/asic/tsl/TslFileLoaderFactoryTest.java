@@ -18,11 +18,18 @@ import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.DSSFileLoaderFactory;
 import org.digidoc4j.DataLoaderFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.nio.file.Files;
 import java.util.Collections;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class TslFileLoaderFactoryTest extends AbstractTest {
 
@@ -34,23 +41,23 @@ public class TslFileLoaderFactoryTest extends AbstractTest {
     configuration.setConnectionTimeout(MOCK_TIMEOUT_CONNECTION);
     configuration.setSocketTimeout(MOCK_TIMEOUT_SOCKET);
 
-    DSSFileLoader fileLoader = new TslFileLoaderFactory(configuration, testFolder.newFolder()).create();
-    Assert.assertTrue("File loader should be of type " + FileCacheDataLoader.class.getSimpleName(), fileLoader instanceof FileCacheDataLoader);
+    DSSFileLoader fileLoader = new TslFileLoaderFactory(configuration, Files.createDirectory(testFolder.resolve("tsl")).toFile()).create();
+    assertInstanceOf(FileCacheDataLoader.class, fileLoader, "File loader should be of type " + FileCacheDataLoader.class.getSimpleName());
     FileCacheDataLoader fileCacheDataLoader = (FileCacheDataLoader) fileLoader;
 
     DataLoader nestedDataLoader = fileCacheDataLoader.getDataLoader();
-    Assert.assertTrue("Nested data loader should be of type " + CommonsDataLoader.class.getSimpleName(), nestedDataLoader instanceof CommonsDataLoader);
+    assertInstanceOf(CommonsDataLoader.class, nestedDataLoader, "Nested data loader should be of type " + CommonsDataLoader.class.getSimpleName());
     CommonsDataLoader nestedCommonsDataLoader = (CommonsDataLoader) nestedDataLoader;
 
-    Assert.assertEquals(MOCK_TIMEOUT_CONNECTION, nestedCommonsDataLoader.getTimeoutConnection());
-    Assert.assertEquals(MOCK_TIMEOUT_SOCKET, nestedCommonsDataLoader.getTimeoutSocket());
+    assertEquals(MOCK_TIMEOUT_CONNECTION, nestedCommonsDataLoader.getTimeoutConnection());
+    assertEquals(MOCK_TIMEOUT_SOCKET, nestedCommonsDataLoader.getTimeoutSocket());
 
-    Assert.assertNull(nestedCommonsDataLoader.getProxyConfig());
-    Assert.assertArrayEquals(
+    assertNull(nestedCommonsDataLoader.getProxyConfig());
+    assertArrayEquals(
             configuration.getSupportedSslCipherSuites().toArray(new String[0]),
             nestedCommonsDataLoader.getSupportedSSLCipherSuites()
     );
-    Assert.assertArrayEquals(
+    assertArrayEquals(
             configuration.getSupportedSslProtocols().toArray(new String[0]),
             nestedCommonsDataLoader.getSupportedSSLProtocols()
     );
@@ -65,20 +72,20 @@ public class TslFileLoaderFactoryTest extends AbstractTest {
     configuration.setHttpProxyUser("proxy-user");
     configuration.setHttpProxyPassword("proxy-password");
 
-    DSSFileLoader fileLoader = new TslFileLoaderFactory(configuration, testFolder.newFolder()).create();
-    Assert.assertTrue("File loader should be of type " + FileCacheDataLoader.class.getSimpleName(), fileLoader instanceof FileCacheDataLoader);
+    DSSFileLoader fileLoader = new TslFileLoaderFactory(configuration, Files.createDirectory(testFolder.resolve("tsl")).toFile()).create();
+    assertInstanceOf(FileCacheDataLoader.class, fileLoader, "File loader should be of type " + FileCacheDataLoader.class.getSimpleName());
     FileCacheDataLoader fileCacheDataLoader = (FileCacheDataLoader) fileLoader;
 
     DataLoader nestedDataLoader = fileCacheDataLoader.getDataLoader();
-    Assert.assertTrue("Nested data loader should be of type " + CommonsDataLoader.class.getSimpleName(), nestedDataLoader instanceof CommonsDataLoader);
+    assertInstanceOf(CommonsDataLoader.class, nestedDataLoader, "Nested data loader should be of type " + CommonsDataLoader.class.getSimpleName());
     CommonsDataLoader nestedCommonsDataLoader = (CommonsDataLoader) nestedDataLoader;
 
-    Assert.assertNotNull(nestedCommonsDataLoader.getProxyConfig());
-    Assert.assertArrayEquals(
+    assertNotNull(nestedCommonsDataLoader.getProxyConfig());
+    assertArrayEquals(
             configuration.getSupportedSslCipherSuites().toArray(new String[0]),
             nestedCommonsDataLoader.getSupportedSSLCipherSuites()
     );
-    Assert.assertArrayEquals(
+    assertArrayEquals(
             configuration.getSupportedSslProtocols().toArray(new String[0]),
             nestedCommonsDataLoader.getSupportedSSLProtocols()
     );
@@ -93,23 +100,23 @@ public class TslFileLoaderFactoryTest extends AbstractTest {
     configuration.setSupportedSslCipherSuites(Collections.singletonList("supported_cipher_suite"));
     configuration.setSupportedSslProtocols(Collections.singletonList("supported_ssl_protocol"));
 
-    DSSFileLoader fileLoader = new TslFileLoaderFactory(configuration, testFolder.newFolder()).create();
-    Assert.assertTrue("File loader should be of type " + FileCacheDataLoader.class.getSimpleName(), fileLoader instanceof FileCacheDataLoader);
+    DSSFileLoader fileLoader = new TslFileLoaderFactory(configuration, Files.createDirectory(testFolder.resolve("tsl")).toFile()).create();
+    assertInstanceOf(FileCacheDataLoader.class, fileLoader, "File loader should be of type " + FileCacheDataLoader.class.getSimpleName());
     FileCacheDataLoader fileCacheDataLoader = (FileCacheDataLoader) fileLoader;
 
     DataLoader nestedDataLoader = fileCacheDataLoader.getDataLoader();
-    Assert.assertTrue("Nested data loader should be of type " + CommonsDataLoader.class.getSimpleName(), nestedDataLoader instanceof CommonsDataLoader);
+    assertInstanceOf(CommonsDataLoader.class, nestedDataLoader, "Nested data loader should be of type " + CommonsDataLoader.class.getSimpleName());
     CommonsDataLoader nestedCommonsDataLoader = (CommonsDataLoader) nestedDataLoader;
 
-    Assert.assertArrayEquals(
+    assertArrayEquals(
             new String[] {"supported_cipher_suite"},
             nestedCommonsDataLoader.getSupportedSSLCipherSuites()
     );
-    Assert.assertArrayEquals(
+    assertArrayEquals(
             new String[] {"supported_ssl_protocol"},
             nestedCommonsDataLoader.getSupportedSSLProtocols()
     );
-    Assert.assertNull(nestedCommonsDataLoader.getProxyConfig());
+    assertNull(nestedCommonsDataLoader.getProxyConfig());
   }
 
   @Test
@@ -119,8 +126,8 @@ public class TslFileLoaderFactoryTest extends AbstractTest {
     Mockito.doReturn(mockFileLoader).when(mockFileLoaderFactory).create();
     configuration.setTslFileLoaderFactory(mockFileLoaderFactory);
 
-    DSSFileLoader fileLoader = new TslFileLoaderFactory(configuration, testFolder.newFolder()).create();
-    Assert.assertSame(mockFileLoader, fileLoader);
+    DSSFileLoader fileLoader = new TslFileLoaderFactory(configuration, Files.createDirectory(testFolder.resolve("tsl")).toFile()).create();
+    assertSame(mockFileLoader, fileLoader);
 
     Mockito.verify(mockFileLoaderFactory).create();
     Mockito.verifyNoMoreInteractions(mockFileLoaderFactory, mockFileLoader);
@@ -136,8 +143,8 @@ public class TslFileLoaderFactoryTest extends AbstractTest {
     DataLoaderFactory mockDataLoaderFactory = Mockito.mock(DataLoaderFactory.class);
     configuration.setTslDataLoaderFactory(mockDataLoaderFactory);
 
-    DSSFileLoader fileLoader = new TslFileLoaderFactory(configuration, testFolder.newFolder()).create();
-    Assert.assertSame(mockFileLoader, fileLoader);
+    DSSFileLoader fileLoader = new TslFileLoaderFactory(configuration, Files.createDirectory(testFolder.resolve("tsl")).toFile()).create();
+    assertSame(mockFileLoader, fileLoader);
 
     Mockito.verify(mockFileLoaderFactory).create();
     Mockito.verifyNoMoreInteractions(mockFileLoaderFactory, mockFileLoader, mockDataLoaderFactory);
@@ -150,8 +157,8 @@ public class TslFileLoaderFactoryTest extends AbstractTest {
     Mockito.doReturn(mockDataAndFileLoader).when(mockDataLoaderFactory).create();
     configuration.setTslDataLoaderFactory(mockDataLoaderFactory);
 
-    DSSFileLoader fileLoader = new TslFileLoaderFactory(configuration, testFolder.newFolder()).create();
-    Assert.assertSame(mockDataAndFileLoader, fileLoader);
+    DSSFileLoader fileLoader = new TslFileLoaderFactory(configuration, Files.createDirectory(testFolder.resolve("tsl")).toFile()).create();
+    assertSame(mockDataAndFileLoader, fileLoader);
 
     Mockito.verify(mockDataLoaderFactory).create();
     Mockito.verifyNoMoreInteractions(mockDataAndFileLoader, mockDataAndFileLoader);
@@ -164,12 +171,12 @@ public class TslFileLoaderFactoryTest extends AbstractTest {
     Mockito.doReturn(mockDataLoader).when(mockDataLoaderFactory).create();
     configuration.setTslDataLoaderFactory(mockDataLoaderFactory);
 
-    DSSFileLoader fileLoader = new TslFileLoaderFactory(configuration, testFolder.newFolder()).create();
-    Assert.assertTrue("File loader should be of type " + FileCacheDataLoader.class.getSimpleName(), fileLoader instanceof FileCacheDataLoader);
+    DSSFileLoader fileLoader = new TslFileLoaderFactory(configuration, Files.createDirectory(testFolder.resolve("tsl")).toFile()).create();
+    assertInstanceOf(FileCacheDataLoader.class, fileLoader, "File loader should be of type " + FileCacheDataLoader.class.getSimpleName());
     FileCacheDataLoader fileCacheDataLoader = (FileCacheDataLoader) fileLoader;
 
     DataLoader nestedDataLoader = fileCacheDataLoader.getDataLoader();
-    Assert.assertSame(mockDataLoader, nestedDataLoader);
+    assertSame(mockDataLoader, nestedDataLoader);
 
     Mockito.verify(mockDataLoaderFactory).create();
     Mockito.verifyNoMoreInteractions(mockDataLoaderFactory, mockDataLoader);

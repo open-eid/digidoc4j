@@ -50,8 +50,8 @@ import org.digidoc4j.test.TestSignatureToken;
 import org.digidoc4j.test.util.TestCertificateUtil;
 import org.digidoc4j.test.util.TestKeyPairUtil;
 import org.digidoc4j.test.util.TestOcspUtil;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -66,7 +66,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.matchesRegex;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Description of tests by their suffix:
@@ -90,7 +90,7 @@ public class IncompleteSigningTest extends AbstractTest {
   private static final String TECHNICAL_EXCEPTION_TSP_MESSAGE_PART_TEMPLATE = "Got error in signing process: Failed to POST URL: %s";
   private static final String TSL_REFRESH_EXCEPTION_MESSAGE_PART = "Failed to download LoTL";
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpStatic() {
     Security.addProvider(new BouncyCastleProvider());
   }

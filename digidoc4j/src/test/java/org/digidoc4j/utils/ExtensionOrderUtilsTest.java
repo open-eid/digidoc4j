@@ -11,7 +11,7 @@
 package org.digidoc4j.utils;
 
 import org.digidoc4j.SignatureProfile;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,8 +23,8 @@ import static org.digidoc4j.SignatureProfile.LT_TM;
 import static org.digidoc4j.SignatureProfile.T;
 import static org.digidoc4j.SignatureProfile.LT;
 import static org.digidoc4j.SignatureProfile.LTA;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 public class ExtensionOrderUtilsTest {

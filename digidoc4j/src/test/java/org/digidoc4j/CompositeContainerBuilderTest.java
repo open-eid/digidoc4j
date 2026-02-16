@@ -18,8 +18,7 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotYetImplementedException;
 import org.digidoc4j.test.TestConstants;
 import org.digidoc4j.utils.ContainerUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -36,8 +35,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -615,7 +614,7 @@ public class CompositeContainerBuilderTest {
               compositeContainer.getNestedContainerDataFiles().get(i).getMediaType(),
               equalTo(nestedContainer.getDataFiles().get(i).getMediaType())
       );
-      Assert.assertArrayEquals(
+      assertArrayEquals(
               nestedContainer.getDataFiles().get(i).getBytes(),
               compositeContainer.getNestedContainerDataFiles().get(i).getBytes()
       );

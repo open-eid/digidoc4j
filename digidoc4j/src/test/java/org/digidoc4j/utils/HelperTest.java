@@ -10,6 +10,13 @@
 
 package org.digidoc4j.utils;
 
+import org.apache.commons.io.FileUtils;
+import org.digidoc4j.AbstractTest;
+import org.digidoc4j.Container;
+import org.digidoc4j.ContainerBuilder;
+import org.digidoc4j.exceptions.DigiDoc4JException;
+import org.junit.jupiter.api.Test;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -18,68 +25,66 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.io.FileUtils;
-import org.digidoc4j.*;
-import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HelperTest extends AbstractTest {
 
   @Test
-  public void testIsXMLFileWhenFileIsNotXMLFile() throws Exception {
-    Assert.assertFalse(Helper.isXMLFile(new File("src/test/resources/testFiles/helper-files/test.txt")));
+  void testIsXMLFileWhenFileIsNotXMLFile() throws Exception {
+    assertFalse(Helper.isXMLFile(new File("src/test/resources/testFiles/helper-files/test.txt")));
   }
 
   @Test
   public void testIsXMLFileWhenFileIsXMLFile() throws Exception {
-    Assert.assertTrue(Helper.isXMLFile(new File(this.createXMLFile())));
+    assertTrue(Helper.isXMLFile(new File(createXMLFile())));
   }
 
   @Test
   public void testIsZIPFileWhenFileIsNotZIPFile() throws Exception {
-    Assert.assertFalse(Helper.isZipFile(new File("src/test/resources/testFiles/helper-files/test.txt")));
+    assertFalse(Helper.isZipFile(new File("src/test/resources/testFiles/helper-files/test.txt")));
   }
 
   @Test
   public void testIsZIPFileWhenFileIsZIPFile() throws Exception {
-    String file = this.getFileBy("zip");
+    String file = getFileBy("zip");
     try (FileOutputStream stream = new FileOutputStream(file)) {
       ZipOutputStream zipStream = new ZipOutputStream(stream);
       zipStream.putNextEntry(new ZipEntry("src/test/resources/testFiles/helper-files/test.txt"));
       zipStream.closeEntry();
-      Assert.assertTrue(Helper.isZipFile(new File(file)));
+      assertTrue(Helper.isZipFile(new File(file)));
     }
   }
 
   @Test
   public void testDeleteFileIfExists() throws Exception {
-    String filePath = this.getFileBy("txt", true);
+    String filePath = getFileBy("txt", true);
     File file = new File(filePath);
-    Assert.assertTrue(file.exists());
+    assertTrue(file.exists());
     Helper.deleteFile(filePath);
-    Assert.assertFalse(file.exists());
+    assertFalse(file.exists());
   }
 
   @Test
   public void testDeleteFileIfNotExists() throws Exception {
     Helper.deleteFile("testDeleteNotExists.txt");
-    Assert.assertFalse(new File("testDeleteNotExists.txt").exists());
+    assertFalse(new File("testDeleteNotExists.txt").exists());
   }
 
   @Test
   public void extractSignatureS0() throws Exception {
-    Assert.assertEquals("A", Helper.extractSignature(this.createZIPFile(), 0));
+    assertEquals("A", Helper.extractSignature(createZIPFile(), 0));
   }
 
   @Test
   public void extractSignatureS1() throws Exception {
-    Assert.assertEquals("B", Helper.extractSignature(this.createZIPFile(), 1));
+    assertEquals("B", Helper.extractSignature(createZIPFile(), 1));
   }
 
   @Test(expected = IOException.class)
   public void extractSignatureThrowsErrorWhenSignatureIsNotFound() throws Exception {
-    String file = this.getFileBy("zip");
+    String file = getFileBy("zip");
     try (
         FileOutputStream fileStream = new FileOutputStream(file);
         ZipOutputStream zipStream = new ZipOutputStream(fileStream)) {
@@ -101,14 +106,13 @@ public class HelperTest extends AbstractTest {
     Helper.serialize(ContainerBuilder.aContainer().build(), (File) null);
   }
 
-
   @Test
   public void testSaveFileNamesFromString() {
     String pathToContainer = "src/test/resources/testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc";
     String folder = this.testFolder.getRoot().getPath();
     Helper.saveAllFilesFromContainerPathToFolder(pathToContainer, folder);
-    Assert.assertTrue(new File(folder + File.separator + "DigiDocService_spec_est.pdf").exists());
-    Assert.assertTrue(new File(folder + File.separator + "sample_file.pdf").exists());
+    assertTrue(new File(folder + File.separator + "DigiDocService_spec_est.pdf").exists());
+    assertTrue(new File(folder + File.separator + "sample_file.pdf").exists());
   }
 
   @Test
@@ -117,25 +121,25 @@ public class HelperTest extends AbstractTest {
         fromExistingFile("src/test/resources/testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc").build();
     String folder = this.testFolder.getRoot().getPath();
     Helper.saveAllFilesFromContainerToFolder(container, folder);
-    Assert.assertTrue(new File(folder + File.separator + "DigiDocService_spec_est.pdf").exists());
-    Assert.assertTrue(new File(folder + File.separator + "sample_file.pdf").exists());
+    assertTrue(new File(folder + File.separator + "DigiDocService_spec_est.pdf").exists());
+    assertTrue(new File(folder + File.separator + "sample_file.pdf").exists());
   }
 
   @Test
   public void testGetFilesFromString() {
-    Container container = ContainerBuilder.        aContainer().
+    Container container = ContainerBuilder.aContainer().
         fromExistingFile("src/test/resources/testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc").        build();
     String folder = this.testFolder.getRoot().getPath();
     String helperFolder = "src/test/resources/testFiles/helper-files";
     List<byte[]> files = Helper.getAllFilesFromContainerAsBytes(container);
-    Assert.assertEquals(2, files.size());
+    assertEquals(2, files.size());
     try {
       FileUtils.writeByteArrayToFile(new File(folder + File.separator + "DigiDocService_spec_est.pdf"), files.get(0));
       FileUtils.writeByteArrayToFile(new File(folder + File.separator + "sample_file.pdf"), files.get(1));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    this.compareFileSize(folder, helperFolder);
+    compareFileSize(folder, helperFolder);
   }
 
   @Test
@@ -144,20 +148,20 @@ public class HelperTest extends AbstractTest {
     String folder = this.testFolder.getRoot().getPath();
     String helperFolder = "src/test/resources/testFiles/helper-files";
     List<byte[]> files = Helper.getAllFilesFromContainerPathAsBytes(containerFile);
-    Assert.assertEquals(2, files.size());
+    assertEquals(2, files.size());
     try {
       FileUtils.writeByteArrayToFile(new File(folder + File.separator + "DigiDocService_spec_est.pdf"), files.get(0));
       FileUtils.writeByteArrayToFile(new File(folder + File.separator + "sample_file.pdf"), files.get(1));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    this.compareFileSize(folder, helperFolder);
+    compareFileSize(folder, helperFolder);
   }
 
   @Test
   public void testPDFContainer() {
-    Assert.assertTrue(Helper.isPdfFile("src/test/resources/testFiles/invalid-containers/EE_AS-P-BpLT-V-009.pdf"));
-    Assert.assertFalse(Helper.isPdfFile("src/test/resources/testFiles/valid-containers/one_signature.bdoc"));
+    assertTrue(Helper.isPdfFile("src/test/resources/testFiles/invalid-containers/EE_AS-P-BpLT-V-009.pdf"));
+    assertFalse(Helper.isPdfFile("src/test/resources/testFiles/valid-containers/one_signature.bdoc"));
   }
 
   /*
@@ -165,7 +169,7 @@ public class HelperTest extends AbstractTest {
    */
 
   private String createXMLFile() throws IOException {
-    String xmlFile = this.getFileBy("xml", true);
+    String xmlFile = getFileBy("xml", true);
     try (FileWriter writer = new FileWriter(xmlFile)) {
       writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?><test></test>");
       writer.flush();
@@ -174,7 +178,7 @@ public class HelperTest extends AbstractTest {
   }
 
   private String createZIPFile() throws IOException {
-    String zipFile = this.getFileBy("zip", true);
+    String zipFile = getFileBy("zip", true);
     try (FileOutputStream stream = new FileOutputStream(zipFile);
          ZipOutputStream zipStream = new ZipOutputStream(stream)) {
       ZipEntry signature0 = new ZipEntry("META-INF/signatures0.xml");
@@ -194,10 +198,10 @@ public class HelperTest extends AbstractTest {
     File helperFile2 = new File(helperFolder + File.separator + "sample_file.pdf");
     File file1 = new File(folder + File.separator + "DigiDocService_spec_est.pdf");
     File file2 = new File(folder + File.separator + "sample_file.pdf");
-    Assert.assertEquals(FileUtils.sizeOf(helperFile1), FileUtils.sizeOf(file1));
-    Assert.assertEquals(FileUtils.sizeOf(helperFile2), FileUtils.sizeOf(file2));
-    Assert.assertTrue(file1.exists());
-    Assert.assertTrue(file2.exists());
+    assertEquals(FileUtils.sizeOf(helperFile1), FileUtils.sizeOf(file1));
+    assertEquals(FileUtils.sizeOf(helperFile2), FileUtils.sizeOf(file2));
+    assertTrue(file1.exists());
+    assertTrue(file2.exists());
   }
 
 }

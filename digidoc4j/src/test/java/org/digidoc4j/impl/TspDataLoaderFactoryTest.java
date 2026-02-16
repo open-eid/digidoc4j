@@ -17,9 +17,11 @@ import org.digidoc4j.Constant;
 import org.digidoc4j.DataLoaderFactory;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class TspDataLoaderFactoryTest extends AbstractTest {
 
@@ -29,14 +31,14 @@ public class TspDataLoaderFactoryTest extends AbstractTest {
   public void testDefaultTspDataLoaderCreatedWhenCustomDataLoaderNotConfigured() {
     DataLoader dataLoader = new TspDataLoaderFactory(configuration).create();
     MatcherAssert.assertThat(dataLoader, Matchers.instanceOf(SkTimestampDataLoader.class));
-    Assert.assertEquals(Constant.USER_AGENT_STRING, ((SkTimestampDataLoader) dataLoader).getUserAgent());
+    assertEquals(Constant.USER_AGENT_STRING, ((SkTimestampDataLoader) dataLoader).getUserAgent());
   }
 
   @Test
   public void testDefaultTspDataLoaderCreatedWhenCustomDataLoaderNotConfiguredAndCustomUserAgentSpecified() {
     DataLoader dataLoader = new TspDataLoaderFactory(configuration, MOCK_USER_AGENT_VALUE).create();
     MatcherAssert.assertThat(dataLoader, Matchers.instanceOf(SkTimestampDataLoader.class));
-    Assert.assertEquals(MOCK_USER_AGENT_VALUE, ((SkTimestampDataLoader) dataLoader).getUserAgent());
+    assertEquals(MOCK_USER_AGENT_VALUE, ((SkTimestampDataLoader) dataLoader).getUserAgent());
   }
 
   @Test
@@ -47,7 +49,7 @@ public class TspDataLoaderFactoryTest extends AbstractTest {
 
     configuration.setTspDataLoaderFactory(mockDataLoaderFactory);
     DataLoader dataLoader = new TspDataLoaderFactory(configuration, MOCK_USER_AGENT_VALUE).create();
-    Assert.assertSame(mockDataLoader, dataLoader);
+    assertSame(mockDataLoader, dataLoader);
 
     Mockito.verify(mockDataLoaderFactory, Mockito.times(1)).create();
     Mockito.verifyNoMoreInteractions(mockDataLoaderFactory, mockDataLoader);

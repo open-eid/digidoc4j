@@ -20,10 +20,8 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.ServiceType;
 import org.digidoc4j.exceptions.ConnectionTimedOutException;
 import org.digidoc4j.exceptions.ServiceAccessDeniedException;
-import org.junit.After;
-import org.junit.Assert;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -33,12 +31,13 @@ import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static org.digidoc4j.Configuration.Mode.TEST;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class SkTimestampDataLoaderTest extends AbstractTest {
 
@@ -143,9 +142,9 @@ public class SkTimestampDataLoaderTest extends AbstractTest {
     dataLoader.setUserAgent(USER_AGENT_STRING);
     String serviceUrl = MOCK_PROXY_URL + instanceRule.port() + "/";
     byte[] response = dataLoader.post(serviceUrl, tsRequest);
-    Assert.assertNotNull(response);
+    assertNotNull(response);
     TimeStampResponse timeStampResponse = new TimeStampResponse(response);
-    Assert.assertEquals(0, timeStampResponse.getStatus());
+    assertEquals(0, timeStampResponse.getStatus());
     timeStampResponse.validate(new TimeStampRequest(tsRequest));
     WireMock.verify(postRequestedFor(urlMatching("/"))
           .withHeader("Content-Type", containing("application/timestamp-query"))

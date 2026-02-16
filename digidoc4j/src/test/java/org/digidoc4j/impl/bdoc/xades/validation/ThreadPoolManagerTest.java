@@ -25,8 +25,12 @@ import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.impl.asic.xades.validation.ThreadPoolManager;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class ThreadPoolManagerTest extends AbstractTest {
 
@@ -34,46 +38,46 @@ public class ThreadPoolManagerTest extends AbstractTest {
 
   @Test
   public void getDefaultThreadExecutor() throws Exception {
-    Assert.assertNotNull(this.manager.getThreadExecutor());
+    assertNotNull(manager.getThreadExecutor());
   }
 
   @Test
   public void setDefaultThreadExecutor() throws Exception {
     ExecutorService executor = Executors.newSingleThreadExecutor();
     ThreadPoolManager.setDefaultThreadExecutor(executor);
-    Assert.assertSame(executor, this.manager.getThreadExecutor());
+    assertSame(executor, manager.getThreadExecutor());
   }
 
   @Test
   public void setThreadExecutorInConfiguration() throws Exception {
     ExecutorService executor = Executors.newSingleThreadExecutor();
-    this.configuration.setThreadExecutor(executor);
-    Assert.assertSame(executor, this.manager.getThreadExecutor());
+    configuration.setThreadExecutor(executor);
+    assertSame(executor, manager.getThreadExecutor());
   }
 
   @Test
   public void submitTaskToThreadExecutorSetInConfiguration() throws Exception {
     CustomExecutorService executor = new CustomExecutorService();
-    this.configuration.setThreadExecutor(executor);
+    configuration.setThreadExecutor(executor);
     Callable callable = new Callable<Object>() {
 
       @Override
-      public Object call() throws Exception {
+      public Object call() {
         return null;
       }
 
     };
-    this.manager.submit(callable);
-    Assert.assertSame(callable, executor.getTasks().get(0));
+    manager.submit(callable);
+    assertSame(callable, executor.getTasks().get(0));
   }
 
   @Test
   public void validateContainerWithCustomThreadExecutor() throws Exception {
     CustomExecutorService executor = new CustomExecutorService();
-    this.configuration.setThreadExecutor(executor);
-    SignatureValidationResult result = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/invalid-containers/two_signatures.bdoc"), this.configuration).validate();
-    Assert.assertFalse(result.isValid());
-    Assert.assertEquals(2, executor.getTasks().size());  //Two signatures must be validated within a thread pool
+    configuration.setThreadExecutor(executor);
+    SignatureValidationResult result = openContainerByConfiguration(Paths.get("src/test/resources/testFiles/invalid-containers/two_signatures.bdoc"), configuration).validate();
+    assertFalse(result.isValid());
+    assertEquals(2, executor.getTasks().size());  //Two signatures must be validated within a thread pool
   }
 
   /*
@@ -82,8 +86,8 @@ public class ThreadPoolManagerTest extends AbstractTest {
 
   @Override
   protected void before() {
-    this.configuration = new Configuration(Configuration.Mode.TEST);
-    this.manager = new ThreadPoolManager(this.configuration);
+    configuration = new Configuration(Configuration.Mode.TEST);
+    manager = new ThreadPoolManager(configuration);
   }
 
   private static class CustomExecutorService extends ThreadPoolExecutor {
@@ -96,7 +100,7 @@ public class ThreadPoolManagerTest extends AbstractTest {
 
     @Override
     public <T> Future<T> submit(Callable<T> task) {
-      this.tasks.add(task);
+      tasks.add(task);
       return super.submit(task);
     }
 

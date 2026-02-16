@@ -22,7 +22,7 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
-import org.digidoc4j.SignatureValidationResult;
+import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.ddoc.utils.ConfigManager;
 import org.digidoc4j.exceptions.IllegalContainerContentException;
 import org.digidoc4j.exceptions.IllegalTimestampException;
@@ -35,23 +35,26 @@ import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.TestConstants;
 import org.digidoc4j.test.util.TestSigningUtil;
 import org.hamcrest.core.StringContains;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.contrib.java.lang.system.SystemOutRule;
+import org.junit.jupiter.api.Test;
 
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import static org.digidoc4j.main.TestDigiDoc4JUtil.invokeDigiDoc4jAndReturnExitStatus;
+import static org.digidoc4j.main.TestDigiDoc4JUtil.invokeDigiDoc4jAndReturnInvocationResult;
+import static org.digidoc4j.test.TestAssert.assertContainerIsValid;
+import static org.digidoc4j.test.TestAssert.assertContainsExactSetOfErrors;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Created by Andrei on 22.11.2017.
@@ -66,19 +69,19 @@ public class TimeStampTokenTest extends AbstractTest {
 
   @Test
   public void buildTimestampedContainer_ReadFromFile_ValidationSuccess() {
-    Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(this.configuration).
+    Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(configuration).
         withDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain").
         withTimeStampToken(DigestAlgorithm.SHA256).build();
-    container.saveAsFile(this.getFileBy("asics"));
-    TestAssert.assertContainerIsValid(container);
+    container.saveAsFile(getFileBy("asics"));
+    assertContainerIsValid(container);
     assertNotNull(container.getTimeStampToken());
   }
 
   @Test
   public void buildTimestampedContainer_ReadFromFile_ValidAndHasTimestampToken() {
-    Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(this.configuration).
+    Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(configuration).
         fromExistingFile("src/test/resources/testFiles/valid-containers/testtimestamp.asics").build();
-    TestAssert.assertContainerIsValid(container);
+    assertContainerIsValid(container);
     assertNotNull(container.getTimeStampToken());
     assertEquals(2001, container.getTimeStampToken().getBytes().length);
   }
@@ -95,10 +98,10 @@ public class TimeStampTokenTest extends AbstractTest {
         fromExistingFile("src/test/resources/testFiles/valid-containers/timestamptoken-ddoc.asics").build();
     AsicCompositeContainerValidationResult validationResult = (AsicCompositeContainerValidationResult) container.validate();
     TimeStampContainerValidationResult timestampValidationResult = (TimeStampContainerValidationResult) validationResult.getNestingContainerValidationResult();
-    Assert.assertEquals(TestConstants.SK_TSA_CN, timestampValidationResult.getSignedBy());
-    Assert.assertEquals(Indication.TOTAL_PASSED, timestampValidationResult.getIndication());
-    TestAssert.assertContainerIsValid(validationResult);
-    TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
+    assertEquals(TestConstants.SK_TSA_CN, timestampValidationResult.getSignedBy());
+    assertEquals(Indication.TOTAL_PASSED, timestampValidationResult.getIndication());
+    assertContainerIsValid(validationResult);
+    assertContainsExactSetOfErrors(validationResult.getWarnings(),
             "The certificate is not related to a granted status at time-stamp lowest POE time!");
   }
 
@@ -107,16 +110,16 @@ public class TimeStampTokenTest extends AbstractTest {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(configuration).
             fromExistingFile("src/test/resources/testFiles/valid-containers/1xTST-text-data-file.asics").build();
     TimeStampContainerValidationResult validate = (TimeStampContainerValidationResult) container.validate();
-    Assert.assertEquals(TestConstants.DEMO_SK_TSA_2023E_CN, validate.getSignedBy());
-    Assert.assertEquals(Indication.TOTAL_PASSED, validate.getIndication());
-    TestAssert.assertContainerIsValid(validate);
+    assertEquals(TestConstants.DEMO_SK_TSA_2023E_CN, validate.getSignedBy());
+    assertEquals(Indication.TOTAL_PASSED, validate.getIndication());
+    assertContainerIsValid(validate);
   }
 
   @Test
   public void openTimestampedContainer_WhenContainerContainsTwoDataFiles_ThrowsIllegalContainerContentException() {
     ContainerBuilder builder = ContainerBuilder
             .aContainer(Container.DocumentType.ASICS)
-            .withConfiguration(this.configuration)
+            .withConfiguration(configuration)
             .fromExistingFile("src/test/resources/testFiles/invalid-containers/timestamptoken-two-data-files.asics");
 
     IllegalContainerContentException caughtException = assertThrows(
@@ -134,7 +137,7 @@ public class TimeStampTokenTest extends AbstractTest {
   public void validateTimestampedContainer_WhenContainerContainsInvalidTimestampToken_ThrowsIllegalTimestampException() {
     Container container = ContainerBuilder
             .aContainer(Container.DocumentType.ASICS)
-            .withConfiguration(this.configuration)
+            .withConfiguration(configuration)
             .fromExistingFile("src/test/resources/testFiles/invalid-containers/timestamptoken-invalid.asics")
             .build();
 
@@ -152,49 +155,59 @@ public class TimeStampTokenTest extends AbstractTest {
       TimestampToken token = new TimestampToken(Utils.toByteArray(fis), TimestampType.ARCHIVE_TIMESTAMP);
       assertNotNull(token);
       assertNotNull(token.getGenerationTime());
-      Assert.assertTrue(Utils.isCollectionNotEmpty(token.getCertificates()));
+      assertTrue(Utils.isCollectionNotEmpty(token.getCertificates()));
       assertNull(token.getSignatureAlgorithm());
-      Assert.assertTrue(token.isSignedBy(token.getCertificates().get(0)));
+      assertTrue(token.isSignedBy(token.getCertificates().get(0)));
       assertNotNull(token.getSignatureAlgorithm());
-      Assert.assertEquals(TimestampType.ARCHIVE_TIMESTAMP, token.getTimeStampType());
-      Assert.assertEquals(DigestAlgorithm.SHA256, token.getMessageImprint().getAlgorithm());
-      Assert.assertEquals(SignatureAlgorithm.RSA_SHA512, token.getSignatureAlgorithm());
-      Assert.assertTrue(Utils.isStringNotBlank(Utils.toBase64(token.getMessageImprint().getValue())));
-      Assert.assertFalse(token.isSelfSigned());
-      Assert.assertFalse(token.matchData(new byte[]{1, 2, 3}));
-      Assert.assertTrue(token.isMessageImprintDataFound());
-      Assert.assertFalse(token.isMessageImprintDataIntact());
-      Assert.assertTrue(token.isMessageImprintDataFound());
+      assertEquals(TimestampType.ARCHIVE_TIMESTAMP, token.getTimeStampType());
+      assertEquals(DigestAlgorithm.SHA256, token.getMessageImprint().getAlgorithm());
+      assertEquals(SignatureAlgorithm.RSA_SHA512, token.getSignatureAlgorithm());
+      assertTrue(Utils.isStringNotBlank(Utils.toBase64(token.getMessageImprint().getValue())));
+      assertFalse(token.isSelfSigned());
+      assertFalse(token.matchData(new byte[]{1, 2, 3}));
+      assertTrue(token.isMessageImprintDataFound());
+      assertFalse(token.isMessageImprintDataIntact());
+      assertTrue(token.isMessageImprintDataFound());
     }
   }
 
   @Test
   public void createASICSContainerWithTst_AddOneDataFile_ValidationSuccess() throws Exception {
-    String fileName = this.getFileBy("asics");
+    String fileName = getFileBy("asics");
     String[] parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-datst", "SHA256", "-tst"};
     int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
     assertEquals(0, caughtExitStatus);
-    ZipFile zipFile = new ZipFile(fileName);
-    ZipEntry mimeTypeEntry = zipFile.getEntry(ManifestValidator.MIMETYPE_PATH);
-    ZipEntry manifestEntry = zipFile.getEntry(ManifestValidator.MANIFEST_PATH);
-    ZipEntry timestampEntry = zipFile.getEntry(META_INF_TIMESTAMP_TST);
-    assertNotNull(mimeTypeEntry);
-    assertNotNull(manifestEntry);
-    assertNotNull(timestampEntry);
-    String mimeTypeContent = this.getFileContent(zipFile.getInputStream(mimeTypeEntry));
-    Assert.assertTrue(mimeTypeContent.contains(MimeTypeEnum.ASICS.getMimeTypeString()));
-    String manifestContent = this.getFileContent(zipFile.getInputStream(manifestEntry));
-    Assert.assertTrue(manifestContent.contains(MimeTypeEnum.ASICS.getMimeTypeString()));
+
+    try (ZipFile zipFile = new ZipFile(fileName)) {
+      ZipEntry mimeTypeEntry = zipFile.getEntry(ManifestValidator.MIMETYPE_PATH);
+      ZipEntry manifestEntry = zipFile.getEntry(ManifestValidator.MANIFEST_PATH);
+      ZipEntry timestampEntry = zipFile.getEntry(META_INF_TIMESTAMP_TST);
+
+      assertNotNull(mimeTypeEntry);
+      assertNotNull(manifestEntry);
+      assertNotNull(timestampEntry);
+
+      try (InputStream mimeStream = zipFile.getInputStream(mimeTypeEntry)) {
+        String mimeTypeContent = getFileContent(mimeStream);
+        assertTrue(mimeTypeContent.contains(MimeTypeEnum.ASICS.getMimeTypeString()));
+      }
+
+      try (InputStream manifestStream = zipFile.getInputStream(manifestEntry)) {
+        String manifestContent = getFileContent(manifestStream);
+        assertTrue(manifestContent.contains(MimeTypeEnum.ASICS.getMimeTypeString()));
+      }
+    }
+
     Container container = ContainerOpener.open(fileName);
-    SignatureValidationResult validate = container.validate();
-    Assert.assertTrue(validate.isValid());
-    Assert.assertEquals("ASICS", container.getType());
+    ContainerValidationResult validate = container.validate();
+    assertContainerIsValid(validate);
+    assertEquals("ASICS", container.getType());
   }
 
   @Test
   public void createASICSContainerWithTst_AddDataFileAndTimestampTwice_Error() {
-    String fileName = this.getFileBy("asics");
+    String fileName = getFileBy("asics");
     String[] parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-datst", "SHA256", "-tst"};
     int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
@@ -210,7 +223,7 @@ public class TimeStampTokenTest extends AbstractTest {
 
   @Test
   public void createASICSContainerWithTst_AddDataFileTwice_Error() {
-    String fileName = this.getFileBy("asics");
+    String fileName = getFileBy("asics");
     String[] parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-datst", "SHA256", "-tst"};
     int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
@@ -226,22 +239,22 @@ public class TimeStampTokenTest extends AbstractTest {
 
   @Test
   public void createASICSContainerWithTst_AddTimestampTwice_Success() {
-    String fileName = this.getFileBy("asics");
     int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-tst");
     assertEquals(0, caughtExitStatus);
+    String fileName = getFileBy("asics");
 
     caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-tst");
     assertEquals(0, caughtExitStatus);
 
     Container container = ContainerOpener.open(fileName);
-    Assert.assertTrue(container.validate().isValid());
-    Assert.assertEquals(2, container.getTimestamps().size());
-    Assert.assertEquals("ASICS", container.getType());
+    assertTrue(container.validate().isValid());
+    assertEquals(2, container.getTimestamps().size());
+    assertEquals("ASICS", container.getType());
   }
 
   @Test
   public void createASICSContainerWithTst_SpecifyCustomTspSource_SpecifiedTspUsed() {
-    String fileName = this.getFileBy("asics");
+    String fileName = getFileBy("asics");
     String tspSource = TestConstants.DEMO_TSA_RSA_URL;
 
     int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-tspsourcearchive", tspSource, "-tst");
@@ -249,13 +262,13 @@ public class TimeStampTokenTest extends AbstractTest {
     assertEquals(0, caughtExitStatus);
     assertThat(this.stdOut.getLog(), StringContains.containsString("Following properties will be used for timestamping: TSP Source " + tspSource));
     Container container = ContainerOpener.open(fileName);
-    Assert.assertTrue(container.validate().isValid());
-    Assert.assertEquals(1, container.getTimestamps().size());
+    assertTrue(container.validate().isValid());
+    assertEquals(1, container.getTimestamps().size());
   }
 
   @Test
   public void createASICSContainerWithTst_SpecifyCustomNonRoutableTspSource_ErrorCallingTSP() {
-    String fileName = this.getFileBy("asics");
+    String fileName = getFileBy("asics");
     String tspSource = "http://10.255.255.1/";
 
     int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-tspsourcearchive", tspSource, "-tst");
@@ -271,7 +284,7 @@ public class TimeStampTokenTest extends AbstractTest {
   public void createASICSContainerWithTst_SpecifyDigestAlgo_SpecifiedDigestAlgoUsed() {
     String digestAlgo = "SHA384";
     String refDigestAlgo = "SHA224";
-    String fileName = this.getFileBy("asics");
+    String fileName = getFileBy("asics");
 
     invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-add", "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-tst", "-datst", digestAlgo);
     assertThat(this.stdOut.getLog(), StringContains.containsString("timestamp digest algorithm " + digestAlgo));
@@ -282,26 +295,26 @@ public class TimeStampTokenTest extends AbstractTest {
     assertThat(this.stdOut.getLog(), StringContains.containsString("reference digest algorithm " + refDigestAlgo));
 
     Container container = ContainerOpener.open(fileName);
-    Assert.assertTrue(container.validate().isValid());
-    Assert.assertEquals(2, container.getTimestamps().size());
-    Assert.assertEquals("ASICS", container.getType());
+    assertTrue(container.validate().isValid());
+    assertEquals(2, container.getTimestamps().size());
+    assertEquals("ASICS", container.getType());
 
     assertEquals(org.digidoc4j.DigestAlgorithm.SHA384, container.getTimestamps().get(0).getDigestAlgorithm());
     assertEquals(org.digidoc4j.DigestAlgorithm.SHA512, container.getTimestamps().get(1).getDigestAlgorithm());
 
     AsicArchiveManifest firstTSArchiveManifest = ((AsicSContainerTimestamp) container.getTimestamps().get(0)).getArchiveManifest();
-    Assert.assertNull(firstTSArchiveManifest);
+    assertNull(firstTSArchiveManifest);
 
     AsicArchiveManifest secondTSArchiveManifest = ((AsicSContainerTimestamp) container.getTimestamps().get(1)).getArchiveManifest();
-    Assert.assertNotNull(secondTSArchiveManifest);
+    assertNotNull(secondTSArchiveManifest);
     for (AsicArchiveManifest.DataReference ref : secondTSArchiveManifest.getReferencedDataObjects()) {
-      Assert.assertEquals(org.digidoc4j.DigestAlgorithm.valueOf(refDigestAlgo).toString(), ref.getDigestAlgorithm());
+      assertEquals(org.digidoc4j.DigestAlgorithm.valueOf(refDigestAlgo).toString(), ref.getDigestAlgorithm());
     }
   }
 
   @Test
   public void addPKCS12Signature_ContainerAlreadyTimestamped_Error() {
-    String fileName = this.getFileBy("asics");
+    String fileName = getFileBy("asics");
     String[] parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-datst", "SHA256", "-tst"};
     int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
@@ -317,7 +330,7 @@ public class TimeStampTokenTest extends AbstractTest {
 
   @Test
   public void addPKCS12Signature_ContainerTypeIsASICS_Error() {
-    String fileName = this.getFileBy("asics");
+    String fileName = getFileBy("asics");
     String[] parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/dds_колючей стерне.txt",
         "text/plain", "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD};
     int caughtExitStatus = invokeDigiDoc4jAndReturnExitStatus(parameters);
@@ -331,7 +344,7 @@ public class TimeStampTokenTest extends AbstractTest {
 
   @Override
   protected void before() {
-    this.configuration = new Configuration(Configuration.Mode.TEST);
+    configuration = new Configuration(Configuration.Mode.TEST);
   }
 
 }

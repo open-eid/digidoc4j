@@ -17,16 +17,16 @@ import org.digidoc4j.DataToSign;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AsicSerializationTest extends AbstractTest {
 
   @Test
   public void bdocContainerSigningWithSerialization() {
-    Container container = this.createEmptyContainerBy(Container.DocumentType.BDOC);
+    Container container = createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     assertEquals(0, container.getSignatures().size());
     container = serializeAndAddSignature(container, SignatureProfile.LT);
@@ -38,7 +38,7 @@ public class AsicSerializationTest extends AbstractTest {
 
   @Test
   public void asiceContainerSigningWithSerialization() {
-    Container container = this.createEmptyContainerBy(Container.DocumentType.ASICE);
+    Container container = createEmptyContainerBy(Container.DocumentType.ASICE);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     assertEquals(0, container.getSignatures().size());
     container = serializeAndAddSignature(container, SignatureProfile.LT);
@@ -50,7 +50,7 @@ public class AsicSerializationTest extends AbstractTest {
 
   @Test
   public void asiceLtaContainerSigningWithSerialization() {
-    Container container = this.createEmptyContainerBy(Container.DocumentType.ASICE);
+    Container container = createEmptyContainerBy(Container.DocumentType.ASICE);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     assertEquals(0, container.getSignatures().size());
     container = serializeAndAddSignature(container, SignatureProfile.LTA);
@@ -71,7 +71,7 @@ public class AsicSerializationTest extends AbstractTest {
     byte[] serializedDataToSign = SerializationUtils.serialize(dataToSign);
     dataToSign = SerializationUtils.deserialize(serializedDataToSign);
 
-    byte[] signatureValue = this.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
+    byte[] signatureValue = sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
     Signature signature = dataToSign.finalize(signatureValue);
 
     container = SerializationUtils.deserialize(serializedContainer);

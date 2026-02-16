@@ -12,8 +12,8 @@ package org.digidoc4j;
 
 import org.digidoc4j.exceptions.CertificateValidationException;
 import org.digidoc4j.impl.asic.tsl.TSLCertificateSourceImpl;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
@@ -22,7 +22,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.matchesPattern;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Created by Janar Rahumeel (CGI Estonia)
@@ -31,7 +31,7 @@ public class CertificateValidatorBuilderTest extends AbstractTest {
 
   @Test
   public void validate_WhenCnOfIssuerCertificatesAreSame_OnlyOneIssuerIsFound() {
-    CertificateValidator validator = new CertificateValidatorBuilder().withConfiguration(this.configuration).build();
+    CertificateValidator validator = new CertificateValidatorBuilder().withConfiguration(configuration).build();
     validator.getCertificateSource().addCertificate(openCertificateToken("src/test/resources/testFiles/certs/sameCN_first.crt"));
     validator.getCertificateSource().addCertificate(openCertificateToken("src/test/resources/testFiles/certs/sameCN_second.crt"));
     X509Certificate certificateToTest = openX509Certificate("src/test/resources/testFiles/certs/sameCN_first_child.crt");
@@ -53,7 +53,7 @@ public class CertificateValidatorBuilderTest extends AbstractTest {
 
   @Test
   public void validate_WhenCertificateStatusIsGood_NothingIsThrown() {
-    CertificateValidator validator = new CertificateValidatorBuilder().withConfiguration(this.configuration).build();
+    CertificateValidator validator = new CertificateValidatorBuilder().withConfiguration(configuration).build();
     validator.getCertificateSource().addCertificate(openCertificateToken("src/test/resources/testFiles/certs/TESTofEECertificationCentreRootCA.crt"));
     X509Certificate certificateToTest = openX509Certificate("src/test/resources/testFiles/certs/TEST_of_ESTEID-SK_2015.pem.crt");
 
@@ -61,9 +61,9 @@ public class CertificateValidatorBuilderTest extends AbstractTest {
   }
 
   @Test
-  @Ignore("DD4J-931")
+  @Disabled("DD4J-931")
   public void validate_WhenCertificateIsNotTrusted_ValidationExceptionWithUntrustedStatusIsThrown() {
-    CertificateValidator validator = new CertificateValidatorBuilder().withConfiguration(this.configuration).build();
+    CertificateValidator validator = new CertificateValidatorBuilder().withConfiguration(configuration).build();
     X509Certificate certificateToTest = openX509Certificate("src/test/resources/testFiles/certs/TEST_of_ESTEID-SK_2015.pem.crt");
 
     CertificateValidationException caughtException = assertThrows(
@@ -106,9 +106,9 @@ public class CertificateValidatorBuilderTest extends AbstractTest {
 
   @Test
   public void validate_WhenOcspResponderCertificateIsNotTrusted_ValidationExceptionWithUntrustedStatusIsThrown() {
-    this.configuration = Configuration.of(Configuration.Mode.PROD);
-    this.configuration.setTSL(new TSLCertificateSourceImpl());
-    CertificateValidator validator = new CertificateValidatorBuilder().withConfiguration(this.configuration).build();
+    configuration = Configuration.of(Configuration.Mode.PROD);
+    configuration.setTSL(new TSLCertificateSourceImpl());
+    CertificateValidator validator = new CertificateValidatorBuilder().withConfiguration(configuration).build();
     validator.getCertificateSource().addCertificate(openCertificateToken("src/test/resources/testFiles/certs/TESTofESTEID-SK2011.crt"));
     X509Certificate certificateToTest = openX509Certificate("src/test/resources/testFiles/certs/TESTofStatusRevoked.cer");
 
@@ -129,8 +129,8 @@ public class CertificateValidatorBuilderTest extends AbstractTest {
 
   @Test
   public void validate_WhenOcspResponseStatusIsUnknown_ValidationExceptionWithUnknownStatusIsThrown() {
-    this.configuration = Configuration.of(Configuration.Mode.PROD);
-    CertificateValidator validator = new CertificateValidatorBuilder().withConfiguration(this.configuration).build();
+    configuration = Configuration.of(Configuration.Mode.PROD);
+    CertificateValidator validator = new CertificateValidatorBuilder().withConfiguration(configuration).build();
     validator.getCertificateSource().addCertificate(openCertificateToken("src/test/resources/testFiles/certs/TESTofESTEID-SK2011.crt"));
     X509Certificate certificateToTest = openX509Certificate("src/test/resources/testFiles/certs/TESTofStatusRevoked.cer");
 
@@ -164,7 +164,7 @@ public class CertificateValidatorBuilderTest extends AbstractTest {
 
   @Override
   protected void before() {
-    this.configuration = new Configuration(Configuration.Mode.TEST);
+    configuration = new Configuration(Configuration.Mode.TEST);
   }
 
 }

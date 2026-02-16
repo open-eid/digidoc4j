@@ -21,34 +21,36 @@ import org.digidoc4j.impl.CommonOCSPSource;
 import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.asic.ocsp.BDocTMOcspSource;
 import org.digidoc4j.test.TestAssert;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class OCSPSourceBuilderTest extends AbstractTest {
 
   @Test
   public void buildTimestampOCSPSource_whenProfileIsNotSet() throws Exception {
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withConfiguration(
-            this.configuration).build();
-    Assert.assertEquals(CommonOCSPSource.class, source.getClass());
-    TestAssert.assertOCSPSource(this.configuration, source, Constant.USER_AGENT_STRING);
+            configuration).build();
+    assertEquals(CommonOCSPSource.class, source.getClass());
+    TestAssert.assertOCSPSource(configuration, source, Constant.USER_AGENT_STRING);
   }
 
   @Test
   public void buildTimestampOCSPSource() throws Exception {
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withSignatureProfile(
-            SignatureProfile.LT).withConfiguration(this.configuration).build();
-    Assert.assertEquals(CommonOCSPSource.class, source.getClass());
-    TestAssert.assertOCSPSource(this.configuration, source, Constant.USER_AGENT_STRING);
+            SignatureProfile.LT).withConfiguration(configuration).build();
+    assertEquals(CommonOCSPSource.class, source.getClass());
+    TestAssert.assertOCSPSource(configuration, source, Constant.USER_AGENT_STRING);
   }
 
   @Test
   public void buildTimemarkOCSPSource() throws Exception {
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withSignatureProfile(
-            SignatureProfile.LT_TM).withSignatureValue(new byte[]{1, 2, 3}).withConfiguration(this.configuration).build();
-    Assert.assertEquals(BDocTMOcspSource.class, source.getClass());
-    TestAssert.assertOCSPSource(this.configuration, source, Constant.USER_AGENT_STRING);
+            SignatureProfile.LT_TM).withSignatureValue(new byte[]{1, 2, 3}).withConfiguration(configuration).build();
+    assertEquals(BDocTMOcspSource.class, source.getClass());
+    TestAssert.assertOCSPSource(configuration, source, Constant.USER_AGENT_STRING);
   }
 
   @Test
@@ -56,7 +58,7 @@ public class OCSPSourceBuilderTest extends AbstractTest {
     DataLoader mockDataLoader = createMockDataLoader();
     configuration.setOcspDataLoaderFactory(createMockOcspDataLoaderFactory(mockDataLoader));
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.defaultOCSPSource().withConfiguration(configuration).build();
-    Assert.assertSame(mockDataLoader, source.getDataLoader());
+    assertSame(mockDataLoader, source.getDataLoader());
   }
 
   @Test
@@ -65,7 +67,7 @@ public class OCSPSourceBuilderTest extends AbstractTest {
     configuration.setOcspDataLoaderFactory(createMockOcspDataLoaderFactory(mockDataLoader));
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withConfiguration(configuration)
             .withSignatureProfile(SignatureProfile.LT_TM).withSignatureValue(new byte[]{1, 2, 3}).build();
-    Assert.assertSame(mockDataLoader, source.getDataLoader());
+    assertSame(mockDataLoader, source.getDataLoader());
   }
 
   @Test
@@ -74,7 +76,7 @@ public class OCSPSourceBuilderTest extends AbstractTest {
     configuration.setOcspDataLoaderFactory(createMockOcspDataLoaderFactory(mockDataLoader));
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withConfiguration(configuration)
             .withSignatureProfile(SignatureProfile.LT).build();
-    Assert.assertSame(mockDataLoader, source.getDataLoader());
+    assertSame(mockDataLoader, source.getDataLoader());
   }
 
   /*
@@ -83,7 +85,7 @@ public class OCSPSourceBuilderTest extends AbstractTest {
 
   @Override
   protected void before() {
-    this.configuration = new Configuration(Configuration.Mode.TEST);
+    configuration = new Configuration(Configuration.Mode.TEST);
   }
 
   private DataLoaderFactory createMockOcspDataLoaderFactory(DataLoader dataLoader) {

@@ -20,16 +20,16 @@ import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.exceptions.TslRefreshException;
 import org.digidoc4j.impl.ConfigurationSingeltonHolder;
 import org.digidoc4j.test.TestAssert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TslRefreshCallbackInteractionTest extends AbstractTest {
 
   @Mock
@@ -126,7 +126,7 @@ public class TslRefreshCallbackInteractionTest extends AbstractTest {
 
     TechnicalException caughtException = assertThrows(
             TechnicalException.class,
-            () -> container.validate()
+            container::validate
     );
 
     assertEquals("Error validating signatures on multiple threads: Exception message", caughtException.getMessage());

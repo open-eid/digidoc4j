@@ -16,40 +16,46 @@ import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.impl.CommonOCSPSource;
 import org.digidoc4j.impl.OcspDataLoaderFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.security.cert.X509Certificate;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class CommonOCSPSourceTest extends AbstractTest {
 
   @Test
-  public void gettingOCSPNonce() throws Exception {
-    CommonOCSPSource source = new CommonOCSPSource(this.configuration);
+  public void gettingOCSPNonce() {
+    CommonOCSPSource source = new CommonOCSPSource(configuration);
     Extension nonce = source.createNonce(null);
-    Assert.assertFalse(nonce.isCritical());
-    Assert.assertEquals(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, nonce.getExtnId());
-    Assert.assertTrue(nonce.getExtnValue().toString().length() > 0);
+    assertFalse(nonce.isCritical());
+    assertEquals(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, nonce.getExtnId());
+    assertThat(nonce.getExtnValue().toString(), not(emptyString()));
   }
 
   @Test
-  public void gettingOCSPNonceShouldReturnNull_inCaseOfOlderAiaOcsp() throws Exception {
-    this.configuration.setPreferAiaOcsp(true);
-    CommonOCSPSource source = new CommonOCSPSource(this.configuration);
-    source.setDataLoader(new OcspDataLoaderFactory(this.configuration).create());
-    X509Certificate certificate = this.pkcs12EccSignatureToken.getCertificate();
+  public void gettingOCSPNonceShouldReturnNull_inCaseOfOlderAiaOcsp() {
+    configuration.setPreferAiaOcsp(true);
+    CommonOCSPSource source = new CommonOCSPSource(configuration);
+    source.setDataLoader(new OcspDataLoaderFactory(configuration).create());
+    X509Certificate certificate = pkcs12EccSignatureToken.getCertificate();
     source.getAccessLocation(certificate);
     Extension nonce = source.createNonce(certificate);
-    Assert.assertNull(nonce);
+    assertNull(nonce);
   }
 
   @Test
-  public void gettingOCSPNonceShouldReturnNull_whenNonceUsageIsTurnedOffInConfiguration() throws Exception {
-    this.configuration.setUseOcspNonce(false);
-    CommonOCSPSource source = new CommonOCSPSource(this.configuration);
+  public void gettingOCSPNonceShouldReturnNull_whenNonceUsageIsTurnedOffInConfiguration() {
+    configuration.setUseOcspNonce(false);
+    CommonOCSPSource source = new CommonOCSPSource(configuration);
     Extension nonce = source.createNonce(null);
-    Assert.assertNull(nonce);
-    this.configuration.setUseOcspNonce(true);
+    assertNull(nonce);
+    configuration.setUseOcspNonce(true);
   }
 
   /*
@@ -58,7 +64,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
 
   @Override
   protected void before() {
-    this.configuration = new Configuration(Configuration.Mode.TEST);
+    configuration = new Configuration(Configuration.Mode.TEST);
   }
 
 }

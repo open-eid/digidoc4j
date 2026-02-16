@@ -19,10 +19,12 @@ import org.digidoc4j.TimestampBuilder;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.impl.asic.EmptyDataFilesContainerTest;
 import org.digidoc4j.test.TestAssert;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class EmptyDataFilesAsicSContainerTest extends EmptyDataFilesContainerTest {
 
@@ -42,12 +44,12 @@ public class EmptyDataFilesAsicSContainerTest extends EmptyDataFilesContainerTes
 
     ContainerValidationResult validationResult = container.validate();
 
-    Assert.assertTrue(validationResult.isValid());
-    Assert.assertNotNull(validationResult.getWarnings());
+    assertTrue(validationResult.isValid());
+    assertNotNull(validationResult.getWarnings());
     TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
             "Data file 'empty-file.txt' is empty"
     );
-    Assert.assertNotNull(validationResult.getContainerWarnings());
+    assertNotNull(validationResult.getContainerWarnings());
     TestAssert.assertContainsExactSetOfErrors(validationResult.getContainerWarnings(),
             "Data file 'empty-file.txt' is empty"
     );
@@ -59,12 +61,12 @@ public class EmptyDataFilesAsicSContainerTest extends EmptyDataFilesContainerTes
 
     ContainerValidationResult validationResult = container.validate();
 
-    Assert.assertTrue(validationResult.isValid());
-    Assert.assertNotNull(validationResult.getWarnings());
+    assertTrue(validationResult.isValid());
+    assertNotNull(validationResult.getWarnings());
     TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
             "Data file 'empty-file.txt' is empty"
     );
-    Assert.assertNotNull(validationResult.getContainerWarnings());
+    assertNotNull(validationResult.getContainerWarnings());
     TestAssert.assertContainsExactSetOfErrors(validationResult.getContainerWarnings(),
             "Data file 'empty-file.txt' is empty"
     );
@@ -76,12 +78,12 @@ public class EmptyDataFilesAsicSContainerTest extends EmptyDataFilesContainerTes
 
     ContainerValidationResult validationResult = container.validate();
 
-    Assert.assertTrue(validationResult.isValid());
-    Assert.assertNotNull(validationResult.getWarnings());
+    assertTrue(validationResult.isValid());
+    assertNotNull(validationResult.getWarnings());
     TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
             "Data file 'empty-file.txt' is empty"
     );
-    Assert.assertNotNull(validationResult.getContainerWarnings());
+    assertNotNull(validationResult.getContainerWarnings());
     TestAssert.assertContainsExactSetOfErrors(validationResult.getContainerWarnings(),
             "Data file 'empty-file.txt' is empty"
     );
@@ -96,7 +98,7 @@ public class EmptyDataFilesAsicSContainerTest extends EmptyDataFilesContainerTes
             () -> TimestampBuilder.aTimestamp(container).invokeTimestamping()
     );
 
-    Assert.assertEquals("Cannot timestamp empty datafile: empty-file.txt", caughtException.getMessage());
+    assertEquals("Cannot timestamp empty datafile: empty-file.txt", caughtException.getMessage());
   }
 
   @Test
@@ -108,27 +110,27 @@ public class EmptyDataFilesAsicSContainerTest extends EmptyDataFilesContainerTes
             () -> TimestampBuilder.aTimestamp(container).invokeTimestamping()
     );
 
-    Assert.assertEquals("Cannot timestamp empty datafile: empty-file.txt", caughtException.getMessage());
+    assertEquals("Cannot timestamp empty datafile: empty-file.txt", caughtException.getMessage());
   }
 
   private Container loadUnsignedContainerWithEmptyDataFile() {
     Container container = ContainerOpener
             .open("src/test/resources/testFiles/valid-containers/unsigned-container-with-empty-datafile.asics", configuration);
-    Assert.assertEquals(Constant.ASICS_CONTAINER_TYPE, container.getType());
+    assertEquals(Constant.ASICS_CONTAINER_TYPE, container.getType());
     return container;
   }
 
   private Container loadSignedContainerWithEmptyDataFile() {
     Container container = ContainerOpener
             .open("src/test/resources/testFiles/valid-containers/signed-container-with-empty-datafile.asics", configuration);
-    Assert.assertEquals(Constant.ASICS_CONTAINER_TYPE, container.getType());
+    assertEquals(Constant.ASICS_CONTAINER_TYPE, container.getType());
     return container;
   }
 
   private Container loadTimestampedContainerWithEmptyDataFile() {
     Container container = ContainerOpener
             .open("src/test/resources/testFiles/valid-containers/timestamped-container-with-empty-datafile.asics", configuration);
-    Assert.assertEquals(Constant.ASICS_CONTAINER_TYPE, container.getType());
+    assertEquals(Constant.ASICS_CONTAINER_TYPE, container.getType());
     return container;
   }
 

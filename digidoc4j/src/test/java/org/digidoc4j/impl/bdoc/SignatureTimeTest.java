@@ -16,12 +16,13 @@ import org.digidoc4j.Container;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.test.TestAssert;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Created by Andrei on 26.04.2017.
@@ -56,7 +57,7 @@ public class SignatureTimeTest extends AbstractTest {
     AsicESignature signature = createSignatureBy(Container.DocumentType.ASICE, SignatureProfile.B_BES, pkcs12SignatureToken);
     container.addSignature(signature);
     TestAssert.assertTimeBetweenNotBeforeAndNow(signature.getClaimedSigningTime(), notBefore, Duration.ZERO);
-    Assert.assertNull(signature.getTrustedSigningTime());
+    assertNull(signature.getTrustedSigningTime());
   }
 
   /*

@@ -34,10 +34,9 @@ import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.test.util.KeyStoreManager;
 import org.digidoc4j.test.util.TestCertificateUtil;
 import org.digidoc4j.test.util.TestKeyPairUtil;
-import org.junit.After;
-import org.junit.BeforeClass;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.security.KeyStore;
@@ -70,7 +69,7 @@ public class TslVersionTest extends AbstractTest {
   @Rule
   public WireMockRule instanceRule = new WireMockRule(Options.DYNAMIC_PORT);
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpStatic() {
     Security.addProvider(new BouncyCastleProvider());
   }

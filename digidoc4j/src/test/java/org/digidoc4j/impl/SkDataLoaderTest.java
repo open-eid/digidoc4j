@@ -21,118 +21,124 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.impl.asic.tsl.TslLoader;
 import org.digidoc4j.test.MockSkDataLoader;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SkDataLoaderTest extends AbstractTest {
 
   @Test
   public void ocspDataLoader_withoutProxyConfiguration() {
-    SkDataLoader dataLoader = new SkOCSPDataLoader(this.configuration);
-    Assert.assertNull(dataLoader.getProxyConfig());
+    SkDataLoader dataLoader = new SkOCSPDataLoader(configuration);
+    assertNull(dataLoader.getProxyConfig());
   }
 
   @Test
   public void ocspDataLoader_withProxyConfiguration() {
-    this.configuration.setHttpProxyHost("proxyHost");
-    this.configuration.setHttpProxyPort(1345);
-    SkDataLoader dataLoader = new SkOCSPDataLoader(this.configuration);
+    configuration.setHttpProxyHost("proxyHost");
+    configuration.setHttpProxyPort(1345);
+    SkDataLoader dataLoader = new SkOCSPDataLoader(configuration);
     ProxyConfig config = dataLoader.getProxyConfig();
-    Assert.assertNotNull(config);
+    assertNotNull(config);
     ProxyProperties httpProperties = config.getHttpProperties();
-    Assert.assertNotNull(httpProperties);
+    assertNotNull(httpProperties);
     ProxyProperties httpsProperties = config.getHttpsProperties();
-    Assert.assertNull(httpsProperties);
-    Assert.assertEquals("proxyHost", httpProperties.getHost());
-    Assert.assertEquals(1345, httpProperties.getPort());
-    Assert.assertNull(httpProperties.getUser());
-    Assert.assertNull(httpProperties.getPassword());
+    assertNull(httpsProperties);
+    assertEquals("proxyHost", httpProperties.getHost());
+    assertEquals(1345, httpProperties.getPort());
+    assertNull(httpProperties.getUser());
+    assertNull(httpProperties.getPassword());
   }
 
   @Test
   public void dataLoader_withPasswordProxyConfiguration() {
-    this.configuration.setHttpProxyHost("proxyHost");
-    this.configuration.setHttpProxyPort(1345);
-    this.configuration.setHttpProxyUser("proxyUser");
-    this.configuration.setHttpProxyPassword("proxyPassword");
-    SkDataLoader loader = new SkOCSPDataLoader(this.configuration);
+    configuration.setHttpProxyHost("proxyHost");
+    configuration.setHttpProxyPort(1345);
+    configuration.setHttpProxyUser("proxyUser");
+    configuration.setHttpProxyPassword("proxyPassword");
+    SkDataLoader loader = new SkOCSPDataLoader(configuration);
     ProxyConfig config = loader.getProxyConfig();
-    Assert.assertNotNull(config);
+    assertNotNull(config);
     ProxyProperties httpProperties = config.getHttpProperties();
-    Assert.assertNotNull(httpProperties);
+    assertNotNull(httpProperties);
     ProxyProperties httpsProperties = config.getHttpsProperties();
-    Assert.assertNull(httpsProperties);
-    Assert.assertEquals("proxyHost", httpProperties.getHost());
-    Assert.assertEquals(1345, httpProperties.getPort());
-    Assert.assertEquals("proxyUser", httpProperties.getUser());
-    Assert.assertArrayEquals("proxyPassword".toCharArray(), httpProperties.getPassword());
+    assertNull(httpsProperties);
+    assertEquals("proxyHost", httpProperties.getHost());
+    assertEquals(1345, httpProperties.getPort());
+    assertEquals("proxyUser", httpProperties.getUser());
+    assertArrayEquals("proxyPassword".toCharArray(), httpProperties.getPassword());
   }
 
   @Test
-  @Ignore("Requires access to the proxy server")
+  @Disabled("Requires access to the proxy server")
   public void createSignAsicOverProxy() {
     TslLoader.invalidateCache();
-    this.configuration.setHttpProxyHost("cache.elion.ee");
-    this.configuration.setHttpProxyPort(8080);
-    Container container = ContainerBuilder.aContainer().withConfiguration(this.configuration).
+    configuration.setHttpProxyHost("cache.elion.ee");
+    configuration.setHttpProxyPort(8080);
+    Container container = ContainerBuilder.aContainer().withConfiguration(configuration).
             withDataFile("src/test/resources/testFiles/helper-files/test.txt", MimeTypeEnum.TEXT.getMimeTypeString()).
             build();
-    Signature signature = this.createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
-    Assert.assertTrue(signature.validateSignature().isValid());
+    Signature signature = createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
+    assertTrue(signature.validateSignature().isValid());
   }
 
   @Test
   public void dataLoader_withoutSslConfiguration_shouldNotSetSslValues() {
-    MockSkDataLoader dataLoader = new MockSkDataLoader(this.configuration);
-    Assert.assertNull(dataLoader.getSslKeystore());
-    Assert.assertNull(dataLoader.getSslKeystoreType());
-    Assert.assertNull(dataLoader.getSslKeystorePassword());
-    Assert.assertNull(dataLoader.getSslTruststore());
-    Assert.assertNull(dataLoader.getSslTruststoreType());
-    Assert.assertNull(dataLoader.getSslTruststorePassword());
-    Assert.assertFalse(dataLoader.isSslKeystoreTypeSet());
-    Assert.assertFalse(dataLoader.isSslKeystorePasswordSet());
-    Assert.assertFalse(dataLoader.isSslTruststoreTypeSet());
-    Assert.assertFalse(dataLoader.isSslTruststorePasswordSet());
+    MockSkDataLoader dataLoader = new MockSkDataLoader(configuration);
+    assertNull(dataLoader.getSslKeystore());
+    assertNull(dataLoader.getSslKeystoreType());
+    assertNull(dataLoader.getSslKeystorePassword());
+    assertNull(dataLoader.getSslTruststore());
+    assertNull(dataLoader.getSslTruststoreType());
+    assertNull(dataLoader.getSslTruststorePassword());
+    assertFalse(dataLoader.isSslKeystoreTypeSet());
+    assertFalse(dataLoader.isSslKeystorePasswordSet());
+    assertFalse(dataLoader.isSslTruststoreTypeSet());
+    assertFalse(dataLoader.isSslTruststorePasswordSet());
   }
 
   @Test
   public void dataLoader_withSslConfiguration_shouldSetSslValues() {
-    this.configuration.setSslKeystorePath("classpath:testFiles/keystores/keystore.p12");
-    this.configuration.setSslKeystoreType("PKCS12");
-    this.configuration.setSslKeystorePassword("keystore-password");
-    this.configuration.setSslTruststorePath("classpath:testFiles/keystores/truststore.jks");
-    this.configuration.setSslTruststoreType("JKS");
-    this.configuration.setSslTruststorePassword("digidoc4j-password");
-    MockSkDataLoader dataLoader = new MockSkDataLoader(this.configuration);
-    Assert.assertNotNull(dataLoader.getSslKeystore());
-    Assert.assertEquals("PKCS12", dataLoader.getSslKeystoreType());
-    Assert.assertArrayEquals("keystore-password".toCharArray(), dataLoader.getSslKeystorePassword());
-    Assert.assertNotNull(dataLoader.getSslTruststore());
-    Assert.assertEquals("JKS", dataLoader.getSslTruststoreType());
-    Assert.assertArrayEquals("digidoc4j-password".toCharArray(), dataLoader.getSslTruststorePassword());
-    Assert.assertTrue(dataLoader.isSslKeystoreTypeSet());
-    Assert.assertTrue(dataLoader.isSslKeystorePasswordSet());
-    Assert.assertTrue(dataLoader.isSslTruststoreTypeSet());
-    Assert.assertTrue(dataLoader.isSslTruststorePasswordSet());
+    configuration.setSslKeystorePath("classpath:testFiles/keystores/keystore.p12");
+    configuration.setSslKeystoreType("PKCS12");
+    configuration.setSslKeystorePassword("keystore-password");
+    configuration.setSslTruststorePath("classpath:testFiles/keystores/truststore.jks");
+    configuration.setSslTruststoreType("JKS");
+    configuration.setSslTruststorePassword("digidoc4j-password");
+    MockSkDataLoader dataLoader = new MockSkDataLoader(configuration);
+    assertNotNull(dataLoader.getSslKeystore());
+    assertEquals("PKCS12", dataLoader.getSslKeystoreType());
+    assertArrayEquals("keystore-password".toCharArray(), dataLoader.getSslKeystorePassword());
+    assertNotNull(dataLoader.getSslTruststore());
+    assertEquals("JKS", dataLoader.getSslTruststoreType());
+    assertArrayEquals("digidoc4j-password".toCharArray(), dataLoader.getSslTruststorePassword());
+    assertTrue(dataLoader.isSslKeystoreTypeSet());
+    assertTrue(dataLoader.isSslKeystorePasswordSet());
+    assertTrue(dataLoader.isSslTruststoreTypeSet());
+    assertTrue(dataLoader.isSslTruststorePasswordSet());
   }
 
   @Test
   public void dataLoader_withMinimalSslConfiguration_shouldNotSetNullValues() {
-    this.configuration.setSslKeystorePath("classpath:testFiles/keystores/keystore.jks");
-    this.configuration.setSslTruststorePath("classpath:testFiles/keystores/truststore.jks");
-    MockSkDataLoader dataLoader = new MockSkDataLoader(this.configuration);
-    Assert.assertNotNull(dataLoader.getSslKeystore());
-    Assert.assertNull(dataLoader.getSslKeystoreType());
-    Assert.assertNull(dataLoader.getSslKeystorePassword());
-    Assert.assertNotNull(dataLoader.getSslTruststore());
-    Assert.assertNull(dataLoader.getSslTruststoreType());
-    Assert.assertNull(dataLoader.getSslTruststorePassword());
-    Assert.assertFalse(dataLoader.isSslKeystoreTypeSet());
-    Assert.assertFalse(dataLoader.isSslKeystorePasswordSet());
-    Assert.assertFalse(dataLoader.isSslTruststoreTypeSet());
-    Assert.assertFalse(dataLoader.isSslTruststorePasswordSet());
+    configuration.setSslKeystorePath("classpath:testFiles/keystores/keystore.jks");
+    configuration.setSslTruststorePath("classpath:testFiles/keystores/truststore.jks");
+    MockSkDataLoader dataLoader = new MockSkDataLoader(configuration);
+    assertNotNull(dataLoader.getSslKeystore());
+    assertNull(dataLoader.getSslKeystoreType());
+    assertNull(dataLoader.getSslKeystorePassword());
+    assertNotNull(dataLoader.getSslTruststore());
+    assertNull(dataLoader.getSslTruststoreType());
+    assertNull(dataLoader.getSslTruststorePassword());
+    assertFalse(dataLoader.isSslKeystoreTypeSet());
+    assertFalse(dataLoader.isSslKeystorePasswordSet());
+    assertFalse(dataLoader.isSslTruststoreTypeSet());
+    assertFalse(dataLoader.isSslTruststorePasswordSet());
   }
 
   /*
@@ -141,7 +147,7 @@ public class SkDataLoaderTest extends AbstractTest {
 
   @Override
   protected void before() {
-    this.configuration = new Configuration(Configuration.Mode.TEST);
+    configuration = new Configuration(Configuration.Mode.TEST);
   }
 
 }

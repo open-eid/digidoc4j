@@ -14,9 +14,11 @@ import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.OCSPSourceFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class ExtendingOcspSourceFactoryTest extends AbstractTest {
 
@@ -28,7 +30,7 @@ public class ExtendingOcspSourceFactoryTest extends AbstractTest {
 
     configuration.setExtendingOcspSourceFactory(mockExtendingOcspSourceFactory);
     OCSPSource ocspSource = new ExtendingOcspSourceFactory(configuration).create();
-    Assert.assertSame(mockOCSPSource, ocspSource);
+    assertSame(mockOCSPSource, ocspSource);
 
     Mockito.verify(mockExtendingOcspSourceFactory, Mockito.times(1)).create();
     Mockito.verifyNoMoreInteractions(mockExtendingOcspSourceFactory, mockOCSPSource);
@@ -41,7 +43,7 @@ public class ExtendingOcspSourceFactoryTest extends AbstractTest {
 
     configuration.setExtendingOcspSourceFactory(mockExtendingOcspSourceFactory);
     OCSPSource ocspSource = new ExtendingOcspSourceFactory(configuration).create();
-    Assert.assertNull(ocspSource);
+    assertNull(ocspSource);
 
     Mockito.verify(mockExtendingOcspSourceFactory, Mockito.times(1)).create();
     Mockito.verifyNoMoreInteractions(mockExtendingOcspSourceFactory);
@@ -49,7 +51,7 @@ public class ExtendingOcspSourceFactoryTest extends AbstractTest {
 
   @Test
   public void testCreateReturnsNullIfFactoryUnsetInConfiguration() {
-    Assert.assertNull(new ExtendingOcspSourceFactory(Configuration.of(Configuration.Mode.TEST)).create());
+    assertNull(new ExtendingOcspSourceFactory(Configuration.of(Configuration.Mode.TEST)).create());
   }
 
   @Override

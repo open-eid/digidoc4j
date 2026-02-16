@@ -18,8 +18,7 @@ import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.test.util.TestZipUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -33,6 +32,7 @@ import java.util.zip.ZipOutputStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -103,7 +103,7 @@ public class ContainerUtilsTest {
   public void isAsicContainer_WhenNoAllowedMimeTypeStringsAreProvided_ThrowsException() {
     Supplier<InputStream> inputStreamSupplier = createInputStreamSupplier(new byte[0]);
 
-    IllegalArgumentException caughtException = Assert.assertThrows(
+    IllegalArgumentException caughtException = assertThrows(
             IllegalArgumentException.class,
             () -> ContainerUtils.isAsicContainer(inputStreamSupplier)
     );

@@ -29,12 +29,12 @@ import org.digidoc4j.impl.SKOnlineOCSPSource;
 import org.digidoc4j.impl.SignatureFinalizer;
 import org.digidoc4j.impl.SkOCSPDataLoader;
 import org.digidoc4j.impl.SkTimestampDataLoader;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 
 public class AsicSignatureFinalizerTest extends AbstractTest {

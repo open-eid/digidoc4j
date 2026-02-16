@@ -21,7 +21,7 @@ import org.digidoc4j.ContainerOpener;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.test.TestConstants;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.nio.charset.StandardCharsets;

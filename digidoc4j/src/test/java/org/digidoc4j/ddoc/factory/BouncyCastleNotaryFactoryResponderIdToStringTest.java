@@ -24,8 +24,8 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.digidoc4j.test.util.TestKeyPairUtil;
 import org.digidoc4j.test.util.TestOcspUtil;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.security.PrivateKey;
 import java.security.Security;
@@ -41,7 +41,7 @@ import static org.hamcrest.Matchers.nullValue;
  */
 public class BouncyCastleNotaryFactoryResponderIdToStringTest {
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpStatic() {
     Security.addProvider(new BouncyCastleProvider());
   }

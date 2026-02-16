@@ -45,10 +45,9 @@ import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.digidoc4j.test.util.TestSigningUtil;
 import org.digidoc4j.test.util.TestTSLUtil;
 import org.digidoc4j.utils.Helper;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -69,14 +68,17 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ValidationTest extends AbstractTest {
 
   public static final Configuration PROD_CONFIGURATION = new Configuration(Configuration.Mode.PROD);
   public static final Configuration PROD_CONFIGURATION_WITH_TEST_POLICY = new Configuration(Configuration.Mode.PROD);
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpOnce() {
     PROD_CONFIGURATION_WITH_TEST_POLICY.setValidationPolicy("conf/test_constraint.xml");
   }
@@ -92,68 +94,68 @@ public class ValidationTest extends AbstractTest {
 
   @Test
   public void testUnknownOcspContainer() {
-    Container container = this.openContainerBy(
+    Container container = openContainerBy(
         Paths.get("src/test/resources/testFiles/invalid-containers/unknown_ocsp.asice"));
     TestAssert.assertContainerIsInvalid(container);
   }
 
   @Test
   public void testVerifySignedDocument() {
-    Container container = this.createNonEmptyContainer();
-    Assert.assertTrue(container.validate().isValid());
+    Container container = createNonEmptyContainer();
+    assertTrue(container.validate().isValid());
   }
 
   @Test
   public void testTestVerifyOnInvalidDocument() {
     Container container = TestDataBuilderUtil.
         open("src/test/resources/testFiles/invalid-containers/invalid_container.bdoc");
-    Assert.assertFalse(container.validate().isValid());
+    assertFalse(container.validate().isValid());
   }
 
   @Test
   public void testValidateEmptyDocument() {
-    TestAssert.assertContainerIsValid(this.createEmptyContainerBy(Container.DocumentType.BDOC, Container.class));
+    TestAssert.assertContainerIsValid(createEmptyContainerBy(Container.DocumentType.BDOC, Container.class));
   }
 
   @Test
   public void testValidate() {
-    Container container = this.createNonEmptyContainer();
-    this.createSignatureBy(container, pkcs12SignatureToken);
-    Assert.assertEquals(0, container.validate().getErrors().size());
+    Container container = createNonEmptyContainer();
+    createSignatureBy(container, pkcs12SignatureToken);
+    assertEquals(0, container.validate().getErrors().size());
   }
 
   @Test
   public void validCAServiceTypeIdentification() {
-    this.configuration = Configuration.of(Configuration.Mode.PROD);
-    TSLCertificateSource source = this.configuration.getTSL();
+    configuration = Configuration.of(Configuration.Mode.PROD);
+    TSLCertificateSource source = configuration.getTSL();
     Container container = ContainerBuilder.aContainer().
             fromExistingFile("src/test/resources/testFiles/valid-containers/valid-asice.asice").
-            withConfiguration(this.configuration).build();
-    this.addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/TEST_of_ESTEID-SK_2015.pem.crt"), source);
-    this.addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/SK-OCSP-RESPONDER-2011_test.cer"), source);
-    this.addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/DEMO_OF_SK_TSA_2014.cer"), source);
+            withConfiguration(configuration).build();
+    addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/TEST_of_ESTEID-SK_2015.pem.crt"), source);
+    addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/SK-OCSP-RESPONDER-2011_test.cer"), source);
+    addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/DEMO_OF_SK_TSA_2014.cer"), source);
     ContainerValidationResult result = container.validate();
-    Assert.assertTrue(result.isValid());
+    assertTrue(result.isValid());
   }
 
   @Test
   public void testValidateBeforeAndAfterContainerChange() {
-    Container container = this.createNonEmptyContainer();
-    this.createSignatureBy(container, pkcs12SignatureToken);
+    Container container = createNonEmptyContainer();
+    createSignatureBy(container, pkcs12SignatureToken);
     ContainerValidationResult result = container.validate();
 
     TestAssert.assertContainerIsValid(result);
-    Assert.assertEquals(1, result.getReports().size());
-    Assert.assertEquals("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", result.getReports().get(0).getSignedBy());
+    assertEquals(1, result.getReports().size());
+    assertEquals("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", result.getReports().get(0).getSignedBy());
     assertHasNoWarnings(result);
 
-    this.createSignatureBy(container, pkcs12Esteid2018SignatureToken);
+    createSignatureBy(container, pkcs12Esteid2018SignatureToken);
     result = container.validate();
 
-    Assert.assertTrue(result.isValid());
-    Assert.assertEquals(2, result.getReports().size());
-    Assert.assertEquals("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", result.getReports().get(0).getSignedBy());
-    Assert.assertEquals("JÕEORG,JAAK-KRISTJAN,38001085718", result.getReports().get(1).getSignedBy());
+    assertTrue(result.isValid());
+    assertEquals(2, result.getReports().size());
+    assertEquals("O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739", result.getReports().get(0).getSignedBy());
+    assertEquals("JÕEORG,JAAK-KRISTJAN,38001085718", result.getReports().get(1).getSignedBy());
     assertHasNoWarnings(result);
   }
 
@@ -177,7 +179,7 @@ public class ValidationTest extends AbstractTest {
           .buildDataToSign();
       dataToSign.finalize(TestSigningUtil.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm()));
     } catch (Exception e) {
-      Assert.assertTrue(e.getMessage().contains("is expired at signing time"));
+      assertTrue(e.getMessage().contains("is expired at signing time"));
       throw e;
     }
   }
@@ -197,22 +199,22 @@ public class ValidationTest extends AbstractTest {
   public void signaturePolicyIsPolicyImplied(){
     Container container = ContainerOpener
             .open("src/test/resources/testFiles/valid-containers/policyImplied.asice",
-                    this.configuration);
+                    configuration);
     SignatureValidationResult validationResult = container.validate();
-    Assert.assertTrue(validationResult.isValid());
-    Assert.assertEquals(2, validationResult.getWarnings().size());
-    Assert.assertEquals("Signature created with implied policy, additional conditions may apply!", validationResult.getWarnings().get(0).getMessage());
-    Assert.assertEquals("The authority info access is not present!", validationResult.getWarnings().get(1).getMessage());
+    assertTrue(validationResult.isValid());
+    assertEquals(2, validationResult.getWarnings().size());
+    assertEquals("Signature created with implied policy, additional conditions may apply!", validationResult.getWarnings().get(0).getMessage());
+    assertEquals("The authority info access is not present!", validationResult.getWarnings().get(1).getMessage());
   }
 
   @Test
   public void containerFileContainsExtraFile() {
     Container container = ContainerOpener
         .open("src/test/resources/testFiles/invalid-containers/KS-18_lisatudfail.4.asice",
-            this.configuration);
+            configuration);
     SignatureValidationResult validate = container.validate();
     List<DigiDoc4JException> errors = validate.getErrors();
-    Assert.assertEquals(1, errors.size());
+    assertEquals(1, errors.size());
     TestAssert.assertContainsError(
         "Container contains a file named <test1.txt> which is not found in the signature file", errors);
   }
@@ -220,10 +222,10 @@ public class ValidationTest extends AbstractTest {
   @Test
   public void containerFileAndManifestContainsExtraFile() {
     Container container = ContainerOpener
-        .open("src/test/resources/testFiles/invalid-containers/KS-18_lisatudfilemanifest.4.asice", this.configuration);
+        .open("src/test/resources/testFiles/invalid-containers/KS-18_lisatudfilemanifest.4.asice", configuration);
     SignatureValidationResult validate = container.validate();
     List<DigiDoc4JException> errors = validate.getErrors();
-    Assert.assertEquals(2, errors.size());
+    assertEquals(2, errors.size());
     TestAssert.assertContainsError(
         "(Signature ID: S0) - Manifest file has an entry for file <test1.txt> with mimetype "
             + "<application/octet-stream> but the signature file for signature S0 does not have an entry for this "
@@ -245,10 +247,10 @@ public class ValidationTest extends AbstractTest {
 
   @Test
   public void secondSignatureFileContainsIncorrectFileName() {
-    TestTSLUtil.addSkTsaCertificateToTsl(this.configuration);
+    TestTSLUtil.addSkTsaCertificateToTsl(configuration);
     Container container = ContainerOpener.open(
         "src/test/resources/testFiles/invalid-containers/filename_mismatch_second_signature.asice",
-        this.configuration);
+        configuration);
     SignatureValidationResult validate = container.validate();
     TestAssert.assertContainsExactSetOfErrors(validate.getErrors(),
             "(Signature ID: S1) - The reference data object is not intact!",
@@ -293,9 +295,9 @@ public class ValidationTest extends AbstractTest {
         .open("src/test/resources/testFiles/valid-containers/latvian_LT_signature_with_44h_difference_between_TS_and_OCSP.asice", configuration);
     ContainerValidationResult validationResult = container.validate();
     TestAssert.assertContainerIsValid(validationResult);
-    Assert.assertEquals(0, validationResult.getErrors().size());
+    assertEquals(0, validationResult.getErrors().size());
     TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
-              "The time difference between the signature timestamp and the OCSP response exceeds 15 minutes, rendering the OCSP response not 'fresh'."
+            "The time difference between the signature timestamp and the OCSP response exceeds 15 minutes, rendering the OCSP response not 'fresh'."
     );
   }
 
@@ -303,12 +305,12 @@ public class ValidationTest extends AbstractTest {
   public void validate_WhenLatvianSignatureHasMoreThan15minDifferenceBetweenTimeStampAndRevocation_WarningIsRaised() {
     Configuration configuration = createLatvianSignatureConfiguration();
     Container container = ContainerOpener
-        .open("src/test/resources/testFiles/valid-containers/latvian_LT_signature_with_22h_difference_between_TS_and_OCSP.asice", configuration);
+       .open("src/test/resources/testFiles/valid-containers/latvian_LT_signature_with_22h_difference_between_TS_and_OCSP.asice", configuration);
     ContainerValidationResult validationResult = container.validate();
     TestAssert.assertContainerIsValid(validationResult);
-    Assert.assertEquals(0, validationResult.getErrors().size());
+    assertEquals(0, validationResult.getErrors().size());
     TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
-              "The time difference between the signature timestamp and the OCSP response exceeds 15 minutes, rendering the OCSP response not 'fresh'."
+            "The time difference between the signature timestamp and the OCSP response exceeds 15 minutes, rendering the OCSP response not 'fresh'."
     );
   }
 
@@ -319,8 +321,8 @@ public class ValidationTest extends AbstractTest {
         .open("src/test/resources/testFiles/valid-containers/latvian_LT_signature_with_7min_difference_between_TS_and_OCSP.asice", configuration);
     ContainerValidationResult validationResult = container.validate();
     TestAssert.assertContainerIsValid(validationResult);
-    Assert.assertEquals(0, validationResult.getErrors().size());
-    Assert.assertEquals(0, validationResult.getWarnings().size());
+    assertEquals(0, validationResult.getErrors().size());
+    assertEquals(0, validationResult.getWarnings().size());
   }
 
   @Test
@@ -358,7 +360,7 @@ public class ValidationTest extends AbstractTest {
     Container container = ContainerOpener
         .open("src/test/resources/testFiles/valid-containers/2_signatures_duplicate_id.asice");
     ValidationResult result = container.validate();
-    Assert.assertTrue(result.isValid());
+    assertTrue(result.isValid());
   }
 
   @Test
@@ -366,7 +368,7 @@ public class ValidationTest extends AbstractTest {
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/invalid-containers/missing_manifest.asice", PROD_CONFIGURATION);
     SignatureValidationResult result = container.validate();
-    Assert.assertFalse(result.isValid());
+    assertFalse(result.isValid());
     TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
             "Unsupported format: Container does not contain a manifest file"
     );
@@ -390,7 +392,7 @@ public class ValidationTest extends AbstractTest {
 
   @Test
   public void containerMissesFileWhichIsInManifestAndSignatureFile() {
-    TestTSLUtil.addSkTsaCertificateToTsl(this.configuration);
+    TestTSLUtil.addSkTsaCertificateToTsl(configuration);
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/zip_misses_file_which_is_in_manifest.asice");
     SignatureValidationResult result = container.validate();
     TestAssert.assertContainsErrors(result.getErrors(),
@@ -404,14 +406,14 @@ public class ValidationTest extends AbstractTest {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/TS-06_23634_TS_missing_OCSP_adjusted.asice");
     SignatureValidationResult validate = container.validate();
     List<DigiDoc4JException> errors = validate.getErrors();
-    Assert.assertEquals(SignatureProfile.T, container.getSignatures().get(0).getProfile());
+    assertEquals(SignatureProfile.T, container.getSignatures().get(0).getProfile());
     TestAssert.assertContainsError("(Signature ID: S0) - Signature has an invalid timestamp", errors); // Timestamp issuer originates from PROD chain
     TestAssert.assertContainsError(
         "(Signature ID: S0) - Manifest file has an entry for file <test.txt> with mimetype <text/plain> but "
             + "the signature file for signature S0 indicates the mimetype is <application/octet-stream>", errors);
   }
 
-  @Ignore("This signature has two OCSP responses: one correct and one is technically corrupted. Opening a container should not throw an exception")
+  @Disabled("This signature has two OCSP responses: one correct and one is technically corrupted. Opening a container should not throw an exception")
   @Test(expected = DigiDoc4JException.class)
   public void corruptedOCSPDataThrowsException() {
     ContainerOpener.open("src/test/resources/testFiles/invalid-containers/corrupted_ocsp_data.asice");
@@ -455,7 +457,7 @@ public class ValidationTest extends AbstractTest {
             "(Signature ID: S0) - The signed qualifying property: neither 'message-digest' nor 'SignedProperties' is present!",
             "(Signature ID: S0) - No long term availability and integrity of validation material is present!"
     );
-    Assert.assertEquals(3, container.getSignatures().get(0).validateSignature().getErrors().size());
+    assertEquals(3, container.getSignatures().get(0).validateSignature().getErrors().size());
   }
 
   @Test
@@ -518,7 +520,7 @@ public class ValidationTest extends AbstractTest {
     TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
             "(Signature ID: S0) - Wrong policy identifier qualifier: OIDAsURI"
     );
-    Assert.assertEquals(1, container.getSignatures().get(0).validateSignature().getErrors().size());
+    assertEquals(1, container.getSignatures().get(0).validateSignature().getErrors().size());
   }
 
   @Test
@@ -526,8 +528,8 @@ public class ValidationTest extends AbstractTest {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/23200_weakdigest-wrong-nonce.asice");
     SignatureValidationResult result = container.validate();
     List<DigiDoc4JException> errors = result.getErrors();
-    Assert.assertEquals(1, errors.size());
-    Assert.assertEquals("(Signature ID: S0) - OCSP nonce is invalid", errors.get(0).toString());
+    assertEquals(1, errors.size());
+    assertEquals("(Signature ID: S0) - OCSP nonce is invalid", errors.get(0).toString());
   }
 
   @Test
@@ -555,7 +557,7 @@ public class ValidationTest extends AbstractTest {
   @Test
   public void validBDocRsa2047_whenASN1UnsafeIntegerAllowed() {
     PROD_CONFIGURATION.setAllowASN1UnsafeInteger(true);
-    Assert.assertTrue(PROD_CONFIGURATION.isASN1UnsafeIntegerAllowed());
+    assertTrue(PROD_CONFIGURATION.isASN1UnsafeIntegerAllowed());
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/valid-containers/IB-4183_3.4kaart_RSA2047.bdoc", PROD_CONFIGURATION);
     ContainerValidationResult result = container.validate();
@@ -566,7 +568,7 @@ public class ValidationTest extends AbstractTest {
   @Test
   public void validTSRsa2047_whenASN1UnsafeIntegerAllowed() {
     PROD_CONFIGURATION.setAllowASN1UnsafeInteger(true);
-    Assert.assertTrue(PROD_CONFIGURATION.isASN1UnsafeIntegerAllowed());
+    assertTrue(PROD_CONFIGURATION.isASN1UnsafeIntegerAllowed());
     Container container = ContainerOpener
         .open("src/test/resources/prodFiles/valid-containers/IB-4183_3.4kaart_RSA2047_TS.asice", PROD_CONFIGURATION);
     ContainerValidationResult result = container.validate();
@@ -577,7 +579,7 @@ public class ValidationTest extends AbstractTest {
   @Test
   public void invalidBDocRsa2047_whenASN1UnsafeIntegerNotAllowed() {
     PROD_CONFIGURATION.setAllowASN1UnsafeInteger(false);
-    Assert.assertFalse(PROD_CONFIGURATION.isASN1UnsafeIntegerAllowed());
+    assertFalse(PROD_CONFIGURATION.isASN1UnsafeIntegerAllowed());
     Container container = ContainerOpener
             .open("src/test/resources/prodFiles/valid-containers/IB-4183_3.4kaart_RSA2047.bdoc", PROD_CONFIGURATION);
     ContainerValidationResult result = container.validate();
@@ -589,7 +591,7 @@ public class ValidationTest extends AbstractTest {
   @Test(expected = TechnicalException.class)
   public void invalidTSRsa2047_whenASN1UnsafeIntegerNotAllowed() {
     PROD_CONFIGURATION.setAllowASN1UnsafeInteger(false);
-    Assert.assertFalse(PROD_CONFIGURATION.isASN1UnsafeIntegerAllowed());
+    assertFalse(PROD_CONFIGURATION.isASN1UnsafeIntegerAllowed());
     Container container = ContainerOpener
             .open("src/test/resources/prodFiles/valid-containers/IB-4183_3.4kaart_RSA2047_TS.asice", PROD_CONFIGURATION);
     container.validate();
@@ -613,26 +615,26 @@ public class ValidationTest extends AbstractTest {
 
   @Test
   public void asicValidationShouldFail_ifTimeStampHashDoesntMatchSignature() {
-    SignatureValidationResult result = this.openContainerBy(
+    SignatureValidationResult result = openContainerBy(
         Paths.get("src/test/resources/testFiles/invalid-containers/TS-02_23634_TS_wrong_SignatureValue.asice"))
         .validate();
-    Assert.assertFalse(result.isValid());
+    assertFalse(result.isValid());
     TestAssert.assertContainsError(InvalidTimestampException.MESSAGE, result.getErrors());
   }
 
   @Test
   public void containerWithTMProfile_SignedWithExpiredCertificate_shouldBeInvalid() {
-    Assert.assertFalse(this.openContainerBy(
+    assertFalse(openContainerBy(
         Paths.get("src/test/resources/testFiles/invalid-containers/invalid_bdoc_tm_old-sig-sigat-NOK-prodat-NOK.bdoc"))
         .validate().isValid());
-    Assert.assertFalse(this.openContainerBy(
+    assertFalse(openContainerBy(
         Paths.get("src/test/resources/testFiles/invalid-containers/invalid_bdoc_tm_old-sig-sigat-OK-prodat-NOK.bdoc"))
         .validate().isValid());
   }
 
   @Test
   public void containerWithTSProfile_SignedWithExpiredCertificate_shouldBeInvalid() {
-    Assert.assertFalse(this.openContainerBy(
+    assertFalse(openContainerBy(
         Paths.get("src/test/resources/testFiles/invalid-containers/invalid_bdoc21-TS-old-cert.bdoc"))
         .validate().isValid());
   }
@@ -647,7 +649,7 @@ public class ValidationTest extends AbstractTest {
     Container container = ContainerBuilder.aContainer().fromExistingFile(containerPath)
         .withConfiguration(configuration).build();
     ContainerValidationResult test = container.validate();
-    Assert.assertTrue(test.isValid());
+    assertTrue(test.isValid());
   }
 
   @Test
@@ -658,7 +660,7 @@ public class ValidationTest extends AbstractTest {
             withConfiguration(configuration)
             .build();
     ContainerValidationResult test = container.validate();
-    Assert.assertTrue(test.isValid());
+    assertTrue(test.isValid());
   }
 
   @Test
@@ -669,9 +671,9 @@ public class ValidationTest extends AbstractTest {
             withConfiguration(configuration)
             .build();
     ContainerValidationResult test = container.validate();
-    Assert.assertFalse(test.isValid());
-    Assert.assertEquals(0, test.getContainerErrors().size());
-    Assert.assertEquals(1, test.getErrors().size());
+    assertFalse(test.isValid());
+    assertEquals(0, test.getContainerErrors().size());
+    assertEquals(1, test.getErrors().size());
     TestAssert.assertContainsError("OCSP Responder does not meet TM requirements", test.getErrors());
   }
 
@@ -696,22 +698,22 @@ public class ValidationTest extends AbstractTest {
             withConfiguration(configuration)
             .build();
     ContainerValidationResult test = container.validate();
-    Assert.assertTrue(test.isValid());
+    assertTrue(test.isValid());
   }
 
   @Test
   public void signaturesWithCrlShouldBeInvalid() {
-    SignatureValidationResult result = this.openContainerByConfiguration(
+    SignatureValidationResult result = openContainerByConfiguration(
         Paths.get("src/test/resources/prodFiles/invalid-containers/asic-with-crl-and-without-ocsp.asice"),
         PROD_CONFIGURATION)
         .validate();
-    Assert.assertFalse(result.isValid());
+    assertFalse(result.isValid());
     TestAssert.assertContainsError(UntrustedRevocationSourceException.class, result.getErrors());
   }
 
   @Test
   public void bDoc_withoutOcspResponse_shouldBeInvalid() {
-    Assert.assertFalse(this.openContainerByConfiguration(
+    assertFalse(openContainerByConfiguration(
         Paths.get("src/test/resources/prodFiles/invalid-containers/23608-bdoc21-no-ocsp.bdoc"),
         PROD_CONFIGURATION)
         .validate().isValid());
@@ -730,21 +732,21 @@ public class ValidationTest extends AbstractTest {
 
   @Test
   public void ocspResponseShouldNotBeTakenFromPreviouslyValidatedSignatures_whenOcspResponseIsMissing() {
-    Assert.assertFalse(this.openContainerByConfiguration(
-        Paths.get("src/test/resources/testFiles/invalid-containers/bdoc-tm-ocsp-revoked.bdoc"), this.configuration)
+    assertFalse(openContainerByConfiguration(
+        Paths.get("src/test/resources/testFiles/invalid-containers/bdoc-tm-ocsp-revoked.bdoc"), configuration)
         .validate().isValid());
-    Assert.assertTrue(this.openContainerByConfiguration(
-        Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"), this.configuration)
+    assertTrue(openContainerByConfiguration(
+        Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"), configuration)
         .validate().isValid());
-    Assert.assertFalse(this.openContainerByConfiguration(
+    assertFalse(openContainerByConfiguration(
         Paths.get("src/test/resources/testFiles/invalid-containers/invalid-bdoc-tm-missing-revoked-ocsp.bdoc"),
-        this.configuration)
+        configuration)
         .validate().isValid());
   }
 
   @Test
   public void validateContainerWithBomSymbolsInMimeType_shouldBeValid() {
-    TestAssert.assertContainerIsValid(this.openContainerByConfiguration(
+    TestAssert.assertContainerIsValid(openContainerByConfiguration(
         Paths.get("src/test/resources/prodFiles/valid-containers/IB-4185_bdoc21_TM_mimetype_with_BOM_PROD.bdoc"),
         PROD_CONFIGURATION));
   }
@@ -764,34 +766,34 @@ public class ValidationTest extends AbstractTest {
     try (InputStream inputStream = new FileInputStream("src/test/resources/prodFiles/certs/SK_TSA.pem.crt")) {
       tsl.addTSLCertificate(DSSUtils.loadCertificate(inputStream).getCertificate());
     }
-    SignatureValidationResult result = this.openContainerByConfiguration(
+    SignatureValidationResult result = openContainerByConfiguration(
             Paths.get("src/test/resources/prodFiles/valid-containers/IB-4183_3.4kaart_RSA2047_TS.asice"), conf)
             .validate();
-    Assert.assertTrue(result.isValid());
-    Assert.assertEquals(0, result.getErrors().size());
+    assertTrue(result.isValid());
+    assertEquals(0, result.getErrors().size());
     conf.setAllowASN1UnsafeInteger(false);
   }
 
   @Test
   public void havingOnlyCaCertificateInTSL_shouldNotValidateOCSPResponse() throws Exception {
     TSLCertificateSourceImpl tsl = new TSLCertificateSourceImpl();
-    this.configuration.setTSL(tsl);
-    try (InputStream inputStream = this.getClass().getResourceAsStream("/certs/TEST ESTEID-SK 2011.crt")) {
+    configuration.setTSL(tsl);
+    try (InputStream inputStream = getClass().getResourceAsStream("/certs/TEST ESTEID-SK 2011.crt")) {
       tsl.addTSLCertificate(DSSUtils.loadCertificate(inputStream).getCertificate());
     }
-    SignatureValidationResult result = this.openContainerByConfiguration(
-        Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"), this.configuration)
+    SignatureValidationResult result = openContainerByConfiguration(
+        Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"), configuration)
         .validate();
-    Assert.assertFalse(result.isValid());
+    assertFalse(result.isValid());
   }
 
   @Test
   public void mixTSLCertAndTSLOnlineSources_SignatureTypeLT_valid() {
-    this.configuration.getTSL().addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/exampleCA.cer"));
-    this.configuration.getTSL().addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/SK-OCSP-RESPONDER-2011_test.cer"));
+    configuration.getTSL().addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/exampleCA.cer"));
+    configuration.getTSL().addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/SK-OCSP-RESPONDER-2011_test.cer"));
 
-    Container container = this.createNonEmptyContainerByConfiguration();
-    this.createSignatureBy(container, SignatureProfile.LT,
+    Container container = createNonEmptyContainerByConfiguration();
+    createSignatureBy(container, SignatureProfile.LT,
         new PKCS12SignatureToken("src/test/resources/testFiles/p12/user_one.p12", "user_one".toCharArray()));
 
     TestAssert.assertContainerIsValid(container);
@@ -801,17 +803,17 @@ public class ValidationTest extends AbstractTest {
   public void loadCustomTslCerts_SignatureTypeTWithoutOcspResponderCert_notValid() {
     TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
     certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/exampleCA.cer"));
-    this.configuration.setTSL(certificateSource);
+    configuration.setTSL(certificateSource);
 
-    Container container = this.createNonEmptyContainerByConfiguration();
-    this.createSignatureBy(container, SignatureProfile.T,
+    Container container = createNonEmptyContainerByConfiguration();
+    createSignatureBy(container, SignatureProfile.T,
             new PKCS12SignatureToken("src/test/resources/testFiles/p12/user_one.p12", "user_one".toCharArray()));
     SignatureValidationResult result = container.validate();
     List<Signature> signatureList = container.getSignatures();
     Signature signature = signatureList.get(0);
     String signatureId = signature.getId();
 
-    Assert.assertFalse(result.isValid());
+    assertFalse(result.isValid());
     TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
             "(Signature ID: " + signatureId + ") - The certificate validation is not conclusive!",
             "(Signature ID: " + signatureId + ") - No revocation data found for the certificate!",
@@ -826,9 +828,9 @@ public class ValidationTest extends AbstractTest {
     TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
     certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/exampleCA.cer"));
     certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/DEMO_of_KLASS3-SK_2016_OCSP_RESPONDER_2026.pem.crt"));
-    this.configuration.setTSL(certificateSource);
+    configuration.setTSL(certificateSource);
 
-    Container container = this.createNonEmptyContainerByConfiguration();
+    Container container = createNonEmptyContainerByConfiguration();
     SignatureToken signatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/user_one.p12", "user_one".toCharArray());
 
     assertThrows(
@@ -842,17 +844,17 @@ public class ValidationTest extends AbstractTest {
     TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
     certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/exampleCA.cer"));
     certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/DEMO_SK_TIMESTAMPING_UNIT_2025E.pem.crt"));
-    this.configuration.setTSL(certificateSource);
+    configuration.setTSL(certificateSource);
 
-    Container container = this.createNonEmptyContainerByConfiguration();
-    this.createSignatureBy(container, SignatureProfile.T,
+    Container container = createNonEmptyContainerByConfiguration();
+    createSignatureBy(container, SignatureProfile.T,
             new PKCS12SignatureToken("src/test/resources/testFiles/p12/user_one.p12", "user_one".toCharArray()));
     SignatureValidationResult result = container.validate();
     List<Signature> signatureList = container.getSignatures();
     Signature signature = signatureList.get(0);
     String signatureId = signature.getId();
 
-    Assert.assertFalse(result.isValid());
+    assertFalse(result.isValid());
     TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
             "(Signature ID: " + signatureId + ") - The certificate validation is not conclusive!",
             "(Signature ID: " + signatureId + ") - No revocation data found for the certificate!"
@@ -865,10 +867,10 @@ public class ValidationTest extends AbstractTest {
     certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/exampleCA.cer"));
     certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/DEMO_of_KLASS3-SK_2016_OCSP_RESPONDER_2026.pem.crt"));
     certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/DEMO_SK_TIMESTAMPING_UNIT_2025E.pem.crt"));
-    this.configuration.setTSL(certificateSource);
+    configuration.setTSL(certificateSource);
 
-    Container container = this.createNonEmptyContainerByConfiguration();
-    this.createSignatureBy(container, SignatureProfile.LT,
+    Container container = createNonEmptyContainerByConfiguration();
+    createSignatureBy(container, SignatureProfile.LT,
             new PKCS12SignatureToken("src/test/resources/testFiles/p12/user_one.p12", "user_one".toCharArray()));
 
     TestAssert.assertContainerIsValid(container);
@@ -876,23 +878,23 @@ public class ValidationTest extends AbstractTest {
 
   @Test
   public void validateAsiceContainer_getNotValid() {
-    Assert.assertFalse(this.openContainerByConfiguration(
-        Paths.get("src/test/resources/testFiles/invalid-containers/TM-16_unknown.4.asice"), this.configuration)
+    assertFalse(openContainerByConfiguration(
+        Paths.get("src/test/resources/testFiles/invalid-containers/TM-16_unknown.4.asice"), configuration)
         .validate().isValid());
   }
 
   @Test
   public void validateSpuriElement_UriIsvalid() {
     Container container = ContainerOpener
-        .open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc", this.configuration);
-    Assert.assertTrue(container.validate().isValid());
+        .open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc", configuration);
+    assertTrue(container.validate().isValid());
   }
 
   @Test
   public void validateBDocTs_Invalid() {
     Container container = ContainerOpener.open("src/test/resources/prodFiles/invalid-containers/bdoc21-ts-ok.bdoc", PROD_CONFIGURATION);
     SignatureValidationResult result = container.validate();
-    Assert.assertFalse(result.isValid());
+    assertFalse(result.isValid());
     TestAssert.assertContainsExactNumberOfErrorsAndAllExpectedErrorMessages(result.getErrors(), 8,
             "The certificate chain for time-stamp is not trusted, it does not contain a trust anchor.",
             "Signature has an invalid timestamp",
@@ -909,26 +911,26 @@ public class ValidationTest extends AbstractTest {
   @Test
   public void validateSpuriElement_UriIsMissing() {
     Container container = ContainerOpener
-        .open("src/test/resources/testFiles/valid-containers/23608_bdoc21-no-nonce-policy.bdoc", this.configuration);
+        .open("src/test/resources/testFiles/valid-containers/23608_bdoc21-no-nonce-policy.bdoc", configuration);
     SignatureValidationResult result = container.validate();
-    Assert.assertFalse(container.validate().isValid());
+    assertFalse(container.validate().isValid());
     TestAssert.assertContainsError("Error: The URL in signature policy is empty or not available", result.getErrors());
   }
 
   @Test
   public void validateSpuriElement_UriIsEmpty() {
     Container container = ContainerOpener
-        .open("src/test/resources/testFiles/valid-containers/SP-06_bdoc21-no-uri.bdoc", this.configuration);
+        .open("src/test/resources/testFiles/valid-containers/SP-06_bdoc21-no-uri.bdoc", configuration);
     SignatureValidationResult result = container.validate();
-    Assert.assertFalse(result.isValid());
+    assertFalse(result.isValid());
     TestAssert.assertContainsError("The URL in signature policy is empty or not available", result.getErrors());
   }
 
   @Test
   public void invalidOcspResponder() {
-    this.configuration.setAllowedOcspRespondersForTM("INVALID OCSP RESPONDER");
+    configuration.setAllowedOcspRespondersForTM("INVALID OCSP RESPONDER");
     Container container = ContainerOpener
-            .open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc", this.configuration);
+            .open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc", configuration);
     SignatureValidationResult result = container.validate();
     TestAssert.assertContainsError("OCSP Responder does not meet TM requirements", result.getErrors());
   }
@@ -942,10 +944,10 @@ public class ValidationTest extends AbstractTest {
     TestTSLUtil.addCertificateFromFileToTsl(conf, "src/test/resources/prodFiles/certs/ESTEID-SK_2011.pem.crt");
     TestTSLUtil.addCertificateFromFileToTsl(conf, "src/test/resources/prodFiles/certs/SK_OCSP_RESPONDER_2011.pem.cer");
     TestTSLUtil.addCertificateFromFileToTsl(conf, "src/test/resources/prodFiles/certs/SK_TSA.pem.crt");
-    SignatureValidationResult result = this.openContainerByConfiguration(
+    SignatureValidationResult result = openContainerByConfiguration(
             Paths.get("src/test/resources/prodFiles/valid-containers/IB-4183_3.4kaart_RSA2047_TS.asice"), conf).validate();
-    Assert.assertTrue(result.isValid());
-    Assert.assertEquals(0, result.getErrors().size());
+    assertTrue(result.isValid());
+    assertEquals(0, result.getErrors().size());
     conf.setAllowASN1UnsafeInteger(false);
   }
 
@@ -983,7 +985,7 @@ public class ValidationTest extends AbstractTest {
   public void container_withTimestampTakenWhenSigningCertificateWasNotValid_shouldBeInvalid() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/signing_certificate_not_valid_during_timestamping.asice");
     SignatureValidationResult result = container.validate();
-    Assert.assertFalse("Signature must not be valid when timestamp was taken while signing certificate was not valid", result.isValid());
+    assertFalse(result.isValid(), "Signature must not be valid when timestamp was taken while signing certificate was not valid");
     TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
             "The best-signature-time is not before the expiration date of the signing certificate!",
             "No long term availability and integrity of validation material is present!",
@@ -996,9 +998,9 @@ public class ValidationTest extends AbstractTest {
   public void container_withOcspBeforeTS_shouldBeInvalid() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/TS-08_23634_TS_OCSP_before_TS.asice");
     SignatureValidationResult result = container.validate();
-    Assert.assertFalse("Signature must not be valid when OCSP was taken before timestamp", result.isValid());
-    Assert.assertTrue("Result errors must contain " + TimestampAfterOCSPResponseTimeException.class.getSimpleName(),
-            result.getErrors().stream().anyMatch(e -> e instanceof TimestampAfterOCSPResponseTimeException));
+    assertFalse(result.isValid(), "Signature must not be valid when OCSP was taken before timestamp");
+    assertTrue(result.getErrors().stream().anyMatch(e -> e instanceof TimestampAfterOCSPResponseTimeException),
+            "Result errors must contain " + TimestampAfterOCSPResponseTimeException.class.getSimpleName());
   }
 
   @Test
@@ -1011,7 +1013,7 @@ public class ValidationTest extends AbstractTest {
   public void container_withExpiredAIAOCSP_LT_shouldBeInvalid() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/esteid2018signerAiaOcspLT.asice");
     ContainerValidationResult validationResult = container.validate();
-    Assert.assertFalse("Signature must not be valid when AIA OCSP expired", validationResult.isValid());
+    assertFalse(validationResult.isValid(), "Signature must not be valid when AIA OCSP expired");
     TestAssert.assertContainsErrors(validationResult.getErrors(),
             "The certificate validation is not conclusive!",
             "No acceptable revocation data for the certificate!",
@@ -1026,7 +1028,7 @@ public class ValidationTest extends AbstractTest {
   public void container_withExpiredAIAOCSP_LTA_shouldBeInvalid() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/esteid2018signerAiaOcspLTA.asice");
     ContainerValidationResult validationResult = container.validate();
-    Assert.assertFalse("Signature must not be valid when AIA OCSP expired", validationResult.isValid());
+    assertFalse(validationResult.isValid(), "Signature must not be valid when AIA OCSP expired");
     TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
             "The certificate validation is not conclusive!",
             "No acceptable revocation data for the certificate!",
@@ -1043,7 +1045,7 @@ public class ValidationTest extends AbstractTest {
             DSSException.class,
             () -> ContainerOpener.open("src/test/resources/testFiles/invalid-containers/multiple_EncapsulatedTimeStamp_elements_in_single_SignatureTimeStamp.asice", configuration)
     );
-    Assert.assertEquals(
+    assertEquals(
             "More than one result for XPath: ./xades132:EncapsulatedTimeStamp",
             caughtException.getMessage()
     );
@@ -1055,7 +1057,7 @@ public class ValidationTest extends AbstractTest {
             DSSException.class,
             () -> ContainerOpener.open("src/test/resources/testFiles/invalid-containers/multiple_EncapsulatedTimeStamp_elements_in_second_SignatureTimeStamp.asice", configuration)
     );
-    Assert.assertEquals(
+    assertEquals(
             "More than one result for XPath: ./xades132:EncapsulatedTimeStamp",
             caughtException.getMessage()
     );
@@ -1280,7 +1282,7 @@ public class ValidationTest extends AbstractTest {
 
   @Override
   protected void before() {
-    this.configuration = Configuration.of(Configuration.Mode.TEST);
+    configuration = Configuration.of(Configuration.Mode.TEST);
   }
 
 }

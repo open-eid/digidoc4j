@@ -23,9 +23,9 @@ import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.test.MockConfigManagerInitializer;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
@@ -37,6 +37,12 @@ import java.io.OutputStream;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DDocFacadeTest extends AbstractTest {
 
@@ -50,7 +56,7 @@ public class DDocFacadeTest extends AbstractTest {
   public void testGetDataFileSize() {
     DDocFacade facade = openDDocFacade("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     DataFile dataFile = facade.getDataFiles().get(0);
-    Assert.assertEquals(16, dataFile.getFileSize());
+    assertEquals(16, dataFile.getFileSize());
   }
 
   @Test
@@ -58,8 +64,8 @@ public class DDocFacadeTest extends AbstractTest {
     ConfigManager.init("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_hashcode_mode.yaml");
     DDocFacade facade = openDDocFacade("src/test/resources/prodFiles/valid-containers/DIGIDOC-XML1.3_hashcode.ddoc");
     DigestDataFile dataFile = (DigestDataFile) facade.getDataFiles().get(0);
-    Assert.assertEquals("Glitter-rock-4_gallery.jpg", dataFile.getName());
-    Assert.assertEquals("HASHCODE", dataFile.getContentType());
+    assertEquals("Glitter-rock-4_gallery.jpg", dataFile.getName());
+    assertEquals("HASHCODE", dataFile.getContentType());
     ConfigManager.init(Configuration.getInstance().getDDoc4JConfiguration());
   }
 
@@ -67,41 +73,41 @@ public class DDocFacadeTest extends AbstractTest {
   public void testRemoveDuplicatesExceptions() {
     DDocFacade facade = openDDocFacade("src/test/resources/prodFiles/invalid-containers/23060-1.ddoc");
     ContainerValidationResult result = facade.validate(new Date());
-    Assert.assertEquals(1, result.getContainerErrors().size());
-    Assert.assertEquals(21, result.getContainerErrors().get(0).getErrorCode());
-    Assert.assertEquals("Invalid digest length", result.getContainerErrors().get(0).getMessage());
-    Assert.assertEquals(2, result.getErrors().size());
-    Assert.assertEquals(21, result.getErrors().get(0).getErrorCode());
-    Assert.assertEquals("Invalid digest length", result.getErrors().get(0).getMessage());
-    Assert.assertEquals(79, result.getErrors().get(1).getErrorCode());
-    Assert.assertEquals("Bad digest for SignedProperties: S0-SignedProperties", result.getErrors().get(1).getMessage());
+    assertEquals(1, result.getContainerErrors().size());
+    assertEquals(21, result.getContainerErrors().get(0).getErrorCode());
+    assertEquals("Invalid digest length", result.getContainerErrors().get(0).getMessage());
+    assertEquals(2, result.getErrors().size());
+    assertEquals(21, result.getErrors().get(0).getErrorCode());
+    assertEquals("Invalid digest length", result.getErrors().get(0).getMessage());
+    assertEquals(79, result.getErrors().get(1).getErrorCode());
+    assertEquals("Bad digest for SignedProperties: S0-SignedProperties", result.getErrors().get(1).getMessage());
   }
 
   @Test
   public void testValidateNoDuplicateExceptions() {
     DDocFacade facade = openDDocFacade("src/test/resources/prodFiles/invalid-containers/Belgia_kandeavaldus_LIV.ddoc");
     ContainerValidationResult result = facade.validate(new Date());
-    Assert.assertEquals(3, result.getErrors().size());
+    assertEquals(3, result.getErrors().size());
   }
 
   @Test
   public void testCountDataFiles() {
     DDocFacade facade = openDDocFacade("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    Assert.assertEquals(1, facade.countDataFiles());
+    assertEquals(1, facade.countDataFiles());
   }
 
   @Test
   public void testGetFormat() {
     DDocFacade facade = openDDocFacade("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    Assert.assertEquals("DIGIDOC-XML", facade.getFormat());
+    assertEquals("DIGIDOC-XML", facade.getFormat());
   }
 
   @Test
   public void testGetFileId() {
     DDocFacade facade = openDDocFacade("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     List<org.digidoc4j.DataFile> dataFiles = facade.getDataFiles();
-    Assert.assertEquals("D0", dataFiles.get(0).getId());
-    Assert.assertEquals("test.txt", dataFiles.get(0).getName());
+    assertEquals("D0", dataFiles.get(0).getId());
+    assertEquals("test.txt", dataFiles.get(0).getName());
   }
 
   @Test(expected = DigiDoc4JException.class)
@@ -119,7 +125,7 @@ public class DDocFacadeTest extends AbstractTest {
     DDocFacade facade = openDDocFacade("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       facade.save(out);
-      Assert.assertTrue(out.size() != 0);
+      assertTrue(out.size() != 0);
     }
   }
 
@@ -146,32 +152,32 @@ public class DDocFacadeTest extends AbstractTest {
     try (FileInputStream stream = new FileInputStream(
             new File("src/test/resources/testFiles/valid-containers/ddoc_wo_x509IssueName_xmlns.ddoc"))) {
       DDocContainer container = new DDocOpener().open(stream);
-      Assert.assertTrue(container.validate().isValid());
+      assertTrue(container.validate().isValid());
     }
   }
 
   @Test
   public void getSignatureByIndex() {
     DDocFacade facade = openDDocFacade("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    Assert.assertEquals("497c5a2bfa9361a8534fbed9f48e7a12", facade.getSignatures().get(0).getSigningCertificate().getSerial());
+    assertEquals("497c5a2bfa9361a8534fbed9f48e7a12", facade.getSignatures().get(0).getSigningCertificate().getSerial());
   }
 
   @Test
   public void getSignatureWhenNotSigned() {
     DDocFacade facade = openDDocFacade("src/test/resources/testFiles/invalid-containers/signature_without_last_certificate.ddoc");
-    Assert.assertTrue(facade.getSignatures().isEmpty());
+    assertTrue(facade.getSignatures().isEmpty());
   }
 
   @Test
   public void testCountSignatures() {
     DDocFacade facade = openDDocFacade("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    Assert.assertEquals(1, facade.countSignatures());
+    assertEquals(1, facade.countSignatures());
   }
 
   @Test
   public void getVersion() {
     DDocFacade facade = openDDocFacade("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    Assert.assertEquals("1.3", facade.getVersion());
+    assertEquals("1.3", facade.getVersion());
   }
 
   @Test(expected = NotSupportedException.class)
@@ -184,17 +190,17 @@ public class DDocFacadeTest extends AbstractTest {
   @Test
   public void configManagerShouldBeInitializedOnlyOnce() throws Exception {
     DDocFacade.configManagerInitializer = new MockConfigManagerInitializer();
-    Assert.assertFalse(ConfigManagerInitializer.isConfigManagerInitialized());
-    Assert.assertEquals(0, MockConfigManagerInitializer.configManagerCallCount);
+    assertFalse(ConfigManagerInitializer.isConfigManagerInitialized());
+    assertEquals(0, MockConfigManagerInitializer.configManagerCallCount);
     openDDocFacade("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    Assert.assertTrue(ConfigManagerInitializer.isConfigManagerInitialized());
-    Assert.assertEquals(1, MockConfigManagerInitializer.configManagerCallCount);
+    assertTrue(ConfigManagerInitializer.isConfigManagerInitialized());
+    assertEquals(1, MockConfigManagerInitializer.configManagerCallCount);
     DDocFacade facade = openDDocFacade("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    Assert.assertTrue(ConfigManagerInitializer.isConfigManagerInitialized());
-    Assert.assertEquals(1, MockConfigManagerInitializer.configManagerCallCount);
-    this.openDDocFacade("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    Assert.assertTrue(ConfigManagerInitializer.isConfigManagerInitialized());
-    Assert.assertEquals(1, MockConfigManagerInitializer.configManagerCallCount);
+    assertTrue(ConfigManagerInitializer.isConfigManagerInitialized());
+    assertEquals(1, MockConfigManagerInitializer.configManagerCallCount);
+    openDDocFacade("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
+    assertTrue(ConfigManagerInitializer.isConfigManagerInitialized());
+    assertEquals(1, MockConfigManagerInitializer.configManagerCallCount);
   }
 
   @Test(expected = ConfigurationException.class)
@@ -212,28 +218,28 @@ public class DDocFacadeTest extends AbstractTest {
     List<org.digidoc4j.ddoc.DataFile> dataFilesFromSignedDoc = signedDoc.getDataFiles();
     List<DataFile> dataFilesFromFacade = ddocContainer.getDDoc4JFacade().getDataFiles();
 
-    Assert.assertSame(dataFilesFromSignedDoc.size(), dataFilesFromFacade.size());
+    assertSame(dataFilesFromSignedDoc.size(), dataFilesFromFacade.size());
 
-    Assert.assertEquals(dataFilesFromSignedDoc.get(0).getFileName(), dataFilesFromFacade.get(0).getName());
+    assertEquals(dataFilesFromSignedDoc.get(0).getFileName(), dataFilesFromFacade.get(0).getName());
 
-    Assert.assertEquals("..\\ryndefail1.txt", dataFilesFromSignedDoc.get(1).getFileName());
-    Assert.assertEquals("ryndefail1.txt", dataFilesFromFacade.get(1).getName());
+    assertEquals("..\\ryndefail1.txt", dataFilesFromSignedDoc.get(1).getFileName());
+    assertEquals("ryndefail1.txt", dataFilesFromFacade.get(1).getName());
 
-    Assert.assertEquals("..\\..\\ryndefail2.txt", dataFilesFromSignedDoc.get(2).getFileName());
-    Assert.assertEquals("ryndefail2.txt", dataFilesFromFacade.get(2).getName());
+    assertEquals("..\\..\\ryndefail2.txt", dataFilesFromSignedDoc.get(2).getFileName());
+    assertEquals("ryndefail2.txt", dataFilesFromFacade.get(2).getName());
 
-    Assert.assertEquals("..\\..\\..\\ryndefail3.txt", dataFilesFromSignedDoc.get(3).getFileName());
-    Assert.assertEquals("ryndefail3.txt", dataFilesFromFacade.get(3).getName());
+    assertEquals("..\\..\\..\\ryndefail3.txt", dataFilesFromSignedDoc.get(3).getFileName());
+    assertEquals("ryndefail3.txt", dataFilesFromFacade.get(3).getName());
 
-    Assert.assertEquals("..\\..\\..\\..\\Videos\\ryndefail4.txt", dataFilesFromSignedDoc.get(4).getFileName());
-    Assert.assertEquals("ryndefail4.txt", dataFilesFromFacade.get(4).getName());
+    assertEquals("..\\..\\..\\..\\Videos\\ryndefail4.txt", dataFilesFromSignedDoc.get(4).getFileName());
+    assertEquals("ryndefail4.txt", dataFilesFromFacade.get(4).getName());
   }
 
   @Test
   public void skXmlDataFilesAreRetrievableWhenMemoryCachingIsConfigured() {
-    this.configuration.setMaxFileSizeCachedInMemoryInMB(-1);
+    configuration.setMaxFileSizeCachedInMemoryInMB(-1);
     DDocFacade facade = openDDocFacade("src/test/resources/prodFiles/valid-containers/SK-XML1.0.ddoc");
-    Assert.assertEquals("Tartu ja Tallinna koostooleping.doc", facade.getDataFiles().get(0).getName());
+    assertEquals("Tartu ja Tallinna koostooleping.doc", facade.getDataFiles().get(0).getName());
   }
 
   /*
@@ -244,10 +250,10 @@ public class DDocFacadeTest extends AbstractTest {
     return new DDocOpener().open(path).getDDoc4JFacade();
   }
 
-  @Before
+  @BeforeEach
   public void beforeMethod() {
-    this.configuration = Configuration.of(Configuration.Mode.PROD);
-    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
+    configuration = Configuration.of(Configuration.Mode.PROD);
+    ConfigManagerInitializer.forceInitConfigManager(configuration);
   }
 
 }

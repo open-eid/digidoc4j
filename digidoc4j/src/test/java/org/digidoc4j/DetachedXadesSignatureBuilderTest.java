@@ -18,8 +18,7 @@ import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.SignatureTokenMissingException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.test.TestAssert;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -30,7 +29,12 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DetachedXadesSignatureBuilderTest extends AbstractTest {
 
@@ -234,7 +238,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
 
     assertBBesSignature(signature);
     ValidationResult validationResult = signature.validateSignature();
-    Assert.assertFalse(validationResult.isValid());
+    assertFalse(validationResult.isValid());
     TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
             "The signature/seal is an INDETERMINATE AdES digital signature!"
     );
@@ -300,14 +304,14 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
             .withSignatureToken(pkcs12EccSignatureToken)
             .invokeSigning();
 
-    Assert.assertTrue(signature.validateSignature().isValid());
-    Assert.assertEquals("myCity", signature.getCity());
-    Assert.assertEquals("myStateOrProvince", signature.getStateOrProvince());
-    Assert.assertEquals("myPostalCode", signature.getPostalCode());
-    Assert.assertEquals("myCountry", signature.getCountryName());
-    Assert.assertEquals(1, signature.getSignerRoles().size());
-    Assert.assertEquals("myRole / myResolution", signature.getSignerRoles().get(0));
-    Assert.assertEquals("SIGNATURE-1", signature.getId());
+    assertTrue(signature.validateSignature().isValid());
+    assertEquals("myCity", signature.getCity());
+    assertEquals("myStateOrProvince", signature.getStateOrProvince());
+    assertEquals("myPostalCode", signature.getPostalCode());
+    assertEquals("myCountry", signature.getCountryName());
+    assertEquals(1, signature.getSignerRoles().size());
+    assertEquals("myRole / myResolution", signature.getSignerRoles().get(0));
+    assertEquals("SIGNATURE-1", signature.getId());
     assertLtSignature(signature);
     assertValidSignature(signature);
   }
@@ -381,7 +385,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
             .withEncryptionAlgorithm(EncryptionAlgorithm.ECDSA)
             .buildDataToSign();
 
-    Assert.assertEquals(EncryptionAlgorithm.ECDSA, dataToSign.getSignatureParameters().getEncryptionAlgorithm());
+    assertEquals(EncryptionAlgorithm.ECDSA, dataToSign.getSignatureParameters().getEncryptionAlgorithm());
     byte[] signatureValue = pkcs12EccSignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign());
     Signature signature = dataToSign.finalize(signatureValue);
     assertLtSignature(signature);
@@ -400,7 +404,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
             .buildDataToSign();
 
     Signature signature = dataToSign.finalize(pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
-    Assert.assertSame(Constant.Default.SIGNATURE_PROFILE, signature.getProfile());
+    assertSame(Constant.Default.SIGNATURE_PROFILE, signature.getProfile());
     assertLtSignature(signature);
     assertValidSignature(signature);
   }
@@ -417,7 +421,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
             .buildDataToSign();
 
     Signature signature = dataToSign.finalize(pkcs12EccSignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
-    Assert.assertEquals(DigestAlgorithm.SHA256, dataToSign.getSignatureParameters().getSignatureDigestAlgorithm());
+    assertEquals(DigestAlgorithm.SHA256, dataToSign.getSignatureParameters().getSignatureDigestAlgorithm());
     assertValidSignature(signature);
   }
 
@@ -433,7 +437,7 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
             .buildDataToSign();
 
     Signature signature = dataToSign.finalize(pkcs12Esteid2018SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
-    Assert.assertEquals(DigestAlgorithm.SHA384, dataToSign.getSignatureParameters().getSignatureDigestAlgorithm());
+    assertEquals(DigestAlgorithm.SHA384, dataToSign.getSignatureParameters().getSignatureDigestAlgorithm());
     assertValidSignature(signature);
   }
 
@@ -451,10 +455,10 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
             .buildDataToSign();
 
     SignatureParameters signatureParameters = dataToSign.getSignatureParameters();
-    Assert.assertEquals(DigestAlgorithm.SHA384, signatureParameters.getSignatureDigestAlgorithm());
-    Assert.assertEquals(DigestAlgorithm.SHA512, signatureParameters.getDataFileDigestAlgorithm());
+    assertEquals(DigestAlgorithm.SHA384, signatureParameters.getSignatureDigestAlgorithm());
+    assertEquals(DigestAlgorithm.SHA512, signatureParameters.getDataFileDigestAlgorithm());
     Signature signature = dataToSign.finalize(pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
-    Assert.assertEquals("http://www.w3.org/2001/04/xmldsig-more#rsa-sha384", signature.getSignatureMethod());
+    assertEquals("http://www.w3.org/2001/04/xmldsig-more#rsa-sha384", signature.getSignatureMethod());
     assertValidSignature(signature);
   }
 
@@ -492,8 +496,8 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
 
     Container container = ContainerOpener.open(BDOC_WITH_TM_SIG, configuration);
     container.addSignature(signature);
-    Assert.assertEquals(mimeType, container.getDataFiles().get(0).getMediaType());
-    Assert.assertTrue(container.validate().isValid());
+    assertEquals(mimeType, container.getDataFiles().get(0).getMediaType());
+    assertTrue(container.validate().isValid());
   }
 
   @Test
@@ -515,10 +519,10 @@ public class DetachedXadesSignatureBuilderTest extends AbstractTest {
 
     Container container = ContainerOpener.open(BDOC_WITH_TM_SIG, configuration);
     container.addSignature(signature);
-    Assert.assertNotEquals(mimeType, container.getDataFiles().get(0).getMediaType());
+    assertNotEquals(mimeType, container.getDataFiles().get(0).getMediaType());
     ContainerValidationResult validationResult = container.validate();
-    Assert.assertFalse(validationResult.isValid());
-    Assert.assertSame(1, validationResult.getContainerErrors().size());
-    Assert.assertTrue(validationResult.getContainerErrors().get(0).getMessage().startsWith("Manifest file has an entry for file <test.txt> with mimetype <text/plain> but the signature file for signature "));
+    assertFalse(validationResult.isValid());
+    assertSame(1, validationResult.getContainerErrors().size());
+    assertTrue(validationResult.getContainerErrors().get(0).getMessage().startsWith("Manifest file has an entry for file <test.txt> with mimetype <text/plain> but the signature file for signature "));
   }
 }

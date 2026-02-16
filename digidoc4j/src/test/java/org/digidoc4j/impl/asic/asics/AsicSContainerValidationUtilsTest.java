@@ -20,7 +20,7 @@ import org.digidoc4j.impl.asic.AsicEntry;
 import org.digidoc4j.impl.asic.AsicParseResult;
 import org.digidoc4j.impl.asic.cades.ContainerTimestampWrapper;
 import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -31,7 +31,7 @@ import java.util.zip.ZipEntry;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -121,6 +121,7 @@ public class AsicSContainerValidationUtilsTest {
   public void validateAsicsContainerParseResult_WhenUnsignedContainerHasCadesSignature0Entry_ThrowsException() {
     validateAsicsContainerParseResult_WhenUnsignedContainerHasUnsupportedCadesSignatureEntry_ThrowsException("signature0.p7s");
   }
+
   @Test
   public void validateAsicsContainerParseResult_WhenUnsignedContainerHasCadesSignatureUpperCaseEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenUnsignedContainerHasUnsupportedCadesSignatureEntry_ThrowsException("SIGNATURE.P7S");
@@ -300,6 +301,7 @@ public class AsicSContainerValidationUtilsTest {
   public void validateAsicsContainerParseResult_WhenSignedContainerHasCadesSignature0Entry_ThrowsException() {
     validateAsicsContainerParseResult_WhenSignedContainerHasUnsupportedCadesSignatureEntry_ThrowsException("signature0.p7s");
   }
+
   @Test
   public void validateAsicsContainerParseResult_WhenSignedContainerHasCadesSignatureUpperCaseEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenSignedContainerHasUnsupportedCadesSignatureEntry_ThrowsException("SIGNATURE.P7S");
@@ -413,6 +415,7 @@ public class AsicSContainerValidationUtilsTest {
   public void validateAsicsContainerParseResult_WhenTimestampedContainerHasXadesSignatures0Entry_ThrowsException() {
     validateAsicsContainerParseResult_WhenTimestampedContainerHasXadesSignaturesEntry_ThrowsException("signatures0.xml");
   }
+
   @Test
   public void validateAsicsContainerParseResult_WhenTimestampedContainerHasXadesSignaturesUpperCaseEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenTimestampedContainerHasXadesSignaturesEntry_ThrowsException("SIGNATURES.XML");
@@ -452,6 +455,7 @@ public class AsicSContainerValidationUtilsTest {
   public void validateAsicsContainerParseResult_WhenTimestampedContainerHasCadesSignature0Entry_ThrowsException() {
     validateAsicsContainerParseResult_WhenTimestampedContainerHasUnsupportedCadesSignatureEntry_ThrowsException("signature0.p7s");
   }
+
   @Test
   public void validateAsicsContainerParseResult_WhenTimestampedContainerHasCadesSignatureUpperCaseEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenTimestampedContainerHasUnsupportedCadesSignatureEntry_ThrowsException("SIGNATURE.P7S");

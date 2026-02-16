@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.impl.asic.xades.XadesValidationReportProcessor;
 import org.digidoc4j.test.matcher.IsSimpleReportXmlMessage;
 import org.hamcrest.Matcher;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;

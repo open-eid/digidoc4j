@@ -30,10 +30,8 @@ import org.digidoc4j.test.util.TestCommonUtil;
 import org.digidoc4j.test.util.TestFileUtil;
 import org.digidoc4j.test.util.TestTSLUtil;
 import org.digidoc4j.utils.Helper;
-import org.hamcrest.Matchers;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,8 +57,19 @@ import java.util.stream.Stream;
 import static org.digidoc4j.test.TestConstants.DEFAULT_SUPPORTED_TLS_CIPHER_SUITES;
 import static org.digidoc4j.test.TestConstants.DEFAULT_SUPPORTED_TLS_PROTOCOLS;
 import static org.digidoc4j.test.TestConstants.DEFAULT_TLS_PROTOCOL;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ConfigurationTest extends AbstractTest {
 
@@ -72,52 +81,52 @@ public class ConfigurationTest extends AbstractTest {
   @Test
   public void getLotlLocationWhenNotFileURL() {
     String lotlLocation = "URL:test";
-    this.configuration.setLotlLocation(lotlLocation);
-    Assert.assertEquals(lotlLocation, this.configuration.getLotlLocation());
-    Assert.assertEquals(lotlLocation, this.configuration.getTslLocation());
+    configuration.setLotlLocation(lotlLocation);
+    assertEquals(lotlLocation, configuration.getLotlLocation());
+    assertEquals(lotlLocation, configuration.getTslLocation());
   }
 
   @Test
   public void lotlLocationAndTslLocationReferToTheSameValue() {
     String lotlLocation = "URL:test";
-    this.configuration.setLotlLocation(lotlLocation);
-    Assert.assertEquals(lotlLocation, this.configuration.getLotlLocation());
-    Assert.assertEquals(lotlLocation, this.configuration.getTslLocation());
+    configuration.setLotlLocation(lotlLocation);
+    assertEquals(lotlLocation, configuration.getLotlLocation());
+    assertEquals(lotlLocation, configuration.getTslLocation());
     String tslLocation = "URL:test2";
-    this.configuration.setTslLocation(tslLocation);
-    Assert.assertEquals(tslLocation, this.configuration.getLotlLocation());
-    Assert.assertEquals(tslLocation, this.configuration.getTslLocation());
+    configuration.setTslLocation(tslLocation);
+    assertEquals(tslLocation, configuration.getLotlLocation());
+    assertEquals(tslLocation, configuration.getTslLocation());
   }
 
   @Test
   public void TSLIsLoadedOnlyOnceForGlobalConfiguration() {
-    TSLCertificateSource tsl = this.configuration.getTSL();
-    Assert.assertEquals(tsl, this.configuration.getTSL());
+    TSLCertificateSource tsl = configuration.getTSL();
+    assertEquals(tsl, configuration.getTSL());
   }
 
   @Test
   public void addTSL()  {
-    TSLCertificateSource source = this.configuration.getTSL();
+    TSLCertificateSource source = configuration.getTSL();
     int numberOfTSLCertificates = source.getCertificates().size();
-    this.addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/Juur-SK.pem.crt"), source);
-    Assert.assertEquals(numberOfTSLCertificates + 1, this.configuration.getTSL().getCertificates().size());
+    addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/Juur-SK.pem.crt"), source);
+    assertEquals(numberOfTSLCertificates + 1, configuration.getTSL().getCertificates().size());
   }
 
   @Test
   public void addingCertificateToTsl() {
     TSLCertificateSource source = new TSLCertificateSourceImpl();
-    this.addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/Juur-SK.pem.crt"), source);
+    addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/Juur-SK.pem.crt"), source);
     CertificateToken certificateToken = source.getCertificates().get(0);
-    Assert.assertThat(certificateToken.getKeyUsageBits(), hasItem(KeyUsageBit.NON_REPUDIATION));
-    Assert.assertTrue(certificateToken.checkKeyUsage(KeyUsageBit.NON_REPUDIATION));
+    assertThat(certificateToken.getKeyUsageBits(), hasItem(KeyUsageBit.NON_REPUDIATION));
+    assertTrue(certificateToken.checkKeyUsage(KeyUsageBit.NON_REPUDIATION));
     List<TrustProperties> associatedTSPS = source.getTrustServices(certificateToken);
     TrustProperties trustProperties = associatedTSPS.iterator().next();
     TrustServiceStatusAndInformationExtensions informationExtensions = trustProperties.getTrustService().getLatest();
-    Assert.assertEquals("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision", informationExtensions.getStatus());
-    Assert.assertEquals("http://uri.etsi.org/TrstSvc/Svctype/CA/QC", informationExtensions.getType());
-    Assert.assertNotNull(informationExtensions.getStartDate());
+    assertEquals("http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/undersupervision", informationExtensions.getStatus());
+    assertEquals("http://uri.etsi.org/TrstSvc/Svctype/CA/QC", informationExtensions.getType());
+    assertNotNull(informationExtensions.getStartDate());
     List<ConditionForQualifiers> qualifiersAndConditions = informationExtensions.getConditionsForQualifiers();
-    Assert.assertTrue(qualifiersAndConditions.get(0).getQualifiers().contains("http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD"));
+    assertTrue(qualifiersAndConditions.get(0).getQualifiers().contains("http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCWithSSCD"));
   }
 
   @Test
@@ -125,40 +134,40 @@ public class ConfigurationTest extends AbstractTest {
     Path certificatePath = Paths.get("src/test/resources/testFiles/certs/Juur-SK.pem.crt");
     TSLCertificateSource source = new TSLCertificateSourceImpl();
 
-    this.addCertificateToTSL(certificatePath, source);
-    Assert.assertSame(source.getCertificates().size(), 1);
+    addCertificateToTSL(certificatePath, source);
+    assertSame(1, source.getCertificates().size());
     CertificateToken certificateToken = source.getCertificates().get(0);
-    Assert.assertSame(source.getTrustServices(certificateToken).size(), 1);
+    assertSame(1, source.getTrustServices(certificateToken).size());
 
-    this.addCertificateToTSL(certificatePath, source);
-    Assert.assertSame(source.getCertificates().size(), 1);
+    addCertificateToTSL(certificatePath, source);
+    assertSame(1, source.getCertificates().size());
     certificateToken = source.getCertificates().get(0);
-    Assert.assertSame(source.getTrustServices(certificateToken).size(), 2);
+    assertSame(2, source.getTrustServices(certificateToken).size());
 
-    this.addCertificateToTSL(certificatePath, source);
-    Assert.assertSame(source.getCertificates().size(), 1);
+    addCertificateToTSL(certificatePath, source);
+    assertSame(1, source.getCertificates().size());
     certificateToken = source.getCertificates().get(0);
-    Assert.assertSame(source.getTrustServices(certificateToken).size(), 3);
+    assertSame(3, source.getTrustServices(certificateToken).size());
   }
 
   @Test
   public void clearTSLLoadsFromConfiguration() {
-    TSLCertificateSource tsl = this.configuration.getTSL();
+    TSLCertificateSource tsl = configuration.getTSL();
     int numberOfTSLCertificates = tsl.getCertificates().size();
-    this.configuration.setTSL(null);
-    Assert.assertEquals(numberOfTSLCertificates, this.configuration.getTSL().getCertificates().size());
+    configuration.setTSL(null);
+    assertEquals(numberOfTSLCertificates, configuration.getTSL().getCertificates().size());
   }
 
   @Test
   public void setTSL() throws IOException, CertificateException {
     TSLCertificateSource source = new TSLCertificateSourceImpl();
-    this.addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/Juur-SK.pem.crt"), source);
-    this.configuration.setTSL(source);
-    Assert.assertEquals(1, this.configuration.getTSL().getCertificates().size());
+    addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/Juur-SK.pem.crt"), source);
+    configuration.setTSL(source);
+    assertEquals(1, configuration.getTSL().getCertificates().size());
   }
 
   @SuppressWarnings("ConstantConditions")
-  @Ignore("Ignored till problem with file times are solved")
+  @Disabled("Ignored till problem with file times are solved")
   @Test
   public void clearTSLCache() throws Exception {
     // TODO: find out why file times are equal; till then ignore
@@ -166,7 +175,7 @@ public class ConfigurationTest extends AbstractTest {
     if (fileCacheDirectory.exists()) {
       FileUtils.cleanDirectory(fileCacheDirectory);
     }
-    TSLCertificateSource tslCertificateSource = this.configuration.getTSL();
+    TSLCertificateSource tslCertificateSource = configuration.getTSL();
     tslCertificateSource.refresh();
     TestCommonUtil.sleepInSeconds(1);
     File oldCachedFile = fileCacheDirectory.listFiles()[0];
@@ -174,26 +183,26 @@ public class ConfigurationTest extends AbstractTest {
         "basic:creationTime");
 
     tslCertificateSource.invalidateCache();
-    this.configuration.setTSL(null);
-    tslCertificateSource = this.configuration.getTSL();
+    configuration.setTSL(null);
+    tslCertificateSource = configuration.getTSL();
     tslCertificateSource.refresh();
     File newCachedFile = fileCacheDirectory.listFiles()[0];
     FileTime newCachedFileDate = TestFileUtil.creationTime(newCachedFile.toPath());
-    Assert.assertTrue(newCachedFileDate.compareTo(oldCachedFileDate) > 0);
+    assertTrue(newCachedFileDate.compareTo(oldCachedFileDate) > 0);
   }
 
   @Test
   public void getTsl_whenCacheIsNotExpired_shouldUseCachedTsl() {
     TestTSLUtil.evictCache();
-    this.configuration.setTslCacheExpirationTime(10000L);
-    TSLCertificateSource tsl1 = this.configuration.getTSL();
+    configuration.setTslCacheExpirationTime(10000L);
+    TSLCertificateSource tsl1 = configuration.getTSL();
     tsl1.refresh();
     long lastModified1 = TestTSLUtil.getCacheLastModified();
     TestCommonUtil.sleepInSeconds(1);
-    TSLCertificateSource tsl2 = this.configuration.getTSL();
+    TSLCertificateSource tsl2 = configuration.getTSL();
     tsl2.refresh();
-    Assert.assertEquals(lastModified1, TestTSLUtil.getCacheLastModified());
-    Assert.assertSame(tsl1, tsl2);
+    assertEquals(lastModified1, TestTSLUtil.getCacheLastModified());
+    assertSame(tsl1, tsl2);
   }
 
   @Test
@@ -207,18 +216,18 @@ public class ConfigurationTest extends AbstractTest {
     TSLCertificateSource newTsl = configuration.getTSL();
     newTsl.refresh();
     long newModificationTime = TestTSLUtil.getCacheLastModified();
-    Assert.assertTrue(lastModified < newModificationTime);
-    Assert.assertSame(tsl, newTsl);
+    assertTrue(lastModified < newModificationTime);
+    assertSame(tsl, newTsl);
   }
 
   @Test
   public void lotlValidationFailsWithWrongCertsInTruststore() {
-    this.configuration = new Configuration(Configuration.Mode.PROD);
-    this.configuration.setLotlTruststorePath("truststores/test-lotl-truststore.p12");
+    configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setLotlTruststorePath("truststores/test-lotl-truststore.p12");
     try {
-      this.configuration.getTSL();
+      configuration.getTSL();
     } catch (TslCertificateSourceInitializationException e) {
-      Assert.assertEquals("Not ETSI compliant signature. The signature is not valid.", e.getMessage());
+      assertEquals("Not ETSI compliant signature. The signature is not valid.", e.getMessage());
     }
   }
 
@@ -251,318 +260,318 @@ public class ConfigurationTest extends AbstractTest {
     configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
     evictTSLCache();
     ValidationResult validationResult = ContainerOpener.open("src/test/resources/prodFiles/valid-containers/valid_prod_bdoc_eid.bdoc", configuration).validate();
-    Assert.assertTrue("Certificate path should not be trusted", validationResult.getErrors().stream()
-            .anyMatch(e -> "The certificate chain for signature is not trusted, it does not contain a trust anchor.".equals(e.getMessage())));
+    assertTrue(validationResult.getErrors().stream()
+            .anyMatch(e -> "The certificate chain for signature is not trusted, it does not contain a trust anchor.".equals(e.getMessage())), "Certificate path should not be trusted");
   }
 
   @Test
   public void addedTSLIsValid() {
-    TSLCertificateSource source = this.configuration.getTSL();
-    this.addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/Juur-SK.pem.crt"), source);
-    this.addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/EE_Certification_Centre_Root_CA.pem.crt"), source);
-    this.addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/ESTEID-SK_2011.pem.crt"), source);
-    this.addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/SK_OCSP_RESPONDER_2011.pem.cer"), source);
-    this.addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/SK_TSA.pem.crt"), source);
-    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/test.asice", this.configuration);
-    Assert.assertTrue(container.validate().isValid());
+    TSLCertificateSource source = configuration.getTSL();
+    addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/Juur-SK.pem.crt"), source);
+    addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/EE_Certification_Centre_Root_CA.pem.crt"), source);
+    addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/ESTEID-SK_2011.pem.crt"), source);
+    addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/SK_OCSP_RESPONDER_2011.pem.cer"), source);
+    addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/SK_TSA.pem.crt"), source);
+    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/test.asice", configuration);
+    assertTrue(container.validate().isValid());
   }
 
   @Test
   public void policyFileIsReadFromNonDefaultFileLocation() {
-    this.configuration.setValidationPolicy("src/test/resources/testFiles/constraints/moved_constraint.xml");
-    ContainerOpener.open("src/test/resources/testFiles/invalid-containers/asics_for_testing.bdoc", this.configuration);
+    configuration.setValidationPolicy("src/test/resources/testFiles/constraints/moved_constraint.xml");
+    ContainerOpener.open("src/test/resources/testFiles/invalid-containers/asics_for_testing.bdoc", configuration);
   }
 
   @Test
   public void tslIsLoadedAfterSettingNewLotlLocation() throws Exception {
-    this.configuration.setLotlLocation("https://open-eid.github.io/test-TL/tl-mp-test-EE.xml");
+    configuration.setLotlLocation("https://open-eid.github.io/test-TL/tl-mp-test-EE.xml");
     BDocContainer container = (BDocContainer) ContainerBuilder.aContainer(Container.DocumentType.BDOC)
-        .withConfiguration(this.configuration).build();
+        .withConfiguration(configuration).build();
     container.getConfiguration().getTSL();
-    Assert.assertEquals(32, container.getConfiguration().getTSL().getCertificates().size());
+    assertEquals(32, container.getConfiguration().getTSL().getCertificates().size());
 
     int tenSeconds = 10000;
     String lotlHost = "10.0.25.57";
     if (InetAddress.getByName(lotlHost).isReachable(tenSeconds)) {
-      this.configuration.setLotlLocation("http://" + lotlHost + "/tsl/trusted-test-mp.xml");
+      configuration.setLotlLocation("http://" + lotlHost + "/tsl/trusted-test-mp.xml");
       container = (BDocContainer) ContainerBuilder.aContainer(Container.DocumentType.BDOC).
-          withConfiguration(this.configuration).build();
-      Assert.assertNotEquals(5, container.getConfiguration().getTSL().getCertificates().size());
+          withConfiguration(configuration).build();
+      assertNotEquals(5, container.getConfiguration().getTSL().getCertificates().size());
     } else {
-      this.log.error("Host <{}> is unreachable", lotlHost);
+      log.error("Host <{}> is unreachable", lotlHost);
     }
   }
 
   @Test
   public void LOTLFileNotFoundThrowsNoException() {
-    this.configuration.setLotlLocation("file:test-lotl/NotExisting.xml");
-    this.configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
+    configuration.setLotlLocation("file:test-lotl/NotExisting.xml");
+    configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
     BDocContainer container = (BDocContainer) ContainerBuilder.
         aContainer(Container.DocumentType.BDOC).
-        withConfiguration(this.configuration).
+        withConfiguration(configuration).
         build();
     container.getConfiguration().getTSL().refresh();
-    Assert.assertEquals(0, this.configuration.getTSL().getCertificates().size());
+    assertEquals(0, configuration.getTSL().getCertificates().size());
   }
 
   @Test
   public void LOTLConnectionFailureThrowsNoException() {
-    this.configuration.setLotlLocation("http://127.0.0.1/lotl/incorrect.xml");
-    this.configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
+    configuration.setLotlLocation("http://127.0.0.1/lotl/incorrect.xml");
+    configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
     BDocContainer container = (BDocContainer) ContainerBuilder.
         aContainer(Container.DocumentType.BDOC).
-        withConfiguration(this.configuration).
+        withConfiguration(configuration).
         build();
     container.getConfiguration().getTSL().refresh();
-    Assert.assertEquals(0, this.configuration.getTSL().getCertificates().size());
+    assertEquals(0, configuration.getTSL().getCertificates().size());
   }
 
   @Test
   public void testLoadConfiguration() {
     BDocContainer container = (BDocContainer) ContainerBuilder.
         aContainer(Container.DocumentType.BDOC).
-        withConfiguration(this.configuration).
+        withConfiguration(configuration).
         build();
-    Assert.assertTrue(container.getConfiguration().storeDataFilesOnlyInMemory());
+    assertTrue(container.getConfiguration().storeDataFilesOnlyInMemory());
     container.getConfiguration().loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
-    Assert.assertFalse(container.getConfiguration().storeDataFilesOnlyInMemory());
-    Assert.assertEquals(8192, container.getConfiguration().getMaxDataFileCachedInMB());
+    assertFalse(container.getConfiguration().storeDataFilesOnlyInMemory());
+    assertEquals(8192, container.getConfiguration().getMaxDataFileCachedInMB());
   }
 
   @Test
   public void whenLOTLLocationIsMalformedURLNoErrorIsRaisedAndThisSameValueIsReturned() {
     String lotlLocation = "file://C:\\";
-    this.configuration.setLotlLocation(lotlLocation);
-    Assert.assertEquals(lotlLocation, configuration.getLotlLocation());
+    configuration.setLotlLocation(lotlLocation);
+    assertEquals(lotlLocation, configuration.getLotlLocation());
   }
 
   @Test
   public void getLOTLLocationFileDoesNotExistReturnsUrlPath() {
     String lotlLocation = ("file:conf/does-not-exist.xml");
-    this.configuration.setLotlLocation(lotlLocation);
-    Assert.assertEquals(this.configuration.getLotlLocation(), lotlLocation);
+    configuration.setLotlLocation(lotlLocation);
+    assertEquals(lotlLocation, configuration.getLotlLocation());
   }
 
   @Test
   public void setLotlLocation() {
-    this.configuration.setLotlLocation("lotlLocation");
-    Assert.assertEquals("lotlLocation", this.configuration.getLotlLocation());
-    Assert.assertEquals("lotlLocation", this.configuration.getTslLocation());
+    configuration.setLotlLocation("lotlLocation");
+    assertEquals("lotlLocation", configuration.getLotlLocation());
+    assertEquals("lotlLocation", configuration.getTslLocation());
   }
 
   @Test
   public void setTslLocation() {
-    this.configuration.setTslLocation("tslLocation");
-    Assert.assertEquals("tslLocation", this.configuration.getLotlLocation());
-    Assert.assertEquals("tslLocation", this.configuration.getTslLocation());
+    configuration.setTslLocation("tslLocation");
+    assertEquals("tslLocation", configuration.getLotlLocation());
+    assertEquals("tslLocation", configuration.getTslLocation());
   }
 
   @Test
   public void getLotlLocationFromConfigurationFile() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
-    Assert.assertEquals("TEST_LOTL_LOCATION", this.configuration.getLotlLocation());
-    Assert.assertEquals("TEST_LOTL_LOCATION", this.configuration.getTslLocation());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    assertEquals("TEST_LOTL_LOCATION", configuration.getLotlLocation());
+    assertEquals("TEST_LOTL_LOCATION", configuration.getTslLocation());
   }
 
   @Test
   public void getTslLocationFromConfigurationFile() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_tsl_location_and_keystore.yaml");
-    Assert.assertEquals("file:conf/test_TSLLocation", this.configuration.getLotlLocation());
-    Assert.assertEquals("file:conf/test_TSLLocation", this.configuration.getTslLocation());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_tsl_location_and_keystore.yaml");
+    assertEquals("file:conf/test_TSLLocation", configuration.getLotlLocation());
+    assertEquals("file:conf/test_TSLLocation", configuration.getTslLocation());
   }
 
   @Test
   public void setLotlLocationOverwritesConfigurationFile() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
-    this.configuration.setLotlLocation("lotlLocation");
-    Assert.assertEquals("lotlLocation", this.configuration.getLotlLocation());
-    Assert.assertEquals("lotlLocation", this.configuration.getTslLocation());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    configuration.setLotlLocation("lotlLocation");
+    assertEquals("lotlLocation", configuration.getLotlLocation());
+    assertEquals("lotlLocation", configuration.getTslLocation());
   }
 
   @Test
   public void setTspSource() {
     configuration.setTspSource("tspSource");
-    Assert.assertEquals("tspSource", configuration.getTspSource());
-    Assert.assertEquals("tspSource", configuration.getTspSourceForArchiveTimestamps());
+    assertEquals("tspSource", configuration.getTspSource());
+    assertEquals("tspSource", configuration.getTspSourceForArchiveTimestamps());
   }
 
   @Test
   public void setTspSourceForArchiveTimestamps() {
     String tspSource = configuration.getTspSource();
     configuration.setTspSourceForArchiveTimestamps("tspSourceForArchiveTimestamps");
-    Assert.assertEquals("tspSourceForArchiveTimestamps", configuration.getTspSourceForArchiveTimestamps());
-    Assert.assertEquals(tspSource, configuration.getTspSource());
+    assertEquals("tspSourceForArchiveTimestamps", configuration.getTspSourceForArchiveTimestamps());
+    assertEquals(tspSource, configuration.getTspSource());
   }
 
   @Test
   public void setValidationPolicy() {
-    this.configuration.setValidationPolicy("policy");
-    Assert.assertEquals("policy", this.configuration.getValidationPolicy());
+    configuration.setValidationPolicy("policy");
+    assertEquals("policy", configuration.getValidationPolicy());
   }
 
   @Test
   public void setOcspSource() {
-    this.configuration.setOcspSource("ocsp_source");
-    Assert.assertEquals("ocsp_source", this.configuration.getOcspSource());
+    configuration.setOcspSource("ocsp_source");
+    assertEquals("ocsp_source", configuration.getOcspSource());
   }
 
   @Test
   public void setUseOcspNonce() {
-    Assert.assertTrue(this.configuration.isOcspNonceUsed());
-    this.configuration.setUseOcspNonce(false);
-    Assert.assertFalse(this.configuration.isOcspNonceUsed());
+    assertTrue(configuration.isOcspNonceUsed());
+    configuration.setUseOcspNonce(false);
+    assertFalse(configuration.isOcspNonceUsed());
   }
 
   @Test
   public void defaultOCSPAccessCertificateFile() {
-    Assert.assertEquals("", this.configuration.getOCSPAccessCertificateFileName());
-    Assert.assertEquals("", this.getDDoc4JConfigurationValue(OCSP_PKCS12_CONTAINER));
+    assertEquals("", configuration.getOCSPAccessCertificateFileName());
+    assertEquals("", getDDoc4JConfigurationValue(OCSP_PKCS12_CONTAINER));
   }
 
   @Test
   public void getOCSPAccessCertificateFileFromConfigurationFile() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
-    Assert.assertEquals("conf/OCSP_access_certificate_test_file_name", this.configuration.getOCSPAccessCertificateFileName());
-    Assert.assertEquals("conf/OCSP_access_certificate_test_file_name", this.getDDoc4JConfigurationValue(OCSP_PKCS12_CONTAINER));
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
+    assertEquals("conf/OCSP_access_certificate_test_file_name", configuration.getOCSPAccessCertificateFileName());
+    assertEquals("conf/OCSP_access_certificate_test_file_name", getDDoc4JConfigurationValue(OCSP_PKCS12_CONTAINER));
   }
 
   @Test
   public void getOCSPAccessCertificateFileFromStream() throws Exception {
     try (InputStream inputStream = new FileInputStream("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml")) {
-      this.configuration.loadConfiguration(inputStream);
+      configuration.loadConfiguration(inputStream);
     }
-    Assert.assertEquals("conf/OCSP_access_certificate_test_file_name", this.configuration.getOCSPAccessCertificateFileName());
-    Assert.assertEquals("conf/OCSP_access_certificate_test_file_name", this.getDDoc4JConfigurationValue(OCSP_PKCS12_CONTAINER));
+    assertEquals("conf/OCSP_access_certificate_test_file_name", configuration.getOCSPAccessCertificateFileName());
+    assertEquals("conf/OCSP_access_certificate_test_file_name", getDDoc4JConfigurationValue(OCSP_PKCS12_CONTAINER));
   }
 
   @Test
   public void setOCSPAccessCertificateFileNameOverwritesConfigurationFile() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
-    this.configuration.setOCSPAccessCertificateFileName("New File");
-    Assert.assertEquals("New File", configuration.getOCSPAccessCertificateFileName());
-    Assert.assertEquals("New File", this.getDDoc4JConfigurationValue(OCSP_PKCS12_CONTAINER));
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
+    configuration.setOCSPAccessCertificateFileName("New File");
+    assertEquals("New File", configuration.getOCSPAccessCertificateFileName());
+    assertEquals("New File", getDDoc4JConfigurationValue(OCSP_PKCS12_CONTAINER));
   }
 
   @Test
   public void defaultOCSPAccessCertificatePassword() {
-    Assert.assertEquals(0, this.configuration.getOCSPAccessCertificatePassword().length);
-    Assert.assertNull(this.getDDoc4JConfigurationValue(OCSP_PKCS_12_PASSWD));
+    assertEquals(0, configuration.getOCSPAccessCertificatePassword().length);
+    assertNull(getDDoc4JConfigurationValue(OCSP_PKCS_12_PASSWD));
   }
 
   @Test
   public void getOCSPAccessCertificatePasswordFromConfigurationFile() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
-    Assert.assertArrayEquals("OCSP_test_password".toCharArray(), this.configuration.getOCSPAccessCertificatePassword());
-    Assert.assertEquals("OCSP_test_password", this.getDDoc4JConfigurationValue(OCSP_PKCS_12_PASSWD));
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
+    assertArrayEquals("OCSP_test_password".toCharArray(), configuration.getOCSPAccessCertificatePassword());
+    assertEquals("OCSP_test_password", getDDoc4JConfigurationValue(OCSP_PKCS_12_PASSWD));
   }
 
   @Test
   public void setOCSPAccessCertificatePasswordOverwritesConfigurationFile() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
     char[] newPassword = "New password".toCharArray();
-    this.configuration.setOCSPAccessCertificatePassword(newPassword);
-    Assert.assertArrayEquals(newPassword, this.configuration.getOCSPAccessCertificatePassword());
-    Assert.assertEquals("New password", this.getDDoc4JConfigurationValue(OCSP_PKCS_12_PASSWD));
+    configuration.setOCSPAccessCertificatePassword(newPassword);
+    assertArrayEquals(newPassword, configuration.getOCSPAccessCertificatePassword());
+    assertEquals("New password", getDDoc4JConfigurationValue(OCSP_PKCS_12_PASSWD));
   }
 
   @Test
   public void signingOcspRequest_ShouldBeDisabled_InProdByDefault() {
-    this.configuration = Configuration.of(Configuration.Mode.PROD);
-    Assert.assertFalse(this.configuration.hasToBeOCSPRequestSigned());
-    Assert.assertEquals("false", this.getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
+    configuration = Configuration.of(Configuration.Mode.PROD);
+    assertFalse(configuration.hasToBeOCSPRequestSigned());
+    assertEquals("false", getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
   }
 
   @Test
   public void signingOcspRequest_ShouldBeDisabled_InTestByDefault() {
-    Assert.assertFalse(this.configuration.hasToBeOCSPRequestSigned());
-    Assert.assertEquals("false", this.getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
+    assertFalse(configuration.hasToBeOCSPRequestSigned());
+    assertEquals("false", getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
   }
 
   @Test
   public void disableSigningOcspRequestsInProd() {
-    this.configuration = Configuration.of(Configuration.Mode.PROD);
-    this.configuration.setSignOCSPRequests(false);
-    Assert.assertFalse(this.configuration.hasToBeOCSPRequestSigned());
-    Assert.assertEquals("false", this.getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
+    configuration = Configuration.of(Configuration.Mode.PROD);
+    configuration.setSignOCSPRequests(false);
+    assertFalse(configuration.hasToBeOCSPRequestSigned());
+    assertEquals("false", getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
   }
 
   @Test
   public void enableSigningOcspRequestsInTest() {
-    this.configuration.setSignOCSPRequests(true);
-    Assert.assertTrue(this.configuration.hasToBeOCSPRequestSigned());
-    Assert.assertEquals("true", this.getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
+    configuration.setSignOCSPRequests(true);
+    assertTrue(configuration.hasToBeOCSPRequestSigned());
+    assertEquals("true", getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
   }
 
   @Test
   public void loadDisableSigningOcspRequestFromConfFileInProd() {
-    this.configuration = Configuration.of(Configuration.Mode.PROD);
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
-    Assert.assertFalse(this.configuration.hasToBeOCSPRequestSigned());
-    Assert.assertEquals("false", this.getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
+    configuration = Configuration.of(Configuration.Mode.PROD);
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    assertFalse(configuration.hasToBeOCSPRequestSigned());
+    assertEquals("false", getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
   }
 
   @Test
   public void loadDisableSigningOcspRequestFromConfFile() {
-    this.configuration.loadConfiguration(this.generateConfigurationByParameter("SIGN_OCSP_REQUESTS: false").getPath());
-    Assert.assertFalse(this.configuration.hasToBeOCSPRequestSigned());
-    Assert.assertEquals("false", this.getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
+    configuration.loadConfiguration(generateConfigurationByParameter("SIGN_OCSP_REQUESTS: false").getPath());
+    assertFalse(configuration.hasToBeOCSPRequestSigned());
+    assertEquals("false", getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
   }
 
   @Test
   public void loadEnableSigningOcspRequestFromConfFile() {
-    this.configuration.loadConfiguration(this.generateConfigurationByParameter("SIGN_OCSP_REQUESTS: true").getPath());
-    Assert.assertTrue(configuration.hasToBeOCSPRequestSigned());
-    Assert.assertEquals("true", this.getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
+    configuration.loadConfiguration(generateConfigurationByParameter("SIGN_OCSP_REQUESTS: true").getPath());
+    assertTrue(configuration.hasToBeOCSPRequestSigned());
+    assertEquals("true", getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
   }
 
   @Test
   public void defaultOcspSource() {
-    Assert.assertEquals("http://demo.sk.ee/ocsp", this.configuration.getOcspSource());
+    assertEquals("http://demo.sk.ee/ocsp", configuration.getOcspSource());
   }
 
   @Test
   public void defaultProductionConfiguration() {
-    this.configuration = Configuration.of(Configuration.Mode.PROD);
-    Assert.assertEquals("https://ec.europa.eu/tools/lotl/eu-lotl.xml",
-        this.configuration.getLotlLocation());
+    configuration = Configuration.of(Configuration.Mode.PROD);
+    assertEquals("https://ec.europa.eu/tools/lotl/eu-lotl.xml",
+        configuration.getLotlLocation());
   }
 
   @Test
   public void defaultConstructorWithSetSystemProperty() {
-    this.configuration = new Configuration();
-    Assert.assertEquals("https://open-eid.github.io/test-TL/tl-mp-test-EE.xml", this.configuration.getLotlLocation());
+    configuration = new Configuration();
+    assertEquals("https://open-eid.github.io/test-TL/tl-mp-test-EE.xml", configuration.getLotlLocation());
   }
 
   @Test
   public void setMaxDataFileCached() {
     long maxDataFileCached = 12345;
-    this.configuration.setMaxFileSizeCachedInMemoryInMB(maxDataFileCached);
-    Assert.assertEquals(maxDataFileCached, this.configuration.getMaxDataFileCachedInMB());
-    Assert.assertEquals(maxDataFileCached * Constant.ONE_MB_IN_BYTES, this.configuration.getMaxDataFileCachedInBytes());
+    configuration.setMaxFileSizeCachedInMemoryInMB(maxDataFileCached);
+    assertEquals(maxDataFileCached, configuration.getMaxDataFileCachedInMB());
+    assertEquals(maxDataFileCached * Constant.ONE_MB_IN_BYTES, configuration.getMaxDataFileCachedInBytes());
   }
 
   @Test
   public void setMaxDataFileCachedToNoCaching() {
     long maxDataFileCached = Constant.CACHE_NO_DATA_FILES;
-    this.configuration.setMaxFileSizeCachedInMemoryInMB(maxDataFileCached);
-    Assert.assertEquals(Constant.CACHE_NO_DATA_FILES, this.configuration.getMaxDataFileCachedInMB());
-    Assert.assertEquals(Constant.CACHE_NO_DATA_FILES, this.configuration.getMaxDataFileCachedInBytes());
+    configuration.setMaxFileSizeCachedInMemoryInMB(maxDataFileCached);
+    assertEquals(Constant.CACHE_NO_DATA_FILES, configuration.getMaxDataFileCachedInMB());
+    assertEquals(Constant.CACHE_NO_DATA_FILES, configuration.getMaxDataFileCachedInBytes());
   }
 
   @Test
   public void setMaxDataFileCachedToAllCaching() {
     long maxDataFileCached = Constant.CACHE_ALL_DATA_FILES;
-    this.configuration.setMaxFileSizeCachedInMemoryInMB(maxDataFileCached);
-    Assert.assertEquals(Constant.CACHE_ALL_DATA_FILES, this.configuration.getMaxDataFileCachedInMB());
-    Assert.assertEquals(Constant.CACHE_ALL_DATA_FILES, this.configuration.getMaxDataFileCachedInBytes());
+    configuration.setMaxFileSizeCachedInMemoryInMB(maxDataFileCached);
+    assertEquals(Constant.CACHE_ALL_DATA_FILES, configuration.getMaxDataFileCachedInMB());
+    assertEquals(Constant.CACHE_ALL_DATA_FILES, configuration.getMaxDataFileCachedInBytes());
   }
 
   @Test
   public void maxDataFileCachedNotAllowedValue() {
     long oldValue = 4096;
-    this.configuration.setMaxFileSizeCachedInMemoryInMB(oldValue);
-    this.configuration.setMaxFileSizeCachedInMemoryInMB(-2);
-    Assert.assertEquals(oldValue, this.configuration.getMaxDataFileCachedInMB());
+    configuration.setMaxFileSizeCachedInMemoryInMB(oldValue);
+    configuration.setMaxFileSizeCachedInMemoryInMB(-2);
+    assertEquals(oldValue, configuration.getMaxDataFileCachedInMB());
   }
 
   @Test
@@ -576,54 +585,54 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void defaultConstructorWithUnSetSystemProperty() {
-    this.clearGlobalMode();
-    this.configuration = new Configuration();
-    Assert.assertEquals("https://ec.europa.eu/tools/lotl/eu-lotl.xml",
-        this.configuration.getLotlLocation());
+    clearGlobalMode();
+    configuration = new Configuration();
+    assertEquals("https://ec.europa.eu/tools/lotl/eu-lotl.xml",
+            configuration.getLotlLocation());
   }
 
   @Test
   public void generateDDoc4JConfig() {
-    Hashtable<String, String> ddoc4jConf = this.configuration.loadConfiguration("src/main/resources/digidoc4j.yaml");
-    this.configuration.getDDoc4JConfiguration();
-    Assert.assertEquals("jar://certs/ESTEID-SK.crt", ddoc4jConf.get("DIGIDOC_CA_1_CERT2"));
-    Assert.assertEquals("jar://certs/KLASS3-SK OCSP 2006.crt", ddoc4jConf.get("DIGIDOC_CA_1_OCSP2_CERT_1"));
-    Assert.assertEquals("jar://certs/EID-SK OCSP 2006.crt", ddoc4jConf.get("DIGIDOC_CA_1_OCSP13_CERT_1"));
-    Assert.assertEquals("jar://certs/TEST Juur-SK.crt", ddoc4jConf.get("DIGIDOC_CA_1_CERT19"));
-    Assert.assertEquals(Constant.DDoc4J.SECURITY_PROVIDER, ddoc4jConf.get("DIGIDOC_SECURITY_PROVIDER"));
-    Assert.assertEquals(Constant.DDoc4J.SECURITY_PROVIDER_NAME, ddoc4jConf.get("DIGIDOC_SECURITY_PROVIDER_NAME"));
-    Assert.assertEquals("false", ddoc4jConf.get("DATAFILE_HASHCODE_MODE"));
-    Assert.assertEquals(Constant.DDoc4J.CANONICALIZATION_FACTORY_IMPLEMENTATION, ddoc4jConf.get("CANONICALIZATION_FACTORY_IMPL"));
-    Assert.assertEquals("-1", ddoc4jConf.get("DIGIDOC_MAX_DATAFILE_CACHED"));
-    Assert.assertEquals("false", ddoc4jConf.get(SIGN_OCSP_REQUESTS));
-    Assert.assertEquals("jar://certs/KLASS3-SK OCSP.crt", ddoc4jConf.get("DIGIDOC_CA_1_OCSP2_CERT"));
+    Hashtable<String, String> ddoc4jConf = configuration.loadConfiguration("src/main/resources/digidoc4j.yaml");
+    configuration.getDDoc4JConfiguration();
+    assertEquals("jar://certs/ESTEID-SK.crt", ddoc4jConf.get("DIGIDOC_CA_1_CERT2"));
+    assertEquals("jar://certs/KLASS3-SK OCSP 2006.crt", ddoc4jConf.get("DIGIDOC_CA_1_OCSP2_CERT_1"));
+    assertEquals("jar://certs/EID-SK OCSP 2006.crt", ddoc4jConf.get("DIGIDOC_CA_1_OCSP13_CERT_1"));
+    assertEquals("jar://certs/TEST Juur-SK.crt", ddoc4jConf.get("DIGIDOC_CA_1_CERT19"));
+    assertEquals(Constant.DDoc4J.SECURITY_PROVIDER, ddoc4jConf.get("DIGIDOC_SECURITY_PROVIDER"));
+    assertEquals(Constant.DDoc4J.SECURITY_PROVIDER_NAME, ddoc4jConf.get("DIGIDOC_SECURITY_PROVIDER_NAME"));
+    assertEquals("false", ddoc4jConf.get("DATAFILE_HASHCODE_MODE"));
+    assertEquals(Constant.DDoc4J.CANONICALIZATION_FACTORY_IMPLEMENTATION, ddoc4jConf.get("CANONICALIZATION_FACTORY_IMPL"));
+    assertEquals("-1", ddoc4jConf.get("DIGIDOC_MAX_DATAFILE_CACHED"));
+    assertEquals("false", ddoc4jConf.get(SIGN_OCSP_REQUESTS));
+    assertEquals("jar://certs/KLASS3-SK OCSP.crt", ddoc4jConf.get("DIGIDOC_CA_1_OCSP2_CERT"));
   }
 
   @Test
   public void loadsDDoc4JSecurityProviderFromFile() {
-    Hashtable<String, String> ddoc4jConf = this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
-    Assert.assertEquals("org.bouncycastle.jce.provider.BouncyCastleProvider1", ddoc4jConf.get("DIGIDOC_SECURITY_PROVIDER"));
+    Hashtable<String, String> ddoc4jConf = configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
+    assertEquals("org.bouncycastle.jce.provider.BouncyCastleProvider1", ddoc4jConf.get("DIGIDOC_SECURITY_PROVIDER"));
   }
 
   @Test
   public void loadsDDoc4JCacheDirectoryFromFile() {
-    Hashtable<String, String> ddoc4jConf = this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
-    Assert.assertEquals("/test_cache_dir", ddoc4jConf.get("DIGIDOC_DF_CACHE_DIR"));
+    Hashtable<String, String> ddoc4jConf = configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
+    assertEquals("/test_cache_dir", ddoc4jConf.get("DIGIDOC_DF_CACHE_DIR"));
   }
 
   @Test
   public void defaultDDoc4JCacheDirectory() {
     Hashtable<String, String> ddoc4jConf =
-        this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_without_cache_dir.yaml");
-    Assert.assertNull(ddoc4jConf.get("DIGIDOC_DF_CACHE_DIR"));
+            configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_without_cache_dir.yaml");
+    assertNull(ddoc4jConf.get("DIGIDOC_DF_CACHE_DIR"));
   }
 
   @Test
   public void loadsMaxDataFileCachedFromFile() {
-    Hashtable<String, String> ddoc4jConf = this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
-    Assert.assertEquals("8192", ddoc4jConf.get("DIGIDOC_MAX_DATAFILE_CACHED"));
-    Assert.assertEquals(8192, this.configuration.getMaxDataFileCachedInMB());
-    Assert.assertEquals(8192 * Constant.ONE_MB_IN_BYTES, this.configuration.getMaxDataFileCachedInBytes());
+    Hashtable<String, String> ddoc4jConf = configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
+    assertEquals("8192", ddoc4jConf.get("DIGIDOC_MAX_DATAFILE_CACHED"));
+    assertEquals(8192, configuration.getMaxDataFileCachedInMB());
+    assertEquals(8192 * Constant.ONE_MB_IN_BYTES, configuration.getMaxDataFileCachedInBytes());
   }
 
   @Test
@@ -635,20 +644,20 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void digiDocSecurityProviderDefaultValue() {
-    Hashtable<String, String> ddoc4jConf = this.configuration.loadConfiguration("src/main/resources/digidoc4j.yaml");
-    Assert.assertEquals(Constant.DDoc4J.SECURITY_PROVIDER, ddoc4jConf.get("DIGIDOC_SECURITY_PROVIDER"));
+    Hashtable<String, String> ddoc4jConf = configuration.loadConfiguration("src/main/resources/digidoc4j.yaml");
+    assertEquals(Constant.DDoc4J.SECURITY_PROVIDER, ddoc4jConf.get("DIGIDOC_SECURITY_PROVIDER"));
   }
 
   @Test
   public void digiDocSecurityProviderDefaultName() {
-    Hashtable<String, String> ddoc4jConf = this.configuration.loadConfiguration("src/main/resources/digidoc4j.yaml");
-    Assert.assertEquals(Constant.DDoc4J.SECURITY_PROVIDER_NAME, ddoc4jConf.get("DIGIDOC_SECURITY_PROVIDER_NAME"));
+    Hashtable<String, String> ddoc4jConf = configuration.loadConfiguration("src/main/resources/digidoc4j.yaml");
+    assertEquals(Constant.DDoc4J.SECURITY_PROVIDER_NAME, ddoc4jConf.get("DIGIDOC_SECURITY_PROVIDER_NAME"));
   }
 
   @Test
   public void asksValueOfNonExistingParameter() {
-    Hashtable<String, String> ddoc4jConf = this.configuration.loadConfiguration("src/main/resources/digidoc4j.yaml");
-    Assert.assertNull(ddoc4jConf.get("DIGIDOC_PROXY_HOST"));
+    Hashtable<String, String> ddoc4jConf = configuration.loadConfiguration("src/main/resources/digidoc4j.yaml");
+    assertNull(ddoc4jConf.get("DIGIDOC_PROXY_HOST"));
   }
 
   @Test
@@ -796,81 +805,81 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void isOCSPSigningConfigurationAvailableWhenItIsNotAvailable() {
-    assertFalse(this.configuration.isOCSPSigningConfigurationAvailable());
+    assertFalse(configuration.isOCSPSigningConfigurationAvailable());
   }
 
   @Test
   public void isOCSPSigningConfigurationAvailableWhenItIsAvailable() {
-    this.configuration.setOCSPAccessCertificateFileName("test.p12");
-    this.configuration.setOCSPAccessCertificatePassword("aaa".toCharArray());
-    Assert.assertTrue(this.configuration.isOCSPSigningConfigurationAvailable());
+    configuration.setOCSPAccessCertificateFileName("test.p12");
+    configuration.setOCSPAccessCertificatePassword("aaa".toCharArray());
+    assertTrue(configuration.isOCSPSigningConfigurationAvailable());
   }
 
   @Test
   public void isOCSPSigningConfigurationAvailableWhenFileIsAvailable() {
-    this.configuration.setOCSPAccessCertificateFileName("test.p12");
-    Assert.assertFalse(this.configuration.isOCSPSigningConfigurationAvailable());
+    configuration.setOCSPAccessCertificateFileName("test.p12");
+    assertFalse(configuration.isOCSPSigningConfigurationAvailable());
   }
 
   @Test
   public void isOCSPSigningConfigurationAvailableWhenPasswordIsAvailable() {
-    this.configuration.setOCSPAccessCertificatePassword("aaa".toCharArray());
-    Assert.assertFalse(this.configuration.isOCSPSigningConfigurationAvailable());
+    configuration.setOCSPAccessCertificatePassword("aaa".toCharArray());
+    assertFalse(configuration.isOCSPSigningConfigurationAvailable());
   }
 
   @Test
   public void getTspSourceDefaultValuesForProdConfiguration() {
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
-    Assert.assertEquals(Constant.Production.TSP_SOURCE, configuration.getTspSource());
-    Assert.assertEquals(Constant.Production.TSP_SOURCE, configuration.getTspSourceForArchiveTimestamps());
+    assertEquals(Constant.Production.TSP_SOURCE, configuration.getTspSource());
+    assertEquals(Constant.Production.TSP_SOURCE, configuration.getTspSourceForArchiveTimestamps());
   }
 
   @Test
   public void getTspSourceDefaultValuesForTestConfiguration() {
     Configuration configuration = Configuration.of(Configuration.Mode.TEST);
-    Assert.assertEquals(Constant.Test.TSP_SOURCE, configuration.getTspSource());
-    Assert.assertEquals(Constant.Test.TSP_SOURCE, configuration.getTspSourceForArchiveTimestamps());
+    assertEquals(Constant.Test.TSP_SOURCE, configuration.getTspSource());
+    assertEquals(Constant.Test.TSP_SOURCE, configuration.getTspSourceForArchiveTimestamps());
   }
 
   @Test
   public void getTspSourceFromConfigurationFile() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
-    Assert.assertEquals("http://tsp.source.test/HttpTspServer", configuration.getTspSource());
-    Assert.assertEquals("http://tsp.source.test/HttpTspServer", configuration.getTspSourceForArchiveTimestamps());
+    assertEquals("http://tsp.source.test/HttpTspServer", configuration.getTspSource());
+    assertEquals("http://tsp.source.test/HttpTspServer", configuration.getTspSourceForArchiveTimestamps());
   }
 
   @Test
   public void getTspSourceForArchiveTimestampsFromConfigurationFile() {
     String tspSource = configuration.getTspSource();
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_archive_timestamp.yaml");
-    Assert.assertEquals("http://atsp.source.test", configuration.getTspSourceForArchiveTimestamps());
-    Assert.assertEquals(tspSource, configuration.getTspSource());
+    assertEquals("http://atsp.source.test", configuration.getTspSourceForArchiveTimestamps());
+    assertEquals(tspSource, configuration.getTspSource());
   }
 
   @Test
   public void getValidationPolicyFromConfigurationFile() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
-    Assert.assertEquals("conf/test_validation_policy.xml", this.configuration.getValidationPolicy());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
+    assertEquals("conf/test_validation_policy.xml", configuration.getValidationPolicy());
   }
 
   @Test
   public void getOcspSourceFromConfigurationFile() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
-    Assert.assertEquals("http://www.openxades.org/cgi-bin/test_ocsp_source.cgi", this.configuration.getOcspSource());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
+    assertEquals("http://www.openxades.org/cgi-bin/test_ocsp_source.cgi", configuration.getOcspSource());
   }
 
   @Test
   public void getLotlTruststorePathFromConfigurationFile() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
-    Assert.assertEquals("TEST_LOTL_TRUSTSTORE_PATH", this.configuration.getLotlTruststorePath());
-    Assert.assertEquals("TEST_LOTL_TRUSTSTORE_PATH", this.configuration.getTslKeyStoreLocation());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    assertEquals("TEST_LOTL_TRUSTSTORE_PATH", configuration.getLotlTruststorePath());
+    assertEquals("TEST_LOTL_TRUSTSTORE_PATH", configuration.getTslKeyStoreLocation());
   }
 
   @Test
   public void getTslKeystoreLocationFromConfigurationFile() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_tsl_location_and_keystore.yaml");
-    Assert.assertEquals("file:conf/test_TSLKeyStore_location", this.configuration.getLotlTruststorePath());
-    Assert.assertEquals("file:conf/test_TSLKeyStore_location", this.configuration.getTslKeyStoreLocation());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_tsl_location_and_keystore.yaml");
+    assertEquals("file:conf/test_TSLKeyStore_location", configuration.getLotlTruststorePath());
+    assertEquals("file:conf/test_TSLKeyStore_location", configuration.getTslKeyStoreLocation());
   }
 
   @Test(expected = LotlTrustStoreNotFoundException.class)
@@ -882,137 +891,137 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void testDefaultLotlTruststorePath() {
-    this.configuration = Configuration.of(Configuration.Mode.PROD);
-    Assert.assertEquals("classpath:truststores/lotl-truststore.p12", this.configuration.getLotlTruststorePath());
-    Assert.assertEquals("classpath:truststores/lotl-truststore.p12", this.configuration.getTslKeyStoreLocation());
+    configuration = Configuration.of(Configuration.Mode.PROD);
+    assertEquals("classpath:truststores/lotl-truststore.p12", configuration.getLotlTruststorePath());
+    assertEquals("classpath:truststores/lotl-truststore.p12", configuration.getTslKeyStoreLocation());
   }
 
   @Test
   public void testDefaultTestLotlTruststorePath() {
-    Assert.assertEquals("classpath:truststores/test-lotl-truststore.p12", this.configuration.getLotlTruststorePath());
-    Assert.assertEquals("classpath:truststores/test-lotl-truststore.p12", this.configuration.getTslKeyStoreLocation());
+    assertEquals("classpath:truststores/test-lotl-truststore.p12", configuration.getLotlTruststorePath());
+    assertEquals("classpath:truststores/test-lotl-truststore.p12", configuration.getTslKeyStoreLocation());
   }
 
   @Test
   public void getLotlTruststoreTypeFromConfigurationFile() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
-    Assert.assertEquals("TEST_LOTL_TRUSTSTORE_TYPE", this.configuration.getLotlTruststoreType());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    assertEquals("TEST_LOTL_TRUSTSTORE_TYPE", configuration.getLotlTruststoreType());
   }
 
   @Test
   public void testDefaultLotlTruststoreType() {
-    this.configuration = Configuration.of(Configuration.Mode.PROD);
-    Assert.assertEquals("PKCS12", this.configuration.getLotlTruststoreType());
+    configuration = Configuration.of(Configuration.Mode.PROD);
+    assertEquals("PKCS12", configuration.getLotlTruststoreType());
   }
 
   @Test
   public void testDefaultLotlTruststorePassword() {
-    this.configuration = Configuration.of(Configuration.Mode.PROD);
-    Assert.assertEquals("digidoc4j-password", this.configuration.getLotlTruststorePassword());
-    Assert.assertEquals("digidoc4j-password", this.configuration.getTslKeyStorePassword());
+    configuration = Configuration.of(Configuration.Mode.PROD);
+    assertEquals("digidoc4j-password", configuration.getLotlTruststorePassword());
+    assertEquals("digidoc4j-password", configuration.getTslKeyStorePassword());
   }
 
   @Test
   public void getLotlTruststorePasswordFromConfigurationFile() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
-    Assert.assertEquals("TEST_LOTL_TRUSTSTORE_PASSWORD", this.configuration.getLotlTruststorePassword());
-    Assert.assertEquals("TEST_LOTL_TRUSTSTORE_PASSWORD", this.configuration.getTslKeyStorePassword());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    assertEquals("TEST_LOTL_TRUSTSTORE_PASSWORD", configuration.getLotlTruststorePassword());
+    assertEquals("TEST_LOTL_TRUSTSTORE_PASSWORD", configuration.getTslKeyStorePassword());
   }
 
   @Test
   public void getTslKeystorePasswordFromConfigurationFile() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_tsl_location_and_keystore.yaml");
-    Assert.assertEquals("test_TSLKeyStore_password", this.configuration.getLotlTruststorePassword());
-    Assert.assertEquals("test_TSLKeyStore_password", this.configuration.getTslKeyStorePassword());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_tsl_location_and_keystore.yaml");
+    assertEquals("test_TSLKeyStore_password", configuration.getLotlTruststorePassword());
+    assertEquals("test_TSLKeyStore_password", configuration.getTslKeyStorePassword());
   }
 
   @Test
   public void testDefaultLotlPivotSupportEnabled() {
-    this.configuration = Configuration.of(Configuration.Mode.PROD);
-    Assert.assertTrue(this.configuration.isLotlPivotSupportEnabled());
+    configuration = Configuration.of(Configuration.Mode.PROD);
+    assertTrue(configuration.isLotlPivotSupportEnabled());
   }
 
   @Test
   public void testDefaultTestLotlPivotSupportDisabled() {
-    this.configuration = Configuration.of(Configuration.Mode.TEST);
-    Assert.assertFalse(this.configuration.isLotlPivotSupportEnabled());
+    configuration = Configuration.of(Configuration.Mode.TEST);
+    assertFalse(configuration.isLotlPivotSupportEnabled());
   }
 
   @Test
   public void getLotlPivotSupportFromConfigurationFile() throws Exception {
-    this.configuration.setLotlPivotSupportEnabled(true);
-    Assert.assertTrue(this.configuration.isLotlPivotSupportEnabled());
-    loadConfigurationFromString(this.configuration, "LOTL_PIVOT_SUPPORT_ENABLED: false");
-    Assert.assertFalse(this.configuration.isLotlPivotSupportEnabled());
-    loadConfigurationFromString(this.configuration, "LOTL_PIVOT_SUPPORT_ENABLED: true");
-    Assert.assertTrue(this.configuration.isLotlPivotSupportEnabled());
+    configuration.setLotlPivotSupportEnabled(true);
+    assertTrue(configuration.isLotlPivotSupportEnabled());
+    loadConfigurationFromString(configuration, "LOTL_PIVOT_SUPPORT_ENABLED: false");
+    assertFalse(configuration.isLotlPivotSupportEnabled());
+    loadConfigurationFromString(configuration, "LOTL_PIVOT_SUPPORT_ENABLED: true");
+    assertTrue(configuration.isLotlPivotSupportEnabled());
   }
 
   @Test
   public void setTslCacheExpirationTime() {
-    this.configuration.setTslCacheExpirationTime(1337);
-    Assert.assertEquals(1337, this.configuration.getTslCacheExpirationTime());
+    configuration.setTslCacheExpirationTime(1337);
+    assertEquals(1337, configuration.getTslCacheExpirationTime());
   }
 
   @Test
   public void defaultTslCacheExpirationTime_shouldBeOneDay() {
     long oneDayInMs = 1000 * 60 * 60 * 24;
-    Assert.assertEquals(oneDayInMs, this.configuration.getTslCacheExpirationTime());
-    Assert.assertEquals(oneDayInMs, Configuration.of(Configuration.Mode.PROD).getTslCacheExpirationTime());
+    assertEquals(oneDayInMs, configuration.getTslCacheExpirationTime());
+    assertEquals(oneDayInMs, Configuration.of(Configuration.Mode.PROD).getTslCacheExpirationTime());
   }
 
   @Test
   public void getTslCacheExpirationTimeFromConfigurationFile() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
-    Assert.assertEquals(1776, this.configuration.getTslCacheExpirationTime());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
+    assertEquals(1776, configuration.getTslCacheExpirationTime());
   }
 
   @Test
   public void defaultProxyConfiguration_shouldNotBeSet() {
-    Assert.assertFalse(this.configuration.isNetworkProxyEnabled());
-    Assert.assertNull(this.configuration.getHttpProxyHost());
-    Assert.assertNull(this.configuration.getHttpProxyPort());
-    Assert.assertNull(this.configuration.getHttpProxyUser());
-    Assert.assertNull(this.configuration.getHttpProxyPassword());
-    Assert.assertNull(this.configuration.getHttpsProxyHost());
-    Assert.assertNull(this.configuration.getHttpsProxyPort());
-    Assert.assertNull(this.configuration.getHttpsProxyUser());
-    Assert.assertNull(this.configuration.getHttpsProxyPassword());
+    assertFalse(configuration.isNetworkProxyEnabled());
+    assertNull(configuration.getHttpProxyHost());
+    assertNull(configuration.getHttpProxyPort());
+    assertNull(configuration.getHttpProxyUser());
+    assertNull(configuration.getHttpProxyPassword());
+    assertNull(configuration.getHttpsProxyHost());
+    assertNull(configuration.getHttpsProxyPort());
+    assertNull(configuration.getHttpsProxyUser());
+    assertNull(configuration.getHttpsProxyPassword());
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
-      Assert.assertFalse(this.configuration.isNetworkProxyEnabledFor(connectionType));
-      Assert.assertNull(this.configuration.getHttpProxyHostFor(connectionType));
-      Assert.assertNull(this.configuration.getHttpProxyPortFor(connectionType));
-      Assert.assertNull(this.configuration.getHttpProxyUserFor(connectionType));
-      Assert.assertNull(this.configuration.getHttpProxyPasswordFor(connectionType));
-      Assert.assertNull(this.configuration.getHttpsProxyHostFor(connectionType));
-      Assert.assertNull(this.configuration.getHttpsProxyPortFor(connectionType));
-      Assert.assertNull(this.configuration.getHttpsProxyUserFor(connectionType));
-      Assert.assertNull(this.configuration.getHttpsProxyPasswordFor(connectionType));
+      assertFalse(configuration.isNetworkProxyEnabledFor(connectionType));
+      assertNull(configuration.getHttpProxyHostFor(connectionType));
+      assertNull(configuration.getHttpProxyPortFor(connectionType));
+      assertNull(configuration.getHttpProxyUserFor(connectionType));
+      assertNull(configuration.getHttpProxyPasswordFor(connectionType));
+      assertNull(configuration.getHttpsProxyHostFor(connectionType));
+      assertNull(configuration.getHttpsProxyPortFor(connectionType));
+      assertNull(configuration.getHttpsProxyUserFor(connectionType));
+      assertNull(configuration.getHttpsProxyPasswordFor(connectionType));
     }
   }
 
   @Test
   public void getProxyConfigurationFromConfigurationFile_allParametersSet() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
-    Assert.assertTrue(this.configuration.isNetworkProxyEnabled());
-    Assert.assertEquals("cache.noile.ee", this.configuration.getHttpProxyHost());
-    Assert.assertEquals(8080, this.configuration.getHttpProxyPort().longValue());
-    Assert.assertEquals("plainProxyMan", this.configuration.getHttpProxyUser());
-    Assert.assertEquals("plainProxyPass", this.configuration.getHttpProxyPassword());
-    Assert.assertEquals("secure.noile.ee", this.configuration.getHttpsProxyHost());
-    Assert.assertEquals(8443, this.configuration.getHttpsProxyPort().longValue());
-    Assert.assertEquals("secureProxyMan", this.configuration.getHttpsProxyUser());
-    Assert.assertEquals("secureProxyPass", this.configuration.getHttpsProxyPassword());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    assertTrue(configuration.isNetworkProxyEnabled());
+    assertEquals("cache.noile.ee", configuration.getHttpProxyHost());
+    assertEquals(8080, configuration.getHttpProxyPort().longValue());
+    assertEquals("plainProxyMan", configuration.getHttpProxyUser());
+    assertEquals("plainProxyPass", configuration.getHttpProxyPassword());
+    assertEquals("secure.noile.ee", configuration.getHttpsProxyHost());
+    assertEquals(8443, configuration.getHttpsProxyPort().longValue());
+    assertEquals("secureProxyMan", configuration.getHttpsProxyUser());
+    assertEquals("secureProxyPass", configuration.getHttpsProxyPassword());
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
-      Assert.assertTrue(this.configuration.isNetworkProxyEnabledFor(connectionType));
-      Assert.assertEquals(connectionType + ".cache.noile.ee", this.configuration.getHttpProxyHostFor(connectionType));
-      Assert.assertEquals(80800 + connectionType.ordinal(), this.configuration.getHttpProxyPortFor(connectionType).longValue());
-      Assert.assertEquals(connectionType + "-plainProxyMan", this.configuration.getHttpProxyUserFor(connectionType));
-      Assert.assertEquals(connectionType + "-plainProxyPass", this.configuration.getHttpProxyPasswordFor(connectionType));
-      Assert.assertEquals(connectionType + ".secure.noile.ee", this.configuration.getHttpsProxyHostFor(connectionType));
-      Assert.assertEquals(84430 + connectionType.ordinal(), this.configuration.getHttpsProxyPortFor(connectionType).longValue());
-      Assert.assertEquals(connectionType + "-secureProxyMan", this.configuration.getHttpsProxyUserFor(connectionType));
-      Assert.assertEquals(connectionType + "-secureProxyPass", this.configuration.getHttpsProxyPasswordFor(connectionType));
+      assertTrue(configuration.isNetworkProxyEnabledFor(connectionType));
+      assertEquals(connectionType + ".cache.noile.ee", configuration.getHttpProxyHostFor(connectionType));
+      assertEquals(80800 + connectionType.ordinal(), configuration.getHttpProxyPortFor(connectionType).longValue());
+      assertEquals(connectionType + "-plainProxyMan", configuration.getHttpProxyUserFor(connectionType));
+      assertEquals(connectionType + "-plainProxyPass", configuration.getHttpProxyPasswordFor(connectionType));
+      assertEquals(connectionType + ".secure.noile.ee", configuration.getHttpsProxyHostFor(connectionType));
+      assertEquals(84430 + connectionType.ordinal(), configuration.getHttpsProxyPortFor(connectionType).longValue());
+      assertEquals(connectionType + "-secureProxyMan", configuration.getHttpsProxyUserFor(connectionType));
+      assertEquals(connectionType + "-secureProxyPass", configuration.getHttpsProxyPasswordFor(connectionType));
     }
   }
 
@@ -1025,173 +1034,173 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void getProxyConfigurationFromConfigurationFile_GenericParametersSet() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_generic_proxy_and_ssl_settings.yaml");
-    Assert.assertTrue(this.configuration.isNetworkProxyEnabled());
-    Assert.assertEquals("cache.noile.ee", this.configuration.getHttpProxyHost());
-    Assert.assertEquals(8080, this.configuration.getHttpProxyPort().longValue());
-    Assert.assertEquals("plainProxyMan", this.configuration.getHttpProxyUser());
-    Assert.assertEquals("plainProxyPass", this.configuration.getHttpProxyPassword());
-    Assert.assertEquals("secure.noile.ee", this.configuration.getHttpsProxyHost());
-    Assert.assertEquals(8443, this.configuration.getHttpsProxyPort().longValue());
-    Assert.assertEquals("secureProxyMan", this.configuration.getHttpsProxyUser());
-    Assert.assertEquals("secureProxyPass", this.configuration.getHttpsProxyPassword());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_generic_proxy_and_ssl_settings.yaml");
+    assertTrue(configuration.isNetworkProxyEnabled());
+    assertEquals("cache.noile.ee", configuration.getHttpProxyHost());
+    assertEquals(8080, configuration.getHttpProxyPort().longValue());
+    assertEquals("plainProxyMan", configuration.getHttpProxyUser());
+    assertEquals("plainProxyPass", configuration.getHttpProxyPassword());
+    assertEquals("secure.noile.ee", configuration.getHttpsProxyHost());
+    assertEquals(8443, configuration.getHttpsProxyPort().longValue());
+    assertEquals("secureProxyMan", configuration.getHttpsProxyUser());
+    assertEquals("secureProxyPass", configuration.getHttpsProxyPassword());
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
-      Assert.assertTrue(this.configuration.isNetworkProxyEnabledFor(connectionType));
-      Assert.assertEquals("cache.noile.ee", this.configuration.getHttpProxyHostFor(connectionType));
-      Assert.assertEquals(8080, this.configuration.getHttpProxyPortFor(connectionType).longValue());
-      Assert.assertEquals("plainProxyMan", this.configuration.getHttpProxyUserFor(connectionType));
-      Assert.assertEquals("plainProxyPass", this.configuration.getHttpProxyPasswordFor(connectionType));
-      Assert.assertEquals("secure.noile.ee", this.configuration.getHttpsProxyHostFor(connectionType));
-      Assert.assertEquals(8443, this.configuration.getHttpsProxyPortFor(connectionType).longValue());
-      Assert.assertEquals("secureProxyMan", this.configuration.getHttpsProxyUserFor(connectionType));
-      Assert.assertEquals("secureProxyPass", this.configuration.getHttpsProxyPasswordFor(connectionType));
+      assertTrue(configuration.isNetworkProxyEnabledFor(connectionType));
+      assertEquals("cache.noile.ee", configuration.getHttpProxyHostFor(connectionType));
+      assertEquals(8080, configuration.getHttpProxyPortFor(connectionType).longValue());
+      assertEquals("plainProxyMan", configuration.getHttpProxyUserFor(connectionType));
+      assertEquals("plainProxyPass", configuration.getHttpProxyPasswordFor(connectionType));
+      assertEquals("secure.noile.ee", configuration.getHttpsProxyHostFor(connectionType));
+      assertEquals(8443, configuration.getHttpsProxyPortFor(connectionType).longValue());
+      assertEquals("secureProxyMan", configuration.getHttpsProxyUserFor(connectionType));
+      assertEquals("secureProxyPass", configuration.getHttpsProxyPasswordFor(connectionType));
     }
   }
 
   @Test
   public void getProxyConfigurationFromConfigurationFile_specificParametersSet() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_specific_proxy_and_ssl_settings.yaml");
-    Assert.assertFalse(this.configuration.isNetworkProxyEnabled());
-    Assert.assertNull(this.configuration.getHttpProxyHost());
-    Assert.assertNull(this.configuration.getHttpProxyPort());
-    Assert.assertNull(this.configuration.getHttpProxyUser());
-    Assert.assertNull(this.configuration.getHttpProxyPassword());
-    Assert.assertNull(this.configuration.getHttpsProxyHost());
-    Assert.assertNull(this.configuration.getHttpsProxyPort());
-    Assert.assertNull(this.configuration.getHttpsProxyUser());
-    Assert.assertNull(this.configuration.getHttpsProxyPassword());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_specific_proxy_and_ssl_settings.yaml");
+    assertFalse(configuration.isNetworkProxyEnabled());
+    assertNull(configuration.getHttpProxyHost());
+    assertNull(configuration.getHttpProxyPort());
+    assertNull(configuration.getHttpProxyUser());
+    assertNull(configuration.getHttpProxyPassword());
+    assertNull(configuration.getHttpsProxyHost());
+    assertNull(configuration.getHttpsProxyPort());
+    assertNull(configuration.getHttpsProxyUser());
+    assertNull(configuration.getHttpsProxyPassword());
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
-      Assert.assertTrue(this.configuration.isNetworkProxyEnabledFor(connectionType));
-      Assert.assertEquals(connectionType + ".cache.noile.ee", this.configuration.getHttpProxyHostFor(connectionType));
-      Assert.assertEquals(80800 + connectionType.ordinal(), this.configuration.getHttpProxyPortFor(connectionType).longValue());
-      Assert.assertEquals(connectionType + "-plainProxyMan", this.configuration.getHttpProxyUserFor(connectionType));
-      Assert.assertEquals(connectionType + "-plainProxyPass", this.configuration.getHttpProxyPasswordFor(connectionType));
-      Assert.assertEquals(connectionType + ".secure.noile.ee", this.configuration.getHttpsProxyHostFor(connectionType));
-      Assert.assertEquals(84430 + connectionType.ordinal(), this.configuration.getHttpsProxyPortFor(connectionType).longValue());
-      Assert.assertEquals(connectionType + "-secureProxyMan", this.configuration.getHttpsProxyUserFor(connectionType));
-      Assert.assertEquals(connectionType + "-secureProxyPass", this.configuration.getHttpsProxyPasswordFor(connectionType));
+      assertTrue(configuration.isNetworkProxyEnabledFor(connectionType));
+      assertEquals(connectionType + ".cache.noile.ee", configuration.getHttpProxyHostFor(connectionType));
+      assertEquals(80800 + connectionType.ordinal(), configuration.getHttpProxyPortFor(connectionType).longValue());
+      assertEquals(connectionType + "-plainProxyMan", configuration.getHttpProxyUserFor(connectionType));
+      assertEquals(connectionType + "-plainProxyPass", configuration.getHttpProxyPasswordFor(connectionType));
+      assertEquals(connectionType + ".secure.noile.ee", configuration.getHttpsProxyHostFor(connectionType));
+      assertEquals(84430 + connectionType.ordinal(), configuration.getHttpsProxyPortFor(connectionType).longValue());
+      assertEquals(connectionType + "-secureProxyMan", configuration.getHttpsProxyUserFor(connectionType));
+      assertEquals(connectionType + "-secureProxyPass", configuration.getHttpsProxyPasswordFor(connectionType));
     }
   }
 
   @Test
   public void defaultSslProtocolsAndCiphers_shouldBeSet() {
-    Assert.assertTrue(this.configuration.isSslConfigurationEnabled());
-    Assert.assertNull(this.configuration.getSslKeystorePath());
-    Assert.assertNull(this.configuration.getSslKeystoreType());
-    Assert.assertNull(this.configuration.getSslKeystorePassword());
-    Assert.assertNull(this.configuration.getSslTruststorePath());
-    Assert.assertNull(this.configuration.getSslTruststoreType());
-    Assert.assertNull(this.configuration.getSslTruststorePassword());
-    Assert.assertEquals(DEFAULT_TLS_PROTOCOL, this.configuration.getSslProtocol());
-    Assert.assertEquals(DEFAULT_SUPPORTED_TLS_PROTOCOLS, this.configuration.getSupportedSslProtocols());
-    Assert.assertEquals(DEFAULT_SUPPORTED_TLS_CIPHER_SUITES, this.configuration.getSupportedSslCipherSuites());
+    assertTrue(configuration.isSslConfigurationEnabled());
+    assertNull(configuration.getSslKeystorePath());
+    assertNull(configuration.getSslKeystoreType());
+    assertNull(configuration.getSslKeystorePassword());
+    assertNull(configuration.getSslTruststorePath());
+    assertNull(configuration.getSslTruststoreType());
+    assertNull(configuration.getSslTruststorePassword());
+    assertEquals(DEFAULT_TLS_PROTOCOL, configuration.getSslProtocol());
+    assertEquals(DEFAULT_SUPPORTED_TLS_PROTOCOLS, configuration.getSupportedSslProtocols());
+    assertEquals(DEFAULT_SUPPORTED_TLS_CIPHER_SUITES, configuration.getSupportedSslCipherSuites());
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
-      Assert.assertTrue(this.configuration.isSslConfigurationEnabledFor(connectionType));
-      Assert.assertNull(this.configuration.getSslKeystorePathFor(connectionType));
-      Assert.assertNull(this.configuration.getSslKeystoreTypeFor(connectionType));
-      Assert.assertNull(this.configuration.getSslKeystorePasswordFor(connectionType));
-      Assert.assertNull(this.configuration.getSslTruststorePathFor(connectionType));
-      Assert.assertNull(this.configuration.getSslTruststoreTypeFor(connectionType));
-      Assert.assertNull(this.configuration.getSslTruststorePasswordFor(connectionType));
-      Assert.assertEquals(DEFAULT_TLS_PROTOCOL, this.configuration.getSslProtocolFor(connectionType));
-      Assert.assertEquals(DEFAULT_SUPPORTED_TLS_PROTOCOLS, this.configuration.getSupportedSslProtocolsFor(connectionType));
-      Assert.assertEquals(DEFAULT_SUPPORTED_TLS_CIPHER_SUITES, this.configuration.getSupportedSslCipherSuitesFor(connectionType));
+      assertTrue(configuration.isSslConfigurationEnabledFor(connectionType));
+      assertNull(configuration.getSslKeystorePathFor(connectionType));
+      assertNull(configuration.getSslKeystoreTypeFor(connectionType));
+      assertNull(configuration.getSslKeystorePasswordFor(connectionType));
+      assertNull(configuration.getSslTruststorePathFor(connectionType));
+      assertNull(configuration.getSslTruststoreTypeFor(connectionType));
+      assertNull(configuration.getSslTruststorePasswordFor(connectionType));
+      assertEquals(DEFAULT_TLS_PROTOCOL, configuration.getSslProtocolFor(connectionType));
+      assertEquals(DEFAULT_SUPPORTED_TLS_PROTOCOLS, configuration.getSupportedSslProtocolsFor(connectionType));
+      assertEquals(DEFAULT_SUPPORTED_TLS_CIPHER_SUITES, configuration.getSupportedSslCipherSuitesFor(connectionType));
     }
   }
 
   @Test
   public void getSslConfigurationFromConfigurationFile_allParametersSet() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
-    Assert.assertTrue(configuration.isSslConfigurationEnabled());
-    Assert.assertEquals("sslKeystorePath", this.configuration.getSslKeystorePath());
-    Assert.assertEquals("sslKeystoreType", this.configuration.getSslKeystoreType());
-    Assert.assertEquals("sslKeystorePassword", this.configuration.getSslKeystorePassword());
-    Assert.assertEquals("sslTruststorePath", this.configuration.getSslTruststorePath());
-    Assert.assertEquals("sslTruststoreType", this.configuration.getSslTruststoreType());
-    Assert.assertEquals("sslTruststorePassword", this.configuration.getSslTruststorePassword());
-    Assert.assertEquals("sslProtocol", this.configuration.getSslProtocol());
-    Assert.assertEquals(Arrays.asList("sslProtocol1", "sslProtocol2", "sslProtocol3"), this.configuration.getSupportedSslProtocols());
-    Assert.assertEquals(Arrays.asList("sslCipherSuite1", "sslCipherSuite2"), this.configuration.getSupportedSslCipherSuites());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    assertTrue(configuration.isSslConfigurationEnabled());
+    assertEquals("sslKeystorePath", configuration.getSslKeystorePath());
+    assertEquals("sslKeystoreType", configuration.getSslKeystoreType());
+    assertEquals("sslKeystorePassword", configuration.getSslKeystorePassword());
+    assertEquals("sslTruststorePath", configuration.getSslTruststorePath());
+    assertEquals("sslTruststoreType", configuration.getSslTruststoreType());
+    assertEquals("sslTruststorePassword", configuration.getSslTruststorePassword());
+    assertEquals("sslProtocol", configuration.getSslProtocol());
+    assertEquals(Arrays.asList("sslProtocol1", "sslProtocol2", "sslProtocol3"), configuration.getSupportedSslProtocols());
+    assertEquals(Arrays.asList("sslCipherSuite1", "sslCipherSuite2"), configuration.getSupportedSslCipherSuites());
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
-      Assert.assertTrue(configuration.isSslConfigurationEnabledFor(connectionType));
-      Assert.assertEquals(connectionType + "-sslKeystorePath", this.configuration.getSslKeystorePathFor(connectionType));
-      Assert.assertEquals(connectionType + "-sslKeystoreType", this.configuration.getSslKeystoreTypeFor(connectionType));
-      Assert.assertEquals(connectionType + "-sslKeystorePassword", this.configuration.getSslKeystorePasswordFor(connectionType));
-      Assert.assertEquals(connectionType + "-sslTruststorePath", this.configuration.getSslTruststorePathFor(connectionType));
-      Assert.assertEquals(connectionType + "-sslTruststoreType", this.configuration.getSslTruststoreTypeFor(connectionType));
-      Assert.assertEquals(connectionType + "-sslTruststorePassword", this.configuration.getSslTruststorePasswordFor(connectionType));
-      Assert.assertEquals(connectionType + "-sslProtocol", this.configuration.getSslProtocolFor(connectionType));
-      Assert.assertEquals(
+      assertTrue(configuration.isSslConfigurationEnabledFor(connectionType));
+      assertEquals(connectionType + "-sslKeystorePath", configuration.getSslKeystorePathFor(connectionType));
+      assertEquals(connectionType + "-sslKeystoreType", configuration.getSslKeystoreTypeFor(connectionType));
+      assertEquals(connectionType + "-sslKeystorePassword", configuration.getSslKeystorePasswordFor(connectionType));
+      assertEquals(connectionType + "-sslTruststorePath", configuration.getSslTruststorePathFor(connectionType));
+      assertEquals(connectionType + "-sslTruststoreType", configuration.getSslTruststoreTypeFor(connectionType));
+      assertEquals(connectionType + "-sslTruststorePassword", configuration.getSslTruststorePasswordFor(connectionType));
+      assertEquals(connectionType + "-sslProtocol", configuration.getSslProtocolFor(connectionType));
+      assertEquals(
               Stream.of("sslProtocol1", "sslProtocol2", "sslProtocol3").map(p -> connectionType + "-" + p).collect(Collectors.toList()),
-              this.configuration.getSupportedSslProtocolsFor(connectionType));
-      Assert.assertEquals(
+              configuration.getSupportedSslProtocolsFor(connectionType));
+      assertEquals(
               Stream.of("sslCipherSuite1", "sslCipherSuite2").map(cs -> connectionType + "-" + cs).collect(Collectors.toList()),
-              this.configuration.getSupportedSslCipherSuitesFor(connectionType));
+              configuration.getSupportedSslCipherSuitesFor(connectionType));
     }
   }
 
   @Test
   public void getSslConfigurationFromConfigurationFile_genericParametersSet() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_generic_proxy_and_ssl_settings.yaml");
-    Assert.assertTrue(configuration.isSslConfigurationEnabled());
-    Assert.assertEquals("sslKeystorePath", this.configuration.getSslKeystorePath());
-    Assert.assertEquals("sslKeystoreType", this.configuration.getSslKeystoreType());
-    Assert.assertEquals("sslKeystorePassword", this.configuration.getSslKeystorePassword());
-    Assert.assertEquals("sslTruststorePath", this.configuration.getSslTruststorePath());
-    Assert.assertEquals("sslTruststoreType", this.configuration.getSslTruststoreType());
-    Assert.assertEquals("sslTruststorePassword", this.configuration.getSslTruststorePassword());
-    Assert.assertEquals("sslProtocol", this.configuration.getSslProtocol());
-    Assert.assertEquals(Arrays.asList("sslProtocol1", "sslProtocol2", "sslProtocol3"), this.configuration.getSupportedSslProtocols());
-    Assert.assertEquals(Arrays.asList("sslCipherSuite1", "sslCipherSuite2"), this.configuration.getSupportedSslCipherSuites());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_generic_proxy_and_ssl_settings.yaml");
+    assertTrue(configuration.isSslConfigurationEnabled());
+    assertEquals("sslKeystorePath", configuration.getSslKeystorePath());
+    assertEquals("sslKeystoreType", configuration.getSslKeystoreType());
+    assertEquals("sslKeystorePassword", configuration.getSslKeystorePassword());
+    assertEquals("sslTruststorePath", configuration.getSslTruststorePath());
+    assertEquals("sslTruststoreType", configuration.getSslTruststoreType());
+    assertEquals("sslTruststorePassword", configuration.getSslTruststorePassword());
+    assertEquals("sslProtocol", configuration.getSslProtocol());
+    assertEquals(Arrays.asList("sslProtocol1", "sslProtocol2", "sslProtocol3"), configuration.getSupportedSslProtocols());
+    assertEquals(Arrays.asList("sslCipherSuite1", "sslCipherSuite2"), configuration.getSupportedSslCipherSuites());
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
-      Assert.assertTrue(configuration.isSslConfigurationEnabledFor(connectionType));
-      Assert.assertEquals("sslKeystorePath", this.configuration.getSslKeystorePathFor(connectionType));
-      Assert.assertEquals("sslKeystoreType", this.configuration.getSslKeystoreTypeFor(connectionType));
-      Assert.assertEquals("sslKeystorePassword", this.configuration.getSslKeystorePasswordFor(connectionType));
-      Assert.assertEquals("sslTruststorePath", this.configuration.getSslTruststorePathFor(connectionType));
-      Assert.assertEquals("sslTruststoreType", this.configuration.getSslTruststoreTypeFor(connectionType));
-      Assert.assertEquals("sslTruststorePassword", this.configuration.getSslTruststorePasswordFor(connectionType));
-      Assert.assertEquals("sslProtocol", this.configuration.getSslProtocolFor(connectionType));
-      Assert.assertEquals(Arrays.asList("sslProtocol1", "sslProtocol2", "sslProtocol3"), this.configuration.getSupportedSslProtocolsFor(connectionType));
-      Assert.assertEquals(Arrays.asList("sslCipherSuite1", "sslCipherSuite2"), this.configuration.getSupportedSslCipherSuitesFor(connectionType));
+      assertTrue(configuration.isSslConfigurationEnabledFor(connectionType));
+      assertEquals("sslKeystorePath", configuration.getSslKeystorePathFor(connectionType));
+      assertEquals("sslKeystoreType", configuration.getSslKeystoreTypeFor(connectionType));
+      assertEquals("sslKeystorePassword", configuration.getSslKeystorePasswordFor(connectionType));
+      assertEquals("sslTruststorePath", configuration.getSslTruststorePathFor(connectionType));
+      assertEquals("sslTruststoreType", configuration.getSslTruststoreTypeFor(connectionType));
+      assertEquals("sslTruststorePassword", configuration.getSslTruststorePasswordFor(connectionType));
+      assertEquals("sslProtocol", configuration.getSslProtocolFor(connectionType));
+      assertEquals(Arrays.asList("sslProtocol1", "sslProtocol2", "sslProtocol3"), configuration.getSupportedSslProtocolsFor(connectionType));
+      assertEquals(Arrays.asList("sslCipherSuite1", "sslCipherSuite2"), configuration.getSupportedSslCipherSuitesFor(connectionType));
     }
   }
 
   @Test
   public void getSslConfigurationFromConfigurationFile_specificParametersSet() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_specific_proxy_and_ssl_settings.yaml");
-    Assert.assertTrue(this.configuration.isSslConfigurationEnabled());
-    Assert.assertNull(this.configuration.getSslKeystorePath());
-    Assert.assertNull(this.configuration.getSslKeystoreType());
-    Assert.assertNull(this.configuration.getSslKeystorePassword());
-    Assert.assertNull(this.configuration.getSslTruststorePath());
-    Assert.assertNull(this.configuration.getSslTruststoreType());
-    Assert.assertNull(this.configuration.getSslTruststorePassword());
-    Assert.assertEquals(DEFAULT_TLS_PROTOCOL, this.configuration.getSslProtocol());
-    Assert.assertEquals(DEFAULT_SUPPORTED_TLS_PROTOCOLS, this.configuration.getSupportedSslProtocols());
-    Assert.assertEquals(DEFAULT_SUPPORTED_TLS_CIPHER_SUITES, this.configuration.getSupportedSslCipherSuites());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_specific_proxy_and_ssl_settings.yaml");
+    assertTrue(configuration.isSslConfigurationEnabled());
+    assertNull(configuration.getSslKeystorePath());
+    assertNull(configuration.getSslKeystoreType());
+    assertNull(configuration.getSslKeystorePassword());
+    assertNull(configuration.getSslTruststorePath());
+    assertNull(configuration.getSslTruststoreType());
+    assertNull(configuration.getSslTruststorePassword());
+    assertEquals(DEFAULT_TLS_PROTOCOL, configuration.getSslProtocol());
+    assertEquals(DEFAULT_SUPPORTED_TLS_PROTOCOLS, configuration.getSupportedSslProtocols());
+    assertEquals(DEFAULT_SUPPORTED_TLS_CIPHER_SUITES, configuration.getSupportedSslCipherSuites());
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
-      Assert.assertTrue(configuration.isSslConfigurationEnabledFor(connectionType));
-      Assert.assertEquals(connectionType + "-sslKeystorePath", this.configuration.getSslKeystorePathFor(connectionType));
-      Assert.assertEquals(connectionType + "-sslKeystoreType", this.configuration.getSslKeystoreTypeFor(connectionType));
-      Assert.assertEquals(connectionType + "-sslKeystorePassword", this.configuration.getSslKeystorePasswordFor(connectionType));
-      Assert.assertEquals(connectionType + "-sslTruststorePath", this.configuration.getSslTruststorePathFor(connectionType));
-      Assert.assertEquals(connectionType + "-sslTruststoreType", this.configuration.getSslTruststoreTypeFor(connectionType));
-      Assert.assertEquals(connectionType + "-sslTruststorePassword", this.configuration.getSslTruststorePasswordFor(connectionType));
-      Assert.assertEquals(connectionType + "-sslProtocol", this.configuration.getSslProtocolFor(connectionType));
-      Assert.assertEquals(
+      assertTrue(configuration.isSslConfigurationEnabledFor(connectionType));
+      assertEquals(connectionType + "-sslKeystorePath", configuration.getSslKeystorePathFor(connectionType));
+      assertEquals(connectionType + "-sslKeystoreType", configuration.getSslKeystoreTypeFor(connectionType));
+      assertEquals(connectionType + "-sslKeystorePassword", configuration.getSslKeystorePasswordFor(connectionType));
+      assertEquals(connectionType + "-sslTruststorePath", configuration.getSslTruststorePathFor(connectionType));
+      assertEquals(connectionType + "-sslTruststoreType", configuration.getSslTruststoreTypeFor(connectionType));
+      assertEquals(connectionType + "-sslTruststorePassword", configuration.getSslTruststorePasswordFor(connectionType));
+      assertEquals(connectionType + "-sslProtocol", configuration.getSslProtocolFor(connectionType));
+      assertEquals(
               Stream.of("sslProtocol1", "sslProtocol2", "sslProtocol3").map(p -> connectionType + "-" + p).collect(Collectors.toList()),
-              this.configuration.getSupportedSslProtocolsFor(connectionType));
-      Assert.assertEquals(
+              configuration.getSupportedSslProtocolsFor(connectionType));
+      assertEquals(
               Stream.of("sslCipherSuite1", "sslCipherSuite2").map(cs -> connectionType + "-" + cs).collect(Collectors.toList()),
-              this.configuration.getSupportedSslCipherSuitesFor(connectionType));
+              configuration.getSupportedSslCipherSuitesFor(connectionType));
     }
   }
 
   @Test
   public void testDefaultZipCompressionConfiguration() {
-    Assert.assertEquals(1024 * 1024, this.configuration.getZipCompressionRatioCheckThresholdInBytes());
-    Assert.assertEquals(100, this.configuration.getMaxAllowedZipCompressionRatio());
+    assertEquals(1024 * 1024, configuration.getZipCompressionRatioCheckThresholdInBytes());
+    assertEquals(100, configuration.getMaxAllowedZipCompressionRatio());
   }
 
   @Test
@@ -1210,30 +1219,30 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void setZipCompressionRatioCheckThresholdInBytes() {
-    this.configuration.setZipCompressionRatioCheckThresholdInBytes(1234567);
-    Assert.assertEquals(1234567, this.configuration.getZipCompressionRatioCheckThresholdInBytes());
+    configuration.setZipCompressionRatioCheckThresholdInBytes(1234567);
+    assertEquals(1234567, configuration.getZipCompressionRatioCheckThresholdInBytes());
   }
 
   @Test
   public void setMaxAllowedZipCompressionRatio() {
-    this.configuration.setMaxAllowedZipCompressionRatio(2345);
-    Assert.assertEquals(2345, this.configuration.getMaxAllowedZipCompressionRatio());
+    configuration.setMaxAllowedZipCompressionRatio(2345);
+    assertEquals(2345, configuration.getMaxAllowedZipCompressionRatio());
   }
 
   @Test
   public void loadMultipleCAsFromConfigurationFile() {
-    Hashtable<String, String> ddoc4jConf = this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_two_cas.yaml");
-    this.configuration.getDDoc4JConfiguration();
-    Assert.assertEquals("AS Sertifitseerimiskeskus", ddoc4jConf.get("DIGIDOC_CA_1_NAME"));
-    Assert.assertEquals("jar://certs/ESTEID-SK.crt", ddoc4jConf.get("DIGIDOC_CA_1_CERT2"));
-    Assert.assertEquals("Second CA", ddoc4jConf.get("DIGIDOC_CA_2_NAME"));
-    Assert.assertEquals("jar://certs/CA_2_CERT_3.crt", ddoc4jConf.get("DIGIDOC_CA_2_CERT3"));
-    Assert.assertEquals("jar://certs/CA_2_OCSP_1_SECOND_CERT", ddoc4jConf.get("DIGIDOC_CA_2_OCSP1_CERT_1"));
+    Hashtable<String, String> ddoc4jConf = configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_two_cas.yaml");
+    configuration.getDDoc4JConfiguration();
+    assertEquals("AS Sertifitseerimiskeskus", ddoc4jConf.get("DIGIDOC_CA_1_NAME"));
+    assertEquals("jar://certs/ESTEID-SK.crt", ddoc4jConf.get("DIGIDOC_CA_1_CERT2"));
+    assertEquals("Second CA", ddoc4jConf.get("DIGIDOC_CA_2_NAME"));
+    assertEquals("jar://certs/CA_2_CERT_3.crt", ddoc4jConf.get("DIGIDOC_CA_2_CERT3"));
+    assertEquals("jar://certs/CA_2_OCSP_1_SECOND_CERT", ddoc4jConf.get("DIGIDOC_CA_2_OCSP1_CERT_1"));
   }
 
   @Test
   public void missingCA_shouldNotThrowException() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_no_ca.yaml");
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_no_ca.yaml");
   }
 
   @Test
@@ -1260,184 +1269,184 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void isTestMode() {
-    Assert.assertTrue(this.configuration.isTest());
+    assertTrue(configuration.isTest());
   }
 
   @Test
   public void isNotTestMode() {
-    this.configuration = Configuration.of(Configuration.Mode.PROD);
-    Assert.assertFalse(this.configuration.isTest());
+    configuration = Configuration.of(Configuration.Mode.PROD);
+    assertFalse(configuration.isTest());
   }
 
   @Test
   public void verifyAllOptionalConfigurationSettingsAreLoadedFromFile() {
-    this.configuration.setLotlLocation("Set LOTL location");
-    this.configuration.setTspSource("Set TSP source");
-    this.configuration.setOCSPAccessCertificateFileName("Set OCSP access certificate file name");
-    this.configuration.setOCSPAccessCertificatePassword("Set password".toCharArray());
-    this.configuration.setOcspSource("Set OCSP source");
-    this.configuration.setValidationPolicy("Set validation policy");
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
-    Assert.assertEquals("123876", this.getDDoc4JConfigurationValue("DIGIDOC_MAX_DATAFILE_CACHED"));
-    Assert.assertEquals("TEST_DIGIDOC_NOTARY_IMPL", this.getDDoc4JConfigurationValue("DIGIDOC_NOTARY_IMPL"));
-    Assert.assertEquals("TEST_DIGIDOC_OCSP_SIGN_CERT_SERIAL", this.getDDoc4JConfigurationValue("DIGIDOC_OCSP_SIGN_CERT_SERIAL"));
-    Assert.assertEquals("TEST_DIGIDOC_SECURITY_PROVIDER", this.getDDoc4JConfigurationValue("DIGIDOC_SECURITY_PROVIDER"));
-    Assert.assertEquals("TEST_DIGIDOC_SECURITY_PROVIDER_NAME", this.getDDoc4JConfigurationValue("DIGIDOC_SECURITY_PROVIDER_NAME"));
-    Assert.assertEquals("TEST_DIGIDOC_TSLFAC_IMPL", this.getDDoc4JConfigurationValue("DIGIDOC_TSLFAC_IMPL"));
-    Assert.assertEquals("false", this.getDDoc4JConfigurationValue("DIGIDOC_USE_LOCAL_TSL"));
-    Assert.assertEquals("false", this.getDDoc4JConfigurationValue("KEY_USAGE_CHECK"));
-    Assert.assertEquals("false", this.getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
-    Assert.assertEquals("TEST_DIGIDOC_DF_CACHE_DIR", this.getDDoc4JConfigurationValue("DIGIDOC_DF_CACHE_DIR"));
-    Assert.assertEquals("TEST_DIGIDOC_FACTORY_IMPL", this.getDDoc4JConfigurationValue("DIGIDOC_FACTORY_IMPL"));
-    Assert.assertEquals("TEST_CANONICALIZATION_FACTORY_IMPL", this.getDDoc4JConfigurationValue("CANONICALIZATION_FACTORY_IMPL"));
-    Assert.assertEquals("false", this.getDDoc4JConfigurationValue("DATAFILE_HASHCODE_MODE"));
-    Assert.assertEquals("TEST_DIGIDOC_PKCS12_CONTAINER", this.configuration.getRegistry().get(ConfigurationParameter.OcspAccessCertificateFile).get(0));
-    Assert.assertEquals("TEST_DIGIDOC_PKCS12_PASSWD", this.configuration.getRegistry().get(ConfigurationParameter.OcspAccessCertificatePassword).get(0));
-    Assert.assertEquals("TEST_OCSP_SOURCE", this.configuration.getRegistry().get(ConfigurationParameter.OcspSource).get(0));
-    Assert.assertEquals("TEST_TSP_SOURCE", this.configuration.getRegistry().get(ConfigurationParameter.TspSource).get(0));
-    Assert.assertEquals("TEST_TSP_SOURCE_FOR_ARCHIVE_TIMESTAMPS", this.configuration.getRegistry().get(ConfigurationParameter.TspSourceForArchiveTimestamps).get(0));
-    Assert.assertEquals("TEST_VALIDATION_POLICY", this.configuration.getRegistry().get(ConfigurationParameter.ValidationPolicy).get(0));
-    Assert.assertEquals("TEST_LOTL_LOCATION", this.configuration.getRegistry().get(ConfigurationParameter.LotlLocation).get(0));
-    Assert.assertEquals("true", this.configuration.getRegistry().get(ConfigurationParameter.preferAiaOcsp).get(0));
-    Assert.assertEquals("73", this.configuration.getRegistry().get(ConfigurationParameter.ZipCompressionRatioCheckThreshold).get(0));
-    Assert.assertEquals("37", this.configuration.getRegistry().get(ConfigurationParameter.MaxAllowedZipCompressionRatio).get(0));
-    Assert.assertEquals("SHA384", this.configuration.getRegistry().get(ConfigurationParameter.ArchiveTimestampDigestAlgorithm).get(0));
-    Assert.assertEquals("SHA512", this.configuration.getRegistry().get(ConfigurationParameter.ArchiveTimestampReferenceDigestAlgorithm).get(0));
+    configuration.setLotlLocation("Set LOTL location");
+    configuration.setTspSource("Set TSP source");
+    configuration.setOCSPAccessCertificateFileName("Set OCSP access certificate file name");
+    configuration.setOCSPAccessCertificatePassword("Set password".toCharArray());
+    configuration.setOcspSource("Set OCSP source");
+    configuration.setValidationPolicy("Set validation policy");
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    assertEquals("123876", getDDoc4JConfigurationValue("DIGIDOC_MAX_DATAFILE_CACHED"));
+    assertEquals("TEST_DIGIDOC_NOTARY_IMPL", getDDoc4JConfigurationValue("DIGIDOC_NOTARY_IMPL"));
+    assertEquals("TEST_DIGIDOC_OCSP_SIGN_CERT_SERIAL", getDDoc4JConfigurationValue("DIGIDOC_OCSP_SIGN_CERT_SERIAL"));
+    assertEquals("TEST_DIGIDOC_SECURITY_PROVIDER", getDDoc4JConfigurationValue("DIGIDOC_SECURITY_PROVIDER"));
+    assertEquals("TEST_DIGIDOC_SECURITY_PROVIDER_NAME", getDDoc4JConfigurationValue("DIGIDOC_SECURITY_PROVIDER_NAME"));
+    assertEquals("TEST_DIGIDOC_TSLFAC_IMPL", getDDoc4JConfigurationValue("DIGIDOC_TSLFAC_IMPL"));
+    assertEquals("false", getDDoc4JConfigurationValue("DIGIDOC_USE_LOCAL_TSL"));
+    assertEquals("false", getDDoc4JConfigurationValue("KEY_USAGE_CHECK"));
+    assertEquals("false", getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
+    assertEquals("TEST_DIGIDOC_DF_CACHE_DIR", getDDoc4JConfigurationValue("DIGIDOC_DF_CACHE_DIR"));
+    assertEquals("TEST_DIGIDOC_FACTORY_IMPL", getDDoc4JConfigurationValue("DIGIDOC_FACTORY_IMPL"));
+    assertEquals("TEST_CANONICALIZATION_FACTORY_IMPL", getDDoc4JConfigurationValue("CANONICALIZATION_FACTORY_IMPL"));
+    assertEquals("false", getDDoc4JConfigurationValue("DATAFILE_HASHCODE_MODE"));
+    assertEquals("TEST_DIGIDOC_PKCS12_CONTAINER", configuration.getRegistry().get(ConfigurationParameter.OcspAccessCertificateFile).get(0));
+    assertEquals("TEST_DIGIDOC_PKCS12_PASSWD", configuration.getRegistry().get(ConfigurationParameter.OcspAccessCertificatePassword).get(0));
+    assertEquals("TEST_OCSP_SOURCE", configuration.getRegistry().get(ConfigurationParameter.OcspSource).get(0));
+    assertEquals("TEST_TSP_SOURCE", configuration.getRegistry().get(ConfigurationParameter.TspSource).get(0));
+    assertEquals("TEST_TSP_SOURCE_FOR_ARCHIVE_TIMESTAMPS", configuration.getRegistry().get(ConfigurationParameter.TspSourceForArchiveTimestamps).get(0));
+    assertEquals("TEST_VALIDATION_POLICY", configuration.getRegistry().get(ConfigurationParameter.ValidationPolicy).get(0));
+    assertEquals("TEST_LOTL_LOCATION", configuration.getRegistry().get(ConfigurationParameter.LotlLocation).get(0));
+    assertEquals("true", configuration.getRegistry().get(ConfigurationParameter.preferAiaOcsp).get(0));
+    assertEquals("73", configuration.getRegistry().get(ConfigurationParameter.ZipCompressionRatioCheckThreshold).get(0));
+    assertEquals("37", configuration.getRegistry().get(ConfigurationParameter.MaxAllowedZipCompressionRatio).get(0));
+    assertEquals("SHA384", configuration.getRegistry().get(ConfigurationParameter.ArchiveTimestampDigestAlgorithm).get(0));
+    assertEquals("SHA512", configuration.getRegistry().get(ConfigurationParameter.ArchiveTimestampReferenceDigestAlgorithm).get(0));
 
-    this.configuration.setLotlLocation("Set LOTL location");
-    this.configuration.setTspSource("Set TSP source");
-    this.configuration.setOCSPAccessCertificateFileName("Set OCSP access certificate file name");
-    this.configuration.setOCSPAccessCertificatePassword("Set password".toCharArray());
-    this.configuration.setOcspSource("Set OCSP source");
-    this.configuration.setValidationPolicy("Set validation policy");
-    Assert.assertEquals("Set LOTL location", this.configuration.getLotlLocation());
-    Assert.assertEquals("Set TSP source", this.configuration.getTspSource());
-    Assert.assertEquals("TEST_TSP_SOURCE_FOR_ARCHIVE_TIMESTAMPS", this.configuration.getTspSourceForArchiveTimestamps());
-    Assert.assertEquals("Set OCSP access certificate file name", this.configuration.getOCSPAccessCertificateFileName());
-    Assert.assertEquals("Set password", this.configuration.getRegistry().get(ConfigurationParameter.OcspAccessCertificatePassword).get(0));
-    Assert.assertEquals("Set OCSP source", this.configuration.getOcspSource());
-    Assert.assertEquals("Set validation policy", this.configuration.getValidationPolicy());
+    configuration.setLotlLocation("Set LOTL location");
+    configuration.setTspSource("Set TSP source");
+    configuration.setOCSPAccessCertificateFileName("Set OCSP access certificate file name");
+    configuration.setOCSPAccessCertificatePassword("Set password".toCharArray());
+    configuration.setOcspSource("Set OCSP source");
+    configuration.setValidationPolicy("Set validation policy");
+    assertEquals("Set LOTL location", configuration.getLotlLocation());
+    assertEquals("Set TSP source", configuration.getTspSource());
+    assertEquals("TEST_TSP_SOURCE_FOR_ARCHIVE_TIMESTAMPS", configuration.getTspSourceForArchiveTimestamps());
+    assertEquals("Set OCSP access certificate file name", configuration.getOCSPAccessCertificateFileName());
+    assertEquals("Set password", configuration.getRegistry().get(ConfigurationParameter.OcspAccessCertificatePassword).get(0));
+    assertEquals("Set OCSP source", configuration.getOcspSource());
+    assertEquals("Set validation policy", configuration.getValidationPolicy());
   }
 
   @Test
   public void getDefaultTempFileMaxAge() {
-    Assert.assertEquals(86400000, this.configuration.getTempFileMaxAge());
+    assertEquals(86400000, configuration.getTempFileMaxAge());
   }
 
   @Test
   public void loadTempFileMaxAgeFromFile() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_temp_file_max_age.yaml");
-    Assert.assertEquals(60, this.configuration.getTempFileMaxAge());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_temp_file_max_age.yaml");
+    assertEquals(60, configuration.getTempFileMaxAge());
   }
 
   @Test
   public void setTempFileMaxAgeFromCode(){
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_temp_file_max_age.yaml");
-    this.configuration.setTempFileMaxAge(1000);
-    Assert.assertEquals(1000, this.configuration.getTempFileMaxAge());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_temp_file_max_age.yaml");
+    configuration.setTempFileMaxAge(1000);
+    assertEquals(1000, configuration.getTempFileMaxAge());
   }
 
   @Test
   public void getDefaultConnectionTimeout() {
-    Assert.assertEquals(60000, this.configuration.getConnectionTimeout());
-    Assert.assertEquals(60000, this.configuration.getSocketTimeout());
+    assertEquals(60000, configuration.getConnectionTimeout());
+    assertEquals(60000, configuration.getSocketTimeout());
   }
 
   @Test
   public void loadConnectionTimeoutFromFile() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_connection_timeout.yaml");
-    Assert.assertEquals(4000, this.configuration.getConnectionTimeout());
-    Assert.assertEquals(2000, this.configuration.getSocketTimeout());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_connection_timeout.yaml");
+    assertEquals(4000, configuration.getConnectionTimeout());
+    assertEquals(2000, configuration.getSocketTimeout());
   }
 
   @Test
   public void setConnectionTimeoutFromCode() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_connection_timeout.yaml");
-    this.configuration.setConnectionTimeout(2000);
-    this.configuration.setSocketTimeout(5000);
-    Assert.assertEquals(2000, this.configuration.getConnectionTimeout());
-    Assert.assertEquals(5000, this.configuration.getSocketTimeout());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_connection_timeout.yaml");
+    configuration.setConnectionTimeout(2000);
+    configuration.setSocketTimeout(5000);
+    assertEquals(2000, configuration.getConnectionTimeout());
+    assertEquals(5000, configuration.getSocketTimeout());
   }
 
   @Test
   public void revocationAndTimestampDelta_shouldBeOneDay() {
     int oneDayInMinutes = 24 * 60;
-    Assert.assertEquals(oneDayInMinutes, this.configuration.getRevocationAndTimestampDeltaInMinutes());
+    assertEquals(oneDayInMinutes, configuration.getRevocationAndTimestampDeltaInMinutes());
   }
 
   @Test
   public void testSettingRevocationAndTimestampDelta() {
     int twoDaysInMinutes = 48 * 60;
-    this.configuration.setRevocationAndTimestampDeltaInMinutes(twoDaysInMinutes);
-    Assert.assertEquals(twoDaysInMinutes, this.configuration.getRevocationAndTimestampDeltaInMinutes());
+    configuration.setRevocationAndTimestampDeltaInMinutes(twoDaysInMinutes);
+    assertEquals(twoDaysInMinutes, configuration.getRevocationAndTimestampDeltaInMinutes());
   }
 
   @Test
   public void testLoadingRevocationAndTimestampDeltaFromConf() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
-    Assert.assertEquals(1337, this.configuration.getRevocationAndTimestampDeltaInMinutes());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    assertEquals(1337, configuration.getRevocationAndTimestampDeltaInMinutes());
   }
 
   @Test
   public void getDefaultAllowedOcspProviders() {
-    Assert.assertEquals(Arrays.asList(Constant.Test.DEFAULT_OCSP_RESPONDERS), this.configuration.getAllowedOcspRespondersForTM());
+    assertEquals(Arrays.asList(Constant.Test.DEFAULT_OCSP_RESPONDERS), configuration.getAllowedOcspRespondersForTM());
   }
 
   @Test
   public void loadAllowedOcspProvidersFromConf() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
-    List<String> allowedOcspRespondersForTM = this.configuration.getAllowedOcspRespondersForTM();
-    Assert.assertEquals(3,allowedOcspRespondersForTM.size());
-    Assert.assertEquals("SK OCSP RESPONDER 2011", allowedOcspRespondersForTM.get(0));
-    Assert.assertEquals("ESTEID-SK 2007 OCSP RESPONDER", allowedOcspRespondersForTM.get(1));
-    Assert.assertEquals("EID-SK 2007 OCSP RESPONDER", allowedOcspRespondersForTM.get(2));
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    List<String> allowedOcspRespondersForTM = configuration.getAllowedOcspRespondersForTM();
+    assertEquals(3,allowedOcspRespondersForTM.size());
+    assertEquals("SK OCSP RESPONDER 2011", allowedOcspRespondersForTM.get(0));
+    assertEquals("ESTEID-SK 2007 OCSP RESPONDER", allowedOcspRespondersForTM.get(1));
+    assertEquals("EID-SK 2007 OCSP RESPONDER", allowedOcspRespondersForTM.get(2));
   }
 
   @Test
   public void setAllowedOcspProviders() {
-    this.configuration.setAllowedOcspRespondersForTM("ESTEID-SK OCSP RESPONDER 2005", "ESTEID-SK OCSP RESPONDER");
-    List<String> allowedOcspResponders = this.configuration.getAllowedOcspRespondersForTM();
-    Assert.assertEquals(2, allowedOcspResponders.size());
-    Assert.assertEquals("ESTEID-SK OCSP RESPONDER 2005", allowedOcspResponders.get(0));
-    Assert.assertEquals("ESTEID-SK OCSP RESPONDER", allowedOcspResponders.get(1));
+    configuration.setAllowedOcspRespondersForTM("ESTEID-SK OCSP RESPONDER 2005", "ESTEID-SK OCSP RESPONDER");
+    List<String> allowedOcspResponders = configuration.getAllowedOcspRespondersForTM();
+    assertEquals(2, allowedOcspResponders.size());
+    assertEquals("ESTEID-SK OCSP RESPONDER 2005", allowedOcspResponders.get(0));
+    assertEquals("ESTEID-SK OCSP RESPONDER", allowedOcspResponders.get(1));
   }
 
   @Test
   public void getTrustedTerritories_defaultTesting_shouldBeNull() {
-    Assert.assertEquals(Collections.emptyList(), configuration.getTrustedTerritories());
+    assertEquals(Collections.emptyList(), configuration.getTrustedTerritories());
   }
 
   @Test
   public void getTrustedTerritories_defaultProd() {
     configuration = Configuration.of(Configuration.Mode.PROD);
     List<String> trustedTerritories = configuration.getTrustedTerritories();
-    Assert.assertNotNull(trustedTerritories);
-    Assert.assertTrue(trustedTerritories.contains("EE"));
-    Assert.assertTrue(trustedTerritories.contains("BE"));
-    Assert.assertTrue(trustedTerritories.contains("NO"));
-    Assert.assertTrue(trustedTerritories.contains("DE"));
-    Assert.assertTrue(trustedTerritories.contains("HR"));
+    assertNotNull(trustedTerritories);
+    assertTrue(trustedTerritories.contains("EE"));
+    assertTrue(trustedTerritories.contains("BE"));
+    assertTrue(trustedTerritories.contains("NO"));
+    assertTrue(trustedTerritories.contains("DE"));
+    assertTrue(trustedTerritories.contains("HR"));
   }
 
   @Test
   public void setTrustedTerritories() {
     configuration.setTrustedTerritories("AR", "US", "CA");
     List<String> trustedTerritories = configuration.getTrustedTerritories();
-    Assert.assertEquals(Arrays.asList("AR", "US", "CA"), trustedTerritories);
+    assertEquals(Arrays.asList("AR", "US", "CA"), trustedTerritories);
   }
 
   @Test
   public void loadTrustedTerritoriesFromConf() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     List<String> trustedTerritories = configuration.getTrustedTerritories();
-    Assert.assertEquals(Arrays.asList("NZ", "AU", "BR"), trustedTerritories);
+    assertEquals(Arrays.asList("NZ", "AU", "BR"), trustedTerritories);
   }
 
   @Test
   public void loadYamlTrustedTerritoriesFromConf() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc4j_test_conf_territories_lists.yaml");
     List<String> trustedTerritories = configuration.getTrustedTerritories();
-    Assert.assertEquals(Arrays.asList("AU", "NZ", "AR"), trustedTerritories);
+    assertEquals(Arrays.asList("AU", "NZ", "AR"), trustedTerritories);
   }
 
   @Test
@@ -1445,40 +1454,40 @@ public class ConfigurationTest extends AbstractTest {
     configuration.setTrustedTerritories("EE");
     loadConfigurationFromString(configuration, "TRUSTED_TERRITORIES: []");
     List<String> trustedTerritories = configuration.getTrustedTerritories();
-    Assert.assertEquals(Collections.emptyList(), trustedTerritories);
+    assertEquals(Collections.emptyList(), trustedTerritories);
   }
 
   @Test
   public void getRequiredTerritories_defaultTesting_shouldBeNull() {
-    Assert.assertEquals(Collections.emptyList(), configuration.getRequiredTerritories());
+    assertEquals(Collections.emptyList(), configuration.getRequiredTerritories());
   }
 
   @Test
   public void getRequiredTerritories_defaultProd() {
     configuration = Configuration.of(Configuration.Mode.PROD);
     List<String> requiredTerritories = configuration.getRequiredTerritories();
-    Assert.assertEquals(Collections.singletonList("EE"), requiredTerritories);
+    assertEquals(Collections.singletonList("EE"), requiredTerritories);
   }
 
   @Test
   public void setRequiredTerritories() {
     configuration.setRequiredTerritories("CU", "LV");
     List<String> requiredTerritories = configuration.getRequiredTerritories();
-    Assert.assertEquals(Arrays.asList("CU", "LV"), requiredTerritories);
+    assertEquals(Arrays.asList("CU", "LV"), requiredTerritories);
   }
 
   @Test
   public void loadRequiredTerritoriesFromConf() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     List<String> requiredTerritories = configuration.getRequiredTerritories();
-    Assert.assertEquals(Arrays.asList("GB", "LT"), requiredTerritories);
+    assertEquals(Arrays.asList("GB", "LT"), requiredTerritories);
   }
 
   @Test
   public void loadYamlRequiredTerritoriesFromConf() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc4j_test_conf_territories_lists.yaml");
     List<String> requiredTerritories = configuration.getRequiredTerritories();
-    Assert.assertEquals(Arrays.asList("IE", "LV"), requiredTerritories);
+    assertEquals(Arrays.asList("IE", "LV"), requiredTerritories);
   }
 
   @Test
@@ -1486,108 +1495,108 @@ public class ConfigurationTest extends AbstractTest {
     configuration.setRequiredTerritories("EE");
     loadConfigurationFromString(configuration, "REQUIRED_TERRITORIES: []");
     List<String> requiredTerritories = configuration.getRequiredTerritories();
-    Assert.assertEquals(Collections.emptyList(), requiredTerritories);
+    assertEquals(Collections.emptyList(), requiredTerritories);
   }
 
   @Test
   public void aiaOcspPreferredByDefault_defaultTest() {
-    Assert.assertTrue(configuration.isAiaOcspPreferred());
+    assertTrue(configuration.isAiaOcspPreferred());
   }
 
   @Test
   public void aiaOcspPreferredByDefault_defaultProd() {
-    Assert.assertTrue(Configuration.of(Configuration.Mode.PROD).isAiaOcspPreferred());
+    assertTrue(Configuration.of(Configuration.Mode.PROD).isAiaOcspPreferred());
   }
 
   @Test
   public void getAiaOcspSourceByCN_defaultTest() {
-    Assert.assertNull(configuration.getAiaOcspSourceByCN(null));
-    Assert.assertNull(configuration.getAiaOcspSourceByCN("ESTEID2018"));
-    Assert.assertNull(configuration.getAiaOcspSourceByCN("ESTEID-SK 2011"));
-    Assert.assertNull(configuration.getAiaOcspSourceByCN("EID-SK 2011"));
-    Assert.assertNull(configuration.getAiaOcspSourceByCN("KLASS3-SK 2010"));
-    Assert.assertNull(configuration.getAiaOcspSourceByCN("ESTEID-SK 2015"));
-    Assert.assertNull(configuration.getAiaOcspSourceByCN("EID-SK 2016"));
-    Assert.assertNull(configuration.getAiaOcspSourceByCN("NQ-SK 2016"));
-    Assert.assertNull(configuration.getAiaOcspSourceByCN("KLASS3-SK 2016"));
-    Assert.assertEquals("http://aia.demo.sk.ee/esteid2018", configuration.getAiaOcspSourceByCN("TEST of ESTEID2018"));
-    Assert.assertEquals("http://aia.demo.sk.ee/esteid2011", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2011"));
-    Assert.assertEquals("http://aia.demo.sk.ee/eid2011", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2011"));
-    Assert.assertEquals("http://aia.demo.sk.ee/klass3-2010", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2010"));
-    Assert.assertEquals("http://aia.demo.sk.ee/esteid2015", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2015"));
-    Assert.assertEquals("http://aia.demo.sk.ee/eid2016", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2016"));
-    Assert.assertEquals("http://aia.demo.sk.ee/nq2016", configuration.getAiaOcspSourceByCN("TEST of NQ-SK 2016"));
-    Assert.assertEquals("http://aia.demo.sk.ee/klass3-2016", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2016"));
+    assertNull(configuration.getAiaOcspSourceByCN(null));
+    assertNull(configuration.getAiaOcspSourceByCN("ESTEID2018"));
+    assertNull(configuration.getAiaOcspSourceByCN("ESTEID-SK 2011"));
+    assertNull(configuration.getAiaOcspSourceByCN("EID-SK 2011"));
+    assertNull(configuration.getAiaOcspSourceByCN("KLASS3-SK 2010"));
+    assertNull(configuration.getAiaOcspSourceByCN("ESTEID-SK 2015"));
+    assertNull(configuration.getAiaOcspSourceByCN("EID-SK 2016"));
+    assertNull(configuration.getAiaOcspSourceByCN("NQ-SK 2016"));
+    assertNull(configuration.getAiaOcspSourceByCN("KLASS3-SK 2016"));
+    assertEquals("http://aia.demo.sk.ee/esteid2018", configuration.getAiaOcspSourceByCN("TEST of ESTEID2018"));
+    assertEquals("http://aia.demo.sk.ee/esteid2011", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2011"));
+    assertEquals("http://aia.demo.sk.ee/eid2011", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2011"));
+    assertEquals("http://aia.demo.sk.ee/klass3-2010", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2010"));
+    assertEquals("http://aia.demo.sk.ee/esteid2015", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2015"));
+    assertEquals("http://aia.demo.sk.ee/eid2016", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2016"));
+    assertEquals("http://aia.demo.sk.ee/nq2016", configuration.getAiaOcspSourceByCN("TEST of NQ-SK 2016"));
+    assertEquals("http://aia.demo.sk.ee/klass3-2016", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2016"));
   }
 
   @Test
   public void getAiaOcspSourceByCN_defaultProd() {
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
-    Assert.assertNull(configuration.getAiaOcspSourceByCN(null));
-    Assert.assertEquals("http://aia.sk.ee/esteid2018", configuration.getAiaOcspSourceByCN("ESTEID2018"));
-    Assert.assertEquals("http://aia.sk.ee/esteid2011", configuration.getAiaOcspSourceByCN("ESTEID-SK 2011"));
-    Assert.assertEquals("http://aia.sk.ee/eid2011", configuration.getAiaOcspSourceByCN("EID-SK 2011"));
-    Assert.assertEquals("http://aia.sk.ee/klass3-2010", configuration.getAiaOcspSourceByCN("KLASS3-SK 2010"));
-    Assert.assertEquals("http://aia.sk.ee/esteid2015", configuration.getAiaOcspSourceByCN("ESTEID-SK 2015"));
-    Assert.assertEquals("http://aia.sk.ee/eid2016", configuration.getAiaOcspSourceByCN("EID-SK 2016"));
-    Assert.assertEquals("http://aia.sk.ee/nq2016", configuration.getAiaOcspSourceByCN("NQ-SK 2016"));
-    Assert.assertEquals("http://aia.sk.ee/klass3-2016", configuration.getAiaOcspSourceByCN("KLASS3-SK 2016"));
-    Assert.assertNull(configuration.getAiaOcspSourceByCN("TEST of ESTEID2018"));
-    Assert.assertNull(configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2011"));
-    Assert.assertNull(configuration.getAiaOcspSourceByCN("TEST of EID-SK 2011"));
-    Assert.assertNull(configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2010"));
-    Assert.assertNull(configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2015"));
-    Assert.assertNull(configuration.getAiaOcspSourceByCN("TEST of EID-SK 2016"));
-    Assert.assertNull(configuration.getAiaOcspSourceByCN("TEST of NQ-SK 2016"));
-    Assert.assertNull(configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2016"));
+    assertNull(configuration.getAiaOcspSourceByCN(null));
+    assertEquals("http://aia.sk.ee/esteid2018", configuration.getAiaOcspSourceByCN("ESTEID2018"));
+    assertEquals("http://aia.sk.ee/esteid2011", configuration.getAiaOcspSourceByCN("ESTEID-SK 2011"));
+    assertEquals("http://aia.sk.ee/eid2011", configuration.getAiaOcspSourceByCN("EID-SK 2011"));
+    assertEquals("http://aia.sk.ee/klass3-2010", configuration.getAiaOcspSourceByCN("KLASS3-SK 2010"));
+    assertEquals("http://aia.sk.ee/esteid2015", configuration.getAiaOcspSourceByCN("ESTEID-SK 2015"));
+    assertEquals("http://aia.sk.ee/eid2016", configuration.getAiaOcspSourceByCN("EID-SK 2016"));
+    assertEquals("http://aia.sk.ee/nq2016", configuration.getAiaOcspSourceByCN("NQ-SK 2016"));
+    assertEquals("http://aia.sk.ee/klass3-2016", configuration.getAiaOcspSourceByCN("KLASS3-SK 2016"));
+    assertNull(configuration.getAiaOcspSourceByCN("TEST of ESTEID2018"));
+    assertNull(configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2011"));
+    assertNull(configuration.getAiaOcspSourceByCN("TEST of EID-SK 2011"));
+    assertNull(configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2010"));
+    assertNull(configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2015"));
+    assertNull(configuration.getAiaOcspSourceByCN("TEST of EID-SK 2016"));
+    assertNull(configuration.getAiaOcspSourceByCN("TEST of NQ-SK 2016"));
+    assertNull(configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2016"));
   }
 
   @Test
   public void getUseNonceForAiaOcspByCN_defaultTest() {
-    Assert.assertTrue(configuration.getUseNonceForAiaOcspByCN(null));
-    Assert.assertTrue(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID2018"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2011"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2011"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2010"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2015"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2016"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of NQ-SK 2016"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2016"));
+    assertTrue(configuration.getUseNonceForAiaOcspByCN(null));
+    assertTrue(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID2018"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2011"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2011"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2010"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2015"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2016"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of NQ-SK 2016"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2016"));
   }
 
   @Test
   public void getUseNonceForAiaOcspByCN_defaultProd() {
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
-    Assert.assertTrue(configuration.getUseNonceForAiaOcspByCN(null));
-    Assert.assertTrue(configuration.getUseNonceForAiaOcspByCN("ESTEID2018"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("ESTEID-SK 2011"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("EID-SK 2011"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("KLASS3-SK 2010"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("ESTEID-SK 2015"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("EID-SK 2016"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("NQ-SK 2016"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("KLASS3-SK 2016"));
+    assertTrue(configuration.getUseNonceForAiaOcspByCN(null));
+    assertTrue(configuration.getUseNonceForAiaOcspByCN("ESTEID2018"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("ESTEID-SK 2011"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("EID-SK 2011"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("KLASS3-SK 2010"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("ESTEID-SK 2015"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("EID-SK 2016"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("NQ-SK 2016"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("KLASS3-SK 2016"));
   }
 
   @Test
   public void testAiaOcspNotConfiguredThroughYamlShouldUseDefaults_customTest() throws Exception {
     loadConfigurationFromString(configuration, "");
-    Assert.assertEquals("http://aia.demo.sk.ee/esteid2018", configuration.getAiaOcspSourceByCN("TEST of ESTEID2018"));
-    Assert.assertTrue(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID2018"));
-    Assert.assertEquals("http://aia.demo.sk.ee/esteid2011", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2011"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2011"));
-    Assert.assertEquals("http://aia.demo.sk.ee/eid2011", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2011"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2011"));
-    Assert.assertEquals("http://aia.demo.sk.ee/klass3-2010", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2010"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2010"));
-    Assert.assertEquals("http://aia.demo.sk.ee/esteid2015", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2015"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2015"));
-    Assert.assertEquals("http://aia.demo.sk.ee/eid2016", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2016"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2016"));
-    Assert.assertEquals("http://aia.demo.sk.ee/nq2016", configuration.getAiaOcspSourceByCN("TEST of NQ-SK 2016"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of NQ-SK 2016"));
-    Assert.assertEquals("http://aia.demo.sk.ee/klass3-2016", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2016"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2016"));
+    assertEquals("http://aia.demo.sk.ee/esteid2018", configuration.getAiaOcspSourceByCN("TEST of ESTEID2018"));
+    assertTrue(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID2018"));
+    assertEquals("http://aia.demo.sk.ee/esteid2011", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2011"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2011"));
+    assertEquals("http://aia.demo.sk.ee/eid2011", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2011"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2011"));
+    assertEquals("http://aia.demo.sk.ee/klass3-2010", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2010"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2010"));
+    assertEquals("http://aia.demo.sk.ee/esteid2015", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2015"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2015"));
+    assertEquals("http://aia.demo.sk.ee/eid2016", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2016"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2016"));
+    assertEquals("http://aia.demo.sk.ee/nq2016", configuration.getAiaOcspSourceByCN("TEST of NQ-SK 2016"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of NQ-SK 2016"));
+    assertEquals("http://aia.demo.sk.ee/klass3-2016", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2016"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2016"));
   }
 
   @Test
@@ -1596,24 +1605,24 @@ public class ConfigurationTest extends AbstractTest {
             "  - ISSUER_CN: OCSP NAME",
             "    OCSP_SOURCE: scheme://host/path",
             "    USE_NONCE: true");
-    Assert.assertEquals("http://aia.demo.sk.ee/esteid2018", configuration.getAiaOcspSourceByCN("TEST of ESTEID2018"));
-    Assert.assertTrue(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID2018"));
-    Assert.assertEquals("http://aia.demo.sk.ee/esteid2011", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2011"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2011"));
-    Assert.assertEquals("http://aia.demo.sk.ee/eid2011", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2011"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2011"));
-    Assert.assertEquals("http://aia.demo.sk.ee/klass3-2010", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2010"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2010"));
-    Assert.assertEquals("http://aia.demo.sk.ee/esteid2015", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2015"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2015"));
-    Assert.assertEquals("http://aia.demo.sk.ee/eid2016", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2016"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2016"));
-    Assert.assertEquals("http://aia.demo.sk.ee/nq2016", configuration.getAiaOcspSourceByCN("TEST of NQ-SK 2016"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of NQ-SK 2016"));
-    Assert.assertEquals("http://aia.demo.sk.ee/klass3-2016", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2016"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2016"));
-    Assert.assertEquals("scheme://host/path", configuration.getAiaOcspSourceByCN("OCSP NAME"));
-    Assert.assertTrue(configuration.getUseNonceForAiaOcspByCN("OCSP NAME"));
+    assertEquals("http://aia.demo.sk.ee/esteid2018", configuration.getAiaOcspSourceByCN("TEST of ESTEID2018"));
+    assertTrue(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID2018"));
+    assertEquals("http://aia.demo.sk.ee/esteid2011", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2011"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2011"));
+    assertEquals("http://aia.demo.sk.ee/eid2011", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2011"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2011"));
+    assertEquals("http://aia.demo.sk.ee/klass3-2010", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2010"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2010"));
+    assertEquals("http://aia.demo.sk.ee/esteid2015", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2015"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2015"));
+    assertEquals("http://aia.demo.sk.ee/eid2016", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2016"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2016"));
+    assertEquals("http://aia.demo.sk.ee/nq2016", configuration.getAiaOcspSourceByCN("TEST of NQ-SK 2016"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of NQ-SK 2016"));
+    assertEquals("http://aia.demo.sk.ee/klass3-2016", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2016"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2016"));
+    assertEquals("scheme://host/path", configuration.getAiaOcspSourceByCN("OCSP NAME"));
+    assertTrue(configuration.getUseNonceForAiaOcspByCN("OCSP NAME"));
   }
 
   @Test
@@ -1625,22 +1634,22 @@ public class ConfigurationTest extends AbstractTest {
             "  - ISSUER_CN: TEST of ESTEID-SK 2011",
             "    OCSP_SOURCE: new-url-for-test-of-esteid-sk-2011",
             "    USE_NONCE: true");
-    Assert.assertEquals("new-url-for-test-of-esteid-2018", configuration.getAiaOcspSourceByCN("TEST of ESTEID2018"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID2018"));
-    Assert.assertEquals("new-url-for-test-of-esteid-sk-2011", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2011"));
-    Assert.assertTrue(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2011"));
-    Assert.assertEquals("http://aia.demo.sk.ee/eid2011", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2011"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2011"));
-    Assert.assertEquals("http://aia.demo.sk.ee/klass3-2010", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2010"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2010"));
-    Assert.assertEquals("http://aia.demo.sk.ee/esteid2015", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2015"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2015"));
-    Assert.assertEquals("http://aia.demo.sk.ee/eid2016", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2016"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2016"));
-    Assert.assertEquals("http://aia.demo.sk.ee/nq2016", configuration.getAiaOcspSourceByCN("TEST of NQ-SK 2016"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of NQ-SK 2016"));
-    Assert.assertEquals("http://aia.demo.sk.ee/klass3-2016", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2016"));
-    Assert.assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2016"));
+    assertEquals("new-url-for-test-of-esteid-2018", configuration.getAiaOcspSourceByCN("TEST of ESTEID2018"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID2018"));
+    assertEquals("new-url-for-test-of-esteid-sk-2011", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2011"));
+    assertTrue(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2011"));
+    assertEquals("http://aia.demo.sk.ee/eid2011", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2011"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2011"));
+    assertEquals("http://aia.demo.sk.ee/klass3-2010", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2010"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2010"));
+    assertEquals("http://aia.demo.sk.ee/esteid2015", configuration.getAiaOcspSourceByCN("TEST of ESTEID-SK 2015"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2015"));
+    assertEquals("http://aia.demo.sk.ee/eid2016", configuration.getAiaOcspSourceByCN("TEST of EID-SK 2016"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of EID-SK 2016"));
+    assertEquals("http://aia.demo.sk.ee/nq2016", configuration.getAiaOcspSourceByCN("TEST of NQ-SK 2016"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of NQ-SK 2016"));
+    assertEquals("http://aia.demo.sk.ee/klass3-2016", configuration.getAiaOcspSourceByCN("TEST of KLASS3-SK 2016"));
+    assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of KLASS3-SK 2016"));
   }
 
   @Test
@@ -1672,128 +1681,128 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void testOpenBDocWithConfFromSetter() {
-    this.configuration = new Configuration(Configuration.Mode.PROD);
-    this.configuration.setOcspSource("http://demo.sk.ee/TEST");
-    ContainerBuilder.aContainer().withConfiguration(this.configuration).
+    configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setOcspSource("http://demo.sk.ee/TEST");
+    ContainerBuilder.aContainer().withConfiguration(configuration).
         fromExistingFile("src/test/resources/testFiles/valid-containers/test.asice").build();
-    Assert.assertEquals("http://demo.sk.ee/TEST", this.configuration.getOcspSource());
+    assertEquals("http://demo.sk.ee/TEST", configuration.getOcspSource());
   }
 
   @Test
   public void testOpenBDocWithConfFromYaml() {
-    this.configuration = Configuration.of(Configuration.Mode.PROD);
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_parameters.yaml");
-    ContainerBuilder.aContainer().withConfiguration(this.configuration).
+    configuration = Configuration.of(Configuration.Mode.PROD);
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_parameters.yaml");
+    ContainerBuilder.aContainer().withConfiguration(configuration).
         fromExistingFile("src/test/resources/testFiles/valid-containers/test.asice").build();
-    Assert.assertEquals("test_source_from_yaml", configuration.getOcspSource());
+    assertEquals("test_source_from_yaml", configuration.getOcspSource());
   }
 
   @Test
   public void testOpenBDocWithConfFromSetterWhenYamlParamPresented() {
-    this.configuration = new Configuration(Configuration.Mode.PROD);
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_parameters.yaml");
-    this.configuration.setOcspSource("http://demo.sk.ee/TEST");
-    ContainerBuilder.aContainer().withConfiguration(this.configuration).
+    configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_parameters.yaml");
+    configuration.setOcspSource("http://demo.sk.ee/TEST");
+    ContainerBuilder.aContainer().withConfiguration(configuration).
         fromExistingFile("src/test/resources/testFiles/valid-containers/test.asice").build();
-    Assert.assertEquals("http://demo.sk.ee/TEST", this.configuration.getOcspSource());
+    assertEquals("http://demo.sk.ee/TEST", configuration.getOcspSource());
   }
 
   @Test
   public void loadAllowedTimestampAndOCSPResponseDelta() {
-    Assert.assertEquals(15, this.configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes().longValue());
+    assertEquals(15, configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes().longValue());
   }
 
   @Test
   public void loadAllowedTimestampAndOCSPResponseDeltaFromConf() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
-    Assert.assertEquals(1, this.configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes().longValue());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    assertEquals(1, configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes().longValue());
   }
 
   @Test
   public void testLoadingSignatureProfile() {
-    Assert.assertNull(this.configuration.getSignatureProfile());
+    assertNull(configuration.getSignatureProfile());
   }
 
   @Test
   public void testLoadingSignatureProfileFromConf() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
-    Assert.assertEquals(SignatureProfile.LT_TM, this.configuration.getSignatureProfile());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    assertEquals(SignatureProfile.LT_TM, configuration.getSignatureProfile());
   }
 
   @Test
   public void testLoadingSignatureDigestAlgorithm() {
-    Assert.assertNull(this.configuration.getSignatureDigestAlgorithm());
+    assertNull(configuration.getSignatureDigestAlgorithm());
   }
 
   @Test
   public void testLoadingSignatureDigestAlgorithmFromConf() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
-    Assert.assertEquals(DigestAlgorithm.SHA512, this.configuration.getSignatureDigestAlgorithm());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    assertEquals(DigestAlgorithm.SHA512, configuration.getSignatureDigestAlgorithm());
   }
 
   @Test
   public void testLoadingDataFileDigestAlgorithm() {
-    Assert.assertNull(this.configuration.getDataFileDigestAlgorithm());
+    assertNull(configuration.getDataFileDigestAlgorithm());
   }
 
   @Test
   public void testLoadingDataFileDigestAlgorithmFromConf() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
-    Assert.assertEquals(DigestAlgorithm.SHA512, this.configuration.getDataFileDigestAlgorithm());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
+    assertEquals(DigestAlgorithm.SHA512, configuration.getDataFileDigestAlgorithm());
   }
 
   @Test
   public void getArchiveTimestampDigestAlgorithm_WhenDefaultProdConfiguration_ReturnsNull() {
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
-    Assert.assertNull(configuration.getArchiveTimestampDigestAlgorithm());
+    assertNull(configuration.getArchiveTimestampDigestAlgorithm());
   }
 
   @Test
   public void getArchiveTimestampDigestAlgorithm_WhenDefaultTestConfiguration_ReturnsNull() {
     Configuration configuration = Configuration.of(Configuration.Mode.TEST);
-    Assert.assertNull(configuration.getArchiveTimestampDigestAlgorithm());
+    assertNull(configuration.getArchiveTimestampDigestAlgorithm());
   }
 
   @Test
   public void getArchiveTimestampDigestAlgorithm_WhenConfigurationLoadedFromFile_ReturnsLoadedValue() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_archive_timestamp.yaml");
-    Assert.assertEquals(DigestAlgorithm.SHA256, configuration.getArchiveTimestampDigestAlgorithm());
+    assertEquals(DigestAlgorithm.SHA256, configuration.getArchiveTimestampDigestAlgorithm());
   }
 
   @Test
   public void getArchiveTimestampReferenceDigestAlgorithm_WhenDefaultProdConfiguration_ReturnsNull() {
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
-    Assert.assertNull(configuration.getArchiveTimestampReferenceDigestAlgorithm());
+    assertNull(configuration.getArchiveTimestampReferenceDigestAlgorithm());
   }
 
   @Test
   public void getArchiveTimestampReferenceDigestAlgorithm_WhenDefaultTestConfiguration_ReturnsNull() {
     Configuration configuration = Configuration.of(Configuration.Mode.TEST);
-    Assert.assertNull(configuration.getArchiveTimestampReferenceDigestAlgorithm());
+    assertNull(configuration.getArchiveTimestampReferenceDigestAlgorithm());
   }
 
   @Test
   public void getArchiveTimestampReferenceDigestAlgorithm_WhenConfigurationLoadedFromFile_ReturnsLoadedValue() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_archive_timestamp.yaml");
-    Assert.assertEquals(DigestAlgorithm.SHA384, configuration.getArchiveTimestampReferenceDigestAlgorithm());
+    assertEquals(DigestAlgorithm.SHA384, configuration.getArchiveTimestampReferenceDigestAlgorithm());
   }
 
   @Test
   public void testConfigurationHasChanged() throws Exception {
     Configuration otherConfiguration = Configuration.of(Configuration.Mode.PROD);
-    File file = this.createTemporaryFile();
-    Helper.serialize(this.configuration, file);
-    this.configuration = Helper.deserializer(file);
-    Assert.assertTrue("No differences", this.isConfigurationsDifferent(otherConfiguration));
+    File file = createTemporaryFile();
+    Helper.serialize(configuration, file);
+    configuration = Helper.deserializer(file);
+    assertTrue(isConfigurationsDifferent(otherConfiguration), "No differences");
   }
 
   @Test
   public void testConfigurationHasNotChanged() throws Exception {
     Configuration otherConfiguration = new Configuration(Configuration.Mode.TEST);
-    File file = this.createTemporaryFile();
-    Helper.serialize(this.configuration, file);
-    this.configuration = Helper.deserializer(file);
-    Assert.assertFalse("Differences", this.isConfigurationsDifferent(otherConfiguration));
+    File file = createTemporaryFile();
+    Helper.serialize(configuration, file);
+    configuration = Helper.deserializer(file);
+    assertFalse(isConfigurationsDifferent(otherConfiguration), "Differences");
   }
 
   /*
@@ -1802,18 +1811,18 @@ public class ConfigurationTest extends AbstractTest {
 
   @Override
   protected void before() {
-    this.configuration = new Configuration(Configuration.Mode.TEST);
+    configuration = new Configuration(Configuration.Mode.TEST);
   }
 
   private boolean isConfigurationsDifferent(Configuration otherConfiguration) {
-    if (StringUtils.isBlank(this.configuration.getRegistry().getSealValue())) {
+    if (StringUtils.isBlank(configuration.getRegistry().getSealValue())) {
       return false;
     }
-    return !this.configuration.getRegistry().getSealValue().equals(otherConfiguration.getRegistry().generateSealValue());
+    return !configuration.getRegistry().getSealValue().equals(otherConfiguration.getRegistry().generateSealValue());
   }
 
   private File generateConfigurationByParameter(String parameter) {
-    return this.createTemporaryFileBy(String.format("%s\n" +
+    return createTemporaryFileBy(String.format("%s\n" +
         "DIGIDOC_CAS:\n" +
         "- DIGIDOC_CA:\n" +
         "    NAME: AS Sertifitseerimiskeskus\n" +

@@ -15,41 +15,47 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.TSLCertificateSource;
 import org.digidoc4j.impl.asic.tsl.LazyTslCertificateSource;
 import org.digidoc4j.impl.asic.tsl.TslManager;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TslManagerTest extends AbstractTest {
 
   private TslManager tslManager;
 
   @Test
-  public void getNewTsl() throws Exception {
-    TSLCertificateSource tsl = this.tslManager.getTsl();
-    Assert.assertNotNull(tsl);
+  public void getNewTsl() {
+    TSLCertificateSource tsl = tslManager.getTsl();
+    assertNotNull(tsl);
   }
 
   @Test
-  public void getCachedTsl() throws Exception {
-    TSLCertificateSource tsl = this.tslManager.getTsl();
-    TSLCertificateSource newTsl = this.tslManager.getTsl();
-    Assert.assertSame(tsl, newTsl);
+  public void getCachedTsl() {
+    TSLCertificateSource tsl = tslManager.getTsl();
+    TSLCertificateSource newTsl = tslManager.getTsl();
+    assertSame(tsl, newTsl);
   }
 
   @Test
-  public void getLazilyInitializedTsl() throws Exception {
-    TSLCertificateSource tsl = this.tslManager.getTsl();
-    Assert.assertTrue(tsl instanceof LazyTslCertificateSource);
-    Assert.assertFalse(((LazyTslCertificateSource) tsl).getLastCacheReloadingTime() != null);
-    Assert.assertTrue(tsl.getNumberOfCertificates() > 0);
-    Assert.assertTrue(((LazyTslCertificateSource) tsl).getLastCacheReloadingTime() != null);
+  public void getLazilyInitializedTsl() {
+    TSLCertificateSource tsl = tslManager.getTsl();
+    assertInstanceOf(LazyTslCertificateSource.class, tsl);
+    assertNull(((LazyTslCertificateSource) tsl).getLastCacheReloadingTime());
+    assertTrue(tsl.getNumberOfCertificates() > 0);
+    assertNotNull(((LazyTslCertificateSource) tsl).getLastCacheReloadingTime());
   }
 
   @Test
-  public void getTslwithCacheExpirationTime() throws Exception {
-    this.configuration.setTslCacheExpirationTime(1337);
-    LazyTslCertificateSource tsl = (LazyTslCertificateSource) this.tslManager.getTsl();
-    Assert.assertNotNull(tsl.getCacheExpirationTime());
-    Assert.assertEquals(1337, tsl.getCacheExpirationTime().longValue());
+  public void getTslwithCacheExpirationTime() {
+    configuration.setTslCacheExpirationTime(1337);
+    LazyTslCertificateSource tsl = (LazyTslCertificateSource) tslManager.getTsl();
+    assertNotNull(tsl.getCacheExpirationTime());
+    assertEquals(1337, tsl.getCacheExpirationTime().longValue());
   }
 
   /*
@@ -58,9 +64,9 @@ public class TslManagerTest extends AbstractTest {
 
   @Override
   protected void before() {
-    this.configuration = new Configuration(Configuration.Mode.TEST);
-    this.tslManager = new TslManager(this.configuration);
-    this.evictTSLCache();
+    configuration = new Configuration(Configuration.Mode.TEST);
+    tslManager = new TslManager(configuration);
+    evictTSLCache();
   }
 
 }

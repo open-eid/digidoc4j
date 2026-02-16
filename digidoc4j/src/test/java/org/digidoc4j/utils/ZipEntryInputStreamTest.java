@@ -10,26 +10,30 @@
 
 package org.digidoc4j.utils;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.util.zip.ZipInputStream;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ZipEntryInputStreamTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@ExtendWith(MockitoExtension.class)
+class ZipEntryInputStreamTest {
 
   @Mock
   private ZipInputStream zipInputStream;
 
   private ZipEntryInputStream zipEntryInputStream;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     zipEntryInputStream = new ZipEntryInputStream(zipInputStream, null);
     Mockito.verifyNoInteractions(zipInputStream);
@@ -40,7 +44,7 @@ public class ZipEntryInputStreamTest {
     Mockito.doReturn(7).when(zipInputStream).available();
 
     int result = zipEntryInputStream.available();
-    Assert.assertEquals(7, result);
+    assertEquals(7, result);
 
     Mockito.verify(zipInputStream, Mockito.times(1)).available();
     Mockito.verifyNoMoreInteractions(zipInputStream);
@@ -51,12 +55,12 @@ public class ZipEntryInputStreamTest {
     IOException ioException = new IOException("Some ZipInputStream exception");
     Mockito.doThrow(ioException).when(zipInputStream).available();
 
-    IOException caughtException = Assert.assertThrows(
+    IOException caughtException = assertThrows(
             IOException.class,
             () -> zipEntryInputStream.available()
     );
 
-    Assert.assertSame(ioException, caughtException);
+    assertSame(ioException, caughtException);
     Mockito.verify(zipInputStream, Mockito.times(1)).available();
     Mockito.verifyNoMoreInteractions(zipInputStream);
   }
@@ -74,12 +78,12 @@ public class ZipEntryInputStreamTest {
     IOException ioException = new IOException("Some ZipInputStream exception");
     Mockito.doThrow(ioException).when(zipInputStream).closeEntry();
 
-    IOException caughtException = Assert.assertThrows(
+    IOException caughtException = assertThrows(
             IOException.class,
             () -> zipEntryInputStream.close()
     );
 
-    Assert.assertSame(ioException, caughtException);
+    assertSame(ioException, caughtException);
     Mockito.verify(zipInputStream, Mockito.times(1)).closeEntry();
     Mockito.verifyNoMoreInteractions(zipInputStream);
   }
@@ -98,7 +102,7 @@ public class ZipEntryInputStreamTest {
 
     boolean result = zipEntryInputStream.markSupported();
 
-    Assert.assertTrue(result);
+    assertTrue(result);
     Mockito.verify(zipInputStream, Mockito.times(1)).markSupported();
     Mockito.verifyNoMoreInteractions(zipInputStream);
   }
@@ -109,7 +113,7 @@ public class ZipEntryInputStreamTest {
 
     int result = zipEntryInputStream.read();
 
-    Assert.assertEquals(7, result);
+    assertEquals(7, result);
     Mockito.verify(zipInputStream, Mockito.times(1)).read();
     Mockito.verifyNoMoreInteractions(zipInputStream);
   }
@@ -119,12 +123,12 @@ public class ZipEntryInputStreamTest {
     IOException ioException = new IOException("Some ZipInputStream exception");
     Mockito.doThrow(ioException).when(zipInputStream).read();
 
-    IOException caughtException = Assert.assertThrows(
+    IOException caughtException = assertThrows(
             IOException.class,
             () -> zipEntryInputStream.read()
     );
 
-    Assert.assertSame(ioException, caughtException);
+    assertSame(ioException, caughtException);
     Mockito.verify(zipInputStream, Mockito.times(1)).read();
     Mockito.verifyNoMoreInteractions(zipInputStream);
   }
@@ -136,7 +140,7 @@ public class ZipEntryInputStreamTest {
 
     int result = zipEntryInputStream.read(arrayOfBytes);
 
-    Assert.assertEquals(7, result);
+    assertEquals(7, result);
     Mockito.verify(zipInputStream, Mockito.times(1)).read(arrayOfBytes);
     Mockito.verifyNoMoreInteractions(zipInputStream);
   }
@@ -147,12 +151,12 @@ public class ZipEntryInputStreamTest {
     Mockito.doThrow(ioException).when(zipInputStream).read(Mockito.any(byte[].class));
     byte[] arrayOfBytes = new byte[32];
 
-    IOException caughtException = Assert.assertThrows(
+    IOException caughtException = assertThrows(
             IOException.class,
             () -> zipEntryInputStream.read(arrayOfBytes)
     );
 
-    Assert.assertSame(ioException, caughtException);
+    assertSame(ioException, caughtException);
     Mockito.verify(zipInputStream, Mockito.times(1)).read(arrayOfBytes);
     Mockito.verifyNoMoreInteractions(zipInputStream);
   }
@@ -164,7 +168,7 @@ public class ZipEntryInputStreamTest {
 
     int result = zipEntryInputStream.read(arrayOfBytes, 3, 9);
 
-    Assert.assertEquals(7, result);
+    assertEquals(7, result);
     Mockito.verify(zipInputStream, Mockito.times(1)).read(arrayOfBytes, 3, 9);
     Mockito.verifyNoMoreInteractions(zipInputStream);
   }
@@ -175,12 +179,12 @@ public class ZipEntryInputStreamTest {
     Mockito.doThrow(ioException).when(zipInputStream).read(Mockito.any(byte[].class), Mockito.anyInt(), Mockito.anyInt());
     byte[] arrayOfBytes = new byte[32];
 
-    IOException caughtException = Assert.assertThrows(
+    IOException caughtException = assertThrows(
             IOException.class,
             () -> zipEntryInputStream.read(arrayOfBytes, 3, 9)
     );
 
-    Assert.assertSame(ioException, caughtException);
+    assertSame(ioException, caughtException);
     Mockito.verify(zipInputStream, Mockito.times(1)).read(arrayOfBytes, 3, 9);
     Mockito.verifyNoMoreInteractions(zipInputStream);
   }
@@ -198,12 +202,12 @@ public class ZipEntryInputStreamTest {
     IOException ioException = new IOException("Some ZipInputStream exception");
     Mockito.doThrow(ioException).when(zipInputStream).reset();
 
-    IOException caughtException = Assert.assertThrows(
+    IOException caughtException = assertThrows(
             IOException.class,
             () -> zipEntryInputStream.reset()
     );
 
-    Assert.assertSame(ioException, caughtException);
+    assertSame(ioException, caughtException);
     Mockito.verify(zipInputStream, Mockito.times(1)).reset();
     Mockito.verifyNoMoreInteractions(zipInputStream);
   }
@@ -214,7 +218,7 @@ public class ZipEntryInputStreamTest {
 
     long result = zipEntryInputStream.skip(13L);
 
-    Assert.assertEquals(9L, result);
+    assertEquals(9L, result);
     Mockito.verify(zipInputStream, Mockito.times(1)).skip(13L);
     Mockito.verifyNoMoreInteractions(zipInputStream);
   }
@@ -224,12 +228,12 @@ public class ZipEntryInputStreamTest {
     IOException ioException = new IOException("Some ZipInputStream exception");
     Mockito.doThrow(ioException).when(zipInputStream).skip(13L);
 
-    IOException caughtException = Assert.assertThrows(
+    IOException caughtException = assertThrows(
             IOException.class,
             () -> zipEntryInputStream.skip(13L)
     );
 
-    Assert.assertSame(ioException, caughtException);
+    assertSame(ioException, caughtException);
     Mockito.verify(zipInputStream, Mockito.times(1)).skip(13L);
     Mockito.verifyNoMoreInteractions(zipInputStream);
   }

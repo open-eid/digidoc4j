@@ -12,7 +12,7 @@ package org.digidoc4j.impl.asic.manifest;
 
 import org.digidoc4j.Constant;
 import org.digidoc4j.DataFile;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.xmlunit.matchers.CompareMatcher.isIdenticalTo;

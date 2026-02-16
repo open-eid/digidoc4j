@@ -22,12 +22,16 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.impl.asic.AsicSignatureParser;
 import org.digidoc4j.utils.Helper;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.Collections;
 import java.util.Date;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class AsicXadesSignatureOpenerTest extends AbstractTest {
 
@@ -39,26 +43,26 @@ public abstract class AsicXadesSignatureOpenerTest extends AbstractTest {
     Signature signature = signatureOpener().open(
             constructXadesSignatureWrapper(new FileDocument("src/test/resources/testFiles/xades/test-bes-signature.xml")));
     assertSignatureType(signature);
-    Assert.assertEquals(SignatureProfile.B_BES, signature.getProfile());
-    Assert.assertEquals("Assert 3", "id-693869a500c60f0dc262f7287f033d5d", signature.getId());
-    Assert.assertEquals("Assert 4", "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256", signature.getSignatureMethod());
-    Assert.assertEquals(new Date(1454928400000L), signature.getClaimedSigningTime());
-    Assert.assertEquals("Assert 5", "Tallinn", signature.getCity());
-    Assert.assertEquals("Assert 6", "Harjumaa", signature.getStateOrProvince());
-    Assert.assertEquals("Assert 7", "13456", signature.getPostalCode());
-    Assert.assertEquals("Assert 8", "Estonia", signature.getCountryName());
-    Assert.assertEquals("Assert 9", "Manager", signature.getSignerRoles().get(0));
-    Assert.assertEquals("Assert 10", "Suspicious Fisherman", signature.getSignerRoles().get(1));
-    Assert.assertNotNull(signature.getSigningCertificate());
-    Assert.assertTrue(StringUtils.startsWith(signature.getSigningCertificate().issuerName(), "C=EE,O=AS Sertifitseerimiskeskus"));
+    assertEquals(SignatureProfile.B_BES, signature.getProfile());
+    assertEquals("id-693869a500c60f0dc262f7287f033d5d", signature.getId());
+    assertEquals("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256", signature.getSignatureMethod());
+    assertEquals(new Date(1454928400000L), signature.getClaimedSigningTime());
+    assertEquals("Tallinn", signature.getCity());
+    assertEquals("Harjumaa", signature.getStateOrProvince());
+    assertEquals("13456", signature.getPostalCode());
+    assertEquals("Estonia", signature.getCountryName());
+    assertEquals("Manager", signature.getSignerRoles().get(0));
+    assertEquals("Suspicious Fisherman", signature.getSignerRoles().get(1));
+    assertNotNull(signature.getSigningCertificate());
+    assertTrue(StringUtils.startsWith(signature.getSigningCertificate().issuerName(), "C=EE,O=AS Sertifitseerimiskeskus"));
     byte[] signatureInBytes = signature.getAdESSignature();
     SignedDocumentValidator validator = SignedDocumentValidator.fromDocument(new InMemoryDocument(signatureInBytes));
-    Assert.assertEquals("Assert 11", "id-693869a500c60f0dc262f7287f033d5d", validator.getSignatures().get(0).getDAIdentifier());
-    Assert.assertNull("Assert 12", signature.getOCSPCertificate());
-    Assert.assertNull("Assert 13", signature.getOCSPResponseCreationTime());
-    Assert.assertNull("Assert 14", signature.getTimeStampTokenCertificate());
-    Assert.assertNull("Assert 15", signature.getTimeStampCreationTime());
-    Assert.assertNull("Assert 16", signature.getTrustedSigningTime());
+    assertEquals("id-693869a500c60f0dc262f7287f033d5d", validator.getSignatures().get(0).getDAIdentifier());
+    assertNull(signature.getOCSPCertificate());
+    assertNull(signature.getOCSPResponseCreationTime());
+    assertNull(signature.getTimeStampTokenCertificate());
+    assertNull(signature.getTimeStampCreationTime());
+    assertNull(signature.getTrustedSigningTime());
   }
 
   @Test
@@ -68,19 +72,19 @@ public abstract class AsicXadesSignatureOpenerTest extends AbstractTest {
     Signature signature = signatureOpener().open(
             constructXadesSignatureWrapper(new FileDocument("src/test/resources/testFiles/xades/test-bdoc-ts.xml")));
     assertSignatureType(signature);
-    Assert.assertNotNull("Assert 1", signature);
-    Assert.assertEquals("Assert 2", "S0", signature.getId());
-    Assert.assertEquals("Assert 3", SignatureProfile.LT, signature.getProfile());
-    Assert.assertEquals("Assert 4", "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256", signature.getSignatureMethod());
-    Assert.assertEquals("Assert 5", date_2016_29_1_time_19_58_36, signature.getTrustedSigningTime());
-    Assert.assertTrue("Assert 6", StringUtils.startsWith(signature.getSigningCertificate().issuerName(), "C=EE,O=AS Sertifitseerimiskeskus"));
-    Assert.assertNotNull("Assert 7", signature.getOCSPCertificate());
-    Assert.assertTrue("Assert 8", StringUtils.contains(signature.getOCSPCertificate().getSubjectName(), "OU=OCSP"));
-    Assert.assertEquals("Assert 9", date_2016_29_1_time_19_58_37, signature.getOCSPResponseCreationTime());
-    Assert.assertEquals("Assert 10", date_2016_29_1_time_19_58_36, signature.getTimeStampCreationTime());
-    Assert.assertNotNull("Assert 11", signature.getTimeStampTokenCertificate());
-    Assert.assertTrue("Assert 12", StringUtils.contains(signature.getTimeStampTokenCertificate().getSubjectName(), "OU=TSA"));
-    Assert.assertEquals("Assert 13", signature.getTimeStampCreationTime(), signature.getTrustedSigningTime());
+    assertNotNull(signature);
+    assertEquals("S0", signature.getId());
+    assertEquals(SignatureProfile.LT, signature.getProfile());
+    assertEquals("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256", signature.getSignatureMethod());
+    assertEquals(date_2016_29_1_time_19_58_36, signature.getTrustedSigningTime());
+    assertTrue(StringUtils.startsWith(signature.getSigningCertificate().issuerName(), "C=EE,O=AS Sertifitseerimiskeskus"));
+    assertNotNull(signature.getOCSPCertificate());
+    assertTrue(StringUtils.contains(signature.getOCSPCertificate().getSubjectName(), "OU=OCSP"));
+    assertEquals(date_2016_29_1_time_19_58_37, signature.getOCSPResponseCreationTime());
+    assertEquals(date_2016_29_1_time_19_58_36, signature.getTimeStampCreationTime());
+    assertNotNull(signature.getTimeStampTokenCertificate());
+    assertTrue(StringUtils.contains(signature.getTimeStampTokenCertificate().getSubjectName(), "OU=TSA"));
+    assertEquals(signature.getTimeStampCreationTime(), signature.getTrustedSigningTime());
   }
 
   @Test
@@ -88,10 +92,10 @@ public abstract class AsicXadesSignatureOpenerTest extends AbstractTest {
     Signature signature = signatureOpener().open(
             constructXadesSignatureWrapper(new FileDocument("src/test/resources/testFiles/xades/test-bdoc-ts.xml")));
     assertSignatureType(signature);
-    String serializedPath = this.getFileBy("ser");
+    String serializedPath = getFileBy("ser");
     Helper.serialize(signature, serializedPath);
     signature = Helper.deserializer(serializedPath);
-    Assert.assertEquals("S0", signature.getId());
+    assertEquals("S0", signature.getId());
   }
 
   @Test
@@ -100,7 +104,7 @@ public abstract class AsicXadesSignatureOpenerTest extends AbstractTest {
     Signature signature = signatureOpener().open(
             constructXadesSignatureWrapper(new InMemoryDocument(signatureBytes)));
     assertSignatureType(signature);
-    Assert.assertEquals("S935237", signature.getId());
+    assertEquals("S935237", signature.getId());
   }
 
   /*
@@ -114,7 +118,7 @@ public abstract class AsicXadesSignatureOpenerTest extends AbstractTest {
 
   private XadesSignatureWrapper constructXadesSignatureWrapper(DSSDocument document) {
     AsicSignatureParser signatureParser = new AsicSignatureParser(Collections.singletonList(
-            new FileDocument("src/test/resources/testFiles/helper-files/test.txt")), this.configuration);
+            new FileDocument("src/test/resources/testFiles/helper-files/test.txt")), configuration);
     XadesSignature signature = signatureParser.parse(document);
     return new XadesSignatureWrapper(signature, document);
   }

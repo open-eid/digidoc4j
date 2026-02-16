@@ -15,6 +15,7 @@ import org.digidoc4j.CompositeContainerBuilder;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerOpener;
+import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.SignatureValidationResult;
@@ -22,12 +23,15 @@ import org.digidoc4j.ddoc.utils.ConfigManager;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.TestConstants;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.digidoc4j.test.TestAssert.assertContainerIsValid;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ValidationReportTest extends AbstractTest {
 
@@ -38,7 +42,7 @@ public class ValidationReportTest extends AbstractTest {
     String signatureId = signature.getId();
     String signatureUniqueId = signature.getUniqueId();
     SignatureValidationResult result = container.validate();
-    Assert.assertTrue(result.isValid());
+    assertTrue(result.isValid());
     String report = result.getReport();
     TestAssert.assertXPathHasValue("1", "//SignaturesCount", report);
     TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
@@ -123,9 +127,9 @@ public class ValidationReportTest extends AbstractTest {
   @Test
   public void validContainerWithTwoSignatures() throws Exception {
     Container container = TestDataBuilderUtil.open(BDOC_WITH_TM_AND_TS_SIG);
-    SignatureValidationResult result = container.validate();
+    ContainerValidationResult result = container.validate();
     List<String> signatureUniqueIds = container.getSignatures().stream().map(Signature::getUniqueId).collect(Collectors.toList());
-    Assert.assertTrue(result.isValid());
+    assertContainerIsValid(result);
     String report = result.getReport();
     TestAssert.assertXPathHasValue("2", "/SimpleReport/SignaturesCount", report);
     TestAssert.assertXPathHasValue("2", "/SimpleReport/ValidSignaturesCount", report);
@@ -149,7 +153,7 @@ public class ValidationReportTest extends AbstractTest {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/invalid-containers/bdoc-tm-ocsp-revoked.bdoc");
     SignatureValidationResult result = container.validate();
     String signatureUniqueId = container.getSignatures().get(0).getUniqueId();
-    Assert.assertFalse(result.isValid());
+    assertFalse(result.isValid());
     String report = result.getReport();
     TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
     TestAssert.assertXPathHasValue("0", "/SimpleReport/ValidSignaturesCount", report);
@@ -173,7 +177,7 @@ public class ValidationReportTest extends AbstractTest {
         ("src/test/resources/prodFiles/invalid-containers/filename_mismatch_manifest.asice");
     SignatureValidationResult result = container.validate();
     String signatureUniqueId = container.getSignatures().get(0).getUniqueId();
-    Assert.assertFalse(result.isValid());
+    assertFalse(result.isValid());
     String report = result.getReport();
     TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
     TestAssert.assertXPathHasValue("0", "/SimpleReport/ValidSignaturesCount", report);

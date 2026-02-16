@@ -20,9 +20,9 @@ import org.digidoc4j.AbstractTest;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.test.MockStreamDocument;
 import org.digidoc4j.utils.Helper;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +45,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StreamDocumentTest extends AbstractTest {
 
@@ -52,7 +56,7 @@ public class StreamDocumentTest extends AbstractTest {
   private static final Path readOnlyPath = Paths.get("target/tmp/readOnly");
   private StreamDocument document;
 
-  @BeforeClass
+  @BeforeAll
   public static void beforeClass() throws IOException {
     if (!Files.exists(StreamDocumentTest.readOnlyPath)) {
       Files.createDirectory(StreamDocumentTest.readOnlyPath);
@@ -105,44 +109,44 @@ public class StreamDocumentTest extends AbstractTest {
 
   @Test
   public void openStream() throws Exception {
-    Assert.assertEquals(65, this.document.openStream().read());
+    assertEquals(65, document.openStream().read());
   }
 
   @Test
   public void getName() throws Exception {
-    Assert.assertEquals("suur_a.txt", this.document.getName());
+    assertEquals("suur_a.txt", document.getName());
   }
 
   @Test
   public void getAbsolutePath() throws Exception {
-    Assert.assertTrue(this.document.temporaryFile.getAbsolutePath(), this.document.temporaryFile.getAbsolutePath().matches(".*digidoc4j.*.\\.tmp"));
+    assertTrue(document.temporaryFile.getAbsolutePath().matches(".*digidoc4j.*.\\.tmp"), document.temporaryFile.getAbsolutePath());
   }
 
   @Test
   public void getMimeType() throws Exception {
-    Assert.assertEquals("text/plain", this.document.getMimeType().getMimeTypeString());
+    assertEquals("text/plain", document.getMimeType().getMimeTypeString());
   }
 
   @Test
   public void setMimeType() throws Exception {
-    this.document.setMimeType(MimeTypeEnum.XML);
-    Assert.assertEquals("text/xml", this.document.getMimeType().getMimeTypeString());
+    document.setMimeType(MimeTypeEnum.XML);
+    assertEquals("text/xml", document.getMimeType().getMimeTypeString());
   }
 
   @Test
   public void save() throws Exception {
-    this.document.save("streamDocumentSaveTest.txt");
-    Assert.assertTrue(Files.exists(Paths.get("streamDocumentSaveTest.txt")));
+    document.save("streamDocumentSaveTest.txt");
+    assertTrue(Files.exists(Paths.get("streamDocumentSaveTest.txt")));
     FileReader fileReader = new FileReader("streamDocumentSaveTest.txt");
     int read = fileReader.read();
     fileReader.close();
-    Assert.assertEquals(65, read);
+    assertEquals(65, read);
     Files.deleteIfExists(Paths.get("streamDocumentSaveTest.txt"));
   }
 
   @Test
   public void createDocumentFromStreamedDataFile() throws Exception {
-    String file = this.getFileBy("txt");
+    String file = getFileBy("txt");
     try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(new byte[]{0x041})) {
       DataFile dataFile = new DataFile(byteArrayInputStream, file, "text/plain");
       StreamDocument streamDocument = new StreamDocument(dataFile.getStream(),
@@ -151,7 +155,7 @@ public class StreamDocumentTest extends AbstractTest {
       streamDocument.save(file);
     }
     try (FileInputStream fileInputStream = new FileInputStream(file)) {
-      Assert.assertArrayEquals(new byte[]{0x041}, IOUtils.toByteArray(fileInputStream));
+      assertArrayEquals(new byte[]{0x041}, IOUtils.toByteArray(fileInputStream));
     }
   }
 
@@ -162,10 +166,10 @@ public class StreamDocumentTest extends AbstractTest {
         && name.toLowerCase().endsWith(".tmp");
     Helper.deleteTmpFiles(10000000);
     int count = dir.listFiles(filenameFilter).length;
-    Assert.assertTrue(count >= 1);
+    assertTrue(count >= 1);
     Helper.deleteTmpFiles(0);
     count = dir.listFiles(filenameFilter).length;
-    Assert.assertEquals(0, count);
+    assertEquals(0, count);
   }
 
   @Test
@@ -184,7 +188,7 @@ public class StreamDocumentTest extends AbstractTest {
   public void saveWhenNoAccessRights() throws Exception {
     File tmp = StreamDocumentTest.readOnlyPath.toFile();
     String dataFileName = tmp.getAbsolutePath() + File.separator + "no_access.txt";
-    Assert.assertTrue("Invalid directory " + StreamDocumentTest.readOnlyPath, tmp.isDirectory() && tmp.exists());
+    assertTrue(tmp.isDirectory() && tmp.exists(), "Invalid directory " + StreamDocumentTest.readOnlyPath);
     this.document.save(dataFileName);
   }
 
@@ -225,7 +229,7 @@ public class StreamDocumentTest extends AbstractTest {
   @Override
   protected void before() {
     try (ByteArrayInputStream stream = new ByteArrayInputStream(new byte[]{0x041})) {
-      this.document = new StreamDocument(stream, "suur_a.txt", MimeTypeEnum.TEXT);
+      document = new StreamDocument(stream, "suur_a.txt", MimeTypeEnum.TEXT);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

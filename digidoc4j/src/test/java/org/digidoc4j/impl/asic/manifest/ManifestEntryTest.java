@@ -10,24 +10,26 @@
 
 package org.digidoc4j.impl.asic.manifest;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class ManifestEntryTest {
 
   @Test
   public void manifestEntryEquals() {
-    Assert.assertEquals(new ManifestEntry("fail.txt", "text/plain"), new ManifestEntry("fail.txt", "text/plain"));
+    assertEquals(new ManifestEntry("fail.txt", "text/plain"), new ManifestEntry("fail.txt", "text/plain"));
   }
 
   @Test
   public void manifestEntryEqualsWhenMimeTypeIsWrong() {
-    Assert.assertNotEquals(new ManifestEntry("fail.txt", "text/plain"), new ManifestEntry("fail.txt", "text/xml"));
+    assertNotEquals(new ManifestEntry("fail.txt", "text/plain"), new ManifestEntry("fail.txt", "text/xml"));
   }
 
   @Test
   public void manifestEntryEqualsWhenFileNameIsWrong() {
-    Assert.assertNotEquals(new ManifestEntry("fail.txt", "text/plain"), new ManifestEntry("fail1.txt", "text/plain"));
+    assertNotEquals(new ManifestEntry("fail.txt", "text/plain"), new ManifestEntry("fail1.txt", "text/plain"));
   }
 
 }

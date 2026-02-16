@@ -11,12 +11,17 @@
 package org.digidoc4j;
 
 import org.digidoc4j.exceptions.TechnicalException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.net.URL;
 import java.util.Objects;
 import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class DigestAlgorithmTest {
 
@@ -27,8 +32,8 @@ public class DigestAlgorithmTest {
             .forEach(dssDigestAlgorithm -> {
               URL digestAlgorithmUri = DigestAlgorithm.getDigestAlgorithmUri(dssDigestAlgorithm);
 
-              Assert.assertNotNull(digestAlgorithmUri);
-              Assert.assertEquals(dssDigestAlgorithm.getUri(), digestAlgorithmUri.toString());
+              assertNotNull(digestAlgorithmUri);
+              assertEquals(dssDigestAlgorithm.getUri(), digestAlgorithmUri.toString());
             });
   }
 
@@ -37,12 +42,12 @@ public class DigestAlgorithmTest {
     Stream.of(eu.europa.esig.dss.enumerations.DigestAlgorithm.values())
             .filter(dssDigestAlgorithm -> Objects.isNull(dssDigestAlgorithm.getUri()))
             .forEach(dssDigestAlgorithm -> {
-              TechnicalException caughtException = Assert.assertThrows(
+              TechnicalException caughtException = assertThrows(
                       TechnicalException.class,
                       () -> DigestAlgorithm.getDigestAlgorithmUri(dssDigestAlgorithm)
               );
 
-              Assert.assertEquals(
+              assertEquals(
                       "No digest algorithm URI specified for " + dssDigestAlgorithm.getName(),
                       caughtException.getMessage()
               );
@@ -57,7 +62,7 @@ public class DigestAlgorithmTest {
 
               DigestAlgorithm result = DigestAlgorithm.findByOid(oid);
 
-              Assert.assertSame(digestAlgorithm, result);
+              assertSame(digestAlgorithm, result);
             });
   }
 
@@ -65,7 +70,7 @@ public class DigestAlgorithmTest {
     public void findByOid_WhenOidStringDoesNotMatchAlgorithm_ReturnsNull() {
       DigestAlgorithm result = DigestAlgorithm.findByOid("Non.Existent.OID");
 
-      Assert.assertNull(result);
+      assertNull(result);
     }
 
 }

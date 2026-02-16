@@ -19,9 +19,10 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.DataLoaderFactory;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class AiaSourceFactoryTest extends AbstractTest {
 
@@ -40,7 +41,7 @@ public class AiaSourceFactoryTest extends AbstractTest {
     configuration.setAiaSourceFactory(mockAiaSourceFactory);
 
     AIASource aiaSource = new AiaSourceFactory(configuration).create();
-    Assert.assertSame(mockAiaSource, aiaSource);
+    assertSame(mockAiaSource, aiaSource);
 
     Mockito.verify(mockAiaSourceFactory).create();
     Mockito.verifyNoMoreInteractions(mockAiaSourceFactory, mockAiaSource);
@@ -56,7 +57,7 @@ public class AiaSourceFactoryTest extends AbstractTest {
     configuration.setAiaDataLoaderFactory(mockDataLoaderFactory);
 
     AIASource aiaSource = new AiaSourceFactory(configuration).create();
-    Assert.assertSame(mockAiaSource, aiaSource);
+    assertSame(mockAiaSource, aiaSource);
 
     Mockito.verify(mockAiaSourceFactory).create();
     Mockito.verifyNoMoreInteractions(mockAiaSourceFactory, mockAiaSource, mockDataLoaderFactory);

@@ -39,8 +39,7 @@ import org.digidoc4j.impl.asic.AsicSignature;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.DssContainerSigner;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.nio.charset.StandardCharsets;
@@ -56,8 +55,12 @@ import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 
 public class ExtendingAsicContainerTest extends AbstractTest {
@@ -81,16 +84,16 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
     validateAndExtend(container, SignatureProfile.LT);
 
-    Assert.assertEquals(1, container.getSignatures().size());
+    assertEquals(1, container.getSignatures().size());
     Signature signature = container.getSignatures().get(0);
 
-    Assert.assertNotNull(signature.getOCSPCertificate());
-    Assert.assertEquals(SignatureProfile.LT, signature.getProfile());
+    assertNotNull(signature.getOCSPCertificate());
+    assertEquals(SignatureProfile.LT, signature.getProfile());
     ContainerValidationResult validationResult = container.validate();
-    Assert.assertTrue(validationResult.isValid());
-    Assert.assertEquals(0, validationResult.getErrors().size());
+    assertTrue(validationResult.isValid());
+    assertEquals(0, validationResult.getErrors().size());
     TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
-              "The time difference between the signature timestamp and the OCSP response exceeds 15 minutes, rendering the OCSP response not 'fresh'."
+            "The time difference between the signature timestamp and the OCSP response exceeds 15 minutes, rendering the OCSP response not 'fresh'."
     );
   }
 
@@ -103,10 +106,10 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
     validateAndExtend(container, SignatureProfile.LT);
 
-    Assert.assertEquals(1, container.getSignatures().size());
+    assertEquals(1, container.getSignatures().size());
     Signature signature = container.getSignatures().get(0);
-    Assert.assertNotNull(signature.getOCSPCertificate());
-    Assert.assertEquals(SignatureProfile.LT, signature.getProfile());
+    assertNotNull(signature.getOCSPCertificate());
+    assertEquals(SignatureProfile.LT, signature.getProfile());
     ContainerValidationResult validationResult = container.validate();
     TestAssert.assertContainerIsValid(container);
     TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
@@ -122,19 +125,19 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
     container.saveAsFile(containerLocation);
 
-    Assert.assertEquals(1, container.getSignatures().size());
-    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
+    assertEquals(1, container.getSignatures().size());
+    assertNull(container.getSignatures().get(0).getOCSPCertificate());
 
     container = TestDataBuilderUtil.open(containerLocation, configuration);
     validateAndExtend(container, SignatureProfile.LT);
     container.saveAsFile(getFileBy("bdoc"));
 
-    Assert.assertEquals(1, container.getSignatures().size());
+    assertEquals(1, container.getSignatures().size());
     Signature signature = container.getSignatures().get(0);
 
-    Assert.assertNotNull(signature.getOCSPCertificate());
-    Assert.assertEquals(SignatureProfile.LT, signature.getProfile());
-    Assert.assertTrue(container.validate().isValid());
+    assertNotNull(signature.getOCSPCertificate());
+    assertEquals(SignatureProfile.LT, signature.getProfile());
+    assertTrue(container.validate().isValid());
   }
 
   @Test
@@ -143,18 +146,18 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
     container.saveAsFile(containerLocation);
 
-    Assert.assertEquals(1, container.getSignatures().size());
-    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
+    assertEquals(1, container.getSignatures().size());
+    assertNull(container.getSignatures().get(0).getOCSPCertificate());
 
     container = TestDataBuilderUtil.open(containerLocation, configuration);
     validateAndExtend(container, SignatureProfile.LT);
     container.saveAsFile(getFileBy("bdoc"));
 
-    Assert.assertEquals(1, container.getSignatures().size());
-    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
+    assertEquals(1, container.getSignatures().size());
+    assertNull(container.getSignatures().get(0).getOCSPCertificate());
 
     SignatureValidationResult result = container.validate();
-    Assert.assertFalse(result.isValid());
+    assertFalse(result.isValid());
     TestAssert.assertContainsErrors(result.getErrors(),
             "The certificate validation is not conclusive!",
             "No revocation data found for the certificate!"
@@ -169,17 +172,17 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
     container.saveAsFile(containerLocation);
 
-    Assert.assertEquals(1, container.getSignatures().size());
-    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
+    assertEquals(1, container.getSignatures().size());
+    assertNull(container.getSignatures().get(0).getOCSPCertificate());
 
     container = TestDataBuilderUtil.open(containerLocation, configuration);
     validateAndExtend(container, SignatureProfile.LTA);
     container.saveAsFile(getFileBy("bdoc"));
 
-    Assert.assertEquals(1, container.getSignatures().size());
-    Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
+    assertEquals(1, container.getSignatures().size());
+    assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
     List<TimestampToken> archiveTimestamps = getSignatureArchiveTimestamps(container, 0);
-    assertEquals("The signature must contain 1 archive timestamp", 1, archiveTimestamps.size());
+    assertEquals(1, archiveTimestamps.size(), "The signature must contain 1 archive timestamp");
   }
 
   @Test
@@ -188,18 +191,18 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
     container.saveAsFile(containerLocation);
 
-    Assert.assertEquals(1, container.getSignatures().size());
-    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
+    assertEquals(1, container.getSignatures().size());
+    assertNull(container.getSignatures().get(0).getOCSPCertificate());
 
     container = TestDataBuilderUtil.open(containerLocation, configuration);
     validateAndExtend(container, SignatureProfile.LTA);
     container.saveAsFile(getFileBy("bdoc"));
 
-    Assert.assertEquals(1, container.getSignatures().size());
-    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
+    assertEquals(1, container.getSignatures().size());
+    assertNull(container.getSignatures().get(0).getOCSPCertificate());
 
     SignatureValidationResult result = container.validate();
-    Assert.assertFalse(result.isValid());
+    assertFalse(result.isValid());
     TestAssert.assertContainsErrors(result.getErrors(),
             "The certificate validation is not conclusive!",
             "No revocation data found for the certificate!"
@@ -214,19 +217,19 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     createSignatureBy(container, SignatureProfile.T, pkcs12SignatureToken);
     container.saveAsFile(containerLocation);
 
-    Assert.assertEquals(1, container.getSignatures().size());
-    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
+    assertEquals(1, container.getSignatures().size());
+    assertNull(container.getSignatures().get(0).getOCSPCertificate());
 
     container = TestDataBuilderUtil.open(containerLocation, configuration);
     validateAndExtend(container, SignatureProfile.LT);
     container.saveAsFile(getFileBy("bdoc"));
 
-    Assert.assertEquals(1, container.getSignatures().size());
+    assertEquals(1, container.getSignatures().size());
     Signature signature = container.getSignatures().get(0);
 
-    Assert.assertNotNull(signature.getOCSPCertificate());
-    Assert.assertEquals(SignatureProfile.LT, signature.getProfile());
-    Assert.assertTrue(container.validate().isValid());
+    assertNotNull(signature.getOCSPCertificate());
+    assertEquals(SignatureProfile.LT, signature.getProfile());
+    assertTrue(container.validate().isValid());
   }
 
   @Test
@@ -235,18 +238,18 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     createSignatureBy(container, SignatureProfile.T, pkcs12SignatureToken);
     container.saveAsFile(containerLocation);
 
-    Assert.assertEquals(1, container.getSignatures().size());
-    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
+    assertEquals(1, container.getSignatures().size());
+    assertNull(container.getSignatures().get(0).getOCSPCertificate());
 
     container = TestDataBuilderUtil.open(containerLocation);
     validateAndExtend(container, SignatureProfile.LT);
     container.saveAsFile(getFileBy("bdoc"));
 
-    Assert.assertEquals(1, container.getSignatures().size());
-    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
+    assertEquals(1, container.getSignatures().size());
+    assertNull(container.getSignatures().get(0).getOCSPCertificate());
 
     SignatureValidationResult result = container.validate();
-    Assert.assertFalse(result.isValid());
+    assertFalse(result.isValid());
     TestAssert.assertContainsErrors(result.getErrors(),
         "The certificate validation is not conclusive!",
         "No revocation data found for the certificate!"
@@ -406,8 +409,8 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     createSignatureBy(initialContainer, SignatureProfile.B_BES, pkcs12SignatureToken);
     initialContainer.saveAsFile(containerLocation);
 
-    Assert.assertEquals(1, initialContainer.getSignatures().size());
-    Assert.assertNull(initialContainer.getSignatures().get(0).getOCSPCertificate());
+    assertEquals(1, initialContainer.getSignatures().size());
+    assertNull(initialContainer.getSignatures().get(0).getOCSPCertificate());
 
     Container deserializedContainer = TestDataBuilderUtil.open(containerLocation, configuration);
     deserializedContainer.extendSignatureProfile(SignatureProfile.LT);
@@ -431,9 +434,9 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
     container.saveAsFile(containerLocation);
 
-    Assert.assertEquals(2, container.getSignatures().size());
-    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
-    Assert.assertNull(container.getSignatures().get(1).getOCSPCertificate());
+    assertEquals(2, container.getSignatures().size());
+    assertNull(container.getSignatures().get(0).getOCSPCertificate());
+    assertNull(container.getSignatures().get(1).getOCSPCertificate());
 
     container = TestDataBuilderUtil.open(containerLocation, configuration);
     validateAndExtend(container, SignatureProfile.LT);
@@ -442,10 +445,10 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
     container = TestDataBuilderUtil.open(containerPath);
 
-    Assert.assertEquals(2, container.getSignatures().size());
-    Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
-    Assert.assertNotNull(container.getSignatures().get(1).getOCSPCertificate());
-    Assert.assertTrue(container.validate().isValid());
+    assertEquals(2, container.getSignatures().size());
+    assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
+    assertNotNull(container.getSignatures().get(1).getOCSPCertificate());
+    assertTrue(container.validate().isValid());
   }
 
   @Test
@@ -458,20 +461,20 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
     container.saveAsFile(containerLocation);
 
-    Assert.assertEquals(2, container.getSignatures().size());
-    Assert.assertEquals(2, container.getDataFiles().size());
-    Assert.assertNull(container.getSignatures().get(0).getOCSPCertificate());
-    Assert.assertNull(container.getSignatures().get(1).getOCSPCertificate());
+    assertEquals(2, container.getSignatures().size());
+    assertEquals(2, container.getDataFiles().size());
+    assertNull(container.getSignatures().get(0).getOCSPCertificate());
+    assertNull(container.getSignatures().get(1).getOCSPCertificate());
 
     container = TestDataBuilderUtil.open(containerLocation, configuration);
     validateAndExtend(container, SignatureProfile.LT);
     container.saveAsFile(getFileBy("bdoc"));
 
-    Assert.assertEquals(2, container.getSignatures().size());
-    Assert.assertEquals(2, container.getDataFiles().size());
-    Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
-    Assert.assertNotNull(container.getSignatures().get(1).getOCSPCertificate());
-    Assert.assertTrue(container.validate().isValid());
+    assertEquals(2, container.getSignatures().size());
+    assertEquals(2, container.getDataFiles().size());
+    assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
+    assertNotNull(container.getSignatures().get(1).getOCSPCertificate());
+    assertTrue(container.validate().isValid());
   }
 
   @Test
@@ -482,10 +485,10 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
     validateAndExtend(container, SignatureProfile.LTA);
 
-    Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
+    assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
     TestAssert.assertContainerIsValid(container);
     List<TimestampToken> archiveTimestamps = getSignatureArchiveTimestamps(container, 0);
-    assertEquals("The signature must contain 1 archive timestamp", 1, archiveTimestamps.size());
+    assertEquals(1, archiveTimestamps.size(), "The signature must contain 1 archive timestamp");
   }
 
   @Test
@@ -495,10 +498,10 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
     validateAndExtend(container, SignatureProfile.LTA);
 
-    Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
+    assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
     TestAssert.assertContainerIsValid(container);
     List<TimestampToken> archiveTimestamps = getSignatureArchiveTimestamps(container, 0);
-    assertEquals("The signature must contain 1 archive timestamp", 1, archiveTimestamps.size());
+    assertEquals(1, archiveTimestamps.size(), "The signature must contain 1 archive timestamp");
   }
 
   @Test
@@ -514,7 +517,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     assertThat(caughtException.getMessage(), containsString("Expired signature found"));
     TestAssert.assertContainerIsValid(container);
     List<TimestampToken> archiveTimestamps = getSignatureArchiveTimestamps(container, 0);
-    assertEquals("The signature must contain no archive timestamp", 0, archiveTimestamps.size());
+    assertEquals(0, archiveTimestamps.size(), "The signature must contain no archive timestamp");
   }
 
   @Test
@@ -530,7 +533,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     assertThat(caughtException.getMessage(), containsString("Expired signature found"));
     TestAssert.assertContainerIsValid(container);
     List<TimestampToken> archiveTimestamps = getSignatureArchiveTimestamps(container, 0);
-    assertEquals("The signature must contain no archive timestamp", 0, archiveTimestamps.size());
+    assertEquals(0, archiveTimestamps.size(), "The signature must contain no archive timestamp");
   }
 
   @Test
@@ -548,7 +551,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
             containsString("Cryptographic signature verification has failed / Signature verification failed against the best candidate."));
     TestAssert.assertContainerIsInvalid(container);
     List<TimestampToken> archiveTimestamps = getSignatureArchiveTimestamps(container, 0);
-    assertEquals("The signature must contain no archive timestamp", 0, archiveTimestamps.size());
+    assertEquals(0, archiveTimestamps.size(), "The signature must contain no archive timestamp");
   }
 
   @Test
@@ -558,9 +561,9 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     validateAndExtend(container, SignatureProfile.LTA);
 
     TestAssert.assertContainerIsValid(container);
-    Assert.assertEquals(1, container.getSignatures().size());
+    assertEquals(1, container.getSignatures().size());
     List<TimestampToken> archiveTimestamps = getSignatureArchiveTimestamps(container, 0);
-    assertEquals("The signature must contain 2 archive timestamps", 2, archiveTimestamps.size());
+    assertEquals(2, archiveTimestamps.size(), "The signature must contain 2 archive timestamps");
   }
 
   @Test
@@ -571,13 +574,13 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     validateAndExtend(container, SignatureProfile.LTA, singletonList(signature1));
 
     TestAssert.assertContainerIsValid(container);
-    Assert.assertEquals(2, container.getSignatures().size());
-    assertEquals("1st signature's profile must be LTA", SignatureProfile.LTA, container.getSignatures().get(0).getProfile());
-    assertEquals("2nd signature's profile must be LT", SignatureProfile.LT, container.getSignatures().get(1).getProfile());
+    assertEquals(2, container.getSignatures().size());
+    assertEquals(SignatureProfile.LTA, container.getSignatures().get(0).getProfile(), "1st signature's profile must be LTA");
+    assertEquals(SignatureProfile.LT, container.getSignatures().get(1).getProfile(), "2nd signature's profile must be LT");
     List<TimestampToken> signature1Timestamps = getSignatureArchiveTimestamps(container, 0);
-    assertEquals("The 1st signature must contain 1 archive timestamp", 1, signature1Timestamps.size());
+    assertEquals(1, signature1Timestamps.size(), "The 1st signature must contain 1 archive timestamp");
     List<TimestampToken> signature2Timestamps = getSignatureArchiveTimestamps(container, 1);
-    assertEquals("The 2nd signature must not contain any archive timestamps", 0, signature2Timestamps.size());
+    assertEquals(0, signature2Timestamps.size(), "The 2nd signature must not contain any archive timestamps");
   }
 
   @Test
@@ -589,13 +592,13 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     validateAndExtend(container, SignatureProfile.LTA, Arrays.asList(signature1, signature2));
 
     TestAssert.assertContainerIsValid(container);
-    Assert.assertEquals(2, container.getSignatures().size());
-    assertEquals("1st signature's profile must be LTA", SignatureProfile.LTA, container.getSignatures().get(0).getProfile());
-    assertEquals("2nd signature's profile must be LTA", SignatureProfile.LTA, container.getSignatures().get(1).getProfile());
+    assertEquals(2, container.getSignatures().size());
+    assertEquals(SignatureProfile.LTA, container.getSignatures().get(0).getProfile(), "1st signature's profile must be LTA");
+    assertEquals(SignatureProfile.LTA, container.getSignatures().get(1).getProfile(), "2nd signature's profile must be LTA");
     List<TimestampToken> signature1Timestamps = getSignatureArchiveTimestamps(container, 0);
-    assertEquals("The 1st signature must contain 1 archive timestamp", 1, signature1Timestamps.size());
+    assertEquals(1, signature1Timestamps.size(), "The 1st signature must contain 1 archive timestamp");
     List<TimestampToken> signature2Timestamps = getSignatureArchiveTimestamps(container, 1);
-    assertEquals("The 2nd signature must contain 1 archive timestamp", 1, signature2Timestamps.size());
+    assertEquals(1, signature2Timestamps.size(), "The 2nd signature must contain 1 archive timestamp");
   }
 
   private static void validateAndExtend(Container container, SignatureProfile targetProfile) {
@@ -615,8 +618,8 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     } catch (Exception e) {
       Throwable firstValidationError = findFirstValidationError(validationErrors, signatures);
       // Ensure the thrown exception is the same which was returned by validation of the first signature
-      assertEquals("The cause of the validation exception must be of the same type as the exception thrown on extending", firstValidationError.getClass(), e.getClass());
-      assertEquals("The cause of the validation exception must have the same error message as the exception thrown on extending", firstValidationError.getMessage(), e.getMessage());
+      assertEquals(firstValidationError.getClass(), e.getClass(), "The cause of the validation exception must be of the same type as the exception thrown on extending");
+      assertEquals(firstValidationError.getMessage(), e.getMessage(), "The cause of the validation exception must have the same error message as the exception thrown on extending");
       throw e;
     }
     assertThat("Validation returned exceptions, but extension succeeded", validationErrors, is(anEmptyMap()));
@@ -649,11 +652,11 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     validateAndExtend(container, SignatureProfile.LTA, singletonList(signature2));
 
     TestAssert.assertContainerIsValid(container);
-    Assert.assertEquals(2, container.getSignatures().size());
+    assertEquals(2, container.getSignatures().size());
     List<TimestampToken> signature1Timestamps = getSignatureArchiveTimestamps(container, 0);
-    assertEquals("The 1st signature must contain 1 archive timestamp", 1, signature1Timestamps.size());
+    assertEquals(1, signature1Timestamps.size(), "The 1st signature must contain 1 archive timestamp");
     List<TimestampToken> signature2Timestamps = getSignatureArchiveTimestamps(container, 1);
-    assertEquals("The 2nd signature must contain 2 archive timestamps", 2, signature2Timestamps.size());
+    assertEquals(2, signature2Timestamps.size(), "The 2nd signature must contain 2 archive timestamps");
   }
 
   @Test
@@ -710,7 +713,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
 
     validateAndExtend(container, SignatureProfile.LTA);
 
-    Assert.assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
+    assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
     ContainerValidationResult validationResult = container.validate();
     TestAssert.assertContainerIsValid(validationResult);
     assertThat(validationResult.getErrors(), empty());
@@ -718,7 +721,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
     assertThat(validationResult.getWarnings(), empty());
     assertThat(validationResult.getContainerWarnings(), empty());
     List<TimestampToken> archiveTimestamps = getSignatureArchiveTimestamps(container, 0);
-    assertEquals("The signature must contain 1 archive timestamp", 1, archiveTimestamps.size());
+    assertEquals(1, archiveTimestamps.size(), "The signature must contain 1 archive timestamp");
   }
 
   /*

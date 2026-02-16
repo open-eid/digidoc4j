@@ -14,15 +14,15 @@ import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Container;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.exceptions.InvalidDataFileException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public abstract class EmptyDataFilesContainerTest extends AbstractTest {
 
@@ -43,8 +43,8 @@ public abstract class EmptyDataFilesContainerTest extends AbstractTest {
             () -> container.addDataFile(EMPTY_FILE_PATH, TEST_FILE_MIMETYPE)
     );
 
-    Assert.assertEquals(DATAFILES_CANNOT_BE_EMPTY_MESSAGE, caughtException.getMessage());
-    Assert.assertEquals(0, container.getDataFiles().size());
+    assertEquals(DATAFILES_CANNOT_BE_EMPTY_MESSAGE, caughtException.getMessage());
+    assertEquals(0, container.getDataFiles().size());
   }
 
   @Test
@@ -62,8 +62,8 @@ public abstract class EmptyDataFilesContainerTest extends AbstractTest {
             }
     );
 
-    Assert.assertEquals(DATAFILES_CANNOT_BE_EMPTY_MESSAGE, caughtException.getMessage());
-    Assert.assertEquals(0, container.getDataFiles().size());
+    assertEquals(DATAFILES_CANNOT_BE_EMPTY_MESSAGE, caughtException.getMessage());
+    assertEquals(0, container.getDataFiles().size());
   }
 
   @Test
@@ -76,8 +76,8 @@ public abstract class EmptyDataFilesContainerTest extends AbstractTest {
             () -> container.addDataFile(emptyFile, TEST_FILE_MIMETYPE)
     );
 
-    Assert.assertEquals(DATAFILES_CANNOT_BE_EMPTY_MESSAGE, caughtException.getMessage());
-    Assert.assertEquals(0, container.getDataFiles().size());
+    assertEquals(DATAFILES_CANNOT_BE_EMPTY_MESSAGE, caughtException.getMessage());
+    assertEquals(0, container.getDataFiles().size());
   }
 
   @Test
@@ -90,8 +90,8 @@ public abstract class EmptyDataFilesContainerTest extends AbstractTest {
             () -> container.addDataFile(emptyDataFile)
     );
 
-    Assert.assertEquals(DATAFILES_CANNOT_BE_EMPTY_MESSAGE, caughtException.getMessage());
-    Assert.assertEquals(0, container.getDataFiles().size());
+    assertEquals(DATAFILES_CANNOT_BE_EMPTY_MESSAGE, caughtException.getMessage());
+    assertEquals(0, container.getDataFiles().size());
   }
 
 }

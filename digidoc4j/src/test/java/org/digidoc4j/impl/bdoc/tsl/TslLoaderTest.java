@@ -21,83 +21,86 @@ import org.digidoc4j.impl.asic.tsl.TslLoader;
 import org.digidoc4j.test.MockTSLRefreshCallback;
 import org.digidoc4j.test.util.TestCommonUtil;
 import org.digidoc4j.test.util.TestTSLUtil;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TslLoaderTest extends AbstractTest {
 
   private TslLoader tslLoader;
 
-  @Ignore
+  @Disabled
   @Test
   public void loadAndValidateProdTsl() {
-    this.configuration = new Configuration(Configuration.Mode.PROD);
-    this.createTSLLoader();
-    this.tslLoader.prepareTsl();
-    TLValidationJob tslValidationJob = this.tslLoader.getTlValidationJob();
+    configuration = new Configuration(Configuration.Mode.PROD);
+    createTSLLoader();
+    tslLoader.prepareTsl();
+    TLValidationJob tslValidationJob = tslLoader.getTlValidationJob();
     tslValidationJob.onlineRefresh();
-    this.assertTSLIsValid();
+    assertTSLIsValid();
   }
 
   @Test
   public void loadTsl_whenCacheIsNotExpired_shouldUseCachedTsl() {
-    this.configuration = new Configuration(Configuration.Mode.TEST);
-    this.configuration.setTslCacheExpirationTime(10000L);
-    this.createTSLLoader();
-    long lastModified = this.refreshTSLAndGetCacheLastModificationTime();
+    configuration = new Configuration(Configuration.Mode.TEST);
+    configuration.setTslCacheExpirationTime(10000L);
+    createTSLLoader();
+    long lastModified = refreshTSLAndGetCacheLastModificationTime();
     TestCommonUtil.sleepInSeconds(1);
-    long newModificationTime = this.refreshTSLAndGetCacheLastModificationTime();
-    Assert.assertEquals(lastModified, newModificationTime);
+    long newModificationTime = refreshTSLAndGetCacheLastModificationTime();
+    assertEquals(lastModified, newModificationTime);
   }
 
   @Test
   public void loadTsl_whenCacheIsExpired_shouldDownloadNewTsl() {
-    this.configuration = new Configuration(Configuration.Mode.TEST);
-    this.configuration.setTslCacheExpirationTime(500L);
-    this.createTSLLoader();
-    long lastModified = this.refreshTSLAndGetCacheLastModificationTime();
+    configuration = new Configuration(Configuration.Mode.TEST);
+    configuration.setTslCacheExpirationTime(500L);
+    createTSLLoader();
+    long lastModified = refreshTSLAndGetCacheLastModificationTime();
     TestCommonUtil.sleepInSeconds(1);
-    long newModificationTime = this.refreshTSLAndGetCacheLastModificationTime();
-    Assert.assertTrue(lastModified < newModificationTime);
+    long newModificationTime = refreshTSLAndGetCacheLastModificationTime();
+    assertTrue(lastModified < newModificationTime);
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void loadTsl_forAllCountries_byDefault() {
-    this.configuration = new Configuration(Configuration.Mode.PROD);
-    LOTLInfo tslRepository = this.initTSLAndGetRepository();
-    this.assertCountryLoaded(tslRepository, "EE");
-    this.assertCountryLoaded(tslRepository, "DK");
-    this.assertCountryLoaded(tslRepository, "ES");
+    configuration = new Configuration(Configuration.Mode.PROD);
+    LOTLInfo tslRepository = initTSLAndGetRepository();
+    assertCountryLoaded(tslRepository, "EE");
+    assertCountryLoaded(tslRepository, "DK");
+    assertCountryLoaded(tslRepository, "ES");
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void loadTsl_forOneCountry() {
-    this.configuration = new Configuration(Configuration.Mode.PROD);
-    this.configuration.setTrustedTerritories("EE");
-    LOTLInfo tslRepository = this.initTSLAndGetRepository();
-    this.assertCountryLoaded(tslRepository, "EE");
-    this.assertCountryNotLoaded(tslRepository, "FR");
+    configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setTrustedTerritories("EE");
+    LOTLInfo tslRepository = initTSLAndGetRepository();
+    assertCountryLoaded(tslRepository, "EE");
+    assertCountryNotLoaded(tslRepository, "FR");
   }
 
   @Test
-  @Ignore
+  @Disabled
   public void loadTsl_forTwoCountries() {
-    this.configuration = new Configuration(Configuration.Mode.PROD);
-    this.configuration.setTrustedTerritories("EE", "ES");
-    LOTLInfo tslRepository = this.initTSLAndGetRepository();
-    this.assertCountryLoaded(tslRepository, "EE");
-    this.assertCountryLoaded(tslRepository, "ES");
-    this.assertCountryNotLoaded(tslRepository, "FR");
+    configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setTrustedTerritories("EE", "ES");
+    LOTLInfo tslRepository = initTSLAndGetRepository();
+    assertCountryLoaded(tslRepository, "EE");
+    assertCountryLoaded(tslRepository, "ES");
+    assertCountryNotLoaded(tslRepository, "FR");
   }
 
   @Test
   public void loadTestTsl_shouldContainTestTerritory() {
-    this.configuration = new Configuration(Configuration.Mode.TEST);
-    LOTLInfo tslRepository = this.initTSLAndGetRepository();
-    this.assertCountryLoaded(tslRepository, "EE_T");
+    configuration = new Configuration(Configuration.Mode.TEST);
+    LOTLInfo tslRepository = initTSLAndGetRepository();
+    assertCountryLoaded(tslRepository, "EE_T");
   }
 
   /**
@@ -105,15 +108,15 @@ public class TslLoaderTest extends AbstractTest {
    */
 
   @Test
-  @Ignore
+  @Disabled
   public void loadTsl_withoutCountryHr_byDefault() {
-    this.configuration = new Configuration(Configuration.Mode.PROD);
-    LOTLInfo tslRepository = this.initTSLAndGetRepository();
-    this.assertCountryLoaded(tslRepository, "EE");
-    this.assertCountryLoaded(tslRepository, "DK");
-    this.assertCountryLoaded(tslRepository, "NO");
-    this.assertCountryNotLoaded(tslRepository, "DE");
-    this.assertCountryNotLoaded(tslRepository, "HR");
+    configuration = new Configuration(Configuration.Mode.PROD);
+    LOTLInfo tslRepository = initTSLAndGetRepository();
+    assertCountryLoaded(tslRepository, "EE");
+    assertCountryLoaded(tslRepository, "DK");
+    assertCountryLoaded(tslRepository, "NO");
+    assertCountryNotLoaded(tslRepository, "DE");
+    assertCountryNotLoaded(tslRepository, "HR");
   }
 
   @Test
@@ -122,44 +125,44 @@ public class TslLoaderTest extends AbstractTest {
     configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setLotlPivotSupportEnabled(false);
     configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
-    LOTLInfo tslRepository = this.initTSLAndGetRepository();
-    Assert.assertEquals(Indication.INDETERMINATE, tslRepository.getValidationCacheInfo().getIndication());
-    Assert.assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, tslRepository.getValidationCacheInfo().getSubIndication());
-    Assert.assertEquals(0, configuration.getTSL().getNumberOfCertificates());
+    LOTLInfo tslRepository = initTSLAndGetRepository();
+    assertEquals(Indication.INDETERMINATE, tslRepository.getValidationCacheInfo().getIndication());
+    assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, tslRepository.getValidationCacheInfo().getSubIndication());
+    assertEquals(0, configuration.getTSL().getNumberOfCertificates());
   }
 
   @Test
   public void loadProdTsl_withDefaultLotlTruststoreAndPivotSupportEnabled_shouldSucceed() {
     // TODO: this test might be needed to be updated after the pivot chain is reset
-    this.configuration = new Configuration(Configuration.Mode.PROD);
+    configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setLotlPivotSupportEnabled(true);
-    LOTLInfo tslRepository = this.initTSLAndGetRepository();
-    Assert.assertEquals(Indication.TOTAL_PASSED, tslRepository.getValidationCacheInfo().getIndication());
-    Assert.assertTrue(configuration.getTSL().getNumberOfCertificates() > 0);
+    LOTLInfo tslRepository = initTSLAndGetRepository();
+    assertEquals(Indication.TOTAL_PASSED, tslRepository.getValidationCacheInfo().getIndication());
+    assertTrue(configuration.getTSL().getNumberOfCertificates() > 0);
   }
 
   @Test
   public void loadProdTsl_withPivot336LotlTruststoreAndPivotSupportDisabled_shouldSucceed() {
-    this.configuration = new Configuration(Configuration.Mode.PROD);
+    configuration = new Configuration(Configuration.Mode.PROD);
     // TODO: this might be needed to be updated after the next pivot release
     //  The used truststore contains the certificates specified in pivot LOTL with sequence number 336
     configuration.setLotlTruststorePath("prodFiles/truststores/lotl-pivot336-truststore.p12");
     configuration.setLotlPivotSupportEnabled(false);
-    LOTLInfo tslRepository = this.initTSLAndGetRepository();
-    Assert.assertEquals(Indication.TOTAL_PASSED, tslRepository.getValidationCacheInfo().getIndication());
-    Assert.assertTrue(configuration.getTSL().getNumberOfCertificates() > 0);
+    LOTLInfo tslRepository = initTSLAndGetRepository();
+    assertEquals(Indication.TOTAL_PASSED, tslRepository.getValidationCacheInfo().getIndication());
+    assertTrue(configuration.getTSL().getNumberOfCertificates() > 0);
   }
 
   @Test
   public void loadProdTsl_withPivot336LotlTruststoreAndPivotSupportEnabled_shouldSucceed() {
-    this.configuration = new Configuration(Configuration.Mode.PROD);
+    configuration = new Configuration(Configuration.Mode.PROD);
     // TODO: this might be needed to be updated after the next pivot release
     //  The used truststore contains the certificates specified in pivot LOTL with sequence number 336
     configuration.setLotlTruststorePath("prodFiles/truststores/lotl-pivot336-truststore.p12");
     configuration.setLotlPivotSupportEnabled(true);
-    LOTLInfo tslRepository = this.initTSLAndGetRepository();
-    Assert.assertEquals(Indication.TOTAL_PASSED, tslRepository.getValidationCacheInfo().getIndication());
-    Assert.assertTrue(configuration.getTSL().getNumberOfCertificates() > 0);
+    LOTLInfo tslRepository = initTSLAndGetRepository();
+    assertEquals(Indication.TOTAL_PASSED, tslRepository.getValidationCacheInfo().getIndication());
+    assertTrue(configuration.getTSL().getNumberOfCertificates() > 0);
   }
 
   @Test
@@ -169,9 +172,9 @@ public class TslLoaderTest extends AbstractTest {
     configuration.setLotlPivotSupportEnabled(false);
     configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
     LOTLInfo tslRepository = initTSLAndGetRepository();
-    Assert.assertEquals(Indication.INDETERMINATE, tslRepository.getValidationCacheInfo().getIndication());
-    Assert.assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, tslRepository.getValidationCacheInfo().getSubIndication());
-    Assert.assertEquals(0, configuration.getTSL().getNumberOfCertificates());
+    assertEquals(Indication.INDETERMINATE, tslRepository.getValidationCacheInfo().getIndication());
+    assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, tslRepository.getValidationCacheInfo().getSubIndication());
+    assertEquals(0, configuration.getTSL().getNumberOfCertificates());
   }
 
   @Test
@@ -181,9 +184,9 @@ public class TslLoaderTest extends AbstractTest {
     configuration.setLotlPivotSupportEnabled(true);
     configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
     LOTLInfo tslRepository = initTSLAndGetRepository();
-    Assert.assertEquals(Indication.INDETERMINATE, tslRepository.getValidationCacheInfo().getIndication());
-    Assert.assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, tslRepository.getValidationCacheInfo().getSubIndication());
-    Assert.assertEquals(0, configuration.getTSL().getNumberOfCertificates());
+    assertEquals(Indication.INDETERMINATE, tslRepository.getValidationCacheInfo().getIndication());
+    assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, tslRepository.getValidationCacheInfo().getSubIndication());
+    assertEquals(0, configuration.getTSL().getNumberOfCertificates());
   }
 
   /*
@@ -196,40 +199,40 @@ public class TslLoaderTest extends AbstractTest {
   }
 
   private void createTSLLoader() {
-    this.tslLoader = new TslLoader(this.configuration);
+    tslLoader = new TslLoader(configuration);
   }
 
   private LOTLInfo initTSLAndGetRepository() {
-    this.createTSLLoader();
-    this.tslLoader.prepareTsl();
-    this.tslLoader.getTlValidationJob().onlineRefresh();
-    return this.tslLoader.getTlValidationJob().getSummary().getLOTLInfos().get(0);
+    createTSLLoader();
+    tslLoader.prepareTsl();
+    tslLoader.getTlValidationJob().onlineRefresh();
+    return tslLoader.getTlValidationJob().getSummary().getLOTLInfos().get(0);
   }
 
   private long refreshTSLAndGetCacheLastModificationTime() {
-    this.tslLoader.prepareTsl();
-    this.tslLoader.getTlValidationJob().onlineRefresh();
+    tslLoader.prepareTsl();
+    tslLoader.getTlValidationJob().onlineRefresh();
     return TestTSLUtil.getCacheLastModified();
   }
 
   private void assertTSLIsValid() {
-    LOTLInfo lotlInfo = this.tslLoader.getTlValidationJob().getSummary().getLOTLInfos().get(0);
+    LOTLInfo lotlInfo = tslLoader.getTlValidationJob().getSummary().getLOTLInfos().get(0);
     for (TLInfo country :lotlInfo.getTLInfos()) {
       Indication indication = country.getValidationCacheInfo().getIndication();
-      Assert.assertEquals("TSL is not valid for country " + country, Indication.TOTAL_PASSED, indication);
+      assertEquals(Indication.TOTAL_PASSED, indication, "TSL is not valid for country " + country);
     }
   }
 
   private void assertCountryLoaded(LOTLInfo lotlInfo, String countryIsoCode) {
     boolean isLoaded = lotlInfo.getTLInfos().stream()
             .anyMatch(tlInfo -> tlInfo.getParsingCacheInfo().getTerritory().equals(countryIsoCode));
-    Assert.assertTrue(isLoaded);
+    assertTrue(isLoaded);
   }
 
   private void assertCountryNotLoaded(LOTLInfo lotlInfo, String countryIsoCode) {
     boolean isLoaded = lotlInfo.getTLInfos().stream()
             .anyMatch(tlInfo -> tlInfo.getParsingCacheInfo().getTerritory().equals(countryIsoCode));
-    Assert.assertFalse(isLoaded);
+    assertFalse(isLoaded);
   }
 
 }

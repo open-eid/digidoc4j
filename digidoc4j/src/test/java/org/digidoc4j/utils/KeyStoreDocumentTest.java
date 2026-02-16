@@ -22,8 +22,8 @@ import org.digidoc4j.AbstractTest;
 import org.digidoc4j.test.TestLog;
 import org.digidoc4j.test.util.TestCertificateUtil;
 import org.digidoc4j.test.util.TestKeyPairUtil;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -46,9 +46,9 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class KeyStoreDocumentTest extends AbstractTest {
 
@@ -58,7 +58,7 @@ public class KeyStoreDocumentTest extends AbstractTest {
 
     private TestLog testLog;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpStatic() {
         Security.addProvider(new BouncyCastleProvider());
     }

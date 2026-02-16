@@ -17,9 +17,11 @@ import org.digidoc4j.Constant;
 import org.digidoc4j.DataLoaderFactory;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class AiaDataLoaderFactoryTest extends AbstractTest {
 
@@ -31,10 +33,10 @@ public class AiaDataLoaderFactoryTest extends AbstractTest {
     DataLoader dataLoader = new AiaDataLoaderFactory(configuration).create();
     MatcherAssert.assertThat(dataLoader, Matchers.instanceOf(SimpleHttpGetDataLoader.class));
 
-    Assert.assertEquals(5, ((SimpleHttpGetDataLoader) dataLoader).getFollowRedirects());
-    Assert.assertEquals(Constant.USER_AGENT_STRING, ((SimpleHttpGetDataLoader) dataLoader).getUserAgent());
-    Assert.assertEquals(2345, ((SimpleHttpGetDataLoader) dataLoader).getConnectTimeout());
-    Assert.assertEquals(1234, ((SimpleHttpGetDataLoader) dataLoader).getReadTimeout());
+    assertEquals(5, ((SimpleHttpGetDataLoader) dataLoader).getFollowRedirects());
+    assertEquals(Constant.USER_AGENT_STRING, ((SimpleHttpGetDataLoader) dataLoader).getUserAgent());
+    assertEquals(2345, ((SimpleHttpGetDataLoader) dataLoader).getConnectTimeout());
+    assertEquals(1234, ((SimpleHttpGetDataLoader) dataLoader).getReadTimeout());
   }
 
   @Test
@@ -45,10 +47,10 @@ public class AiaDataLoaderFactoryTest extends AbstractTest {
     DataLoader dataLoader = new AiaDataLoaderFactory(configuration, USER_AGENT_STRING).create();
     MatcherAssert.assertThat(dataLoader, Matchers.instanceOf(SimpleHttpGetDataLoader.class));
 
-    Assert.assertEquals(5, ((SimpleHttpGetDataLoader) dataLoader).getFollowRedirects());
-    Assert.assertEquals(USER_AGENT_STRING, ((SimpleHttpGetDataLoader) dataLoader).getUserAgent());
-    Assert.assertEquals(2345, ((SimpleHttpGetDataLoader) dataLoader).getConnectTimeout());
-    Assert.assertEquals(1234, ((SimpleHttpGetDataLoader) dataLoader).getReadTimeout());
+    assertEquals(5, ((SimpleHttpGetDataLoader) dataLoader).getFollowRedirects());
+    assertEquals(USER_AGENT_STRING, ((SimpleHttpGetDataLoader) dataLoader).getUserAgent());
+    assertEquals(2345, ((SimpleHttpGetDataLoader) dataLoader).getConnectTimeout());
+    assertEquals(1234, ((SimpleHttpGetDataLoader) dataLoader).getReadTimeout());
   }
 
   @Test
@@ -59,7 +61,7 @@ public class AiaDataLoaderFactoryTest extends AbstractTest {
 
     configuration.setAiaDataLoaderFactory(mockDataLoaderFactory);
     DataLoader dataLoader = new AiaDataLoaderFactory(configuration).create();
-    Assert.assertSame(mockDataLoader, dataLoader);
+    assertSame(mockDataLoader, dataLoader);
 
     Mockito.verify(mockDataLoaderFactory, Mockito.times(1)).create();
     Mockito.verifyNoMoreInteractions(mockDataLoaderFactory, mockDataLoader);

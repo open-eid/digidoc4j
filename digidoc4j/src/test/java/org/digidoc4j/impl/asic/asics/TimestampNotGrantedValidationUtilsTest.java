@@ -23,7 +23,7 @@ import eu.europa.esig.dss.simplereport.jaxb.XmlToken;
 import eu.europa.esig.dss.validation.reports.Reports;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.AbstractContainerValidationResult;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Arrays;

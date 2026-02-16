@@ -21,12 +21,14 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.nio.file.Paths;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class UriEncodingTest extends AbstractTest {
 
@@ -35,7 +37,7 @@ public class UriEncodingTest extends AbstractTest {
   public void signatureReferencesUseUriEncodingButManifestUsesPlainUtf8() {
     String fileName = "dds_JÜRIÖÖ € žŠ päev.txt";
     String expectedEncoding = "dds_J%C3%9CRI%C3%96%C3%96%20%E2%82%AC%20%C5%BE%C5%A0%20p%C3%A4ev.txt";
-    this.signAndAssert(fileName, expectedEncoding);
+    signAndAssert(fileName, expectedEncoding);
     // TODO: Also write an assertion to verify that the manifest file does NOT use URI encoding
   }
 
@@ -44,19 +46,19 @@ public class UriEncodingTest extends AbstractTest {
   public void encodeDataFileWithSpecialCharacters() {
     String fileName = "et10i_0123456789!#$%&'()+,-. ;=@[]_`}~ et_EE";
     String expectedEncoding = "et10i_0123456789%21%23%24%25%26%27%28%29%2B%2C-.%20%3B%3D%40%5B%5D_%60%7D%7E%20et_EE";
-    this.signAndAssert(fileName, expectedEncoding);
+    signAndAssert(fileName, expectedEncoding);
   }
 
   @Test
   public void validatePartialEncoding_shouldBeValid() {
-    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/et10_0123456789!#$%&'()+,-. ;=@[]_`}- et_EE_utf8.zip-d_ec.bdoc"), this.configuration);
+    Container container = openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/et10_0123456789!#$%&'()+,-. ;=@[]_`}- et_EE_utf8.zip-d_ec.bdoc"), configuration);
     ContainerValidationResult validationResult = container.validate();
     TestAssert.assertContainerIsValid(validationResult);
   }
 
   @Test
   public void validateContainer_withWhitespaceEncodedAsPlus_shouldBeValid() {
-    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/M1n1 Testäöüõ!.txt-TS-d4j.bdoc"), this.configuration);
+    Container container = openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/M1n1 Testäöüõ!.txt-TS-d4j.bdoc"), configuration);
     ContainerValidationResult validationResult = container.validate();
     TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
             "The reference name does not match the name of the document!",
@@ -121,9 +123,9 @@ public class UriEncodingTest extends AbstractTest {
 
   private void signAndAssert(String fileName, String expectedEncoding) {
     Signature signature = sign(fileName);
-    Assert.assertTrue(signature.validateSignature().isValid());
+    assertTrue(signature.validateSignature().isValid());
     List<Reference> referencesInSignature = ((AsicESignature) signature).getOrigin().getReferences();
-    Assert.assertEquals(expectedEncoding, referencesInSignature.get(0).getURI());
+    assertEquals(expectedEncoding, referencesInSignature.get(0).getURI());
   }
 
   private Signature sign(String fileName) {

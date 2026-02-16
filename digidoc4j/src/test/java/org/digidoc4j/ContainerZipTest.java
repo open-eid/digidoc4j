@@ -15,8 +15,7 @@ import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 import org.digidoc4j.ddoc.Manifest;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.test.util.TestZipUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,6 +26,12 @@ import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ContainerZipTest extends AbstractTest {
 
@@ -287,8 +292,8 @@ public class ContainerZipTest extends AbstractTest {
   }
 
   private static void assertStoredMimeTypeZipEntry(ZipEntry mimeTypeZipEntry) {
-    Assert.assertEquals(ASiCUtils.MIME_TYPE, mimeTypeZipEntry.getName());
-    Assert.assertEquals(ZipEntry.STORED, mimeTypeZipEntry.getMethod());
+    assertEquals(ASiCUtils.MIME_TYPE, mimeTypeZipEntry.getName());
+    assertEquals(ZipEntry.STORED, mimeTypeZipEntry.getMethod());
   }
 
 }

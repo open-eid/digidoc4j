@@ -19,10 +19,12 @@ import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.impl.asic.EmptyDataFilesContainerTest;
 import org.digidoc4j.test.TestAssert;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class EmptyDataFilesAsicEContainerTest extends EmptyDataFilesContainerTest {
 
@@ -42,13 +44,13 @@ public class EmptyDataFilesAsicEContainerTest extends EmptyDataFilesContainerTes
 
     ContainerValidationResult validationResult = container.validate();
 
-    Assert.assertTrue(validationResult.isValid());
-    Assert.assertNotNull(validationResult.getWarnings());
+    assertTrue(validationResult.isValid());
+    assertNotNull(validationResult.getWarnings());
     TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
             "Data file 'empty-file-2.txt' is empty",
             "Data file 'empty-file-4.txt' is empty"
     );
-    Assert.assertNotNull(validationResult.getContainerWarnings());
+    assertNotNull(validationResult.getContainerWarnings());
     TestAssert.assertContainsExactSetOfErrors(validationResult.getContainerWarnings(),
             "Data file 'empty-file-2.txt' is empty",
             "Data file 'empty-file-4.txt' is empty"
@@ -61,13 +63,13 @@ public class EmptyDataFilesAsicEContainerTest extends EmptyDataFilesContainerTes
 
     ContainerValidationResult validationResult = container.validate();
 
-    Assert.assertTrue(validationResult.isValid());
-    Assert.assertNotNull(validationResult.getWarnings());
+    assertTrue(validationResult.isValid());
+    assertNotNull(validationResult.getWarnings());
     TestAssert.assertContainsExactSetOfErrors(validationResult.getWarnings(),
             "Data file 'empty-file-2.txt' is empty",
             "Data file 'empty-file-4.txt' is empty"
     );
-    Assert.assertNotNull(validationResult.getContainerWarnings());
+    assertNotNull(validationResult.getContainerWarnings());
     TestAssert.assertContainsExactSetOfErrors(validationResult.getContainerWarnings(),
             "Data file 'empty-file-2.txt' is empty",
             "Data file 'empty-file-4.txt' is empty"
@@ -85,7 +87,7 @@ public class EmptyDataFilesAsicEContainerTest extends EmptyDataFilesContainerTes
                     .invokeSigning()
     );
 
-    Assert.assertEquals("Cannot sign empty datafile: empty-file-2.txt", caughtException.getMessage());
+    assertEquals("Cannot sign empty datafile: empty-file-2.txt", caughtException.getMessage());
     TestAssert.assertSuppressed(caughtException, InvalidDataFileException.class, "Cannot sign empty datafile: empty-file-4.txt");
   }
 
@@ -100,7 +102,7 @@ public class EmptyDataFilesAsicEContainerTest extends EmptyDataFilesContainerTes
                     .buildDataToSign()
     );
 
-    Assert.assertEquals("Cannot sign empty datafile: empty-file-2.txt", caughtException.getMessage());
+    assertEquals("Cannot sign empty datafile: empty-file-2.txt", caughtException.getMessage());
     TestAssert.assertSuppressed(caughtException, InvalidDataFileException.class, "Cannot sign empty datafile: empty-file-4.txt");
   }
 
@@ -115,7 +117,7 @@ public class EmptyDataFilesAsicEContainerTest extends EmptyDataFilesContainerTes
                     .invokeSigning()
     );
 
-    Assert.assertEquals("Cannot sign empty datafile: empty-file-2.txt", caughtException.getMessage());
+    assertEquals("Cannot sign empty datafile: empty-file-2.txt", caughtException.getMessage());
     TestAssert.assertSuppressed(caughtException, InvalidDataFileException.class, "Cannot sign empty datafile: empty-file-4.txt");
   }
 
@@ -130,21 +132,21 @@ public class EmptyDataFilesAsicEContainerTest extends EmptyDataFilesContainerTes
                     .buildDataToSign()
     );
 
-    Assert.assertEquals("Cannot sign empty datafile: empty-file-2.txt", caughtException.getMessage());
+    assertEquals("Cannot sign empty datafile: empty-file-2.txt", caughtException.getMessage());
     TestAssert.assertSuppressed(caughtException, InvalidDataFileException.class, "Cannot sign empty datafile: empty-file-4.txt");
   }
 
   private Container loadUnsignedContainerWithEmptyDataFiles() {
     Container container = ContainerOpener
             .open("src/test/resources/testFiles/valid-containers/unsigned-container-with-empty-datafiles.asice", configuration);
-    Assert.assertEquals(Constant.ASICE_CONTAINER_TYPE, container.getType());
+    assertEquals(Constant.ASICE_CONTAINER_TYPE, container.getType());
     return container;
   }
 
   private Container loadSignedContainerWithEmptyDataFiles() {
     Container container = ContainerOpener
             .open("src/test/resources/testFiles/valid-containers/signed-container-with-empty-datafiles.asice", configuration);
-    Assert.assertEquals(Constant.ASICE_CONTAINER_TYPE, container.getType());
+    assertEquals(Constant.ASICE_CONTAINER_TYPE, container.getType());
     return container;
   }
 

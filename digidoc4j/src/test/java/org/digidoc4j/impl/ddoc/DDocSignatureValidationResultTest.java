@@ -13,19 +13,18 @@ package org.digidoc4j.impl.ddoc;
 import org.digidoc4j.ddoc.DigiDocException;
 import org.digidoc4j.ddoc.SignedDoc;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.digidoc4j.test.util.JreVersionHelper;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnJre;
+import org.junit.jupiter.api.condition.EnabledOnJre;
+import org.junit.jupiter.api.condition.JRE;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.lessThanOrEqualTo;
-import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.xmlunit.matchers.CompareMatcher.isIdenticalTo;
 
 public class DDocSignatureValidationResultTest {
@@ -33,11 +32,11 @@ public class DDocSignatureValidationResultTest {
   @Test
   public void testFromListHasNoErrorsAndNoWarnings() {
     DDocSignatureValidationResult result = new DDocSignatureValidationResult(new ArrayList<DigiDocException>(), SignedDoc.FORMAT_DIGIDOC_XML);
-    Assert.assertTrue(result.isValid());
-    Assert.assertEquals(0, result.getErrors().size());
-    Assert.assertFalse(result.hasWarnings());
-    Assert.assertEquals(0, result.getWarnings().size());
-    Assert.assertTrue(result.isValid());
+    assertTrue(result.isValid());
+    assertEquals(0, result.getErrors().size());
+    assertFalse(result.hasWarnings());
+    assertEquals(0, result.getWarnings().size());
+    assertTrue(result.isValid());
   }
 
   @Test
@@ -48,16 +47,16 @@ public class DDocSignatureValidationResultTest {
     DDocSignatureValidationResult result = new DDocSignatureValidationResult(exceptions, SignedDoc.FORMAT_DIGIDOC_XML);
     List<DigiDoc4JException> errors = result.getErrors();
     List<DigiDoc4JException> warnings = result.getWarnings();
-    Assert.assertFalse(result.isValid());
-    Assert.assertEquals(2, errors.size());
-    Assert.assertFalse(result.hasWarnings());
-    Assert.assertEquals(0, warnings.size());
-    Assert.assertFalse(result.isValid());
-    Assert.assertEquals(DigiDocException.ERR_UNSUPPORTED, errors.get(0).getErrorCode());
-    Assert.assertEquals(DigiDocException.ERR_UNSUPPORTED + "test; nested exception is: \n\tjava.lang.Throwable: exception1",
+    assertFalse(result.isValid());
+    assertEquals(2, errors.size());
+    assertFalse(result.hasWarnings());
+    assertEquals(0, warnings.size());
+    assertFalse(result.isValid());
+    assertEquals(DigiDocException.ERR_UNSUPPORTED, errors.get(0).getErrorCode());
+    assertEquals(DigiDocException.ERR_UNSUPPORTED + "test; nested exception is: \n\tjava.lang.Throwable: exception1",
         errors.get(0).getMessage());
-    Assert.assertEquals(DigiDocException.ERR_CALCULATE_DIGEST, errors.get(1).getErrorCode());
-    Assert.assertEquals(DigiDocException.ERR_CALCULATE_DIGEST + "test2; nested exception is: \n\tjava.lang.Throwable: " +
+    assertEquals(DigiDocException.ERR_CALCULATE_DIGEST, errors.get(1).getErrorCode());
+    assertEquals(DigiDocException.ERR_CALCULATE_DIGEST + "test2; nested exception is: \n\tjava.lang.Throwable: " +
         "exception2", errors.get(1).getMessage());
   }
 
@@ -69,28 +68,21 @@ public class DDocSignatureValidationResultTest {
     DDocSignatureValidationResult result = new DDocSignatureValidationResult(exceptions, SignedDoc.FORMAT_DIGIDOC_XML);
     List<DigiDoc4JException> errors = result.getErrors();
     List<DigiDoc4JException> warnings = result.getWarnings();
-    Assert.assertTrue(result.isValid());
-    Assert.assertEquals(0, errors.size());
-    Assert.assertTrue(result.hasWarnings());
-    Assert.assertEquals(2, warnings.size());
-    Assert.assertEquals(DigiDocException.ERR_OLD_VER, warnings.get(0).getErrorCode());
-    Assert.assertEquals(DigiDocException.ERR_OLD_VER + "test; nested exception is: \n\tjava.lang.Throwable: exception1",
+    assertTrue(result.isValid());
+    assertEquals(0, errors.size());
+    assertTrue(result.hasWarnings());
+    assertEquals(2, warnings.size());
+    assertEquals(DigiDocException.ERR_OLD_VER, warnings.get(0).getErrorCode());
+    assertEquals(DigiDocException.ERR_OLD_VER + "test; nested exception is: \n\tjava.lang.Throwable: exception1",
             warnings.get(0).getMessage());
-    Assert.assertEquals(DigiDocException.WARN_WEAK_DIGEST, warnings.get(1).getErrorCode());
-    Assert.assertEquals(DigiDocException.WARN_WEAK_DIGEST + "test2; nested exception is: \n\tjava.lang.Throwable: " +
+    assertEquals(DigiDocException.WARN_WEAK_DIGEST, warnings.get(1).getErrorCode());
+    assertEquals(DigiDocException.WARN_WEAK_DIGEST + "test2; nested exception is: \n\tjava.lang.Throwable: " +
         "exception2", warnings.get(1).getMessage());
   }
 
+  @EnabledOnJre(JRE.JAVA_8)
   @Test
   public void testReportJava8() {
-    // TODO (DD4J-993): Remove this after DD4J unit tests are migrated to JUnit5
-    //  which has annotations for conditional test execution based on JRE versions.
-    Assume.assumeThat(
-            "Only run on JDK 8 or lower",
-            JreVersionHelper.getCurrentMajorVersionIfAvailable(),
-            anyOf(nullValue(), lessThanOrEqualTo(8))
-    );
-
     ArrayList<DigiDocException> exceptions = new ArrayList<>();
     exceptions.add(new DigiDocException(DigiDocException.ERR_UNSUPPORTED, "test", new Throwable("exception1")));
     exceptions.add(new DigiDocException(DigiDocException.ERR_CALCULATE_DIGEST, "test2", new Throwable("exception2")));
@@ -111,16 +103,9 @@ public class DDocSignatureValidationResultTest {
     ));
   }
 
+  @DisabledOnJre(JRE.JAVA_8)
   @Test
   public void testReportJava9Plus() {
-    // TODO (DD4J-993): Remove this after DD4J unit tests are migrated to JUnit5
-    //  which has annotations for conditional test execution based on JRE versions.
-    Assume.assumeThat(
-            "Only run on JDKs higher than 8",
-            JreVersionHelper.getCurrentMajorVersionIfAvailable(),
-            anyOf(nullValue(), greaterThan(8))
-    );
-
     ArrayList<DigiDocException> exceptions = new ArrayList<>();
     exceptions.add(new DigiDocException(DigiDocException.ERR_UNSUPPORTED, "test", new Throwable("exception1")));
     exceptions.add(new DigiDocException(DigiDocException.ERR_CALCULATE_DIGEST, "test2", new Throwable("exception2")));

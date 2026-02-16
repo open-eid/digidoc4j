@@ -27,11 +27,12 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.Certificates;
 import org.digidoc4j.test.util.TestSigningUtil;
 import org.digidoc4j.utils.Helper;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
 
 import eu.europa.esig.dss.spi.DSSUtils;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ExternalSignerTest extends AbstractTest {
 
@@ -46,11 +47,11 @@ public class ExternalSignerTest extends AbstractTest {
       }
 
     };
-    Assert.assertEquals(Certificates.SIGNING_CERTIFICATE, Base64.encodeBase64String(externalSigner.getCertificate().getEncoded()));
+    assertEquals(Certificates.SIGNING_CERTIFICATE, Base64.encodeBase64String(externalSigner.getCertificate().getEncoded()));
   }
 
   @Test
-  @Ignore // TODO Fix me when possible
+  @Disabled // TODO Fix me when possible
   public void testAsyncSigning() {
     Container container = this.createNonEmptyContainer();
     DataToSign dataToSign = SignatureBuilder.aSignature(container).withSigningCertificate(pkcs12SignatureToken.getCertificate()).

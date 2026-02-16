@@ -8,7 +8,7 @@ import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * This test was created when SKOnlineOCSPSource had a thread safety problem with its nonce checking code;
@@ -20,7 +20,7 @@ public class MultiSignatureThreadSafetyTest extends AbstractTest {
   @Test
   public void signingTwiceDoesNotCauseAThreadingProblemWithSkOnlineOCSPSource() throws InterruptedException {
     for (int i = 0; i < 2; i++) {
-      this.sign();
+      sign();
     }
   }
 
@@ -29,8 +29,8 @@ public class MultiSignatureThreadSafetyTest extends AbstractTest {
    */
 
   private void sign() {
-    this.configuration = new Configuration(Configuration.Mode.TEST);
-    Container container = ContainerBuilder.aContainer().withConfiguration(this.configuration)
+    configuration = new Configuration(Configuration.Mode.TEST);
+    Container container = ContainerBuilder.aContainer().withConfiguration(configuration)
         .withDataFile(new ByteArrayInputStream("file contents".getBytes()), "file.txt", "application/octet-stream").
         build();
     TestDataBuilderUtil.signContainer(container, SignatureProfile.LT);

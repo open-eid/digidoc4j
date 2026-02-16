@@ -21,7 +21,7 @@ import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.impl.asic.report.TimestampValidationReport;
 import org.digidoc4j.test.TestConstants;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.digidoc4j.test.TestAssert.assertContainerIsValid;
 import static org.digidoc4j.test.TestAssert.assertContainerIsValidIgnoreErrors;

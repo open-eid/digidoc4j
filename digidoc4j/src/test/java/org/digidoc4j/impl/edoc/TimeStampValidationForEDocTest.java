@@ -15,10 +15,12 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.ContainerValidationResult;
 import org.digidoc4j.exceptions.TimestampAfterOCSPResponseTimeException;
 import org.digidoc4j.test.TestAssert;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Created by kamlatm on 4.05.2017.
@@ -31,8 +33,8 @@ public class TimeStampValidationForEDocTest extends AbstractTest {
 
   @Test
   public void timestampAfterOcspResponseTimeShouldResultInInvalidContainerForEDOC() {
-    ContainerValidationResult validationResult = this.openContainerByConfiguration(Paths.get(EDOC_LOCATION)).validate();
-    Assert.assertFalse("Signature should be invalid if timestamp was taken after OCSP", validationResult.isValid());
+    ContainerValidationResult validationResult = openContainerByConfiguration(Paths.get(EDOC_LOCATION)).validate();
+    assertFalse(validationResult.isValid(), "Signature should be invalid if timestamp was taken after OCSP");
     TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
             "Timestamp time is after OCSP response production time",
             "The certificate is not related to a TSA/QTST!",
@@ -44,13 +46,13 @@ public class TimeStampValidationForEDocTest extends AbstractTest {
             "The current time is not in the validity range of the signer's certificate!",
             "The certificate validation is not conclusive!"
     );
-    Assert.assertTrue("Validation result should contain " + TimestampAfterOCSPResponseTimeException.class.getSimpleName(),
-            validationResult.getErrors().stream().anyMatch(e -> e instanceof TimestampAfterOCSPResponseTimeException));
+    assertTrue(validationResult.getErrors().stream().anyMatch(e -> e instanceof TimestampAfterOCSPResponseTimeException),
+            "Validation result should contain " + TimestampAfterOCSPResponseTimeException.class.getSimpleName());
   }
 
   @Test
   public void invalidTimestampMsgIsNotExistForASICE() {
-    ContainerValidationResult validationResult = this.openContainerByConfiguration(Paths.get(ASICE_LOCATION)).validate();
+    ContainerValidationResult validationResult = openContainerByConfiguration(Paths.get(ASICE_LOCATION)).validate();
     TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
             "The certificate is not related to a TSA/QTST!",
             "The trust service(s) related to the time-stamp does not have the expected type identifier!",
@@ -68,7 +70,7 @@ public class TimeStampValidationForEDocTest extends AbstractTest {
 
   @Override
   protected void before() {
-    this.configuration = new Configuration(Configuration.Mode.PROD);
+    configuration = new Configuration(Configuration.Mode.PROD);
   }
 
 }

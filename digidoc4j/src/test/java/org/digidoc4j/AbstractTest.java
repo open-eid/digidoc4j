@@ -22,7 +22,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.AiaSourceFactory;
 import org.digidoc4j.impl.CommonOCSPSource;
@@ -45,15 +44,15 @@ import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.digidoc4j.test.util.TestSigningUtil;
 import org.digidoc4j.test.util.TestTSLUtil;
 import org.digidoc4j.utils.Helper;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.internal.AssumptionViolatedException;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,6 +76,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -87,6 +87,11 @@ import static org.digidoc4j.Container.DocumentType.DDOC;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Janar Rahumeel (CGI Estonia)
@@ -157,25 +162,23 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
       LOGGER.debug(StringUtils.rightPad("-", skipped.length(), '-'));
     }
 
-  };
-
-  @Before
+  @BeforeEach
   public void beforeMethod() {
     LOGGER.info("NB! Before method --> START");
     ConfigurationSingeltonHolder.reset();
-    this.setGlobalMode(Configuration.Mode.TEST);
-    this.before();
+    setGlobalMode(Configuration.Mode.TEST);
+    before();
     LOGGER.info("NB! Before method --> END");
   }
 
-  @After
+  @AfterEach
   public void afterMethod() {
     try {
       FileUtils.deleteDirectory(this.testFolder.getRoot());
     } catch (IOException e) {
       LOGGER.warn("Unable to clean folder <{}>", this.testFolder.getRoot());
     }
-    this.after();
+    after();
   }
 
   /*
@@ -199,7 +202,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   }
 
   protected String getDDoc4JConfigurationValue(String key) {
-    return this.configuration.getDDoc4JConfiguration().get(key);
+    return configuration.getDDoc4JConfiguration().get(key);
   }
 
   protected void addCertificateToTSL(Path path, TSLCertificateSource source) {
@@ -223,7 +226,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   }
 
   protected Container openContainerByConfiguration(Path path) {
-    return this.openContainerByConfiguration(path, this.configuration);
+    return openContainerByConfiguration(path, configuration);
   }
 
   protected Container openContainerByConfiguration(Path path, Configuration configuration) {
@@ -312,17 +315,17 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   }
 
   protected Container createNonEmptyContainer() {
-    return this.createNonEmptyContainerBy(Container.DocumentType.BDOC);
+    return createNonEmptyContainerBy(Container.DocumentType.BDOC);
   }
 
   protected Container createNonEmptyContainerByConfiguration() {
-    return ContainerBuilder.aContainer(BDOC).withConfiguration(this.configuration)
-        .withDataFile(this.createTemporaryFileBy("TOP SECRET").getPath(), "text/plain").build();
+    return ContainerBuilder.aContainer(BDOC).withConfiguration(configuration)
+        .withDataFile(createTemporaryFileBy("TOP SECRET").getPath(), "text/plain").build();
   }
 
   protected Container createNonEmptyContainerBy(Container.DocumentType type) {
     try {
-      return TestDataBuilderUtil.createContainerWithFile(this.testFolder, type, Configuration.Mode.TEST);
+      return TestDataBuilderUtil.createContainerWithFile(testFolder, type, Configuration.Mode.TEST);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -342,7 +345,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   protected Container createNonEmptyContainer(Container.DocumentType type, int filesCount) throws IOException {
     ContainerBuilder builder = ContainerBuilder.aContainer(type);
     for (int i = 0; i < filesCount; i++) {
-      builder.withDataFile(this.createTemporaryFileBy("TOP SECRET").getPath(), "text/plain");
+      builder.withDataFile(createTemporaryFileBy("TOP SECRET").getPath(), "text/plain");
     }
     return builder.build();
   }
@@ -388,7 +391,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   }
 
   protected String getFileBy(String extension) {
-    return this.getFileBy(extension, false);
+    return getFileBy(extension, false);
   }
 
   protected String getFileBy(String extension, boolean create) {
@@ -405,15 +408,15 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   @SuppressWarnings("unchecked")
   protected <T> T createSignatureBy(Container container, SignatureToken signatureToken) {
-    return (T) this.createSignatureBy(container, (SignatureProfile) null, signatureToken);
+    return (T) createSignatureBy(container, (SignatureProfile) null, signatureToken);
   }
 
   protected <T> T createSignatureBy(Container container, DigestAlgorithm digestAlgorithm, SignatureToken signatureToken) {
-    return this.createSignatureBy(container, null, digestAlgorithm, signatureToken);
+    return createSignatureBy(container, null, digestAlgorithm, signatureToken);
   }
 
   protected <T> T createSignatureBy(Container container, SignatureProfile signatureProfile, SignatureToken signatureToken) {
-    return this.createSignatureBy(container, signatureProfile, null, signatureToken);
+    return createSignatureBy(container, signatureProfile, null, signatureToken);
   }
 
   @SuppressWarnings("unchecked")
@@ -431,23 +434,23 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   }
 
   protected <T> T createSignatureBy(Container.DocumentType type, SignatureToken signatureToken) {
-    return this.createSignatureBy(type, null, signatureToken, Configuration.Mode.TEST);
+    return createSignatureBy(type, null, signatureToken, Configuration.Mode.TEST);
   }
 
   protected <T> T createSignatureBy(Container.DocumentType type, SignatureToken signatureToken, Class<T> clazz) {
-    return this.createSignatureBy(type, null, signatureToken, Configuration.Mode.TEST);
+    return createSignatureBy(type, null, signatureToken, Configuration.Mode.TEST);
   }
 
   protected <T> T createSignatureBy(Container.DocumentType type, SignatureToken signatureToken, Configuration.Mode mode) {
-    return this.createSignatureBy(type, null, signatureToken, mode);
+    return createSignatureBy(type, null, signatureToken, mode);
   }
 
   protected <T> T createSignatureBy(Container.DocumentType type, SignatureToken signatureToken, Configuration configuration) {
-    return this.createSignatureBy(type, null, signatureToken, configuration);
+    return createSignatureBy(type, null, signatureToken, configuration);
   }
 
   protected <T> T createSignatureBy(Container.DocumentType type, SignatureProfile signatureProfile, SignatureToken signatureToken) {
-    return this.createSignatureBy(type, signatureProfile, signatureToken, Configuration.Mode.TEST);
+    return createSignatureBy(type, signatureProfile, signatureToken, Configuration.Mode.TEST);
   }
 
   protected <T> T createSignatureBy(Container.DocumentType type, SignatureProfile signatureProfile, SignatureToken signatureToken, Configuration.Mode mode) {
@@ -457,7 +460,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   @SuppressWarnings("unchecked")
   protected <T> T createSignatureBy(Container.DocumentType type, SignatureProfile signatureProfile, SignatureToken signatureToken, Configuration configuration) {
     try {
-      SignatureBuilder builder = SignatureBuilder.aSignature(TestDataBuilderUtil.createContainerWithFile(this.testFolder, type, configuration));
+      SignatureBuilder builder = SignatureBuilder.aSignature(TestDataBuilderUtil.createContainerWithFile(testFolder, type, configuration));
       if (signatureProfile != null) {
         builder.withSignatureProfile(signatureProfile);
       }
@@ -470,7 +473,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   @SuppressWarnings("unchecked")
   protected <T> T createSignatureBy(DigestAlgorithm digestAlgorithm, SignatureToken signatureToken) {
     try {
-      return (T) SignatureBuilder.aSignature(this.createNonEmptyContainer()).withSignatureDigestAlgorithm(digestAlgorithm).
+      return (T) SignatureBuilder.aSignature(createNonEmptyContainer()).withSignatureDigestAlgorithm(digestAlgorithm).
           withSignatureToken(signatureToken).invokeSigning();
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -478,15 +481,15 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   }
 
   protected String createSignedContainerBy(Container.DocumentType type, String extension) {
-    String file = this.getFileBy(extension);
-    Container container = this.createNonEmptyContainerBy(type, Paths.get("src/test/resources/testFiles/helper-files/test.txt"), "text/plain");
+    String file = getFileBy(extension);
+    Container container = createNonEmptyContainerBy(type, Paths.get("src/test/resources/testFiles/helper-files/test.txt"), "text/plain");
     createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
     container.saveAsFile(file);
     return file;
   }
 
   protected String createNonEmptyLargeContainer(long size) {
-    String fileName = this.getFileBy("bdoc");
+    String fileName = getFileBy("bdoc");
     try (RandomAccessFile largeFile = new RandomAccessFile(fileName, "rw")) {
       largeFile.setLength(size);// TODO: create large file correctly
     } catch (Exception e) {
@@ -513,7 +516,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   }
 
   protected DSSDocument sign(XadesSigningDssFacade facade, DigestAlgorithm digestAlgorithm) {
-    return facade.signDocument(TestSigningUtil.sign(this.getDataToSign(facade), digestAlgorithm), this.createDataFilesToSign());
+    return facade.signDocument(TestSigningUtil.sign(getDataToSign(facade), digestAlgorithm), createDataFilesToSign());
   }
 
   protected byte[] sign(byte[] dataToSign, DigestAlgorithm digestAlgorithm) {
@@ -522,7 +525,7 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected byte[] getDataToSign(XadesSigningDssFacade facade) {
     facade.setSigningCertificate(pkcs12SignatureToken.getCertificate());
-    return facade.getDataToSign(this.createDataFilesToSign());
+    return facade.getDataToSign(createDataFilesToSign());
   }
 
   protected List<DataFile> createDataFilesToSign() {
@@ -584,113 +587,113 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   protected XadesSigningDssFacade createSigningFacade() {
     XadesSigningDssFacade facade = new XadesSigningDssFacade();
     facade.setAiaSource(new AiaSourceFactory(configuration).create());
-    facade.setCertificateSource(this.configuration.getTSL());
-    facade.setOcspSource(this.createOCSPSource());
-    facade.setTspSource(this.createTSPSource());
+    facade.setCertificateSource(configuration.getTSL());
+    facade.setOcspSource(createOCSPSource());
+    facade.setTspSource(createTSPSource());
     return facade;
   }
 
   protected CommonOCSPSource createOCSPSource() {
-    CommonOCSPSource source = new CommonOCSPSource(this.configuration);
-    DataLoader loader = new OcspDataLoaderFactory(this.configuration).create();
+    CommonOCSPSource source = new CommonOCSPSource(configuration);
+    DataLoader loader = new OcspDataLoaderFactory(configuration).create();
     source.setDataLoader(loader);
     return source;
   }
 
   private OnlineTSPSource createTSPSource() {
-    DataLoader loader = new TspDataLoaderFactory(this.configuration).create();
-    OnlineTSPSource source = new OnlineTSPSource(this.configuration.getTspSource());
+    DataLoader loader = new TspDataLoaderFactory(configuration).create();
+    OnlineTSPSource source = new OnlineTSPSource(configuration.getTspSource());
     source.setDataLoader(loader);
     return source;
   }
 
   protected void assertBDocContainer(Container container) {
-    Assert.assertNotNull(container);
-    Assert.assertTrue(container instanceof BDocContainer);
-    Assert.assertEquals(BDOC.name(), container.getType());
+    assertNotNull(container);
+    assertInstanceOf(BDocContainer.class, container);
+    assertEquals(BDOC.name(), container.getType());
   }
 
   protected void assertAsicEContainer(Container container) {
-    Assert.assertNotNull(container);
-    Assert.assertTrue(container instanceof AsicEContainer);
-    Assert.assertEquals(ASICE.name(), container.getType());
+    assertNotNull(container);
+    assertInstanceOf(AsicEContainer.class, container);
+    assertEquals(ASICE.name(), container.getType());
   }
 
   protected void assertAsicSContainer(Container container) {
-    Assert.assertNotNull(container);
-    Assert.assertTrue(container instanceof AsicSContainer);
-    Assert.assertEquals(ASICS.name(), container.getType());
+    assertNotNull(container);
+    assertInstanceOf(AsicSContainer.class, container);
+    assertEquals(ASICS.name(), container.getType());
   }
 
   protected void assertDDocContainer(Container container) {
-    Assert.assertNotNull(container);
-    Assert.assertTrue(container instanceof DDocContainer);
-    Assert.assertEquals(DDOC.name(), container.getType());
+    assertNotNull(container);
+    assertInstanceOf(DDocContainer.class, container);
+    assertEquals(DDOC.name(), container.getType());
   }
 
   protected void assertTimemarkSignature(Signature signature) {
-    Assert.assertNotNull(signature);
-    Assert.assertTrue(signature instanceof BDocSignature);
-    Assert.assertEquals(SignatureProfile.LT_TM, signature.getProfile());
+    assertNotNull(signature);
+    assertInstanceOf(BDocSignature.class, signature);
+    assertEquals(SignatureProfile.LT_TM, signature.getProfile());
   }
 
   protected void assertLtSignature(Signature signature) {
-    Assert.assertNotNull(signature);
-    Assert.assertTrue(signature instanceof AsicESignature);
-    Assert.assertEquals(SignatureProfile.LT, signature.getProfile());
+    assertNotNull(signature);
+    assertInstanceOf(AsicESignature.class, signature);
+    assertEquals(SignatureProfile.LT, signature.getProfile());
   }
 
   protected void assertTimestampSignature(Signature signature) {
-    Assert.assertNotNull(signature);
-    Assert.assertTrue(signature instanceof AsicESignature);
-    Assert.assertEquals(SignatureProfile.T, signature.getProfile());
+    assertNotNull(signature);
+    assertInstanceOf(AsicESignature.class, signature);
+    assertEquals(SignatureProfile.T, signature.getProfile());
   }
 
   protected void assertArchiveTimestampSignature(Signature signature) {
-    Assert.assertNotNull(signature);
-    Assert.assertTrue(signature instanceof AsicESignature);
-    Assert.assertEquals(SignatureProfile.LTA, signature.getProfile());
+    assertNotNull(signature);
+    assertInstanceOf(AsicESignature.class, signature);
+    assertEquals(SignatureProfile.LTA, signature.getProfile());
   }
 
   protected void assertBEpesSignature(Signature signature) {
-    Assert.assertNotNull(signature);
-    Assert.assertTrue(signature instanceof BDocSignature);
-    Assert.assertEquals(SignatureProfile.B_EPES, signature.getProfile());
+    assertNotNull(signature);
+    assertInstanceOf(BDocSignature.class, signature);
+    assertEquals(SignatureProfile.B_EPES, signature.getProfile());
   }
 
   protected void assertBBesSignature(Signature signature) {
-    Assert.assertNotNull(signature);
-    Assert.assertTrue(signature instanceof AsicESignature);
-    Assert.assertEquals(SignatureProfile.B_BES, signature.getProfile());
+    assertNotNull(signature);
+    assertInstanceOf(AsicESignature.class, signature);
+    assertEquals(SignatureProfile.B_BES, signature.getProfile());
   }
 
   protected static void assertValidSignature(Signature signature) {
     ValidationResult validationResult = signature.validateSignature();
-    Assert.assertTrue("Expected signature to be valid", validationResult.isValid());
+    assertTrue(validationResult.isValid(), "Expected signature to be valid");
     assertHasNoWarnings(validationResult);
     assertHasNoErrors(validationResult);
   }
 
   protected static void assertValidSignatureWithWarnings(Signature signature) {
     ValidationResult validationResult = signature.validateSignature();
-    Assert.assertTrue("Expected signature to be valid", validationResult.isValid());
-    Assert.assertTrue("Expected validation warnings but none found", validationResult.hasWarnings());
+    assertTrue(validationResult.isValid(), "Expected signature to be valid");
+    assertTrue(validationResult.hasWarnings(), "Expected validation warnings but none found");
     assertHasNoErrors(validationResult);
   }
 
   protected static void assertSignatureWith(Signature signature, Consumer<List<DigiDoc4JException>> errorsVerifier, Consumer<List<DigiDoc4JException>> warningsVerifier) {
     ValidationResult validationResult = signature.validateSignature();
-    Assert.assertEquals(errorsVerifier == null, validationResult.isValid());
+    assertEquals(errorsVerifier == null, validationResult.isValid());
     if (errorsVerifier != null) {
       List<DigiDoc4JException> errors = validationResult.getErrors();
-      Assert.assertTrue("Expected validation errors but none found", CollectionUtils.isNotEmpty(errors));
+      assertTrue(CollectionUtils.isNotEmpty(errors), "Expected validation errors but none found");
       errorsVerifier.accept(errors);
     } else {
       assertHasNoErrors(validationResult);
     }
     if (warningsVerifier != null) {
       List<DigiDoc4JException> warnings = validationResult.getWarnings();
-      Assert.assertTrue("Expected validation warnings but none found", CollectionUtils.isNotEmpty(warnings));
+      assertTrue(CollectionUtils.isNotEmpty(warnings), "Expected validation warnings but none found");
       warningsVerifier.accept(warnings);
     } else {
       assertHasNoWarnings(validationResult);
@@ -716,9 +719,9 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected static void assertHasNoErrors(ValidationResult validationResult) {
     List<DigiDoc4JException> errors = validationResult.getErrors();
-    Assert.assertEquals(validationResult.isValid(), CollectionUtils.isEmpty(errors));
+    assertEquals(validationResult.isValid(), CollectionUtils.isEmpty(errors));
     if (CollectionUtils.isNotEmpty(errors)) {
-      Assert.fail(String.format(
+      fail(String.format(
               "Expected no validation errors, but found %d errors: %s",
               errors.size(), errors
       ));
@@ -727,9 +730,9 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
 
   protected static void assertHasNoWarnings(ValidationResult validationResult) {
     List<DigiDoc4JException> warnings = validationResult.getWarnings();
-    Assert.assertEquals(validationResult.hasWarnings(), CollectionUtils.isNotEmpty(warnings));
+    assertEquals(validationResult.hasWarnings(), CollectionUtils.isNotEmpty(warnings));
     if (CollectionUtils.isNotEmpty(warnings)) {
-      Assert.fail(String.format(
+      fail(String.format(
               "Expected no validation warnings, but found %d warnings: %s",
               warnings.size(), warnings
       ));

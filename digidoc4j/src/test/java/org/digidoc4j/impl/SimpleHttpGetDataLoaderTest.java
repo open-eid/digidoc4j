@@ -24,13 +24,11 @@ import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.hamcrest.collection.IsIterableContainingInOrder;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.contrib.java.lang.system.RestoreSystemProperties;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
@@ -46,6 +44,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class SimpleHttpGetDataLoaderTest {
 
@@ -75,7 +77,7 @@ public class SimpleHttpGetDataLoaderTest {
 
   private Appender<ILoggingEvent> mockedAppender;
 
-  @Before
+  @BeforeEach
   public void setUpLoggingEnvironment() {
     Logger logger = (Logger) LoggerFactory.getLogger(SimpleHttpGetDataLoader.class.getName());
     mockedAppender = (Appender<ILoggingEvent>) Mockito.mock(Appender.class);
@@ -117,9 +119,9 @@ public class SimpleHttpGetDataLoaderTest {
             .withHeader("Content-Length", Long.toString(Integer.MAX_VALUE + 1L)).withBody(new byte[1])));
     try {
       createDataLoader(0).request(instanceRule.url(REQUEST_PATH), true);
-      Assert.fail("Should have thrown an exception");
+      fail("Should have thrown an exception");
     } catch (Exception ex) {
-      Assert.assertEquals("Unsupported Content-Length: " + (Integer.MAX_VALUE + 1L), ex.getMessage());
+      assertEquals("Unsupported Content-Length: " + (Integer.MAX_VALUE + 1L), ex.getMessage());
     }
     instanceRule.verify(1, getRequestedFor(urlEqualTo(REQUEST_PATH)));
   }
@@ -223,7 +225,8 @@ public class SimpleHttpGetDataLoaderTest {
    * requires a different SSL truststore than the rest of the tests that use {@link SimpleHttpGetDataLoader}.
    */
   @Test
-  @Ignore("TODO: find a way to run this test together with the rest of the test suite")
+  @Disabled("TODO: find a way to run this test together with the rest of the test suite")
+  // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
   public void requestShouldFollowHttpToHttpsRedirectOnAllowedHttp3xx_RedirectsEnabled() {
     System.setProperty("javax.net.ssl.trustStore", "src/test/resources/testFiles/truststores/client-localhost.jks");
     System.setProperty("javax.net.ssl.trustStorePassword", "digidoc4j-password");
@@ -247,7 +250,8 @@ public class SimpleHttpGetDataLoaderTest {
    * requires a different SSL truststore than the rest of the tests that use {@link SimpleHttpGetDataLoader}.
    */
   @Test
-  @Ignore("TODO: find a way to run this test together with the rest of the test suite")
+  @Disabled("TODO: find a way to run this test together with the rest of the test suite")
+  // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
   public void requestShouldFollowHttpsToHttpRedirectOnAllowedHttp3xx_RedirectsEnabled() {
     System.setProperty("javax.net.ssl.trustStore", "src/test/resources/testFiles/truststores/client-localhost.jks");
     System.setProperty("javax.net.ssl.trustStorePassword", "digidoc4j-password");
@@ -274,9 +278,9 @@ public class SimpleHttpGetDataLoaderTest {
   public void requestShouldFollowRedirectsOfValidCertificate() {
     byte[] response = createDataLoader(3).request("http://www.sk.ee/certs/EE_Certification_Centre_Root_CA.der.crt", true);
     CertificateToken loadedCertificate = DSSUtils.loadCertificate(response);
-    Assert.assertTrue(
-            "Certificate subject principal should contain 'CN=EE Certification Centre Root CA'",
-            loadedCertificate.getSubject().getPrincipal().getName().contains("CN=EE Certification Centre Root CA")
+    assertTrue(
+            loadedCertificate.getSubject().getPrincipal().getName().contains("CN=EE Certification Centre Root CA"),
+            "Certificate subject principal should contain 'CN=EE Certification Centre Root CA'"
     );
     assertLogInOrder(
             Matchers.matchesPattern("Received HTTP 3[0-9]{2} from 'http://www.sk.ee/certs/EE_Certification_Centre_Root_CA.der.crt', redirecting to 'https://www.sk.ee/certs/EE_Certification_Centre_Root_CA.der.crt'"),

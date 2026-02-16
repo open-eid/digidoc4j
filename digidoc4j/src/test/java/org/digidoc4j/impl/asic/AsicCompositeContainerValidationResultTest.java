@@ -21,11 +21,11 @@ import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.impl.asic.report.SignatureValidationReport;
 import org.digidoc4j.impl.asic.report.TimestampValidationReport;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -39,8 +39,8 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -48,7 +48,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AsicCompositeContainerValidationResultTest extends AbstractTest {
 
   private static final String TOKEN_ID = "test-token-ID";
@@ -60,7 +60,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
 
   private AsicCompositeContainerValidationResult compositeValidationResult;
 
-  @Before
+  @BeforeEach
   public void setUpCompositeValidationResult() {
     // @InjectMocks does not work correctly with overlapping parameter types, create testable object manually
     compositeValidationResult = new AsicCompositeContainerValidationResult(
@@ -956,10 +956,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
     Path reportPath = path.resolve("validationReport.xml");
     assertTrue(Files.exists(reportPath));
     assertTrue(Files.isRegularFile(reportPath));
-    assertArrayEquals(
-            "Mock report string".getBytes(StandardCharsets.UTF_8),
-            Files.readAllBytes(reportPath)
-    );
+    assertArrayEquals("Mock report string".getBytes(StandardCharsets.UTF_8), Files.readAllBytes(reportPath));
     verify(compositeValidationResultSpy).getReport();
     verify(compositeValidationResultSpy).saveXmlReports(path);
     verify(nestedContainerValidationResult).saveXmlReports(path.resolve("nestedContainer"));

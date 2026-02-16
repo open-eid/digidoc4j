@@ -15,12 +15,11 @@ import org.digidoc4j.Container;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
-import org.junit.Assert;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.IOException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TimestampArchiveSignatureTest extends AbstractTest {
 
@@ -35,7 +34,7 @@ public class TimestampArchiveSignatureTest extends AbstractTest {
 
         SignatureProfile profile = timestampArchiveSignature.getProfile();
 
-        Assert.assertEquals(SignatureProfile.LTA, profile);
+        assertEquals(SignatureProfile.LTA, profile);
     }
 
 }

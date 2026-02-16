@@ -15,16 +15,18 @@ import org.digidoc4j.Configuration;
 import org.digidoc4j.Container;
 import org.digidoc4j.ContainerBuilder;
 import org.digidoc4j.ContainerValidationResult;
-import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.test.TestAssert;
-import org.junit.Assert;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.contrib.java.lang.system.SystemOutRule;
+import org.junit.jupiter.api.Test;
 
 import static org.digidoc4j.main.TestDigiDoc4JUtil.invokeDigiDoc4jAndReturnExitStatus;
-import static org.junit.Assert.assertEquals;
+import static org.digidoc4j.test.TestAssert.assertContainerIsInvalid;
+import static org.digidoc4j.test.TestAssert.assertContainerIsValid;
+import static org.digidoc4j.test.TestAssert.assertContainsErrors;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Created by Andrei on 20.11.2017.
@@ -44,17 +46,17 @@ public class PadesValidationTest extends AbstractTest {
   public void validPadesLT_shouldSucceed() {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.PADES).withConfiguration(Configuration.of(Configuration.Mode.PROD)).
             fromExistingFile("src/test/resources/prodFiles/valid-containers/hellopades-pades-lt-sha256-sign.pdf").build();
-    SignatureValidationResult result = container.validate();
-    Assert.assertTrue(result.isValid());
+    ContainerValidationResult result = container.validate();
+    assertContainerIsValid(result);
   }
 
   @Test
   public void PadesT_shouldFail() {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.PADES).withConfiguration(Configuration.of(Configuration.Mode.PROD)).
             fromExistingFile("src/test/resources/prodFiles/invalid-containers/PadesProfileT.pdf").build();
-    SignatureValidationResult result = container.validate();
-    Assert.assertFalse(result.isValid());
-    TestAssert.assertContainsErrors(result.getErrors(),
+    ContainerValidationResult result = container.validate();
+    assertContainerIsInvalid(result);
+    assertContainsErrors(result.getErrors(),
             "The certificate validation is not conclusive!",
             "No revocation data found for the certificate!"
     );
@@ -69,7 +71,7 @@ public class PadesValidationTest extends AbstractTest {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.PADES).withConfiguration(Configuration.of(Configuration.Mode.PROD)).
             fromExistingFile("src/test/resources/prodFiles/valid-containers/hellopades-lt-b.pdf").build();
     ContainerValidationResult result = container.validate();
-    TestAssert.assertContainerIsInvalid(result);
+    assertContainerIsInvalid(result);
     TestAssert.assertContainsExactSetOfErrors(result.getErrors(),
             "The certificate validation is not conclusive!",
             "The current time is not in the validity range of the signer's certificate!",
@@ -86,8 +88,8 @@ public class PadesValidationTest extends AbstractTest {
      */
     Container container = ContainerBuilder.aContainer(Container.DocumentType.PADES).withConfiguration(Configuration.of(Configuration.Mode.PROD)).
             fromExistingFile("src/test/resources/prodFiles/invalid-containers/PadesProfileLtWithCrl.pdf").build();
-    SignatureValidationResult result = container.validate();
-    Assert.assertFalse(result.isValid());
+    ContainerValidationResult result = container.validate();
+    assertContainerIsInvalid(result);
     TestAssert.assertContainsError("Signing certificate revocation source is not trusted", result.getErrors());
   }
 
@@ -106,7 +108,7 @@ public class PadesValidationTest extends AbstractTest {
 
   @Override
   protected void before() {
-    this.configuration = new Configuration(Configuration.Mode.TEST);
+    configuration = new Configuration(Configuration.Mode.TEST);
   }
 
 }

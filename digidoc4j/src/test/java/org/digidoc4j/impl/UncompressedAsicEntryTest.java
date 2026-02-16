@@ -11,8 +11,7 @@
 package org.digidoc4j.impl;
 
 import org.digidoc4j.impl.asic.AsicEntry;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
@@ -21,6 +20,10 @@ import java.util.function.Supplier;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UncompressedAsicEntryTest {
 
@@ -130,19 +133,19 @@ public class UncompressedAsicEntryTest {
       assertZipEntry(entry, contentBytes.length, 3057449933L);
 
       byte[] buffer = new byte[contentBytes.length];
-      Assert.assertEquals(contentBytes.length, zin.read(buffer));
-      Assert.assertArrayEquals(contentBytes, buffer);
+      assertEquals(contentBytes.length, zin.read(buffer));
+      assertArrayEquals(contentBytes, buffer);
 
       zin.closeEntry();
     }
   }
 
   private static void assertZipEntry(ZipEntry zipEntry, long expectedSize, long expectedCrc) {
-    Assert.assertEquals(MOCK_ENTRY_NAME, zipEntry.getName());
-    Assert.assertEquals(ZipEntry.STORED, zipEntry.getMethod());
-    Assert.assertEquals(expectedSize, zipEntry.getCompressedSize());
-    Assert.assertEquals(expectedSize, zipEntry.getSize());
-    Assert.assertEquals(expectedCrc, zipEntry.getCrc());
+    assertEquals(MOCK_ENTRY_NAME, zipEntry.getName());
+    assertEquals(ZipEntry.STORED, zipEntry.getMethod());
+    assertEquals(expectedSize, zipEntry.getCompressedSize());
+    assertEquals(expectedSize, zipEntry.getSize());
+    assertEquals(expectedCrc, zipEntry.getCrc());
   }
 
 }

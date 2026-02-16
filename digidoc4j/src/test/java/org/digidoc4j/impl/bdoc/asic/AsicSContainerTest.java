@@ -19,8 +19,7 @@ import org.digidoc4j.ValidationResult;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.impl.asic.AsicContainer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,10 +30,10 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Created by Andrei on 15.11.2017.
@@ -161,9 +160,9 @@ public class AsicSContainerTest extends AbstractTest {
   @Test
   public void removingNullSignatureDoesNothing() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/asics-1-signature.asics");
-    Assert.assertEquals(1, container.getSignatures().size());
+    assertEquals(1, container.getSignatures().size());
     container.removeSignature(null);
-    Assert.assertEquals(1, container.getSignatures().size());
+    assertEquals(1, container.getSignatures().size());
   }
 
 }

@@ -29,13 +29,12 @@ import org.digidoc4j.exceptions.TslDownloadException;
 import org.digidoc4j.exceptions.TslParsingException;
 import org.digidoc4j.exceptions.TslRefreshException;
 import org.digidoc4j.exceptions.TslValidationException;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -43,7 +42,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+@ExtendWith(MockitoExtension.class)
 public class DefaultTSLRefreshCallbackTest extends AbstractTest {
 
   private static final String LOTL_URL_1 = "http://lotl.host.first";
@@ -77,12 +83,12 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
     TLValidationJobSummary summary = Mockito.mock(TLValidationJobSummary.class);
     Mockito.doReturn(lotlInfos).when(summary).getLOTLInfos();
 
-    TslRefreshException caughtException = Assert.assertThrows(
+    TslRefreshException caughtException = assertThrows(
             TslRefreshException.class,
             () -> tslRefreshCallback.ensureTSLState(summary)
     );
 
-    Assert.assertEquals("No TSL refresh info found!", caughtException.getMessage());
+    assertEquals("No TSL refresh info found!", caughtException.getMessage());
     Mockito.verify(summary).getLOTLInfos();
     Mockito.verifyNoMoreInteractions(summary);
     Mockito.verifyNoInteractions(configuration);
@@ -91,11 +97,11 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   @Test
   public void testSingleLOTLInfoWithNoDownloadInfo() {
     TslDownloadException caughtException = testSingleLOTLInfoThrowingDownloadException(null);
-    Assert.assertEquals(
+    assertEquals(
             String.format("No download info found for <%s> LoTL: %s", TERRITORY_1, LOTL_URL_1),
             caughtException.getMessage()
     );
-    Assert.assertNull(caughtException.getCause());
+    assertNull(caughtException.getCause());
   }
 
   @Test
@@ -103,13 +109,13 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
     TslDownloadException caughtException = testSingleLOTLInfoThrowingDownloadException(
             withErrorState(new DownloadCacheDTO(), "Exception message")
     );
-    Assert.assertEquals(
+    assertEquals(
             String.format("Failed to download <%s> LoTL: %s", TERRITORY_1, LOTL_URL_1),
             caughtException.getMessage()
     );
-    Assert.assertNotNull(caughtException.getCause());
-    Assert.assertTrue(caughtException.getCause() instanceof TslDownloadException);
-    Assert.assertEquals("Exception message", caughtException.getCause().getMessage());
+    assertNotNull(caughtException.getCause());
+    assertInstanceOf(TslDownloadException.class, caughtException.getCause());
+    assertEquals("Exception message", caughtException.getCause().getMessage());
   }
 
   @Test
@@ -117,11 +123,11 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
     TslDownloadException caughtException = testSingleLOTLInfoThrowingDownloadException(
             withState(new DownloadCacheDTO(), CacheStateEnum.REFRESH_NEEDED)
     );
-    Assert.assertEquals(
+    assertEquals(
             String.format("(Re)download needed for <%s> LoTL: %s", TERRITORY_1, LOTL_URL_1),
             caughtException.getMessage()
     );
-    Assert.assertNull(caughtException.getCause());
+    assertNull(caughtException.getCause());
   }
 
   @Test
@@ -130,11 +136,11 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
       TslDownloadException caughtException = testSingleLOTLInfoThrowingDownloadException(
               withState(new DownloadCacheDTO(), cacheState)
       );
-      Assert.assertEquals(
+      assertEquals(
               String.format("Unexpected download status '%s' for <%s> LoTL: %s", cacheState, TERRITORY_1, LOTL_URL_1),
               caughtException.getMessage()
       );
-      Assert.assertNull(caughtException.getCause());
+      assertNull(caughtException.getCause());
       Mockito.reset(configuration);
     }
   }
@@ -149,7 +155,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
 
     TslDownloadException caughtException = testSingleLOTLInfoThrowingException(lotlInfo, TslDownloadException.class);
 
-    Assert.assertArrayEquals(new Throwable[0], caughtException.getSuppressed());
+    assertArrayEquals(new Throwable[0], caughtException.getSuppressed());
     Mockito.verifyNoInteractions(configuration);
     return caughtException;
   }
@@ -157,11 +163,11 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   @Test
   public void testSingleLOTLInfoWithNoParsingInfo() {
     TslParsingException caughtException = testSingleLOTLInfoThrowingParsingException(null);
-    Assert.assertEquals(
+    assertEquals(
             String.format("No parsing info found for LoTL: %s", LOTL_URL_1),
             caughtException.getMessage()
     );
-    Assert.assertNull(caughtException.getCause());
+    assertNull(caughtException.getCause());
   }
 
   @Test
@@ -169,13 +175,13 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
     TslParsingException caughtException = testSingleLOTLInfoThrowingParsingException(
             withErrorState(new ParsingCacheDTO(), "Exception message")
     );
-    Assert.assertEquals(
+    assertEquals(
             String.format("Failed to parse LoTL: %s", LOTL_URL_1),
             caughtException.getMessage()
     );
-    Assert.assertNotNull(caughtException.getCause());
-    Assert.assertTrue(caughtException.getCause() instanceof TslParsingException);
-    Assert.assertEquals("Exception message", caughtException.getCause().getMessage());
+    assertNotNull(caughtException.getCause());
+    assertInstanceOf(TslParsingException.class, caughtException.getCause());
+    assertEquals("Exception message", caughtException.getCause().getMessage());
   }
 
   @Test
@@ -183,11 +189,11 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
     TslParsingException caughtException = testSingleLOTLInfoThrowingParsingException(
             withState(new ParsingCacheDTO(), CacheStateEnum.REFRESH_NEEDED)
     );
-    Assert.assertEquals(
+    assertEquals(
             String.format("(Re)parsing needed for LoTL: %s", LOTL_URL_1),
             caughtException.getMessage()
     );
-    Assert.assertNull(caughtException.getCause());
+    assertNull(caughtException.getCause());
   }
 
   @Test
@@ -196,11 +202,11 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
       TslParsingException caughtException = testSingleLOTLInfoThrowingParsingException(
               withState(new ParsingCacheDTO(), cacheState)
       );
-      Assert.assertEquals(
+      assertEquals(
               String.format("Unexpected parsing status '%s' for LoTL: %s", cacheState, LOTL_URL_1),
               caughtException.getMessage()
       );
-      Assert.assertNull(caughtException.getCause());
+      assertNull(caughtException.getCause());
       Mockito.reset(configuration);
     }
   }
@@ -215,7 +221,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
 
     TslParsingException caughtException = testSingleLOTLInfoThrowingException(lotlInfo, TslParsingException.class);
 
-    Assert.assertArrayEquals(new Throwable[0], caughtException.getSuppressed());
+    assertArrayEquals(new Throwable[0], caughtException.getSuppressed());
     Mockito.verifyNoInteractions(configuration);
     return caughtException;
   }
@@ -223,11 +229,11 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   @Test
   public void testSingleLOTLInfoWithNoValidationInfo() {
     TslValidationException caughtException = testSingleLOTLInfoThrowingValidationException(null);
-    Assert.assertEquals(
+    assertEquals(
             String.format("No validation info found for <%s> LoTL: %s", TERRITORY_1, LOTL_URL_1),
             caughtException.getMessage()
     );
-    Assert.assertNull(caughtException.getCause());
+    assertNull(caughtException.getCause());
   }
 
   @Test
@@ -235,13 +241,13 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
     TslValidationException caughtException = testSingleLOTLInfoThrowingValidationException(
             withErrorState(new ValidationCacheDTO(), "Exception message")
     );
-    Assert.assertEquals(
+    assertEquals(
             String.format("Failed to validate <%s> LoTL: %s", TERRITORY_1, LOTL_URL_1),
             caughtException.getMessage()
     );
-    Assert.assertNotNull(caughtException.getCause());
-    Assert.assertTrue(caughtException.getCause() instanceof TslValidationException);
-    Assert.assertEquals("Exception message", caughtException.getCause().getMessage());
+    assertNotNull(caughtException.getCause());
+    assertInstanceOf(TslValidationException.class, caughtException.getCause());
+    assertEquals("Exception message", caughtException.getCause().getMessage());
   }
 
   @Test
@@ -250,13 +256,13 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
       TslValidationException caughtException = testSingleLOTLInfoThrowingValidationException(
               withSynchronizedState(new ValidationCacheDTO(), indication)
       );
-      Assert.assertEquals(
+      assertEquals(
               String.format("Failed to validate <%s> LoTL: %s", TERRITORY_1, LOTL_URL_1),
               caughtException.getMessage()
       );
-      Assert.assertNotNull(caughtException.getCause());
-      Assert.assertTrue(caughtException.getCause() instanceof TslValidationException);
-      Assert.assertEquals(
+      assertNotNull(caughtException.getCause());
+      assertInstanceOf(TslValidationException.class, caughtException.getCause());
+      assertEquals(
               String.format("<%s> LoTL validation failed; indication: %s", TERRITORY_1, indication),
               caughtException.getCause().getMessage()
       );
@@ -269,11 +275,11 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
     TslValidationException caughtException = testSingleLOTLInfoThrowingValidationException(
             withState(new ValidationCacheDTO(), CacheStateEnum.REFRESH_NEEDED)
     );
-    Assert.assertEquals(
+    assertEquals(
             String.format("(Re)validation needed for <%s> LoTL: %s", TERRITORY_1, LOTL_URL_1),
             caughtException.getMessage()
     );
-    Assert.assertNull(caughtException.getCause());
+    assertNull(caughtException.getCause());
   }
 
   @Test
@@ -282,11 +288,11 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
       TslValidationException caughtException = testSingleLOTLInfoThrowingValidationException(
               withState(new ValidationCacheDTO(), cacheState)
       );
-      Assert.assertEquals(
+      assertEquals(
               String.format("Unexpected validation status '%s' for <%s> LoTL: %s", cacheState, TERRITORY_1, LOTL_URL_1),
               caughtException.getMessage()
       );
-      Assert.assertNull(caughtException.getCause());
+      assertNull(caughtException.getCause());
       Mockito.reset(configuration);
     }
   }
@@ -301,7 +307,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
 
     TslValidationException caughtException = testSingleLOTLInfoThrowingException(lotlInfo, TslValidationException.class);
 
-    Assert.assertArrayEquals(new Throwable[0], caughtException.getSuppressed());
+    assertArrayEquals(new Throwable[0], caughtException.getSuppressed());
     Mockito.verifyNoInteractions(configuration);
     return caughtException;
   }
@@ -317,22 +323,22 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
 
     TslDownloadException caughtException = testSingleLOTLInfoThrowingException(lotlInfo, TslDownloadException.class);
 
-    Assert.assertEquals(
+    assertEquals(
             String.format("Failed to download LoTL: %s", LOTL_URL_1),
             caughtException.getMessage()
     );
-    Assert.assertNotNull(caughtException.getCause());
-    Assert.assertTrue(caughtException.getCause() instanceof TslDownloadException);
-    Assert.assertEquals("Exception message", caughtException.getCause().getMessage());
-    Assert.assertNotNull(caughtException.getSuppressed());
-    Assert.assertEquals(2, caughtException.getSuppressed().length);
-    Assert.assertTrue(caughtException.getSuppressed()[0] instanceof TslParsingException);
-    Assert.assertEquals(
+    assertNotNull(caughtException.getCause());
+    assertInstanceOf(TslDownloadException.class, caughtException.getCause());
+    assertEquals("Exception message", caughtException.getCause().getMessage());
+    assertNotNull(caughtException.getSuppressed());
+    assertEquals(2, caughtException.getSuppressed().length);
+    assertInstanceOf(TslParsingException.class, caughtException.getSuppressed()[0]);
+    assertEquals(
             String.format("(Re)parsing needed for LoTL: %s", LOTL_URL_1),
             caughtException.getSuppressed()[0].getMessage()
     );
-    Assert.assertTrue(caughtException.getSuppressed()[1] instanceof TslValidationException);
-    Assert.assertEquals(
+    assertInstanceOf(TslValidationException.class, caughtException.getSuppressed()[1]);
+    assertEquals(
             String.format("(Re)validation needed for LoTL: %s", LOTL_URL_1),
             caughtException.getSuppressed()[1].getMessage()
     );
@@ -350,17 +356,17 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
 
     TslParsingException caughtException = testSingleLOTLInfoThrowingException(lotlInfo, TslParsingException.class);
 
-    Assert.assertEquals(
+    assertEquals(
             String.format("Failed to parse LoTL: %s", LOTL_URL_1),
             caughtException.getMessage()
     );
-    Assert.assertNotNull(caughtException.getCause());
-    Assert.assertTrue(caughtException.getCause() instanceof TslParsingException);
-    Assert.assertEquals("Exception message", caughtException.getCause().getMessage());
-    Assert.assertNotNull(caughtException.getSuppressed());
-    Assert.assertEquals(1, caughtException.getSuppressed().length);
-    Assert.assertTrue(caughtException.getSuppressed()[0] instanceof TslValidationException);
-    Assert.assertEquals(
+    assertNotNull(caughtException.getCause());
+    assertInstanceOf(TslParsingException.class, caughtException.getCause());
+    assertEquals("Exception message", caughtException.getCause().getMessage());
+    assertNotNull(caughtException.getSuppressed());
+    assertEquals(1, caughtException.getSuppressed().length);
+    assertInstanceOf(TslValidationException.class, caughtException.getSuppressed()[0]);
+    assertEquals(
             String.format("(Re)validation needed for LoTL: %s", LOTL_URL_1),
             caughtException.getSuppressed()[0].getMessage()
     );
@@ -369,17 +375,17 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
 
   private <E extends TslRefreshException> E testSingleLOTLInfoThrowingException(LOTLInfo lotlInfo, Class<E> exceptionType) {
     TLValidationJobSummary summary = new TLValidationJobSummary(Collections.singletonList(lotlInfo), null);
-    return Assert.assertThrows(exceptionType, () -> tslRefreshCallback.ensureTSLState(summary));
+    return assertThrows(exceptionType, () -> tslRefreshCallback.ensureTSLState(summary));
   }
 
   @Test
   public void testSingleLOTLInfoWithSingleTLInfoWithNoDownloadInfo() {
     TslDownloadException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingDownloadException(null);
-    Assert.assertEquals(
+    assertEquals(
             String.format("No download info found for <%s> TL: %s", TERRITORY_2, TL_URL_1),
             caughtException.getMessage()
     );
-    Assert.assertNull(caughtException.getCause());
+    assertNull(caughtException.getCause());
   }
 
   @Test
@@ -387,13 +393,13 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
     TslDownloadException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingDownloadException(
             withErrorState(new DownloadCacheDTO(), "Exception message")
     );
-    Assert.assertEquals(
+    assertEquals(
             String.format("Failed to download <%s> TL: %s", TERRITORY_2, TL_URL_1),
             caughtException.getMessage()
     );
-    Assert.assertNotNull(caughtException.getCause());
-    Assert.assertTrue(caughtException.getCause() instanceof TslDownloadException);
-    Assert.assertEquals("Exception message", caughtException.getCause().getMessage());
+    assertNotNull(caughtException.getCause());
+    assertInstanceOf(TslDownloadException.class, caughtException.getCause());
+    assertEquals("Exception message", caughtException.getCause().getMessage());
   }
 
   @Test
@@ -401,11 +407,11 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
     TslDownloadException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingDownloadException(
             withState(new DownloadCacheDTO(), CacheStateEnum.REFRESH_NEEDED)
     );
-    Assert.assertEquals(
+    assertEquals(
             String.format("(Re)download needed for <%s> TL: %s", TERRITORY_2, TL_URL_1),
             caughtException.getMessage()
     );
-    Assert.assertNull(caughtException.getCause());
+    assertNull(caughtException.getCause());
   }
 
   @Test
@@ -414,11 +420,11 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
       TslDownloadException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingDownloadException(
               withState(new DownloadCacheDTO(), cacheState)
       );
-      Assert.assertEquals(
+      assertEquals(
               String.format("Unexpected download status '%s' for <%s> TL: %s", cacheState, TERRITORY_2, TL_URL_1),
               caughtException.getMessage()
       );
-      Assert.assertNull(caughtException.getCause());
+      assertNull(caughtException.getCause());
       Mockito.reset(configuration);
     }
   }
@@ -433,24 +439,24 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
 
     TslRefreshException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingException(tlInfo);
 
-    Assert.assertNotNull(caughtException.getCause());
-    Assert.assertTrue(caughtException.getCause() instanceof TslDownloadException);
-    Assert.assertArrayEquals(new Throwable[0], caughtException.getSuppressed());
+    assertNotNull(caughtException.getCause());
+    assertInstanceOf(TslDownloadException.class, caughtException.getCause());
+    assertArrayEquals(new Throwable[0], caughtException.getSuppressed());
     Mockito.verifyNoInteractions(configuration);
 
     TslDownloadException downloadException = (TslDownloadException) caughtException.getCause();
-    Assert.assertArrayEquals(new Throwable[0], downloadException.getSuppressed());
+    assertArrayEquals(new Throwable[0], downloadException.getSuppressed());
     return downloadException;
   }
 
   @Test
   public void testSingleLOTLInfoWithSingleTLInfoWithNoParsingInfo() {
     TslParsingException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingParsingException(null);
-    Assert.assertEquals(
+    assertEquals(
             String.format("No parsing info found for TL: %s", TL_URL_1),
             caughtException.getMessage()
     );
-    Assert.assertNull(caughtException.getCause());
+    assertNull(caughtException.getCause());
   }
 
   @Test
@@ -458,13 +464,13 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
     TslParsingException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingParsingException(
             withErrorState(new ParsingCacheDTO(), "Exception message")
     );
-    Assert.assertEquals(
+    assertEquals(
             String.format("Failed to parse TL: %s", TL_URL_1),
             caughtException.getMessage()
     );
-    Assert.assertNotNull(caughtException.getCause());
-    Assert.assertTrue(caughtException.getCause() instanceof TslParsingException);
-    Assert.assertEquals("Exception message", caughtException.getCause().getMessage());
+    assertNotNull(caughtException.getCause());
+    assertInstanceOf(TslParsingException.class, caughtException.getCause());
+    assertEquals("Exception message", caughtException.getCause().getMessage());
   }
 
   @Test
@@ -472,11 +478,11 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
     TslParsingException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingParsingException(
             withState(new ParsingCacheDTO(), CacheStateEnum.REFRESH_NEEDED)
     );
-    Assert.assertEquals(
+    assertEquals(
             String.format("(Re)parsing needed for TL: %s", TL_URL_1),
             caughtException.getMessage()
     );
-    Assert.assertNull(caughtException.getCause());
+    assertNull(caughtException.getCause());
   }
 
   @Test
@@ -485,11 +491,11 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
       TslParsingException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingParsingException(
               withState(new ParsingCacheDTO(), cacheState)
       );
-      Assert.assertEquals(
+      assertEquals(
               String.format("Unexpected parsing status '%s' for TL: %s", cacheState, TL_URL_1),
               caughtException.getMessage()
       );
-      Assert.assertNull(caughtException.getCause());
+      assertNull(caughtException.getCause());
       Mockito.reset(configuration);
     }
   }
@@ -504,24 +510,24 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
 
     TslRefreshException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingException(tlInfo);
 
-    Assert.assertNotNull(caughtException.getCause());
-    Assert.assertTrue(caughtException.getCause() instanceof TslParsingException);
-    Assert.assertArrayEquals(new Throwable[0], caughtException.getSuppressed());
+    assertNotNull(caughtException.getCause());
+    assertInstanceOf(TslParsingException.class, caughtException.getCause());
+    assertArrayEquals(new Throwable[0], caughtException.getSuppressed());
     Mockito.verifyNoInteractions(configuration);
 
     TslParsingException parsingException = (TslParsingException) caughtException.getCause();
-    Assert.assertArrayEquals(new Throwable[0], parsingException.getSuppressed());
+    assertArrayEquals(new Throwable[0], parsingException.getSuppressed());
     return parsingException;
   }
 
   @Test
   public void testSingleLOTLInfoWithSingleTLInfoWithNoValidationInfo() {
     TslValidationException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingValidationException(null);
-    Assert.assertEquals(
+    assertEquals(
             String.format("No validation info found for <%s> TL: %s", TERRITORY_2, TL_URL_1),
             caughtException.getMessage()
     );
-    Assert.assertNull(caughtException.getCause());
+    assertNull(caughtException.getCause());
   }
 
   @Test
@@ -529,13 +535,13 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
     TslValidationException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingValidationException(
             withErrorState(new ValidationCacheDTO(), "Exception message")
     );
-    Assert.assertEquals(
+    assertEquals(
             String.format("Failed to validate <%s> TL: %s", TERRITORY_2, TL_URL_1),
             caughtException.getMessage()
     );
-    Assert.assertNotNull(caughtException.getCause());
-    Assert.assertTrue(caughtException.getCause() instanceof TslValidationException);
-    Assert.assertEquals("Exception message", caughtException.getCause().getMessage());
+    assertNotNull(caughtException.getCause());
+    assertInstanceOf(TslValidationException.class, caughtException.getCause());
+    assertEquals("Exception message", caughtException.getCause().getMessage());
   }
 
   @Test
@@ -544,13 +550,13 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
       TslValidationException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingValidationException(
               withSynchronizedState(new ValidationCacheDTO(), indication)
       );
-      Assert.assertEquals(
+      assertEquals(
               String.format("Failed to validate <%s> TL: %s", TERRITORY_2, TL_URL_1),
               caughtException.getMessage()
       );
-      Assert.assertNotNull(caughtException.getCause());
-      Assert.assertTrue(caughtException.getCause() instanceof TslValidationException);
-      Assert.assertEquals(
+      assertNotNull(caughtException.getCause());
+      assertInstanceOf(TslValidationException.class, caughtException.getCause());
+      assertEquals(
               String.format("<%s> TL validation failed; indication: %s", TERRITORY_2, indication),
               caughtException.getCause().getMessage()
       );
@@ -563,11 +569,11 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
     TslValidationException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingValidationException(
             withState(new ValidationCacheDTO(), CacheStateEnum.REFRESH_NEEDED)
     );
-    Assert.assertEquals(
+    assertEquals(
             String.format("(Re)validation needed for <%s> TL: %s", TERRITORY_2, TL_URL_1),
             caughtException.getMessage()
     );
-    Assert.assertNull(caughtException.getCause());
+    assertNull(caughtException.getCause());
   }
 
   @Test
@@ -576,11 +582,11 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
       TslValidationException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingValidationException(
               withState(new ValidationCacheDTO(), cacheState)
       );
-      Assert.assertEquals(
+      assertEquals(
               String.format("Unexpected validation status '%s' for <%s> TL: %s", cacheState, TERRITORY_2, TL_URL_1),
               caughtException.getMessage()
       );
-      Assert.assertNull(caughtException.getCause());
+      assertNull(caughtException.getCause());
       Mockito.reset(configuration);
     }
   }
@@ -595,13 +601,13 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
 
     TslRefreshException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingException(tlInfo);
 
-    Assert.assertNotNull(caughtException.getCause());
-    Assert.assertTrue(caughtException.getCause() instanceof TslValidationException);
-    Assert.assertArrayEquals(new Throwable[0], caughtException.getSuppressed());
+    assertNotNull(caughtException.getCause());
+    assertInstanceOf(TslValidationException.class, caughtException.getCause());
+    assertArrayEquals(new Throwable[0], caughtException.getSuppressed());
     Mockito.verifyNoInteractions(configuration);
 
     TslValidationException validationException = (TslValidationException) caughtException.getCause();
-    Assert.assertArrayEquals(new Throwable[0], validationException.getSuppressed());
+    assertArrayEquals(new Throwable[0], validationException.getSuppressed());
     return validationException;
   }
 
@@ -616,28 +622,28 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
 
     TslRefreshException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingException(tlInfo);
 
-    Assert.assertNull(caughtException.getCause());
-    Assert.assertNotNull(caughtException.getSuppressed());
-    Assert.assertEquals(3, caughtException.getSuppressed().length);
+    assertNull(caughtException.getCause());
+    assertNotNull(caughtException.getSuppressed());
+    assertEquals(3, caughtException.getSuppressed().length);
 
-    Assert.assertTrue(caughtException.getSuppressed()[0] instanceof TslDownloadException);
-    Assert.assertEquals(
+    assertInstanceOf(TslDownloadException.class, caughtException.getSuppressed()[0]);
+    assertEquals(
             String.format("Failed to download TL: %s", TL_URL_1),
             caughtException.getSuppressed()[0].getMessage()
     );
-    Assert.assertNotNull(caughtException.getSuppressed()[0].getCause());
-    Assert.assertTrue(caughtException.getSuppressed()[0].getCause() instanceof TslDownloadException);
-    Assert.assertEquals("Exception message", caughtException.getSuppressed()[0].getCause().getMessage());
-    Assert.assertArrayEquals(new Throwable[0], caughtException.getSuppressed()[0].getSuppressed());
+    assertNotNull(caughtException.getSuppressed()[0].getCause());
+    assertInstanceOf(TslDownloadException.class, caughtException.getSuppressed()[0].getCause());
+    assertEquals("Exception message", caughtException.getSuppressed()[0].getCause().getMessage());
+    assertArrayEquals(new Throwable[0], caughtException.getSuppressed()[0].getSuppressed());
 
-    Assert.assertTrue(caughtException.getSuppressed()[1] instanceof TslParsingException);
-    Assert.assertEquals(
+    assertInstanceOf(TslParsingException.class, caughtException.getSuppressed()[1]);
+    assertEquals(
             String.format("(Re)parsing needed for TL: %s", TL_URL_1),
             caughtException.getSuppressed()[1].getMessage()
     );
 
-    Assert.assertTrue(caughtException.getSuppressed()[2] instanceof TslValidationException);
-    Assert.assertEquals(
+    assertInstanceOf(TslValidationException.class, caughtException.getSuppressed()[2]);
+    assertEquals(
             String.format("(Re)validation needed for TL: %s", TL_URL_1),
             caughtException.getSuppressed()[2].getMessage()
     );
@@ -655,22 +661,22 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
 
     TslRefreshException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingException(tlInfo);
 
-    Assert.assertNull(caughtException.getCause());
-    Assert.assertNotNull(caughtException.getSuppressed());
-    Assert.assertEquals(2, caughtException.getSuppressed().length);
+    assertNull(caughtException.getCause());
+    assertNotNull(caughtException.getSuppressed());
+    assertEquals(2, caughtException.getSuppressed().length);
 
-    Assert.assertTrue(caughtException.getSuppressed()[0] instanceof TslParsingException);
-    Assert.assertEquals(
+    assertInstanceOf(TslParsingException.class, caughtException.getSuppressed()[0]);
+    assertEquals(
             String.format("Failed to parse TL: %s", TL_URL_1),
             caughtException.getSuppressed()[0].getMessage()
     );
-    Assert.assertNotNull(caughtException.getSuppressed()[0].getCause());
-    Assert.assertTrue(caughtException.getSuppressed()[0].getCause() instanceof TslParsingException);
-    Assert.assertEquals("Exception message", caughtException.getSuppressed()[0].getCause().getMessage());
-    Assert.assertArrayEquals(new Throwable[0], caughtException.getSuppressed()[0].getSuppressed());
+    assertNotNull(caughtException.getSuppressed()[0].getCause());
+    assertInstanceOf(TslParsingException.class, caughtException.getSuppressed()[0].getCause());
+    assertEquals("Exception message", caughtException.getSuppressed()[0].getCause().getMessage());
+    assertArrayEquals(new Throwable[0], caughtException.getSuppressed()[0].getSuppressed());
 
-    Assert.assertTrue(caughtException.getSuppressed()[1] instanceof TslValidationException);
-    Assert.assertEquals(
+    assertInstanceOf(TslValidationException.class, caughtException.getSuppressed()[1]);
+    assertEquals(
             String.format("(Re)validation needed for TL: %s", TL_URL_1),
             caughtException.getSuppressed()[1].getMessage()
     );
@@ -710,52 +716,51 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
             )
     ));
 
-    Assert.assertNull(caughtException.getCause());
-    Assert.assertNotNull(caughtException.getSuppressed());
-    Assert.assertEquals(4, caughtException.getSuppressed().length);
-
-    Assert.assertTrue(caughtException.getSuppressed()[0] instanceof TslDownloadException);
-    Assert.assertEquals(
+    assertNull(caughtException.getCause());
+    assertNotNull(caughtException.getSuppressed());
+    assertEquals(4, caughtException.getSuppressed().length);
+    assertInstanceOf(TslDownloadException.class, caughtException.getSuppressed()[0]);
+    assertEquals(
             String.format("Failed to download <%s> TL: %s", TERRITORY_2, TL_URL_1),
             caughtException.getSuppressed()[0].getMessage()
     );
-    Assert.assertNotNull(caughtException.getSuppressed()[0].getCause());
-    Assert.assertTrue(caughtException.getSuppressed()[0].getCause() instanceof TslDownloadException);
-    Assert.assertEquals("Exception message 1", caughtException.getSuppressed()[0].getCause().getMessage());
-    Assert.assertArrayEquals(new Throwable[0], caughtException.getSuppressed()[0].getSuppressed());
+    assertNotNull(caughtException.getSuppressed()[0].getCause());
+    assertInstanceOf(TslDownloadException.class, caughtException.getSuppressed()[0].getCause());
+    assertEquals("Exception message 1", caughtException.getSuppressed()[0].getCause().getMessage());
+    assertArrayEquals(new Throwable[0], caughtException.getSuppressed()[0].getSuppressed());
 
-    Assert.assertTrue(caughtException.getSuppressed()[1] instanceof TslParsingException);
-    Assert.assertEquals(
+    assertInstanceOf(TslParsingException.class, caughtException.getSuppressed()[1]);
+    assertEquals(
             String.format("Failed to parse TL: %s", TL_URL_2),
             caughtException.getSuppressed()[1].getMessage()
     );
-    Assert.assertNotNull(caughtException.getSuppressed()[1].getCause());
-    Assert.assertTrue(caughtException.getSuppressed()[1].getCause() instanceof TslParsingException);
-    Assert.assertEquals("Exception message 2", caughtException.getSuppressed()[1].getCause().getMessage());
-    Assert.assertArrayEquals(new Throwable[0], caughtException.getSuppressed()[1].getSuppressed());
+    assertNotNull(caughtException.getSuppressed()[1].getCause());
+    assertInstanceOf(TslParsingException.class, caughtException.getSuppressed()[1].getCause());
+    assertEquals("Exception message 2", caughtException.getSuppressed()[1].getCause().getMessage());
+    assertArrayEquals(new Throwable[0], caughtException.getSuppressed()[1].getSuppressed());
 
-    Assert.assertTrue(caughtException.getSuppressed()[2] instanceof TslValidationException);
-    Assert.assertEquals(
+    assertInstanceOf(TslValidationException.class, caughtException.getSuppressed()[2]);
+    assertEquals(
             String.format("Failed to validate <%s> TL: %s", TERRITORY_3, TL_URL_3),
             caughtException.getSuppressed()[2].getMessage()
     );
-    Assert.assertNotNull(caughtException.getSuppressed()[2].getCause());
-    Assert.assertTrue(caughtException.getSuppressed()[2].getCause() instanceof TslValidationException);
-    Assert.assertEquals("Exception message 3", caughtException.getSuppressed()[2].getCause().getMessage());
-    Assert.assertArrayEquals(new Throwable[0], caughtException.getSuppressed()[2].getSuppressed());
+    assertNotNull(caughtException.getSuppressed()[2].getCause());
+    assertInstanceOf(TslValidationException.class, caughtException.getSuppressed()[2].getCause());
+    assertEquals("Exception message 3", caughtException.getSuppressed()[2].getCause().getMessage());
+    assertArrayEquals(new Throwable[0], caughtException.getSuppressed()[2].getSuppressed());
 
-    Assert.assertTrue(caughtException.getSuppressed()[3] instanceof TslValidationException);
-    Assert.assertEquals(
+    assertInstanceOf(TslValidationException.class, caughtException.getSuppressed()[3]);
+    assertEquals(
             String.format("Failed to validate <%s> TL: %s", TERRITORY_4, TL_URL_4),
             caughtException.getSuppressed()[3].getMessage()
     );
-    Assert.assertNotNull(caughtException.getSuppressed()[3].getCause());
-    Assert.assertTrue(caughtException.getSuppressed()[3].getCause() instanceof TslValidationException);
-    Assert.assertEquals(
+    assertNotNull(caughtException.getSuppressed()[3].getCause());
+    assertInstanceOf(TslValidationException.class, caughtException.getSuppressed()[3].getCause());
+    assertEquals(
             String.format("<%s> TL validation failed; indication: INDETERMINATE; sub-indication: TRY_LATER", TERRITORY_4),
             caughtException.getSuppressed()[3].getCause().getMessage()
     );
-    Assert.assertArrayEquals(new Throwable[0], caughtException.getSuppressed()[3].getSuppressed());
+    assertArrayEquals(new Throwable[0], caughtException.getSuppressed()[3].getSuppressed());
 
     Mockito.verifyNoInteractions(configuration);
   }
@@ -766,7 +771,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
 
     TslRefreshException caughtException = testSingleLOTLInfoThrowingException(lotlInfo, TslRefreshException.class);
 
-    Assert.assertEquals(
+    assertEquals(
             String.format("Failed to load any trusted lists for <%s> LoTL: %s", TERRITORY_1, LOTL_URL_1),
             caughtException.getMessage()
     );
@@ -776,11 +781,11 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   @Test
   public void testSingleLOTLInfoWithRequiredTLInfoWithNoDownloadInfo() {
     TslDownloadException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingDownloadException(null);
-    Assert.assertEquals(
+    assertEquals(
             String.format("No download info found for <%s> TL: %s", TERRITORY_3, TL_URL_2),
             caughtException.getMessage()
     );
-    Assert.assertNull(caughtException.getCause());
+    assertNull(caughtException.getCause());
   }
 
   @Test
@@ -788,13 +793,13 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
     TslDownloadException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingDownloadException(
             withErrorState(new DownloadCacheDTO(), "Exception message")
     );
-    Assert.assertEquals(
+    assertEquals(
             String.format("Failed to download <%s> TL: %s", TERRITORY_3, TL_URL_2),
             caughtException.getMessage()
     );
-    Assert.assertNotNull(caughtException.getCause());
-    Assert.assertTrue(caughtException.getCause() instanceof TslDownloadException);
-    Assert.assertEquals("Exception message", caughtException.getCause().getMessage());
+    assertNotNull(caughtException.getCause());
+    assertInstanceOf(TslDownloadException.class, caughtException.getCause());
+    assertEquals("Exception message", caughtException.getCause().getMessage());
   }
 
   @Test
@@ -802,11 +807,11 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
     TslDownloadException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingDownloadException(
             withState(new DownloadCacheDTO(), CacheStateEnum.REFRESH_NEEDED)
     );
-    Assert.assertEquals(
+    assertEquals(
             String.format("(Re)download needed for <%s> TL: %s", TERRITORY_3, TL_URL_2),
             caughtException.getMessage()
     );
-    Assert.assertNull(caughtException.getCause());
+    assertNull(caughtException.getCause());
   }
 
   @Test
@@ -815,11 +820,11 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
       TslDownloadException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingDownloadException(
               withState(new DownloadCacheDTO(), cacheState)
       );
-      Assert.assertEquals(
+      assertEquals(
               String.format("Unexpected download status '%s' for <%s> TL: %s", cacheState, TERRITORY_3, TL_URL_2),
               caughtException.getMessage()
       );
-      Assert.assertNull(caughtException.getCause());
+      assertNull(caughtException.getCause());
       Mockito.reset(configuration);
     }
   }
@@ -834,23 +839,23 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
 
     TslRefreshException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingException(tlInfo, TERRITORY_3);
 
-    Assert.assertNotNull(caughtException.getCause());
-    Assert.assertTrue(caughtException.getCause() instanceof TslDownloadException);
-    Assert.assertArrayEquals(new Throwable[0], caughtException.getSuppressed());
+    assertNotNull(caughtException.getCause());
+    assertInstanceOf(TslDownloadException.class, caughtException.getCause());
+    assertArrayEquals(new Throwable[0], caughtException.getSuppressed());
 
     TslDownloadException downloadException = (TslDownloadException) caughtException.getCause();
-    Assert.assertArrayEquals(new Throwable[0], downloadException.getSuppressed());
+    assertArrayEquals(new Throwable[0], downloadException.getSuppressed());
     return downloadException;
   }
 
   @Test
   public void testSingleLOTLInfoWithRequiredTLInfoWithNoParsingInfo() {
     TslParsingException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingParsingException(null);
-    Assert.assertEquals(
+    assertEquals(
             String.format("No parsing info found for TL: %s", TL_URL_2),
             caughtException.getMessage()
     );
-    Assert.assertNull(caughtException.getCause());
+    assertNull(caughtException.getCause());
   }
 
   @Test
@@ -858,13 +863,13 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
     TslParsingException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingParsingException(
             withErrorState(new ParsingCacheDTO(), "Exception message")
     );
-    Assert.assertEquals(
+    assertEquals(
             String.format("Failed to parse TL: %s", TL_URL_2),
             caughtException.getMessage()
     );
-    Assert.assertNotNull(caughtException.getCause());
-    Assert.assertTrue(caughtException.getCause() instanceof TslParsingException);
-    Assert.assertEquals("Exception message", caughtException.getCause().getMessage());
+    assertNotNull(caughtException.getCause());
+    assertInstanceOf(TslParsingException.class, caughtException.getCause());
+    assertEquals("Exception message", caughtException.getCause().getMessage());
   }
 
   @Test
@@ -872,11 +877,11 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
     TslParsingException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingParsingException(
             withState(new ParsingCacheDTO(), CacheStateEnum.REFRESH_NEEDED)
     );
-    Assert.assertEquals(
+    assertEquals(
             String.format("(Re)parsing needed for TL: %s", TL_URL_2),
             caughtException.getMessage()
     );
-    Assert.assertNull(caughtException.getCause());
+    assertNull(caughtException.getCause());
   }
 
   @Test
@@ -885,11 +890,11 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
       TslParsingException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingParsingException(
               withState(new ParsingCacheDTO(), cacheState)
       );
-      Assert.assertEquals(
+      assertEquals(
               String.format("Unexpected parsing status '%s' for TL: %s", cacheState, TL_URL_2),
               caughtException.getMessage()
       );
-      Assert.assertNull(caughtException.getCause());
+      assertNull(caughtException.getCause());
       Mockito.reset(configuration);
     }
   }
@@ -904,23 +909,23 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
 
     TslRefreshException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingException(tlInfo, TERRITORY_3);
 
-    Assert.assertNotNull(caughtException.getCause());
-    Assert.assertTrue(caughtException.getCause() instanceof TslParsingException);
-    Assert.assertArrayEquals(new Throwable[0], caughtException.getSuppressed());
+    assertNotNull(caughtException.getCause());
+    assertInstanceOf(TslParsingException.class, caughtException.getCause());
+    assertArrayEquals(new Throwable[0], caughtException.getSuppressed());
 
     TslParsingException parsingException = (TslParsingException) caughtException.getCause();
-    Assert.assertArrayEquals(new Throwable[0], parsingException.getSuppressed());
+    assertArrayEquals(new Throwable[0], parsingException.getSuppressed());
     return parsingException;
   }
 
   @Test
   public void testSingleLOTLInfoWithRequiredTLInfoWithNoValidationInfo() {
     TslValidationException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingValidationException(null);
-    Assert.assertEquals(
+    assertEquals(
             String.format("No validation info found for <%s> TL: %s", TERRITORY_3, TL_URL_2),
             caughtException.getMessage()
     );
-    Assert.assertNull(caughtException.getCause());
+    assertNull(caughtException.getCause());
   }
 
   @Test
@@ -928,13 +933,13 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
     TslValidationException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingValidationException(
             withErrorState(new ValidationCacheDTO(), "Exception message")
     );
-    Assert.assertEquals(
+    assertEquals(
             String.format("Failed to validate <%s> TL: %s", TERRITORY_3, TL_URL_2),
             caughtException.getMessage()
     );
-    Assert.assertNotNull(caughtException.getCause());
-    Assert.assertTrue(caughtException.getCause() instanceof TslValidationException);
-    Assert.assertEquals("Exception message", caughtException.getCause().getMessage());
+    assertNotNull(caughtException.getCause());
+    assertInstanceOf(TslValidationException.class, caughtException.getCause());
+    assertEquals("Exception message", caughtException.getCause().getMessage());
   }
 
   @Test
@@ -943,13 +948,13 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
       TslValidationException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingValidationException(
               withSynchronizedState(new ValidationCacheDTO(), indication)
       );
-      Assert.assertEquals(
+      assertEquals(
               String.format("Failed to validate <%s> TL: %s", TERRITORY_3, TL_URL_2),
               caughtException.getMessage()
       );
-      Assert.assertNotNull(caughtException.getCause());
-      Assert.assertTrue(caughtException.getCause() instanceof TslValidationException);
-      Assert.assertEquals(
+      assertNotNull(caughtException.getCause());
+      assertInstanceOf(TslValidationException.class, caughtException.getCause());
+      assertEquals(
               String.format("<%s> TL validation failed; indication: %s", TERRITORY_3, indication),
               caughtException.getCause().getMessage()
       );
@@ -962,11 +967,11 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
     TslValidationException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingValidationException(
             withState(new ValidationCacheDTO(), CacheStateEnum.REFRESH_NEEDED)
     );
-    Assert.assertEquals(
+    assertEquals(
             String.format("(Re)validation needed for <%s> TL: %s", TERRITORY_3, TL_URL_2),
             caughtException.getMessage()
     );
-    Assert.assertNull(caughtException.getCause());
+    assertNull(caughtException.getCause());
   }
 
   @Test
@@ -975,11 +980,11 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
       TslValidationException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingValidationException(
               withState(new ValidationCacheDTO(), cacheState)
       );
-      Assert.assertEquals(
+      assertEquals(
               String.format("Unexpected validation status '%s' for <%s> TL: %s", cacheState, TERRITORY_3, TL_URL_2),
               caughtException.getMessage()
       );
-      Assert.assertNull(caughtException.getCause());
+      assertNull(caughtException.getCause());
       Mockito.reset(configuration);
     }
   }
@@ -994,12 +999,12 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
 
     TslRefreshException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingException(tlInfo, TERRITORY_3);
 
-    Assert.assertNotNull(caughtException.getCause());
-    Assert.assertTrue(caughtException.getCause() instanceof TslValidationException);
-    Assert.assertArrayEquals(new Throwable[0], caughtException.getSuppressed());
+    assertNotNull(caughtException.getCause());
+    assertInstanceOf(TslValidationException.class, caughtException.getCause());
+    assertArrayEquals(new Throwable[0], caughtException.getSuppressed());
 
     TslValidationException validationException = (TslValidationException) caughtException.getCause();
-    Assert.assertArrayEquals(new Throwable[0], validationException.getSuppressed());
+    assertArrayEquals(new Throwable[0], validationException.getSuppressed());
     return validationException;
   }
 
@@ -1014,28 +1019,28 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
 
     TslRefreshException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingException(tlInfo, TERRITORY_2);
 
-    Assert.assertNull(caughtException.getCause());
-    Assert.assertNotNull(caughtException.getSuppressed());
-    Assert.assertEquals(3, caughtException.getSuppressed().length);
+    assertNull(caughtException.getCause());
+    assertNotNull(caughtException.getSuppressed());
+    assertEquals(3, caughtException.getSuppressed().length);
 
-    Assert.assertTrue(caughtException.getSuppressed()[0] instanceof TslDownloadException);
-    Assert.assertEquals(
+    assertInstanceOf(TslDownloadException.class, caughtException.getSuppressed()[0]);
+    assertEquals(
             String.format("Failed to download TL: %s", TL_URL_1),
             caughtException.getSuppressed()[0].getMessage()
     );
-    Assert.assertNotNull(caughtException.getSuppressed()[0].getCause());
-    Assert.assertTrue(caughtException.getSuppressed()[0].getCause() instanceof TslDownloadException);
-    Assert.assertEquals("Exception message", caughtException.getSuppressed()[0].getCause().getMessage());
-    Assert.assertArrayEquals(new Throwable[0], caughtException.getSuppressed()[0].getSuppressed());
+    assertNotNull(caughtException.getSuppressed()[0].getCause());
+    assertInstanceOf(TslDownloadException.class, caughtException.getSuppressed()[0].getCause());
+    assertEquals("Exception message", caughtException.getSuppressed()[0].getCause().getMessage());
+    assertArrayEquals(new Throwable[0], caughtException.getSuppressed()[0].getSuppressed());
 
-    Assert.assertTrue(caughtException.getSuppressed()[1] instanceof TslParsingException);
-    Assert.assertEquals(
+    assertInstanceOf(TslParsingException.class, caughtException.getSuppressed()[1]);
+    assertEquals(
             String.format("(Re)parsing needed for TL: %s", TL_URL_1),
             caughtException.getSuppressed()[1].getMessage()
     );
 
-    Assert.assertTrue(caughtException.getSuppressed()[2] instanceof TslValidationException);
-    Assert.assertEquals(
+    assertInstanceOf(TslValidationException.class, caughtException.getSuppressed()[2]);
+    assertEquals(
             String.format("(Re)validation needed for TL: %s", TL_URL_1),
             caughtException.getSuppressed()[2].getMessage()
     );
@@ -1052,22 +1057,22 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
 
     TslRefreshException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingException(tlInfo, TERRITORY_4);
 
-    Assert.assertNull(caughtException.getCause());
-    Assert.assertNotNull(caughtException.getSuppressed());
-    Assert.assertEquals(2, caughtException.getSuppressed().length);
+    assertNull(caughtException.getCause());
+    assertNotNull(caughtException.getSuppressed());
+    assertEquals(2, caughtException.getSuppressed().length);
 
-    Assert.assertTrue(caughtException.getSuppressed()[0] instanceof TslParsingException);
-    Assert.assertEquals(
+    assertInstanceOf(TslParsingException.class, caughtException.getSuppressed()[0]);
+    assertEquals(
             String.format("Failed to parse TL: %s", TL_URL_3),
             caughtException.getSuppressed()[0].getMessage()
     );
-    Assert.assertNotNull(caughtException.getSuppressed()[0].getCause());
-    Assert.assertTrue(caughtException.getSuppressed()[0].getCause() instanceof TslParsingException);
-    Assert.assertEquals("Exception message", caughtException.getSuppressed()[0].getCause().getMessage());
-    Assert.assertArrayEquals(new Throwable[0], caughtException.getSuppressed()[0].getSuppressed());
+    assertNotNull(caughtException.getSuppressed()[0].getCause());
+    assertInstanceOf(TslParsingException.class, caughtException.getSuppressed()[0].getCause());
+    assertEquals("Exception message", caughtException.getSuppressed()[0].getCause().getMessage());
+    assertArrayEquals(new Throwable[0], caughtException.getSuppressed()[0].getSuppressed());
 
-    Assert.assertTrue(caughtException.getSuppressed()[1] instanceof TslValidationException);
-    Assert.assertEquals(
+    assertInstanceOf(TslValidationException.class, caughtException.getSuppressed()[1]);
+    assertEquals(
             String.format("(Re)validation needed for TL: %s", TL_URL_3),
             caughtException.getSuppressed()[1].getMessage()
     );
@@ -1084,7 +1089,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
 
     TslRefreshException caughtException = testSingleLOTLInfoThrowingException(lotlInfo, TslRefreshException.class);
 
-    Assert.assertEquals(
+    assertEquals(
             String.format("Failed to load trusted lists for required territories: %s", requiredTerritory),
             caughtException.getMessage()
     );

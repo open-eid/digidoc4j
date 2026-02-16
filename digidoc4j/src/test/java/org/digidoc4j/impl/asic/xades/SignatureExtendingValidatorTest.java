@@ -19,7 +19,7 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.NonExtendableSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
@@ -31,8 +31,8 @@ import static org.digidoc4j.SignatureProfile.LT_TM;
 import static org.digidoc4j.SignatureProfile.T;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class SignatureExtendingValidatorTest extends AbstractTest {
 

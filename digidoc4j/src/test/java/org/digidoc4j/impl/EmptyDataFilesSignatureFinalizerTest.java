@@ -14,14 +14,14 @@ import org.digidoc4j.AbstractTest;
 import org.digidoc4j.DataFile;
 import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.digidoc4j.test.TestAssert;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public abstract class EmptyDataFilesSignatureFinalizerTest extends AbstractTest {
 
@@ -38,7 +38,7 @@ public abstract class EmptyDataFilesSignatureFinalizerTest extends AbstractTest 
                 () -> createSignatureFinalizerWithDataFiles(dataFiles)
         );
 
-        Assert.assertEquals("Cannot sign empty datafile: empty-file.txt", caughtException.getMessage());
+        assertEquals("Cannot sign empty datafile: empty-file.txt", caughtException.getMessage());
         TestAssert.assertSuppressed(caughtException, InvalidDataFileException.class);
     }
 
@@ -60,7 +60,7 @@ public abstract class EmptyDataFilesSignatureFinalizerTest extends AbstractTest 
                 () -> createSignatureFinalizerWithDataFiles(dataFiles)
         );
 
-        Assert.assertEquals("Cannot sign empty datafile: empty-file-2.txt", caughtException.getMessage());
+        assertEquals("Cannot sign empty datafile: empty-file-2.txt", caughtException.getMessage());
         TestAssert.assertSuppressed(caughtException, InvalidDataFileException.class,
                 "Cannot sign empty datafile: empty-file-5.txt",
                 "Cannot sign empty datafile: empty-file-7.txt",

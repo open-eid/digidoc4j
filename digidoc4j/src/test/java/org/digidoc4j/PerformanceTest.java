@@ -18,17 +18,20 @@ import com.github.javatlacati.contiperf.PerfTest;
 import com.github.javatlacati.contiperf.junit.ContiPerfRule;
 import org.digidoc4j.impl.ddoc.ConfigManagerInitializer;
 import org.digidoc4j.test.TestAssert;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.Paths;
 
-@Ignore
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@Disabled
 public class PerformanceTest extends AbstractTest {
 
   private static final ConfigManagerInitializer configManagerInitializer = new ConfigManagerInitializer();
@@ -37,7 +40,8 @@ public class PerformanceTest extends AbstractTest {
   @Rule
   public ContiPerfRule performanceTestRule = new ContiPerfRule();
 
-  @BeforeClass
+
+  @BeforeAll
   public static void beforeClass() {
     LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
     try {
@@ -170,61 +174,61 @@ public class PerformanceTest extends AbstractTest {
   @PerfTest(invocations = INVOCATIONS)
   public void openBDocTmContainerDetails() {
     Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"));
-    Assert.assertEquals("test.txt", container.getDataFiles().get(0).getName());
+    assertEquals("test.txt", container.getDataFiles().get(0).getName());
     Signature signature = container.getSignatures().get(0);
-    Assert.assertEquals("id-6a5d6671af7a9e0ab9a5e4d49d69800d", signature.getId());
-    Assert.assertEquals(1457964829000L, signature.getTrustedSigningTime().getTime());
-    Assert.assertEquals("ESTEID", signature.getSigningCertificate().getSubjectName(X509Cert.SubjectName.O));
+    assertEquals("id-6a5d6671af7a9e0ab9a5e4d49d69800d", signature.getId());
+    assertEquals(1457964829000L, signature.getTrustedSigningTime().getTime());
+    assertEquals("ESTEID", signature.getSigningCertificate().getSubjectName(X509Cert.SubjectName.O));
   }
 
   @Test
   @PerfTest(invocations = INVOCATIONS)
   public void openAsiceContainerDetails() {
     Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-asice.asice"));
-    Assert.assertEquals("test.txt", container.getDataFiles().get(0).getName());
+    assertEquals("test.txt", container.getDataFiles().get(0).getName());
     Signature signature = container.getSignatures().get(0);
-    Assert.assertEquals("id-8c2a30729f251c6cb8336844b97f0657", signature.getId());
-    Assert.assertEquals(1542975844000L, signature.getTrustedSigningTime().getTime());
-    Assert.assertEquals("ESTEID", signature.getSigningCertificate().getSubjectName(X509Cert.SubjectName.O));
+    assertEquals("id-8c2a30729f251c6cb8336844b97f0657", signature.getId());
+    assertEquals(1542975844000L, signature.getTrustedSigningTime().getTime());
+    assertEquals("ESTEID", signature.getSigningCertificate().getSubjectName(X509Cert.SubjectName.O));
   }
 
   @Test
   @PerfTest(invocations = INVOCATIONS)
   public void openDdocContainerDetails() {
     Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc-valid.ddoc"));
-    Assert.assertEquals("test.txt", container.getDataFiles().get(0).getName());
+    assertEquals("test.txt", container.getDataFiles().get(0).getName());
     Signature signature = container.getSignatures().get(0);
-    Assert.assertEquals("S0", signature.getId());
-    Assert.assertEquals(1542979861000L, signature.getTrustedSigningTime().getTime());
-    Assert.assertEquals("ESTEID", signature.getSigningCertificate().getSubjectName(X509Cert.SubjectName.O));
+    assertEquals("S0", signature.getId());
+    assertEquals(1542979861000L, signature.getTrustedSigningTime().getTime());
+    assertEquals("ESTEID", signature.getSigningCertificate().getSubjectName(X509Cert.SubjectName.O));
   }
 
   @Test
   @PerfTest(invocations = INVOCATIONS)
   public void openNonCompositeAsicsContainerDetails() {
     Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/testtimestamp.asics"));
-    Assert.assertEquals("test.txt", container.getDataFiles().get(0).getName());
-    Assert.assertEquals("ASICS", container.getType());
+    assertEquals("test.txt", container.getDataFiles().get(0).getName());
+    assertEquals("ASICS", container.getType());
   }
 
   @Test
   @PerfTest(invocations = INVOCATIONS)
   public void openDdocInAsicsContainerDetails() {
     CompositeContainer container = (CompositeContainer) this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc-valid.asics"));
-    Assert.assertEquals("ddoc-valid.ddoc", container.getDataFiles().get(0).getName());
-    Assert.assertEquals("ASICS", container.getType());
-    Assert.assertEquals("test.txt", container.getNestedContainerDataFiles().get(0).getName());
-    Assert.assertEquals("DDOC", container.getNestedContainerType());
+    assertEquals("ddoc-valid.ddoc", container.getDataFiles().get(0).getName());
+    assertEquals("ASICS", container.getType());
+    assertEquals("test.txt", container.getNestedContainerDataFiles().get(0).getName());
+    assertEquals("DDOC", container.getNestedContainerType());
   }
 
   @Test
   @PerfTest(invocations = INVOCATIONS)
   public void openAsiceInAsicsContainerDetails() {
     CompositeContainer container = (CompositeContainer) this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-asice-in-asics.asics"));
-    Assert.assertEquals("valid-asice.asice", container.getDataFiles().get(0).getName());
-    Assert.assertEquals("ASICS", container.getType());
-    Assert.assertEquals("test.txt", container.getNestedContainerDataFiles().get(0).getName());
-    Assert.assertEquals("ASICE", container.getNestedContainerType());
+    assertEquals("valid-asice.asice", container.getDataFiles().get(0).getName());
+    assertEquals("ASICS", container.getType());
+    assertEquals("test.txt", container.getNestedContainerDataFiles().get(0).getName());
+    assertEquals("ASICE", container.getNestedContainerType());
   }
 
   @Test
@@ -232,8 +236,8 @@ public class PerformanceTest extends AbstractTest {
   public void saveExistingContainerOnDisk() {
     Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"));
     File file = container.saveAsFile(this.getFileBy("bdoc"));
-    Assert.assertTrue(file.exists());
-    Assert.assertTrue(file.length() > 0);
+    assertTrue(file.exists());
+    assertTrue(file.length() > 0);
   }
 
   @Test
@@ -262,7 +266,7 @@ public class PerformanceTest extends AbstractTest {
    * RESTRICTED METHODS
    */
 
-  @Override
+  @BeforeEach
   protected void before() {
     this.configuration = Configuration.of(Configuration.Mode.TEST);
     configManagerInitializer.initConfigManager(this.configuration);

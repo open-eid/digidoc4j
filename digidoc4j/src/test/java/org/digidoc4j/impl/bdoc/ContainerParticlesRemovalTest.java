@@ -30,7 +30,7 @@ import org.digidoc4j.impl.asic.asice.AsicESignature;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.asice.bdoc.BDocContainerBuilder;
 import org.digidoc4j.impl.asic.xades.XadesSignatureWrapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -39,14 +39,14 @@ import java.io.InputStream;
 
 import static org.digidoc4j.Container.DocumentType.ASICE;
 import static org.digidoc4j.Container.DocumentType.BDOC;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ContainerParticlesRemovalTest extends AbstractTest {
 
@@ -391,15 +391,15 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
 
   private static void containerValidationResultContainsSignature(final ContainerValidationResult validationResult, final Signature signature) {
     assertTrue(
-            "Validation result should contain signature: " + signature.getId(),
-            validationResultContainsSignatureById(validationResult, signature.getId())
+            validationResultContainsSignatureById(validationResult, signature.getId()),
+            "Validation result should contain signature: " + signature.getId()
     );
   }
 
   private static void containerValidationResultDoesNotContainSignature(final ContainerValidationResult validationResult, final Signature signature) {
     assertFalse(
-            "Validation result should not contain signature: " + signature.getId(),
-            validationResultContainsSignatureById(validationResult, signature.getId())
+            validationResultContainsSignatureById(validationResult, signature.getId()),
+            "Validation result should not contain signature: " + signature.getId()
     );
   }
 

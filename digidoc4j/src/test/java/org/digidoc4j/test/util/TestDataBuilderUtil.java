@@ -20,13 +20,14 @@ import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
-import org.junit.Assert;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestDataBuilderUtil {
 
@@ -82,8 +83,8 @@ public class TestDataBuilderUtil {
 
   public static Signature makeSignature(Container container, DataToSign dataToSign) {
     byte[] signatureValue = TestSigningUtil.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm());
-    Assert.assertNotNull(signatureValue);
-    Assert.assertTrue(signatureValue.length > 1);
+    assertNotNull(signatureValue);
+    assertTrue(signatureValue.length > 1);
     Signature signature = dataToSign.finalize(signatureValue);
     container.addSignature(signature);
     return signature;

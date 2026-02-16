@@ -20,8 +20,7 @@ import org.digidoc4j.SignatureValidationResult;
 import org.digidoc4j.ValidationResult;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.digidoc4j.test.TestAssert.assertContainerIsInvalid;
 import static org.digidoc4j.test.TestAssert.assertContainerIsValid;
@@ -33,13 +32,15 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ValidationTest extends AbstractTest {
 
   @Test
   public void setInvalidOcspResponder() {
-    this.configuration.setAllowedOcspRespondersForTM("INVALID OCSP RESPONDER");
-    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
+    configuration.setAllowedOcspRespondersForTM("INVALID OCSP RESPONDER");
+    ConfigManagerInitializer.forceInitConfigManager(configuration);
     Container container = ContainerOpener
             .open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     SignatureValidationResult result = container.validate();
@@ -48,7 +49,7 @@ public class ValidationTest extends AbstractTest {
 
   @Test
   public void missingURIAttributeValue() {
-    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
+    ConfigManagerInitializer.forceInitConfigManager(configuration);
     Container container = ContainerBuilder.aContainer()
         .fromExistingFile("src/test/resources/testFiles/invalid-containers/23133_ddoc-12.ddoc").build();
     SignatureValidationResult result = container.validate();
@@ -57,17 +58,17 @@ public class ValidationTest extends AbstractTest {
 
   @Test
   public void defaultOcspResponderSuccessful(){
-    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
+    ConfigManagerInitializer.forceInitConfigManager(configuration);
     Container container = ContainerOpener
             .open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     SignatureValidationResult result = container.validate();
-    Assert.assertTrue("Result is not valid", result.isValid());
+    assertTrue(result.isValid(), "Result is not valid");
   }
 
   @Test
   public void setInvalidOcspResponderConfigurationYamlParameter() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_invalid_ocsp_responders.yaml");
-    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_invalid_ocsp_responders.yaml");
+    ConfigManagerInitializer.forceInitConfigManager(configuration);
     Container container = ContainerOpener
             .open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     SignatureValidationResult result = container.validate();
@@ -76,16 +77,16 @@ public class ValidationTest extends AbstractTest {
 
   @Test
   public void testValidateDDoc10Hashcode() {
-    this.configuration = Configuration.of(Configuration.Mode.PROD);
-    this.configuration.getDDoc4JConfiguration().put("DATAFILE_HASHCODE_MODE", "true");
-    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
+    configuration = Configuration.of(Configuration.Mode.PROD);
+    configuration.getDDoc4JConfiguration().put("DATAFILE_HASHCODE_MODE", "true");
+    ConfigManagerInitializer.forceInitConfigManager(configuration);
     Container container = ContainerOpener
              .open("src/test/resources/prodFiles/valid-containers/SK-XML1_0_hashcode.ddoc");
     SignatureValidationResult result = container.validate();
-    Assert.assertTrue(result.isValid());
-    Assert.assertTrue(result.hasWarnings());
-    Assert.assertEquals(177, result.getWarnings().get(0).getErrorCode());
-    Assert.assertTrue(result.getReport().contains("Old and unsupported format:"));
+    assertTrue(result.isValid());
+    assertTrue(result.hasWarnings());
+    assertEquals(177, result.getWarnings().get(0).getErrorCode());
+    assertTrue(result.getReport().contains("Old and unsupported format:"));
   }
 
   @Test
@@ -195,9 +196,9 @@ public class ValidationTest extends AbstractTest {
 
   @Test
   public void validate_whenDDOCValidated_containerValidationResultContainsSHA1Warning() {
-    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
+    ConfigManagerInitializer.forceInitConfigManager(configuration);
     Container container = ContainerBuilder.aContainer()
-            .withConfiguration(this.configuration)
+            .withConfiguration(configuration)
             .fromExistingFile("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc")
             .build();
 
@@ -209,12 +210,12 @@ public class ValidationTest extends AbstractTest {
     );
   }
 
-    /*
+  /*
    * RESTRICTED METHODS
    */
 
   @Override
   protected void before() {
-    this.configuration = Configuration.of(Configuration.Mode.TEST);
+    configuration = Configuration.of(Configuration.Mode.TEST);
   }
 }

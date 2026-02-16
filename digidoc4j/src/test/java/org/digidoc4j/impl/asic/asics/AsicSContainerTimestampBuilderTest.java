@@ -28,8 +28,7 @@ import org.digidoc4j.impl.asic.asice.bdoc.BDocContainer;
 import org.digidoc4j.impl.asic.cades.AbstractAsicContainerTimestampBuilderTest;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.test.TestConstants;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -47,7 +46,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -98,7 +97,7 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   private void createInstance_WhenContainerIsNotAsicsContainer_ThrowsException(Class<? extends Container> containerType) {
     Container container = mock(containerType);
 
-    IllegalArgumentException caughtException = Assert.assertThrows(
+    IllegalArgumentException caughtException = assertThrows(
             IllegalArgumentException.class,
             () -> new AsicSContainerTimestampBuilder(container)
     );

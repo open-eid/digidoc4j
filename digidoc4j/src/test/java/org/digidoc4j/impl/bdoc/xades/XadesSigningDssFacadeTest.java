@@ -21,8 +21,7 @@ import org.digidoc4j.DataFile;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.impl.asic.xades.XadesSigningDssFacade;
 import org.digidoc4j.test.TestAssert;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.security.cert.X509Certificate;
@@ -33,6 +32,8 @@ import static eu.europa.esig.dss.enumerations.DigestAlgorithm.SHA256;
 import static eu.europa.esig.dss.enumerations.SignatureLevel.XAdES_BASELINE_B;
 import static eu.europa.esig.dss.enumerations.SignatureLevel.XAdES_BASELINE_LT;
 import static org.apache.commons.codec.binary.Base64.decodeBase64;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class XadesSigningDssFacadeTest extends AbstractTest {
 
@@ -40,32 +41,32 @@ public class XadesSigningDssFacadeTest extends AbstractTest {
 
   @Test
   public void getDataToSign() throws Exception {
-    this.facade = new XadesSigningDssFacade();
-    byte[] dataToSign = this.getDataToSign(this.facade);
-    Assert.assertNotNull(dataToSign);
-    Assert.assertTrue(dataToSign.length > 0);
+    facade = new XadesSigningDssFacade();
+    byte[] dataToSign = getDataToSign(facade);
+    assertNotNull(dataToSign);
+    assertTrue(dataToSign.length > 0);
   }
 
   @Test
   public void signDocumentTest() throws Exception {
-    TestAssert.assertDSSDocumentIsSigned(this.sign(this.facade, DigestAlgorithm.SHA256));
+    TestAssert.assertDSSDocumentIsSigned(sign(facade, DigestAlgorithm.SHA256));
   }
 
   @Test
   public void signDocumentWithSha512() throws Exception {
-    this.facade.setSignatureDigestAlgorithm(DigestAlgorithm.SHA512);
-    TestAssert.assertDSSDocumentIsSigned(this.sign(this.facade, DigestAlgorithm.SHA512));
+    facade.setSignatureDigestAlgorithm(DigestAlgorithm.SHA512);
+    TestAssert.assertDSSDocumentIsSigned(sign(facade, DigestAlgorithm.SHA512));
   }
 
   @Test
   public void signDocumentWithECC() throws Exception {
     X509Certificate signingCert = pkcs12EccSignatureToken.getCertificate();
-    this.facade.setEncryptionAlgorithm(EncryptionAlgorithm.ECDSA);
-    this.facade.setSigningCertificate(signingCert);
-    List<DataFile> dataFilesToSign = this.createDataFilesToSign();
-    byte[] dataToSign = this.facade.getDataToSign(dataFilesToSign);
+    facade.setEncryptionAlgorithm(EncryptionAlgorithm.ECDSA);
+    facade.setSigningCertificate(signingCert);
+    List<DataFile> dataFilesToSign = createDataFilesToSign();
+    byte[] dataToSign = facade.getDataToSign(dataFilesToSign);
     byte[] signatureValue = pkcs12EccSignatureToken.sign(DigestAlgorithm.SHA256, dataToSign);
-    TestAssert.assertDSSDocumentIsSigned(this.facade.signDocument(signatureValue, dataFilesToSign));
+    TestAssert.assertDSSDocumentIsSigned(facade.signDocument(signatureValue, dataFilesToSign));
   }
 
   @Test
@@ -74,9 +75,9 @@ public class XadesSigningDssFacadeTest extends AbstractTest {
     signerLocation.setCountry("Val Verde");
     signerLocation.setPostalCode("1776");
     signerLocation.setLocality("Kansas City");
-    this.facade.setSignerLocation(signerLocation);
-    this.facade.setSignerRoles(Arrays.asList("manager", "potato expert"));
-    TestAssert.assertDSSDocumentIsSigned(this.sign(this.facade, DigestAlgorithm.SHA256));
+    facade.setSignerLocation(signerLocation);
+    facade.setSignerRoles(Arrays.asList("manager", "potato expert"));
+    TestAssert.assertDSSDocumentIsSigned(sign(facade, DigestAlgorithm.SHA256));
   }
 
   @Test
@@ -86,27 +87,27 @@ public class XadesSigningDssFacadeTest extends AbstractTest {
     signaturePolicy.setDigestValue(decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs="));
     signaturePolicy.setDigestAlgorithm(SHA256);
     signaturePolicy.setSpuri("https://www.sk.ee/repository/bdoc-spec21.pdf");
-    this.facade.setSignaturePolicy(signaturePolicy);
-    TestAssert.assertDSSDocumentIsSigned(this.sign(this.facade, DigestAlgorithm.SHA256));
+    facade.setSignaturePolicy(signaturePolicy);
+    TestAssert.assertDSSDocumentIsSigned(sign(facade, DigestAlgorithm.SHA256));
   }
 
   @Test
   public void signWithBesSignatureProfile() throws Exception {
-    this.facade.setSignatureLevel(XAdES_BASELINE_B);
-    TestAssert.assertDSSDocumentIsSigned(this.sign(this.facade, DigestAlgorithm.SHA256));
+    facade.setSignatureLevel(XAdES_BASELINE_B);
+    TestAssert.assertDSSDocumentIsSigned(sign(facade, DigestAlgorithm.SHA256));
   }
 
   @Test
   public void setSignatureId() throws Exception {
-    this.facade.setSignatureId("Signature-0");
-    TestAssert.assertDSSDocumentIsSigned(this.sign(this.facade, DigestAlgorithm.SHA256));
+    facade.setSignatureId("Signature-0");
+    TestAssert.assertDSSDocumentIsSigned(sign(facade, DigestAlgorithm.SHA256));
   }
 
   @Test
   public void extendBesSignature_toTimestampSignature() throws Exception {
-    this.facade.setSignatureLevel(XAdES_BASELINE_B);
-    DSSDocument signedDocument = this.sign(this.facade, DigestAlgorithm.SHA256);
-    XadesSigningDssFacade extendingFacade = this.createSigningFacade();
+    facade.setSignatureLevel(XAdES_BASELINE_B);
+    DSSDocument signedDocument = sign(facade, DigestAlgorithm.SHA256);
+    XadesSigningDssFacade extendingFacade = createSigningFacade();
     extendingFacade.setSignatureLevel(XAdES_BASELINE_LT);
     DSSDocument detachedContent = new FileDocument("src/test/resources/testFiles/helper-files/test.txt");
     TestAssert.assertDSSDocumentIsSigned(extendingFacade.extendSignature(signedDocument, Arrays.asList(detachedContent)));
@@ -118,8 +119,8 @@ public class XadesSigningDssFacadeTest extends AbstractTest {
 
   @Override
   protected void before() {
-    this.configuration = Configuration.of(Configuration.Mode.TEST);
-    this.facade = this.createSigningFacade();
+    configuration = Configuration.of(Configuration.Mode.TEST);
+    facade = createSigningFacade();
   }
 
 }

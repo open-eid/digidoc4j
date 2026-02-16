@@ -14,22 +14,22 @@ import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 import org.digidoc4j.test.RestrictedExternalResourceRule;
 import org.digidoc4j.test.RestrictedExternalResourceRule.FileWritingRestrictedException;
 import org.digidoc4j.test.TestAssert;
-import org.digidoc4j.test.util.JreVersionHelper;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
-import org.hamcrest.Matchers;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+@EnabledForJreRange(max = JRE.JAVA_17)
 public class FileWritingOperationsTest extends AbstractTest {
 
   /**
@@ -46,46 +46,31 @@ public class FileWritingOperationsTest extends AbstractTest {
           new File(System.getProperty("java.io.tmpdir") + File.separator + "temp-tsl-keystore" + File.separator).getPath()
   );
 
-  /**
-   * Checks the JVM version and disables this test class dynamically if it is run on Java 18+.
-   * TODO (DD4J-992): Remove this after an alternative to using Security Manager has been found.
-   */
-  @BeforeClass
-  public static void checkIfShouldExecute() {
-    Integer currentJreMajorVersion = JreVersionHelper.getCurrentMajorVersionIfAvailable();
-    if (currentJreMajorVersion == null) {
-      return; // Do not skip the tests if JVM version could not be determined
-    }
-    Assume.assumeThat(
-            "Only run on JDK 17 or lower",
-            currentJreMajorVersion,
-            Matchers.lessThan(18)
+  @Test
+  public void writingToFileIsNotAllowed() {
+    assertThrows(
+            FileWritingRestrictedException.class,
+            () -> File.createTempFile("test", "test")
     );
   }
 
-  @Test(expected = FileWritingRestrictedException.class)
-  public void writingToFileIsNotAllowed() throws IOException {
-    File.createTempFile("test", "test");
-  }
-
   @Test
-  @Ignore // TODO Removing?
   public void openingExistingContainer_shouldNotStoreDataFilesOnDisk_byDefault() throws Exception {
-    Container container = this.openContainerBy(Paths.get("src/test/resources/testFiles/valid-containers/one_signature.bdoc"));
+    Container container = openContainerBy(Paths.get("src/test/resources/testFiles/valid-containers/one_signature.bdoc"));
     TestDataBuilderUtil.signContainer(container);
     TestAssert.assertSaveAsStream(container);
   }
 
   @Test
   public void openingExistingDDocContainer_shouldNotStoreDataFilesOnDisk_byDefault() throws Exception {
-    Container container = this.openContainerBy(Paths.get("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc"));
+    Container container = openContainerBy(Paths.get("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc"));
     TestAssert.assertSaveAsStream(container);
   }
 
   @Ignore("Fail in travis")
   @Test
   public void creatingNewContainer_shouldNotStoreDataFilesOnDisk_byDefault() throws Throwable {
-    Container container = this.createNonEmptyContainerIncludingPDFFileBy(Container.DocumentType.BDOC);
+    Container container = createNonEmptyContainerIncludingPDFFileBy(Container.DocumentType.BDOC);
     TestDataBuilderUtil.signContainer(container);
     TestAssert.assertSaveAsStream(container);
   }
@@ -93,8 +78,8 @@ public class FileWritingOperationsTest extends AbstractTest {
   @Ignore("Fail in travis")
   @Test
   public void creatingDataFiles_shouldNotStoreDataFilesOnDisk_byDefault() throws Exception {
-    Container container = this.createNonEmptyContainerBy(Container.DocumentType.BDOC);
-    Assert.assertEquals(3, container.getDataFiles().size());
+    Container container = createNonEmptyContainerBy(Container.DocumentType.BDOC);
+    assertEquals(3, container.getDataFiles().size());
     TestDataBuilderUtil.signContainer(container);
     TestAssert.assertSaveAsStream(container);
   }
@@ -110,7 +95,7 @@ public class FileWritingOperationsTest extends AbstractTest {
     InputStream dataFileInputStream = new ByteArrayInputStream(new byte[]{1, 2, 3});
     try {
       DataFile dataFile = new LargeDataFile(dataFileInputStream, "stream-file.txt", MimeTypeEnum.TEXT.getMimeTypeString());
-      Assert.assertFalse("Did not create a temporary file", true);
+      assertFalse("Did not create a temporary file", true);
     } catch (Exception e) {
       throw e.getCause();
     }
@@ -118,27 +103,27 @@ public class FileWritingOperationsTest extends AbstractTest {
 
   @Test(expected = FileWritingRestrictedException.class)
   public void openingExistingContainer_withStoringDataFilesOnDisk() throws Exception {
-    this.configuration = Configuration.of(Configuration.Mode.TEST);
-    this.configuration.setMaxFileSizeCachedInMemoryInMB(0);
-    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/one_signature.bdoc"));
-    Assert.assertEquals(1, container.getDataFiles().size());
+    configuration = Configuration.of(Configuration.Mode.TEST);
+    configuration.setMaxFileSizeCachedInMemoryInMB(0);
+    Container container = openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/one_signature.bdoc"));
+    assertEquals(1, container.getDataFiles().size());
   }
 
   @Test(expected = FileWritingRestrictedException.class)
   public void openingExistingContainer_withLarge2MbFile_shouldStoreDataFilesOnDisk() throws Exception {
-    this.configuration = Configuration.of(Configuration.Mode.TEST);
-    this.configuration.setMaxFileSizeCachedInMemoryInMB(1);
-    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/bdoc-ts-with-large-data-file.bdoc"));
-    Assert.assertEquals(1, container.getDataFiles().size());
+    configuration = Configuration.of(Configuration.Mode.TEST);
+    configuration.setMaxFileSizeCachedInMemoryInMB(1);
+    Container container = openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/bdoc-ts-with-large-data-file.bdoc"));
+    assertEquals(1, container.getDataFiles().size());
   }
 
   @Test
   @Ignore //This test fails in Travis
   public void openingExistingContainer_withLarge2MbFile_shouldNotStoreDataFilesOnDisk() throws Exception {
-    this.configuration = Configuration.of(Configuration.Mode.TEST);
+    configuration = Configuration.of(Configuration.Mode.TEST);
     configuration.setMaxFileSizeCachedInMemoryInMB(4);
-    Container container = this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/bdoc-ts-with-large-data-file.bdoc"));
-    Assert.assertEquals(1, container.getDataFiles().size());
+    Container container = openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/bdoc-ts-with-large-data-file.bdoc"));
+    assertEquals(1, container.getDataFiles().size());
   }
 
   /*

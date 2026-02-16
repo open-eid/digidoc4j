@@ -2,12 +2,14 @@ package org.digidoc4j.jvm;
 
 import org.digidoc4j.AbstractTest;
 import org.digidoc4j.Configuration;
-import org.digidoc4j.impl.asic.DataLoaderDecorator;
-import org.junit.Assert;
-import org.junit.Test;
 
 import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.service.http.proxy.ProxyProperties;
+import org.digidoc4j.impl.asic.DataLoaderDecorator;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Created by Andrei on 15.09.2017.
@@ -17,58 +19,58 @@ public class JvmParametersTest extends AbstractTest {
 
   @Test
   public void getProxySystemParamsFromConfig() {
-    Assert.assertEquals("http.proxyHost", this.configuration.getHttpProxyHost());
-    Assert.assertEquals(new Integer(8800), this.configuration.getHttpProxyPort());
-    Assert.assertEquals("https.proxyHost", this.configuration.getHttpsProxyHost());
-    Assert.assertEquals(new Integer(10000), this.configuration.getHttpsProxyPort());
+    assertEquals("http.proxyHost", configuration.getHttpProxyHost());
+    assertEquals(Integer.valueOf(8800), configuration.getHttpProxyPort());
+    assertEquals("https.proxyHost", configuration.getHttpsProxyHost());
+    assertEquals(Integer.valueOf(10000), configuration.getHttpsProxyPort());
   }
 
   @Test
   public void getSSLSystemParamsFromConfig() {
-    Assert.assertEquals("javax.net.ssl.keyStore", this.configuration.getSslKeystorePath());
-    Assert.assertEquals("javax.net.ssl.keyStorePassword", this.configuration.getSslKeystorePassword());
-    Assert.assertEquals("javax.net.ssl.trustStore", this.configuration.getSslTruststorePath());
-    Assert.assertEquals("javax.net.ssl.trustStorePassword", this.configuration.getSslTruststorePassword());
+    assertEquals("javax.net.ssl.keyStore", configuration.getSslKeystorePath());
+    assertEquals("javax.net.ssl.keyStorePassword", configuration.getSslKeystorePassword());
+    assertEquals("javax.net.ssl.trustStore", configuration.getSslTruststorePath());
+    assertEquals("javax.net.ssl.trustStorePassword", configuration.getSslTruststorePassword());
   }
 
   @Test
   public void dataLoaderProxyEnabledTest() {
     CommonsDataLoader dataLoader = new CommonsDataLoader();
-    DataLoaderDecorator.decorateWithProxySettings(dataLoader, this.configuration);
+    DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
     ProxyProperties httpProperties = dataLoader.getProxyConfig().getHttpProperties();
     ProxyProperties httpsProperties = dataLoader.getProxyConfig().getHttpsProperties();
-    Assert.assertEquals("http.proxyHost", httpProperties.getHost());
-    Assert.assertEquals(8800, httpProperties.getPort());
-    Assert.assertEquals("https.proxyHost", httpsProperties.getHost());
-    Assert.assertEquals(10000, httpsProperties.getPort());
+    assertEquals("http.proxyHost", httpProperties.getHost());
+    assertEquals(8800, httpProperties.getPort());
+    assertEquals("https.proxyHost", httpsProperties.getHost());
+    assertEquals(10000, httpsProperties.getPort());
   }
 
   @Test
   public void dataLoaderHttpsProxyEmptyTest() {
     System.clearProperty("https.proxyHost");
     System.clearProperty("https.proxyPort");
-    this.configuration = new Configuration(Configuration.Mode.TEST);
+    configuration = new Configuration(Configuration.Mode.TEST);
     CommonsDataLoader dataLoader = new CommonsDataLoader();
-    DataLoaderDecorator.decorateWithProxySettings(dataLoader, this.configuration);
+    DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
     ProxyProperties httpProperties = dataLoader.getProxyConfig().getHttpProperties();
     ProxyProperties httpsProperties = dataLoader.getProxyConfig().getHttpsProperties();
-    Assert.assertEquals("http.proxyHost", httpProperties.getHost());
-    Assert.assertEquals(8800, httpProperties.getPort());
-    Assert.assertNull(httpsProperties);
+    assertEquals("http.proxyHost", httpProperties.getHost());
+    assertEquals(8800, httpProperties.getPort());
+    assertNull(httpsProperties);
   }
 
   @Test
   public void dataLoaderHttpProxyEmptyTest() {
     System.clearProperty("http.proxyHost");
     System.clearProperty("http.proxyPort");
-    this.configuration = new Configuration(Configuration.Mode.TEST);
+    configuration = new Configuration(Configuration.Mode.TEST);
     CommonsDataLoader dataLoader = new CommonsDataLoader();
-    DataLoaderDecorator.decorateWithProxySettings(dataLoader, this.configuration);
+    DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
     ProxyProperties httpProperties = dataLoader.getProxyConfig().getHttpProperties();
     ProxyProperties httpsProperties = dataLoader.getProxyConfig().getHttpsProperties();
-    Assert.assertNull(httpProperties);
-    Assert.assertEquals("https.proxyHost", httpsProperties.getHost());
-    Assert.assertEquals(10000, httpsProperties.getPort());
+    assertNull(httpProperties);
+    assertEquals("https.proxyHost", httpsProperties.getHost());
+    assertEquals(10000, httpsProperties.getPort());
   }
 
   @Test
@@ -77,23 +79,23 @@ public class JvmParametersTest extends AbstractTest {
     System.clearProperty("http.proxyPort");
     System.clearProperty("https.proxyHost");
     System.clearProperty("https.proxyPort");
-    this.configuration = new Configuration(Configuration.Mode.TEST);
+    configuration = new Configuration(Configuration.Mode.TEST);
     CommonsDataLoader dataLoader = new CommonsDataLoader();
-    DataLoaderDecorator.decorateWithProxySettings(dataLoader, this.configuration);
-    Assert.assertEquals(null, dataLoader.getProxyConfig());
+    DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
+    assertNull(dataLoader.getProxyConfig());
   }
 
   @Test
   public void getParamsFromJVMAndFilePriorityTest() {
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_jvm_params.yaml");
-    Assert.assertEquals("http.proxyHost", this.configuration.getHttpProxyHost());
-    Assert.assertEquals(new Integer(8800), this.configuration.getHttpProxyPort());
-    Assert.assertEquals("https.proxyHost", this.configuration.getHttpsProxyHost());
-    Assert.assertEquals(new Integer(10000), this.configuration.getHttpsProxyPort());
-    Assert.assertEquals("javax.net.ssl.keyStore", this.configuration.getSslKeystorePath());
-    Assert.assertEquals("javax.net.ssl.keyStorePassword", this.configuration.getSslKeystorePassword());
-    Assert.assertEquals("javax.net.ssl.trustStore", this.configuration.getSslTruststorePath());
-    Assert.assertEquals("javax.net.ssl.trustStorePassword", this.configuration.getSslTruststorePassword());
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_jvm_params.yaml");
+    assertEquals("http.proxyHost", configuration.getHttpProxyHost());
+    assertEquals(Integer.valueOf(8800), configuration.getHttpProxyPort());
+    assertEquals("https.proxyHost", configuration.getHttpsProxyHost());
+    assertEquals(Integer.valueOf(10000), configuration.getHttpsProxyPort());
+    assertEquals("javax.net.ssl.keyStore", configuration.getSslKeystorePath());
+    assertEquals("javax.net.ssl.keyStorePassword", configuration.getSslKeystorePassword());
+    assertEquals("javax.net.ssl.trustStore", configuration.getSslTruststorePath());
+    assertEquals("javax.net.ssl.trustStorePassword", configuration.getSslTruststorePassword());
   }
 
   @Test
@@ -106,16 +108,16 @@ public class JvmParametersTest extends AbstractTest {
     System.clearProperty("javax.net.ssl.keyStorePassword");
     System.clearProperty("javax.net.ssl.trustStore");
     System.clearProperty("javax.net.ssl.trustStorePassword");
-    this.configuration = new Configuration(Configuration.Mode.TEST);
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_jvm_params.yaml");
-    Assert.assertEquals("http.proxyHost.yaml", this.configuration.getHttpProxyHost());
-    Assert.assertEquals(new Integer(1100), this.configuration.getHttpProxyPort());
-    Assert.assertEquals("https.proxyHost.yaml", this.configuration.getHttpsProxyHost());
-    Assert.assertEquals(new Integer(110000), this.configuration.getHttpsProxyPort());
-    Assert.assertEquals("sslKeystorePath.yaml", this.configuration.getSslKeystorePath());
-    Assert.assertEquals("sslKeystorePassword.yaml", this.configuration.getSslKeystorePassword());
-    Assert.assertEquals("sslTruststorePath.yaml", this.configuration.getSslTruststorePath());
-    Assert.assertEquals("sslTruststorePassword.yaml", this.configuration.getSslTruststorePassword());
+    configuration = new Configuration(Configuration.Mode.TEST);
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_jvm_params.yaml");
+    assertEquals("http.proxyHost.yaml", configuration.getHttpProxyHost());
+    assertEquals(Integer.valueOf(1100), configuration.getHttpProxyPort());
+    assertEquals("https.proxyHost.yaml", configuration.getHttpsProxyHost());
+    assertEquals(Integer.valueOf(110000), configuration.getHttpsProxyPort());
+    assertEquals("sslKeystorePath.yaml", configuration.getSslKeystorePath());
+    assertEquals("sslKeystorePassword.yaml", configuration.getSslKeystorePassword());
+    assertEquals("sslTruststorePath.yaml", configuration.getSslTruststorePath());
+    assertEquals("sslTruststorePassword.yaml", configuration.getSslTruststorePassword());
   }
 
   /*
@@ -134,7 +136,7 @@ public class JvmParametersTest extends AbstractTest {
     System.setProperty("javax.net.ssl.keyStorePassword", "javax.net.ssl.keyStorePassword");
     System.setProperty("javax.net.ssl.trustStore", "javax.net.ssl.trustStore");
     System.setProperty("javax.net.ssl.trustStorePassword", "javax.net.ssl.trustStorePassword");
-    this.configuration = new Configuration(Configuration.Mode.TEST);
+    configuration = new Configuration(Configuration.Mode.TEST);
   }
 
 }

@@ -22,8 +22,8 @@ import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.impl.asic.asics.AsicSSignature;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -37,12 +37,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // These tests might take long and are not necessary to be run in every build.
 // They fit more into performance tests category, so at the moment they will be run with them.
-@Ignore
+@Disabled
 public class DataToSignSerializationTest extends AbstractTest {
 
   private static final List<Integer> FILE_SIZES_IN_KILOBYTES = Arrays.asList(1, 100, 10000);
@@ -167,7 +167,7 @@ public class DataToSignSerializationTest extends AbstractTest {
             ContainerBuilder.aContainer().fromStream(new FileInputStream("src/test/resources/testFiles/valid-containers/asics-1-signature.asics")).build()
     );
 
-    for (Container container: containers) {
+    for (Container container : containers) {
       Signature signature = finalizeAndValidateContainerSignature(container, 80000);
       if (!container.getType().equalsIgnoreCase(Container.DocumentType.ASICS.name())) {
         container.addSignature(signature);

@@ -18,11 +18,14 @@ import org.digidoc4j.DataFile;
 import org.digidoc4j.DetachedXadesSignatureBuilder;
 import org.digidoc4j.Signature;
 import org.digidoc4j.SignatureBuilder;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.security.cert.X509Certificate;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class TslIntegrityTest extends AbstractTest {
 
@@ -32,7 +35,7 @@ public class TslIntegrityTest extends AbstractTest {
     private int initialCertificatesCountInTslPool;
     private int initialEntitiesCountInTslPool;
 
-    @Before
+    @BeforeEach
     public void setUpCentralConfiguration() {
         configuration = Configuration.of(Configuration.Mode.TEST);
         configuration.getTSL().refresh();
@@ -40,7 +43,7 @@ public class TslIntegrityTest extends AbstractTest {
         initialCertificatesCountInTslSource = configuration.getTSL().getNumberOfCertificates();
         initialCertificatesCountInTslPool = configuration.getTSL().getNumberOfCertificates();
         initialEntitiesCountInTslPool = configuration.getTSL().getNumberOfTrustedEntityKeys();
-        Assert.assertEquals(initialCertificatesCountInTslSource, initialCertificatesCountInTslPool);
+        assertEquals(initialCertificatesCountInTslSource, initialCertificatesCountInTslPool);
     }
 
     @Test
@@ -52,7 +55,7 @@ public class TslIntegrityTest extends AbstractTest {
                 .invokeSigning();
 
         assertCentralTslNotChanged(pkcs12SignatureToken.getCertificate());
-        Assert.assertNotNull(signature.validateSignature());
+        assertNotNull(signature.validateSignature());
         assertCentralTslNotChanged(pkcs12SignatureToken.getCertificate());
     }
 
@@ -69,12 +72,12 @@ public class TslIntegrityTest extends AbstractTest {
                 .invokeSigning();
 
         assertCentralTslNotChanged(pkcs12SignatureToken.getCertificate());
-        Assert.assertNotNull(signature.validateSignature());
+        assertNotNull(signature.validateSignature());
         assertCentralTslNotChanged(pkcs12SignatureToken.getCertificate());
 
         container.addSignature(signature);
         assertCentralTslNotChanged(pkcs12SignatureToken.getCertificate());
-        Assert.assertNotNull(container.validate());
+        assertNotNull(container.validate());
         assertCentralTslNotChanged(pkcs12SignatureToken.getCertificate());
     }
 
@@ -84,31 +87,33 @@ public class TslIntegrityTest extends AbstractTest {
     }
 
     private void assertCentralTslCertificateSourceNotChanged(X509Certificate certificateExpectedToBeMissing) {
-        Assert.assertEquals(
-                String.format("TSL certificate source is expected to contain %d certificates", initialCertificatesCountInTslSource),
+        assertEquals(
                 initialCertificatesCountInTslSource,
-                configuration.getTSL().getNumberOfCertificates()
+                configuration.getTSL().getNumberOfCertificates(),
+                String.format("TSL certificate source is expected to contain %d certificates", initialCertificatesCountInTslSource)
         );
-        Assert.assertFalse(
-                String.format("TSL certificate source is expected not to contain certificate %s", certificateExpectedToBeMissing.getSubjectDN().getName()),
-                configuration.getTSL().getCertificates().stream().anyMatch(ct -> certificateExpectedToBeMissing.equals(ct.getCertificate()))
-        );
+        assertFalse(configuration.getTSL().getCertificates().stream().anyMatch(ct -> certificateExpectedToBeMissing.equals(ct.getCertificate())),
+                String.format("TSL certificate source is expected not to contain certificate %s", certificateExpectedToBeMissing.getSubjectDN().getName()));
     }
 
     private void assertCentralTslCertificatePoolNotChanged(X509Certificate certificateExpectedToBeMissing) {
-        Assert.assertEquals(
-                String.format("TSL certificate pool is expected to contain %d certificates", initialCertificatesCountInTslPool),
+        assertEquals(
                 initialCertificatesCountInTslPool,
-                configuration.getTSL().getNumberOfCertificates()
+                configuration.getTSL().getNumberOfCertificates(),
+                String.format("TSL certificate pool is expected to contain %d certificates", initialCertificatesCountInTslPool)
         );
-        Assert.assertEquals(
-                String.format("TSL certificate pool is expected to contain %d entities", initialEntitiesCountInTslPool),
+        assertEquals(
                 initialEntitiesCountInTslPool,
-                configuration.getTSL().getNumberOfTrustedEntityKeys()
+                configuration.getTSL().getNumberOfTrustedEntityKeys(),
+                String.format("TSL certificate pool is expected to contain %d entities", initialEntitiesCountInTslPool)
         );
-        Assert.assertFalse(
-                String.format("TSL certificate pool is expected not to contain certificate %s", certificateExpectedToBeMissing.getSubjectDN().getName()),
-                configuration.getTSL().getCertificates().stream().anyMatch(ct -> certificateExpectedToBeMissing.equals(ct.getCertificate()))
+        assertFalse(
+                configuration
+                        .getTSL()
+                        .getCertificates()
+                        .stream()
+                        .anyMatch(ct -> certificateExpectedToBeMissing.equals(ct.getCertificate())),
+                String.format("TSL certificate pool is expected not to contain certificate %s", certificateExpectedToBeMissing.getSubjectDN().getName())
         );
     }
 
