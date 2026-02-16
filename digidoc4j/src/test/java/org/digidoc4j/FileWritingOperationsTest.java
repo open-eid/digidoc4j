@@ -11,13 +11,14 @@
 package org.digidoc4j;
 
 import eu.europa.esig.dss.enumerations.MimeTypeEnum;
-import org.digidoc4j.test.RestrictedExternalResourceRule;
-import org.digidoc4j.test.RestrictedExternalResourceRule.FileWritingRestrictedException;
+import org.digidoc4j.test.RestrictedExternalResourceExtension;
+import org.digidoc4j.test.RestrictedExternalResourceExtension.FileWritingRestrictedException;
 import org.digidoc4j.test.TestAssert;
 import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
 import org.junit.jupiter.api.condition.JRE;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -32,17 +33,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class FileWritingOperationsTest extends AbstractTest {
 
   /**
-   * {@link RestrictedExternalResourceRule} uses {@code SecurityManager} to achieve its goal.
+   * {@link RestrictedExternalResourceExtension} uses {@code SecurityManager} to achieve its goal.
    * Since Java 17, Security Manager and its related API-s are deprecated for removal.
    * Since Java 18, dynamically installing a Security Manager is disabled by default unless the end user has explicitly
    * opted to allow it.
    * https://openjdk.org/jeps/411
    * TODO (DD4J-992): Find an alternative to using Security Manager for limiting filesystem access.
    */
-  @Rule
-  public RestrictedExternalResourceRule rule = new RestrictedExternalResourceRule(
-          new File(System.getProperty("java.io.tmpdir") + File.separator + "dss-cache-tsl" + File.separator).getPath(),
-          new File(System.getProperty("java.io.tmpdir") + File.separator + "temp-tsl-keystore" + File.separator).getPath()
+  @RegisterExtension
+  RestrictedExternalResourceExtension restrictedExternalResourceExtension = new RestrictedExternalResourceExtension(
+          System.getProperty("java.io.tmpdir") + File.separator + "digidoc4jTSLCache"
   );
 
   @Test
@@ -101,7 +101,7 @@ public class FileWritingOperationsTest extends AbstractTest {
   }
 
   @Test
-  public void openingExistingContainer_withStoringDataFilesOnDisk() throws Exception {
+  public void openingExistingContainer_withStoringDataFilesOnDisk() {
     configuration = Configuration.of(Configuration.Mode.TEST);
     configuration.setMaxFileSizeCachedInMemoryInMB(0);
 
