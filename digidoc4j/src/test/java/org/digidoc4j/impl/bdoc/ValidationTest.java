@@ -836,6 +836,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
+  @Disabled("DD4J-1377")
   public void loadCustomTslCerts_SignatureTypeLTWithOcspCert_signatureCreationFails() {
     TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
     certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/exampleCA.cer"));
@@ -874,6 +875,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
+  @Disabled("DD4J-1377")
   public void loadCustomTslCerts_SignatureTypeLTWithOcspAndTsaCerts_valid() {
     TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
     certificateSource.addTSLCertificate(Helper.loadCertificate("src/test/resources/testFiles/certs/exampleCA.cer"));

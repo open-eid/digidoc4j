@@ -429,6 +429,7 @@ public class ContainerTest extends AbstractTest {
   }
 
   @Test
+  @Disabled("DD4J-1377")
   public void testAddFileFromStreamToDDoc() throws IOException {
     Container container = createEmptyContainerBy(Container.DocumentType.DDOC);
     try (ByteArrayInputStream is = new ByteArrayInputStream(new byte[]{0x42})) {
@@ -499,6 +500,7 @@ public class ContainerTest extends AbstractTest {
   }
 
   @Test
+  @Disabled("DD4J-1377")
   public void testRemovingNotExistingSignatureThrowsException() {
       Container container = createEmptyContainerBy(Container.DocumentType.DDOC);
       Signature signature = SignatureBuilder

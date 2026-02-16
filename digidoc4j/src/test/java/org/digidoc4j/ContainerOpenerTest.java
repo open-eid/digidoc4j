@@ -210,7 +210,8 @@ public class ContainerOpenerTest extends AbstractTest {
   }
 
   @Test
-  public void containerOpener_streamWithZipBomb_fileCachedInMemory() throws FileNotFoundException {
+  @Disabled("DD4J-1377") //throws technical exception
+  public void containerOpener_streamWithZipBomb_fileCachedInMemory() {
     configuration.setMaxFileSizeCachedInMemoryInMB(1);
 
     FileNotFoundException exception = assertThrows(

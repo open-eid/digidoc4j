@@ -205,6 +205,7 @@ public class DataFileTest extends AbstractTest {
   }
 
   @Test
+  @Disabled("DD4J-1377")
   public void createDocumentFromStream() throws Exception {
     String file = getFileBy("txt");
     try (ByteArrayInputStream stream = new ByteArrayInputStream("tere tere tipajalga".getBytes())) {

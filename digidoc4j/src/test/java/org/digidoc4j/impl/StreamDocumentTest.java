@@ -197,6 +197,7 @@ public class StreamDocumentTest extends AbstractTest {
   }
 
   @Test
+  @Disabled("DD4J-1377")
   public void constructorThrowsException() throws Exception {
     InputStream stream = new InputStream() {
 

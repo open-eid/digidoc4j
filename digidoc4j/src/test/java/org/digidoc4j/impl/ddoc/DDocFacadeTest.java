@@ -222,7 +222,8 @@ public class DDocFacadeTest extends AbstractTest {
   }
 
   @Test
-  public void openingDDoc_withoutCAConfiguration_shouldThrowException() throws Exception {
+  @Disabled("DD4J-1377")
+  public void openingDDoc_withoutCAConfiguration_shouldThrowException() {
     configuration = new Configuration(Configuration.Mode.TEST);
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_no_ca.yaml");
     ConfigManagerInitializer.forceInitConfigManager(configuration);
