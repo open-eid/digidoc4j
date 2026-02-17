@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @EnabledForJreRange(max = JRE.JAVA_17)
-public class FileWritingOperationsTest extends AbstractTest {
+class FileWritingOperationsTest extends AbstractTest {
 
   /**
    * {@link RestrictedExternalResourceExtension} uses {@code SecurityManager} to achieve its goal.
@@ -46,7 +46,7 @@ public class FileWritingOperationsTest extends AbstractTest {
   );
 
   @Test
-  public void writingToFileIsNotAllowed() {
+  void writingToFileIsNotAllowed() {
     assertThrows(
             FileWritingRestrictedException.class,
             () -> File.createTempFile("test", "test")
@@ -54,28 +54,28 @@ public class FileWritingOperationsTest extends AbstractTest {
   }
 
   @Test
-  public void openingExistingContainer_shouldNotStoreDataFilesOnDisk_byDefault() throws Exception {
+  void openingExistingContainer_shouldNotStoreDataFilesOnDisk_byDefault() throws Exception {
     Container container = openContainerBy(Paths.get("src/test/resources/testFiles/valid-containers/one_signature.bdoc"));
     TestDataBuilderUtil.signContainer(container);
     TestAssert.assertSaveAsStream(container);
   }
 
   @Test
-  public void openingExistingDDocContainer_shouldNotStoreDataFilesOnDisk_byDefault() throws Exception {
+  void openingExistingDDocContainer_shouldNotStoreDataFilesOnDisk_byDefault() throws Exception {
     Container container = openContainerBy(Paths.get("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc"));
     TestAssert.assertSaveAsStream(container);
   }
 
 
   @Test
-  public void creatingNewContainer_shouldNotStoreDataFilesOnDisk_byDefault() throws Throwable {
+  void creatingNewContainer_shouldNotStoreDataFilesOnDisk_byDefault() throws Throwable {
     Container container = createNonEmptyContainerIncludingPDFFileBy(Container.DocumentType.BDOC);
     TestDataBuilderUtil.signContainer(container);
     TestAssert.assertSaveAsStream(container);
   }
 
   @Test
-  public void creatingDataFiles_shouldNotStoreDataFilesOnDisk_byDefault() throws Exception {
+  void creatingDataFiles_shouldNotStoreDataFilesOnDisk_byDefault() throws Exception {
     Container container = createNonEmptyContainerBy(Container.DocumentType.BDOC);
     assertEquals(3, container.getDataFiles().size());
     TestDataBuilderUtil.signContainer(container);
@@ -83,13 +83,13 @@ public class FileWritingOperationsTest extends AbstractTest {
   }
 
   @Test
-  public void creatingDataFilesForDDoc_shouldNotStoreDataFilesOnDisk_byDefault() throws Exception {
+  void creatingDataFilesForDDoc_shouldNotStoreDataFilesOnDisk_byDefault() throws Exception {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     TestAssert.assertSaveAsStream(container);
   }
 
   @Test
-  public void creatingLargeDataFile_shouldStoreFileOnDisk() throws Throwable {
+  void creatingLargeDataFile_shouldStoreFileOnDisk() throws Throwable {
     InputStream dataFileInputStream = new ByteArrayInputStream(new byte[]{1, 2, 3});
 
     Exception caughtException = assertThrows(
@@ -101,7 +101,7 @@ public class FileWritingOperationsTest extends AbstractTest {
   }
 
   @Test
-  public void openingExistingContainer_withStoringDataFilesOnDisk() {
+  void openingExistingContainer_withStoringDataFilesOnDisk() {
     configuration = Configuration.of(Configuration.Mode.TEST);
     configuration.setMaxFileSizeCachedInMemoryInMB(0);
 
@@ -112,7 +112,7 @@ public class FileWritingOperationsTest extends AbstractTest {
   }
 
   @Test
-  public void openingExistingContainer_withLarge2MbFile_shouldStoreDataFilesOnDisk() throws Exception {
+  void openingExistingContainer_withLarge2MbFile_shouldStoreDataFilesOnDisk() throws Exception {
     configuration = Configuration.of(Configuration.Mode.TEST);
     configuration.setMaxFileSizeCachedInMemoryInMB(1);
 
@@ -123,7 +123,7 @@ public class FileWritingOperationsTest extends AbstractTest {
   }
 
   @Test
-  public void openingExistingContainer_withLarge2MbFile_shouldNotStoreDataFilesOnDisk() {
+  void openingExistingContainer_withLarge2MbFile_shouldNotStoreDataFilesOnDisk() {
     configuration = Configuration.of(Configuration.Mode.TEST);
     configuration.setMaxFileSizeCachedInMemoryInMB(4);
     Container container = openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/bdoc-ts-with-large-data-file.bdoc"));

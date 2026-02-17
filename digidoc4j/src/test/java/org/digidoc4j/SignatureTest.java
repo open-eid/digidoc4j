@@ -54,10 +54,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.xmlunit.matchers.CompareMatcher.isIdenticalTo;
 
-public class SignatureTest extends AbstractTest {
+class SignatureTest extends AbstractTest {
 
   @Test
-  public void findOcspCertificateByHashkey() {
+  void findOcspCertificateByHashkey() {
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
     Container container = openContainerByConfiguration(
         Paths.get("src/test/resources/testFiles/valid-containers/OCSPRigaTest.asice"), configuration);
@@ -67,7 +67,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void testGetSigningCertificateForBDoc() throws Exception {
+  void testGetSigningCertificateForBDoc() throws Exception {
     Container container = ContainerOpener.open(
         "src/test/resources/testFiles/invalid-containers/asics_for_testing.bdoc");
     byte[] certificate = container.getSignatures().get(0).getSigningCertificate().getX509Certificate().getEncoded();
@@ -75,7 +75,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void testTimeStampCreationTimeForBDoc() {
+  void testTimeStampCreationTimeForBDoc() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/test.asice");
     Date timeStampCreationTime = container.getSignatures().get(0).getTimeStampCreationTime();
     Date expectedDate = Date.from(OffsetDateTime.of(
@@ -86,14 +86,14 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void testTimeStampCreationTimeForBDocWhereNotOCSP() {
+  void testTimeStampCreationTimeForBDocWhereNotOCSP() {
     Signature signature = createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.B_BES,
         pkcs12SignatureToken);
     assertNull(signature.getTimeStampCreationTime());
   }
 
   @Test
-  public void testGetTimeStampTokenCertificateForBDoc() throws Exception {
+  void testGetTimeStampTokenCertificateForBDoc() throws Exception {
     Signature signature = ContainerOpener.open(
         "src/test/resources/testFiles/invalid-containers/ocsp_cert_is_not_in_tsl.bdoc").getSignatures().get(0);
     byte[] certificate = signature.getTimeStampTokenCertificate().getX509Certificate().getEncoded();
@@ -101,14 +101,14 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void testGetTimeStampTokenCertificateForBDocNoTimeStampExists() {
+  void testGetTimeStampTokenCertificateForBDocNoTimeStampExists() {
     Signature signature = ContainerOpener.open(
         "src/test/resources/testFiles/invalid-containers/asics_for_testing.bdoc").getSignatures().get(0);
     assertNull(signature.getTimeStampTokenCertificate());
   }
 
   @Test
-  public void testGetOCSPCertificate_TProfileSignature_isNull() {
+  void testGetOCSPCertificate_TProfileSignature_isNull() {
     Container container = ContainerOpener.open(
         "src/test/resources/testFiles/invalid-containers/ocsp_cert_is_not_in_tsl.bdoc");
     Signature signature = container.getSignatures().get(0);
@@ -117,34 +117,34 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void testGetSigningTimeForDDOC() {
+  void testGetSigningTimeForDDOC() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     Signature signature = container.getSignatures().get(0);
     assertNotNull(signature.getClaimedSigningTime());
   }
 
   @Test
-  public void testGetSigningTimeForBDoc() {
+  void testGetSigningTimeForBDoc() {
     Signature signature = createSignatureBy(Container.DocumentType.BDOC, pkcs12SignatureToken);
     assertTrue(DateUtils.isAlmostNow(signature.getClaimedSigningTime()));
   }
 
   @Test
-  public void testGetIdForDDOC() {
+  void testGetIdForDDOC() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     Signature signature = container.getSignatures().get(0);
     assertEquals("S0", signature.getId());
   }
 
   @Test
-  public void testGetIdForBDoc() {
+  void testGetIdForBDoc() {
     Container container = ContainerOpener.open(
         "src/test/resources/testFiles/invalid-containers/ocsp_cert_is_not_in_tsl.bdoc");
     assertEquals("id-99E491801522116744419D9357CEFCC5", container.getSignatures().get(0).getId());
   }
 
   @Test
-  public void testGetNonceForDDOC() {
+  void testGetNonceForDDOC() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     Signature signature = container.getSignatures().get(0);
     assertEquals("UR7APOIqSmZhuX/C+sqpqXP9sog=", Base64.encodeBase64String(signature.getOCSPNonce()));
@@ -152,7 +152,7 @@ public class SignatureTest extends AbstractTest {
 
 
   @Test
-  public void testGetNonceWithNonceParseErrorForDDOC() {
+  void testGetNonceWithNonceParseErrorForDDOC() {
     Signature signature = ContainerOpener
             .open("src/test/resources/testFiles/invalid-containers/ddoc_with_corrupted_ocsp_response.ddoc")
             .getSignatures()
@@ -162,13 +162,13 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void testGetNonceWithNoOcspResponseForDDOC() {
+  void testGetNonceWithNoOcspResponseForDDOC() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/ddoc_with_no_ocsp_response.ddoc");
     assertNull(container.getSignatures().get(0).getOCSPNonce());
   }
 
   @Test
-  public void testGetOCSPCertificateForDDoc() throws CertificateEncodingException {
+  void testGetOCSPCertificateForDDoc() throws CertificateEncodingException {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     Signature signature = container.getSignatures().get(0);
     byte[] encoded = signature.getOCSPCertificate().getX509Certificate().getEncoded();
@@ -176,7 +176,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void testGetOCSPCertificateForExistingBDoc() throws CertificateEncodingException {
+  void testGetOCSPCertificateForExistingBDoc() throws CertificateEncodingException {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm-newer.bdoc");
     Signature signature = container.getSignatures().get(0);
     byte[] encoded = signature.getOCSPCertificate().getX509Certificate().getEncoded();
@@ -184,7 +184,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void testGetOCSPCertificateForNewBDoc() {
+  void testGetOCSPCertificateForNewBDoc() {
     Configuration configuration = Configuration.of(Configuration.Mode.TEST);
     Signature signature = createSignatureBy(Container.DocumentType.BDOC, pkcs12SignatureToken, configuration);
     assertThat(
@@ -194,7 +194,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void testGetProducedAtForDDoc() {
+  void testGetProducedAtForDDoc() {
     configuration = Configuration.of(Configuration.Mode.TEST);
     ConfigManagerInitializer.forceInitConfigManager(configuration);
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
@@ -203,7 +203,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void testGetProducedAtForBDoc() throws ParseException {
+  void testGetProducedAtForBDoc() throws ParseException {
     Container container = ContainerOpener.open(
         "src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc");
     Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z").parse("2016-03-14 14:13:49 +0000");
@@ -211,7 +211,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void testValidationForDDoc() {
+  void testValidationForDDoc() {
     configuration = Configuration.of(Configuration.Mode.TEST);
     ConfigManagerInitializer.forceInitConfigManager(configuration);
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
@@ -219,7 +219,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void testValidationForBDocDefaultValidation() {
+  void testValidationForBDocDefaultValidation() {
     configuration = new Configuration(Configuration.Mode.TEST);
     TestTSLUtil.addSkTsaCertificateToTsl(configuration);
     Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/two_signatures.bdoc",
@@ -231,7 +231,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void testValidationForBDocDefaultValidationWithFailure() {
+  void testValidationForBDocDefaultValidationWithFailure() {
     Signature signature = ContainerOpener.open(
         "src/test/resources/testFiles/invalid-containers/ocsp_cert_is_not_in_tsl.bdoc").getSignatures().get(0);
     List<DigiDoc4JException> errors = signature.validateSignature().getErrors();
@@ -240,7 +240,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void testValidationForBDocDefaultValidationWithOneFailing() {
+  void testValidationForBDocDefaultValidationWithOneFailing() {
     Container container = ContainerOpener.open(
         "src/test/resources/testFiles/invalid-containers/two_signatures_one_invalid.bdoc");
     Signature signature = container.getSignatures().get(0);
@@ -257,21 +257,21 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void testValidationWithInvalidDDoc() {
+  void testValidationWithInvalidDDoc() {
     Signature signature = ContainerOpener.open(
         "src/test/resources/testFiles/invalid-containers/changed_digidoc_test.ddoc").getSignatures().get(0);
     assertEquals(4, signature.validateSignature().getErrors().size());
   }
 
   @Test
-  public void testGetSignatureMethodDDoc() {
+  void testGetSignatureMethodDDoc() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     assertEquals("http://www.w3.org/2000/09/xmldsig#rsa-sha1",
         container.getSignatures().get(0).getSignatureMethod());
   }
 
   @Test
-  public void testGetSignatureMethodForBDoc() {
+  void testGetSignatureMethodForBDoc() {
     Container container = ContainerOpener.open(
         "src/test/resources/testFiles/invalid-containers/ocsp_cert_is_not_in_tsl.bdoc");
     assertEquals("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
@@ -279,27 +279,27 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void testGetProfileForDDoc() {
+  void testGetProfileForDDoc() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     assertEquals(SignatureProfile.LT_TM, container.getSignatures().get(0).getProfile());
   }
 
   @Test
-  public void testGetProfileForBDoc_TS() {
+  void testGetProfileForBDoc_TS() {
     Container container = ContainerOpener.open(
         "src/test/resources/testFiles/invalid-containers/ocsp_cert_is_not_in_tsl.bdoc");
     assertEquals(SignatureProfile.T, container.getSignatures().get(0).getProfile());
   }
 
   @Test
-  public void testGetProfileForBDoc_None() {
+  void testGetProfileForBDoc_None() {
     Container container = ContainerOpener.open(
         "src/test/resources/testFiles/invalid-containers/asics_for_testing.bdoc");
     assertEquals(SignatureProfile.B_BES, container.getSignatures().get(0).getProfile());
   }
 
   @Test
-  public void testGetProfileForAsice_TS() {
+  void testGetProfileForAsice_TS() {
     Container container = ContainerOpener.open(
         "src/test/resources/testFiles/valid-containers/signature-level-T.asice");
     ContainerValidationResult validationResult = container.validate();
@@ -308,7 +308,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
- public void testGetTimeStampTokenCertificateForDDoc() {
+  void testGetTimeStampTokenCertificateForDDoc() {
     Signature signature = ContainerOpener
             .open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc")
             .getSignatures()
@@ -318,34 +318,34 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void testGetNonceForBDoc() {
+  void testGetNonceForBDoc() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc");
     String nonce = Base64.encodeBase64String(container.getSignatures().get(0).getOCSPNonce());
     assertEquals("MDEwDQYJYIZIAWUDBAIBBQAEIGYrFuVObKYFoA8P22TxZ8knTH4dLASQ2hEG5ejvV1gK", nonce);
   }
 
   @Test
-  public void testGetNonceForAsiceWithoutNonce() {
+  void testGetNonceForAsiceWithoutNonce() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/LT_without_nonce.asice");
     assertNull(container.getSignatures().get(0).getOCSPNonce());
   }
 
   @Test
-  public void testGetSignaturesWhereNoSignaturePresent() {
+  void testGetSignaturesWhereNoSignaturePresent() {
     Container container = new DDocOpener().open(
         "src/test/resources/testFiles/invalid-containers/empty_container_no_signature.ddoc");
     assertTrue(container.getSignatures().isEmpty());
   }
 
   @Test
-  public void testGetSignaturesWhereSignatureDoesNotHaveLastCertificate() {
+  void testGetSignaturesWhereSignatureDoesNotHaveLastCertificate() {
     Container container = new DDocOpener().open(
         "src/test/resources/testFiles/invalid-containers/signature_without_last_certificate.ddoc");
     assertEquals(0, container.getSignatures().size());
   }
 
   @Test
-  public void getSignatureXMLForBDOC() throws Exception {
+  void getSignatureXMLForBDOC() throws Exception {
     Container container = createNonEmptyContainer();
     Signature signature = createSignatureBy(container, pkcs12SignatureToken);
     container.saveAsFile("getSignatureXMLForBDOC.bdoc");
@@ -356,27 +356,27 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void signature_withoutProductionPlace_shouldNotThrowException() {
+  void signature_withoutProductionPlace_shouldNotThrowException() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     assertProductionPlaceIsNull(container.getSignatures().get(0));
   }
 
   @Test
-  public void bDocBESSignature_TrustedSigningTime_shouldReturnNull() {
+  void bDocBESSignature_TrustedSigningTime_shouldReturnNull() {
     Signature signature = createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.B_BES,
         pkcs12SignatureToken);
     assertNull(signature.getTrustedSigningTime());
   }
 
   @Test
-  public void dDocBESSignature_TrustedSigningTime_shouldReturnNull() {
+  void dDocBESSignature_TrustedSigningTime_shouldReturnNull() {
     Container container = ContainerOpener.open(
         "src/test/resources/testFiles/invalid-containers/B_BES-signature-profile.ddoc");
     assertNull(container.getSignatures().get(0).getTrustedSigningTime());
   }
 
   @Test
-  public void bDocTimeMarkSignature_TrustedSigningTime_shouldReturnOCSPResponseCreationTime() {
+  void bDocTimeMarkSignature_TrustedSigningTime_shouldReturnOCSPResponseCreationTime() {
     configuration = Configuration.of(Configuration.Mode.TEST);
     ConfigManagerInitializer.forceInitConfigManager(configuration);
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc");
@@ -386,7 +386,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void dDocTimeMarkSignature_TrustedSigningTime_shouldReturnOCSPResponseCreationTime() {
+  void dDocTimeMarkSignature_TrustedSigningTime_shouldReturnOCSPResponseCreationTime() {
     configuration = Configuration.of(Configuration.Mode.TEST);
     ConfigManagerInitializer.forceInitConfigManager(configuration);
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
@@ -396,7 +396,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void bDocTimeStampSignature_TrustedSigningTime_shouldReturnTimeStampCreationTime() {
+  void bDocTimeStampSignature_TrustedSigningTime_shouldReturnTimeStampCreationTime() {
     Signature signature = createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.LT,
         pkcs12SignatureToken);
     assertNotNull(signature.getTrustedSigningTime());
@@ -404,7 +404,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void bDocLTASignature_TrustedSigningTime_shouldReturnTimeStampCreationTime() {
+  void bDocLTASignature_TrustedSigningTime_shouldReturnTimeStampCreationTime() {
     Signature signature = createSignatureBy(Container.DocumentType.BDOC, SignatureProfile.LTA,
         pkcs12SignatureToken);
     assertNotNull(signature.getTrustedSigningTime());
@@ -412,7 +412,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void getSignatureSigningCertificateDetails() {
+  void getSignatureSigningCertificateDetails() {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc");
     Signature signature = container.getSignatures().get(0);
     X509Cert cert = signature.getSigningCertificate();
@@ -422,7 +422,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void gettingOcspCertificate_whenTslIsNotLoaded() {
+  void gettingOcspCertificate_whenTslIsNotLoaded() {
     configuration = new Configuration(Configuration.Mode.TEST);
     TSLCertificateSource certificateSource = new TSLCertificateSourceImpl();
     configuration.setTSL(certificateSource);
@@ -433,7 +433,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void certificateContainsNotSupportedTssQcQualifier() {
+  void certificateContainsNotSupportedTssQcQualifier() {
     configuration = new Configuration(Configuration.Mode.PROD);
     Container container = openContainerByConfiguration(
         Paths.get("src/test/resources/prodFiles/invalid-containers/edoc2_lv-eId_sha256.edoc"),
@@ -442,7 +442,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void signatureReportForTwoSignature() {
+  void signatureReportForTwoSignature() {
     configuration = new Configuration(Configuration.Mode.PROD);
     Container container = openContainerByConfiguration(
         Paths.get("src/test/resources/testFiles/valid-containers/asics_testing_two_signatures.bdoc"),
@@ -460,7 +460,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void signatureReportForOneSignature() {
+  void signatureReportForOneSignature() {
     configuration = new Configuration(Configuration.Mode.TEST);
     Container container = openContainerByConfiguration(
         Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"), configuration);
@@ -479,7 +479,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void signatureReportNoSignature() {
+  void signatureReportNoSignature() {
     configuration = new Configuration(Configuration.Mode.TEST);
     Container container = openContainerByConfiguration(
         Paths.get("src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc"),
@@ -494,7 +494,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void signatureReportOnlyOneSignatureValid() {
+  void signatureReportOnlyOneSignatureValid() {
     configuration = new Configuration(Configuration.Mode.TEST);
     Container container = openContainerByConfiguration(
         Paths.get("src/test/resources/testFiles/invalid-containers/two_signatures_one_invalid.bdoc"),
@@ -511,7 +511,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void createSignature_CustomArchiveTimestampDigestAlgorithmConfigured_AlgorithmFromConfUsed() {
+  void createSignature_CustomArchiveTimestampDigestAlgorithmConfigured_AlgorithmFromConfUsed() {
     configuration = Configuration.of(Configuration.Mode.TEST);
     configuration.setArchiveTimestampDigestAlgorithm(DigestAlgorithm.SHA384);
 
@@ -526,7 +526,7 @@ public class SignatureTest extends AbstractTest {
   }
 
   @Test
-  public void createSignature_CustomTspSourceForArchiveTimestampsConfigured_ValueFromConfUsed() {
+  void createSignature_CustomTspSourceForArchiveTimestampsConfigured_ValueFromConfUsed() {
     configuration = Configuration.of(Configuration.Mode.TEST);
     configuration.setTspSourceForArchiveTimestamps(TestConstants.DEMO_TSA_RSA_URL);
 

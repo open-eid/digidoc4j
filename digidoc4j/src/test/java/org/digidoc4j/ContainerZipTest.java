@@ -33,124 +33,124 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class ContainerZipTest extends AbstractTest {
+class ContainerZipTest extends AbstractTest {
 
   @Test
-  public void newBdocContainerSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+  void newBdocContainerSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     Container container = createNonEmptyContainerBy(Container.DocumentType.BDOC);
     readAndAssertFirstEntryStoredMimeType(container.saveAsStream());
   }
 
   @Test
-  public void newAsiceContainerSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+  void newAsiceContainerSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     Container container = createNonEmptyContainerBy(Container.DocumentType.ASICE);
     readAndAssertFirstEntryStoredMimeType(container.saveAsStream());
   }
 
   @Test
-  public void newAsicsContainerSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+  void newAsicsContainerSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     Container container = createNonEmptyContainerBy(Container.DocumentType.ASICS);
     readAndAssertFirstEntryStoredMimeType(container.saveAsStream());
   }
 
   @Test
-  public void newBdocContainerSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+  void newBdocContainerSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     File testFile = createTestContainerFile(createNonEmptyContainerBy(Container.DocumentType.BDOC), "new-unsigned-bdoc.bdoc");
     readAndAssertFirstEntryStoredMimeType(new FileInputStream(testFile));
   }
 
   @Test
-  public void newAsiceContainerSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+  void newAsiceContainerSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     File testFile = createTestContainerFile(createNonEmptyContainerBy(Container.DocumentType.ASICE), "new-unsigned-asice.asice");
     readAndAssertFirstEntryStoredMimeType(new FileInputStream(testFile));
   }
 
   @Test
-  public void newAsicsContainerSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+  void newAsicsContainerSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     File testFile = createTestContainerFile(createNonEmptyContainerBy(Container.DocumentType.ASICS), "new-unsigned-asics.asics");
     readAndAssertFirstEntryStoredMimeType(new FileInputStream(testFile));
   }
 
   @Test
-  public void loadedBdocContainerSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+  void loadedBdocContainerSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     Container container = ContainerOpener.open(createTestUnsignedBdocFile().getPath());
     readAndAssertFirstEntryStoredMimeType(container.saveAsStream());
   }
 
   @Test
-  public void loadedAsiceContainerSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+  void loadedAsiceContainerSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     Container container = ContainerOpener.open(createTestUnsignedAsiceFile().getPath());
     readAndAssertFirstEntryStoredMimeType(container.saveAsStream());
   }
 
   @Test
-  public void loadedAsicsContainerSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+  void loadedAsicsContainerSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     Container container = ContainerOpener.open(createTestUnsignedAsicsFile().getPath());
     readAndAssertFirstEntryStoredMimeType(container.saveAsStream());
   }
 
   @Test
-  public void loadedBdocContainerSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+  void loadedBdocContainerSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     Container container = ContainerOpener.open(createTestUnsignedBdocFile().getPath());
     File testFile = createTestContainerFile(container, "loaded-unsigned-bdoc.bdoc");
     readAndAssertFirstEntryStoredMimeType(new FileInputStream(testFile));
   }
 
   @Test
-  public void loadedAsiceContainerSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+  void loadedAsiceContainerSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     Container container = ContainerOpener.open(createTestUnsignedAsiceFile().getPath());
     File testFile = createTestContainerFile(container, "loaded-unsigned-asice.asice");
     readAndAssertFirstEntryStoredMimeType(new FileInputStream(testFile));
   }
 
   @Test
-  public void loadedAsicsContainerSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+  void loadedAsicsContainerSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     Container container = ContainerOpener.open(createTestUnsignedAsicsFile().getPath());
     File testFile = createTestContainerFile(container, "loaded-unsigned-asics.asics");
     readAndAssertFirstEntryStoredMimeType(new FileInputStream(testFile));
   }
 
   @Test
-  public void loadedBdocWithDeflatedMimeTypeSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+  void loadedBdocWithDeflatedMimeTypeSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     Container container = ContainerOpener.open(createTestDeflatedMimeTypeBdocFile().getPath());
     readAndAssertFirstEntryStoredMimeType(container.saveAsStream());
   }
 
   @Test
-  public void loadedAsiceWithDeflatedMimeTypeSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+  void loadedAsiceWithDeflatedMimeTypeSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     Container container = ContainerOpener.open(createTestDeflatedMimeTypeAsiceFile().getPath());
     readAndAssertFirstEntryStoredMimeType(container.saveAsStream());
   }
 
   @Test
-  public void loadedAsicsWithDeflatedMimeTypeSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+  void loadedAsicsWithDeflatedMimeTypeSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     Container container = ContainerOpener.open(createTestDeflatedMimeTypeAsicsFile().getPath());
     readAndAssertFirstEntryStoredMimeType(container.saveAsStream());
   }
 
   @Test
-  public void loadedBdocWithDeflatedMimeTypeSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+  void loadedBdocWithDeflatedMimeTypeSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     Container container = ContainerOpener.open(createTestDeflatedMimeTypeBdocFile().getPath());
     File testFile = createTestContainerFile(container, "loaded-unsigned-bdoc.bdoc");
     readAndAssertFirstEntryStoredMimeType(new FileInputStream(testFile));
   }
 
   @Test
-  public void loadedAsiceWithDeflatedMimeTypeSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+  void loadedAsiceWithDeflatedMimeTypeSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     Container container = ContainerOpener.open(createTestDeflatedMimeTypeAsiceFile().getPath());
     File testFile = createTestContainerFile(container, "loaded-unsigned-asice.asice");
     readAndAssertFirstEntryStoredMimeType(new FileInputStream(testFile));
   }
 
   @Test
-  public void loadedAsicsWithDeflatedMimeTypeSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+  void loadedAsicsWithDeflatedMimeTypeSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     Container container = ContainerOpener.open(createTestDeflatedMimeTypeAsicsFile().getPath());
     File testFile = createTestContainerFile(container, "loaded-unsigned-asics.asics");
     readAndAssertFirstEntryStoredMimeType(new FileInputStream(testFile));
   }
 
   @Test
-  public void loadedBdocWithNonFirstMimeTypeSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+  void loadedBdocWithNonFirstMimeTypeSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     File testNonFirstMimeTypeBdocFile = createFileInTestFolderAndReturnFile("original-non-first-mimetype-bdoc.bdoc");
     saveDegenerateContainerWithNonFirstMimeType(testNonFirstMimeTypeBdocFile, Manifest.MANIFEST_BDOC_MIME_2_0);
     Container container = ContainerOpener.open(testNonFirstMimeTypeBdocFile.getPath());
@@ -158,7 +158,7 @@ public class ContainerZipTest extends AbstractTest {
   }
 
   @Test
-  public void loadedAsiceWithNonFirstMimeTypeSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+  void loadedAsiceWithNonFirstMimeTypeSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     File testNonFirstMimeTypeAsiceFile = createFileInTestFolderAndReturnFile("original-non-first-mimetype-asice.asice");
     saveDegenerateContainerWithNonFirstMimeType(testNonFirstMimeTypeAsiceFile, MimeTypeEnum.ASICE.getMimeTypeString());
     Container container = ContainerOpener.open(testNonFirstMimeTypeAsiceFile.getPath());
@@ -166,7 +166,7 @@ public class ContainerZipTest extends AbstractTest {
   }
 
   @Test
-  public void loadedAsicsWithNonFirstMimeTypeSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+  void loadedAsicsWithNonFirstMimeTypeSavedAsStreamShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     File testNonFirstMimeTypeAsicsFile = createFileInTestFolderAndReturnFile("original-non-first-mimetype-asics.asics");
     saveDegenerateContainerWithNonFirstMimeType(testNonFirstMimeTypeAsicsFile, MimeTypeEnum.ASICS.getMimeTypeString());
     Container container = ContainerOpener.open(testNonFirstMimeTypeAsicsFile.getPath());
@@ -174,7 +174,7 @@ public class ContainerZipTest extends AbstractTest {
   }
 
   @Test
-  public void loadedBdocWithNonFirstMimeTypeSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+  void loadedBdocWithNonFirstMimeTypeSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     File testNonFirstMimeTypeBdocFile = createFileInTestFolderAndReturnFile("original-non-first-mimetype-bdoc.bdoc");
     saveDegenerateContainerWithNonFirstMimeType(testNonFirstMimeTypeBdocFile, Manifest.MANIFEST_BDOC_MIME_2_0);
     File testFile = createTestContainerFile(ContainerOpener.open(testNonFirstMimeTypeBdocFile.getPath()), "loaded-non-first-mimetype-bdoc.bdoc");
@@ -182,7 +182,7 @@ public class ContainerZipTest extends AbstractTest {
   }
 
   @Test
-  public void loadedAsiceWithNonFirstMimeTypeSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+  void loadedAsiceWithNonFirstMimeTypeSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     File testNonFirstMimeTypeAsiceFile = createFileInTestFolderAndReturnFile("original-non-first-mimetype-asice.asice");
     saveDegenerateContainerWithNonFirstMimeType(testNonFirstMimeTypeAsiceFile, MimeTypeEnum.ASICE.getMimeTypeString());
     File testFile = createTestContainerFile(ContainerOpener.open(testNonFirstMimeTypeAsiceFile.getPath()), "loaded-non-first-mimetype-asice.asice");
@@ -190,7 +190,7 @@ public class ContainerZipTest extends AbstractTest {
   }
 
   @Test
-  public void loadedAsicsWithNonFirstMimeTypeSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
+  void loadedAsicsWithNonFirstMimeTypeSavedAsFileShouldHaveStoredMimeTypeAsFirstEntry() throws Exception {
     File testNonFirstMimeTypeAsicsFile = createFileInTestFolderAndReturnFile("original-non-first-mimetype-asics.asics");
     saveDegenerateContainerWithNonFirstMimeType(testNonFirstMimeTypeAsicsFile, MimeTypeEnum.ASICS.getMimeTypeString());
     File testFile = createTestContainerFile(ContainerOpener.open(testNonFirstMimeTypeAsicsFile.getPath()), "loaded-non-first-mimetype-asics.asics");
@@ -198,7 +198,7 @@ public class ContainerZipTest extends AbstractTest {
   }
 
   @Test
-  public void loadingBdocWithTwoMimeTypesShouldFail() {
+  void loadingBdocWithTwoMimeTypesShouldFail() {
     DigiDoc4JException exception = assertThrows(
             DigiDoc4JException.class,
             () -> openContainerBy(Paths.get("src/test/resources/testFiles/degenerate-containers/2-mimetypes.bdoc"))
@@ -208,7 +208,7 @@ public class ContainerZipTest extends AbstractTest {
   }
 
   @Test
-  public void loadingAsiceWithTwoMimeTypesShouldFail() {
+  void loadingAsiceWithTwoMimeTypesShouldFail() {
     DigiDoc4JException exception = assertThrows(DigiDoc4JException.class,
             () -> openContainerBy(Paths.get("src/test/resources/testFiles/degenerate-containers/2-mimetypes.asice"))
     );
@@ -217,7 +217,7 @@ public class ContainerZipTest extends AbstractTest {
   }
 
   @Test
-  public void loadingAsicsWithTwoMimeTypesShouldFail() {
+  void loadingAsicsWithTwoMimeTypesShouldFail() {
     DigiDoc4JException exception = assertThrows(
             DigiDoc4JException.class,
             () -> openContainerBy(Paths.get("src/test/resources/testFiles/degenerate-containers/2-mimetypes.asics"))

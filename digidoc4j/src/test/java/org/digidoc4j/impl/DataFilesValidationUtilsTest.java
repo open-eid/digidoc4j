@@ -29,17 +29,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-public class DataFilesValidationUtilsTest {
+class DataFilesValidationUtilsTest {
 
   @Test
-  public void getExceptionsForEmptyDataFiles_WhenDataFilesListIsEmpty_ReturnsEmptyExceptionList() {
+  void getExceptionsForEmptyDataFiles_WhenDataFilesListIsEmpty_ReturnsEmptyExceptionList() {
     List<DigiDoc4JException> result = DataFilesValidationUtils.getExceptionsForEmptyDataFiles(Collections.emptyList());
 
     assertThat(result, empty());
   }
 
   @Test
-  public void getExceptionsForEmptyDataFiles_WhenDataFilesListContainsNonEmptyDataFile_ReturnsEmptyExceptionList() {
+  void getExceptionsForEmptyDataFiles_WhenDataFilesListContainsNonEmptyDataFile_ReturnsEmptyExceptionList() {
     DataFile nonEmptyDataFile = mockNonEmptyDataFile();
     List<DataFile> dataFiles = Collections.singletonList(nonEmptyDataFile);
 
@@ -51,7 +51,7 @@ public class DataFilesValidationUtilsTest {
   }
 
   @Test
-  public void getExceptionsForEmptyDataFiles_WhenDataFilesListContainsEmptyDataFile_ReturnsExceptionForEmptyDataFile() {
+  void getExceptionsForEmptyDataFiles_WhenDataFilesListContainsEmptyDataFile_ReturnsExceptionForEmptyDataFile() {
     DataFile emptyDataFile = mockEmptyDataFile("data-file-name.ext");
     List<DataFile> dataFiles = Collections.singletonList(emptyDataFile);
 
@@ -66,7 +66,7 @@ public class DataFilesValidationUtilsTest {
   }
 
   @Test
-  public void getExceptionsForEmptyDataFiles_WhenDataFilesListContainsEmptyDataFileAmongNonEmpty_ReturnsExceptionForEmptyDataFile() {
+  void getExceptionsForEmptyDataFiles_WhenDataFilesListContainsEmptyDataFileAmongNonEmpty_ReturnsExceptionForEmptyDataFile() {
     DataFile nonEmptyDataFile1 = mockNonEmptyDataFile();
     DataFile emptyDataFile2 = mockEmptyDataFile("data-file-2-name.ext");
     DataFile nonEmptyDataFile3 = mockNonEmptyDataFile();
@@ -85,7 +85,7 @@ public class DataFilesValidationUtilsTest {
   }
 
   @Test
-  public void getExceptionsForEmptyDataFiles_WhenDataFilesListContainsMultipleEmptyDataFiles_ReturnsExceptionsForAllEmptyDataFiles() {
+  void getExceptionsForEmptyDataFiles_WhenDataFilesListContainsMultipleEmptyDataFiles_ReturnsExceptionsForAllEmptyDataFiles() {
     DataFile emptyDataFile1 = mockEmptyDataFile("data-file-1-name.ext");
     DataFile nonEmptyDataFile2 = mockNonEmptyDataFile();
     DataFile emptyDataFile3 = mockEmptyDataFile("data-file-3-name.ext");

@@ -19,10 +19,10 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class EmptyDataFilesAsicSContainerTimestampFinalizerTest extends AbstractTest {
+class EmptyDataFilesAsicSContainerTimestampFinalizerTest extends AbstractTest {
 
   @Test
-  public void testCreateTimestampFinalizerWithEmptyDataFile() {
+  void testCreateTimestampFinalizerWithEmptyDataFile() {
     DataFile dataFile = new DataFile(new byte[0], "empty-file.txt", "text/plain");
 
     InvalidDataFileException caughtException = assertThrows(

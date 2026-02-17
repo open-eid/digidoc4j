@@ -62,12 +62,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Created by Andrei on 22.11.2017.
  */
 
-public class TimeStampTokenTest extends AbstractTest {
+class TimeStampTokenTest extends AbstractTest {
 
-  public static final String META_INF_TIMESTAMP_TST = "META-INF/timestamp.tst";
+  static final String META_INF_TIMESTAMP_TST = "META-INF/timestamp.tst";
 
   @Test
-  public void buildTimestampedContainer_ReadFromFile_ValidationSuccess() {
+  void buildTimestampedContainer_ReadFromFile_ValidationSuccess() {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(configuration).
         withDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain").
         withTimeStampToken(DigestAlgorithm.SHA256).build();
@@ -77,7 +77,7 @@ public class TimeStampTokenTest extends AbstractTest {
   }
 
   @Test
-  public void buildTimestampedContainer_ReadFromFile_ValidAndHasTimestampToken() {
+  void buildTimestampedContainer_ReadFromFile_ValidAndHasTimestampToken() {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(configuration).
         fromExistingFile("src/test/resources/testFiles/valid-containers/testtimestamp.asics").build();
     assertContainerIsValid(container);
@@ -86,7 +86,7 @@ public class TimeStampTokenTest extends AbstractTest {
   }
 
   @Test
-  public void buildTimestampedContainer_TimeStampWithdrawn_ValidationSucceedsWithWarning() {
+  void buildTimestampedContainer_TimeStampWithdrawn_ValidationSucceedsWithWarning() {
     // TODO (DD4J-1123): Currently JDigiDoc configuration (for validating DDoc containers and signatures) is
     //  automatically initialized only once per process, and thus is dependent on the order the unit tests are run.
     //  This workaround helps to avoid unit test failures caused by incompatible configuration being loaded.
@@ -105,7 +105,7 @@ public class TimeStampTokenTest extends AbstractTest {
   }
 
   @Test
-  public void buildTimestampedContainer_ContainerHasValidTimeStamp_ValidationSuccess() {
+  void buildTimestampedContainer_ContainerHasValidTimeStamp_ValidationSuccess() {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).withConfiguration(configuration).
             fromExistingFile("src/test/resources/testFiles/valid-containers/1xTST-text-data-file.asics").build();
     TimeStampContainerValidationResult validate = (TimeStampContainerValidationResult) container.validate();
@@ -115,7 +115,7 @@ public class TimeStampTokenTest extends AbstractTest {
   }
 
   @Test
-  public void openTimestampedContainer_WhenContainerContainsTwoDataFiles_ThrowsIllegalContainerContentException() {
+  void openTimestampedContainer_WhenContainerContainsTwoDataFiles_ThrowsIllegalContainerContentException() {
     ContainerBuilder builder = ContainerBuilder
             .aContainer(Container.DocumentType.ASICS)
             .withConfiguration(configuration)
@@ -133,7 +133,7 @@ public class TimeStampTokenTest extends AbstractTest {
   }
 
   @Test
-  public void validateTimestampedContainer_WhenContainerContainsInvalidTimestampToken_ThrowsIllegalTimestampException() {
+  void validateTimestampedContainer_WhenContainerContainsInvalidTimestampToken_ThrowsIllegalTimestampException() {
     Container container = ContainerBuilder
             .aContainer(Container.DocumentType.ASICS)
             .withConfiguration(configuration)
@@ -149,7 +149,7 @@ public class TimeStampTokenTest extends AbstractTest {
   }
 
   @Test
-  public void constructTimestampToken_SetTypeAsArchiveTimestamp_ValidationSuccess() throws Exception {
+  void constructTimestampToken_SetTypeAsArchiveTimestamp_ValidationSuccess() throws Exception {
     try (FileInputStream fis = new FileInputStream("src/test/resources/testFiles/tst/timestamp.tst")) {
       TimestampToken token = new TimestampToken(Utils.toByteArray(fis), TimestampType.ARCHIVE_TIMESTAMP);
       assertNotNull(token);
@@ -171,7 +171,7 @@ public class TimeStampTokenTest extends AbstractTest {
   }
 
   @Test
-  public void createASICSContainerWithTst_AddOneDataFile_ValidationSuccess() throws Exception {
+  void createASICSContainerWithTst_AddOneDataFile_ValidationSuccess() throws Exception {
     String fileName = getFileBy("asics");
     String[] parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-datst", "SHA256", "-tst"};
@@ -205,7 +205,7 @@ public class TimeStampTokenTest extends AbstractTest {
   }
 
   @Test
-  public void createASICSContainerWithTst_AddDataFileAndTimestampTwice_Error() {
+  void createASICSContainerWithTst_AddDataFileAndTimestampTwice_Error() {
     String fileName = getFileBy("asics");
     String[] parameters1 = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
         "text/plain", "-datst", "SHA256", "-tst"};
@@ -222,7 +222,7 @@ public class TimeStampTokenTest extends AbstractTest {
   }
 
   @Test
-  public void createASICSContainerWithTst_AddDataFileTwice_Error() {
+  void createASICSContainerWithTst_AddDataFileTwice_Error() {
     String fileName = getFileBy("asics");
     String[] parameters1 = new String[]{"-in", fileName, "-type", "ASICS", "-add",
             "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-datst", "SHA256", "-tst"};
@@ -239,7 +239,7 @@ public class TimeStampTokenTest extends AbstractTest {
   }
 
   @Test
-  public void createASICSContainerWithTst_AddTimestampTwice_Success() {
+  void createASICSContainerWithTst_AddTimestampTwice_Success() {
     String fileName = getFileBy("asics");
     int caughtExitStatus1 = invokeDigiDoc4jAndReturnExitStatus("-in", fileName, "-add",
             "src/test/resources/testFiles/helper-files/test.txt", "text/plain", "-tst");
@@ -255,7 +255,7 @@ public class TimeStampTokenTest extends AbstractTest {
   }
 
   @Test
-  public void createASICSContainerWithTst_SpecifyCustomTspSource_SpecifiedTspUsed() {
+  void createASICSContainerWithTst_SpecifyCustomTspSource_SpecifiedTspUsed() {
     String fileName = getFileBy("asics");
     String tspSource = TestConstants.DEMO_TSA_RSA_URL;
 
@@ -272,7 +272,7 @@ public class TimeStampTokenTest extends AbstractTest {
   }
 
   @Test
-  public void createASICSContainerWithTst_SpecifyCustomNonRoutableTspSource_ErrorCallingTSP() {
+  void createASICSContainerWithTst_SpecifyCustomNonRoutableTspSource_ErrorCallingTSP() {
     String fileName = getFileBy("asics");
     String tspSource = "http://10.255.255.1/";
 
@@ -287,7 +287,7 @@ public class TimeStampTokenTest extends AbstractTest {
   }
 
   @Test
-  public void createASICSContainerWithTst_SpecifyDigestAlgo_SpecifiedDigestAlgoUsed() {
+  void createASICSContainerWithTst_SpecifyDigestAlgo_SpecifiedDigestAlgoUsed() {
     String digestAlgo1 = "SHA384";
     String digestAlgo2 = "SHA512";
     String refDigestAlgo = "SHA224";
@@ -321,7 +321,7 @@ public class TimeStampTokenTest extends AbstractTest {
   }
 
   @Test
-  public void addPKCS12Signature_ContainerAlreadyTimestamped_Error() {
+  void addPKCS12Signature_ContainerAlreadyTimestamped_Error() {
     String fileName = getFileBy("asics");
     String[] parameters1 = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/test.txt",
             "text/plain", "-datst", "SHA256", "-tst"};
@@ -338,7 +338,7 @@ public class TimeStampTokenTest extends AbstractTest {
   }
 
   @Test
-  public void addPKCS12Signature_ContainerTypeIsASICS_Error() {
+  void addPKCS12Signature_ContainerTypeIsASICS_Error() {
     String fileName = getFileBy("asics");
     String[] parameters = new String[]{"-in", fileName, "-type", "ASICS", "-add", "src/test/resources/testFiles/helper-files/dds_колючей стерне.txt",
         "text/plain", "-pkcs12", TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD};

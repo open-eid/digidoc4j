@@ -39,10 +39,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
-public class AsicArchiveManifestTest {
+class AsicArchiveManifestTest {
 
   @Test
-  public void createInstance_WhenWrappedDocumentIsMock_DocumentIsWrappedWithoutParsingIt() {
+  void createInstance_WhenWrappedDocumentIsMock_DocumentIsWrappedWithoutParsingIt() {
     DSSDocument manifestDocument = mock(DSSDocument.class);
     AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
 
@@ -53,7 +53,7 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getReferencedTimestamp_WhenDocumentIsNotParsable_ThrowsException() {
+  void getReferencedTimestamp_WhenDocumentIsNotParsable_ThrowsException() {
     DSSDocument manifestDocument = new InMemoryDocument(
             "Not XML".getBytes(StandardCharsets.UTF_8),
             MANIFEST_NAME,
@@ -70,7 +70,7 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getReferencedTimestamp_WhenManifestDoesNotContainSigReference_ReturnsEmptyTimestampReference() {
+  void getReferencedTimestamp_WhenManifestDoesNotContainSigReference_ReturnsEmptyTimestampReference() {
     DSSDocument manifestDocument = createAsicManifestXmlDocument();
     AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
 
@@ -83,7 +83,7 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getReferencedTimestamp_WhenManifestContainsEmptySigReference_ReturnsEmptyTimestampReference() {
+  void getReferencedTimestamp_WhenManifestContainsEmptySigReference_ReturnsEmptyTimestampReference() {
     DSSDocument manifestDocument = createAsicManifestXmlDocument(
             createAsicSigReferenceXmlElement(null, null)
     );
@@ -98,7 +98,7 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getReferencedTimestamp_WhenManifestContainsValidSigReference_ReturnsTimestampReferenceWithGivenValues() {
+  void getReferencedTimestamp_WhenManifestContainsValidSigReference_ReturnsTimestampReferenceWithGivenValues() {
     DSSDocument manifestDocument = createAsicManifestXmlDocument(
             createAsicSigReferenceXmlElement("custom-mimetype-string", "custom-uri-string")
     );
@@ -113,7 +113,7 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getReferencedTimestamp_WhenSigReferenceUriContainsPercentEncodedSpecialCharacters_ReturnsTimestampReferenceWithExpectedValues() {
+  void getReferencedTimestamp_WhenSigReferenceUriContainsPercentEncodedSpecialCharacters_ReturnsTimestampReferenceWithExpectedValues() {
     DSSDocument manifestDocument = createAsicManifestXmlDocument(
             createAsicSigReferenceXmlElement(null,
                     "%21%23%24%25%26%27%28%29%2B%2C-.%3B%3D%40%5B%5D%5E_%60%7B%7D%7E%20%C3%B5%C3%A4%C3%B6%C3%BC")
@@ -130,7 +130,7 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getReferencedTimestamp_WhenSigReferenceUriContainsUnencodedSpecialCharacters_ReturnsTimestampReferenceWithExpectedValues() {
+  void getReferencedTimestamp_WhenSigReferenceUriContainsUnencodedSpecialCharacters_ReturnsTimestampReferenceWithExpectedValues() {
     DSSDocument manifestDocument = createAsicManifestXmlDocument(
             createAsicSigReferenceXmlElement(null, "!#$&amp;'()+,-.;=@[]^_`{}~ õäöü")
     );
@@ -145,7 +145,7 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getName_WhenSigReferenceUriContainsUnencodedPlusAndPercentCharacters_ReturnsReferenceNameWithPercentEncodedPlusCharacter() {
+  void getName_WhenSigReferenceUriContainsUnencodedPlusAndPercentCharacters_ReturnsReferenceNameWithPercentEncodedPlusCharacter() {
     DSSDocument manifestDocument = createAsicManifestXmlDocument(
             createAsicSigReferenceXmlElement(null, "+%")
     );
@@ -158,7 +158,7 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getName_WhenSigReferenceUriIsUnencodedPercentCharacter_ReturnsReferenceNameAsPercentCharacter() {
+  void getName_WhenSigReferenceUriIsUnencodedPercentCharacter_ReturnsReferenceNameAsPercentCharacter() {
     DSSDocument manifestDocument = createAsicManifestXmlDocument(
             createAsicSigReferenceXmlElement(null, "%")
     );
@@ -171,7 +171,7 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getReferencedDataObjects_WhenDocumentIsNotParsable_ThrowsException() {
+  void getReferencedDataObjects_WhenDocumentIsNotParsable_ThrowsException() {
     DSSDocument manifestDocument = new InMemoryDocument(
             "Not XML".getBytes(StandardCharsets.UTF_8),
             MANIFEST_NAME,
@@ -188,7 +188,7 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getReferencedDataObjects_WhenManifestDoesNotContainDataObjectReferences_ReturnsEmptyList() {
+  void getReferencedDataObjects_WhenManifestDoesNotContainDataObjectReferences_ReturnsEmptyList() {
     DSSDocument manifestDocument = createAsicManifestXmlDocument();
     AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
 
@@ -198,7 +198,7 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getReferencedDataObjects_WhenManifestContainsEmptyDataObjectReference_ReturnsListOfOneEmptyReference() {
+  void getReferencedDataObjects_WhenManifestContainsEmptyDataObjectReference_ReturnsListOfOneEmptyReference() {
     DSSDocument manifestDocument = createAsicManifestXmlDocument(
             createAsicDataObjectReferenceXmlElement(null, null)
     );
@@ -215,7 +215,7 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getReferencedDataObjects_WhenManifestContainsValidDataObjectReference_ReturnsListOfOneEquivalentReference() {
+  void getReferencedDataObjects_WhenManifestContainsValidDataObjectReference_ReturnsListOfOneEquivalentReference() {
     DSSDocument manifestDocument = createAsicManifestXmlDocument(
             createAsicDataObjectReferenceXmlElement(
                     "custom-mimetype-string", "custom-uri-string",
@@ -236,7 +236,7 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getReferencedDataObjects_WhenDataObjectReferenceUriContainsPercentEncodedSpecialCharacters_ReturnsListOfOneExpectedReference() {
+  void getReferencedDataObjects_WhenDataObjectReferenceUriContainsPercentEncodedSpecialCharacters_ReturnsListOfOneExpectedReference() {
     DSSDocument manifestDocument = createAsicManifestXmlDocument(
             createAsicDataObjectReferenceXmlElement(null,
                     "%21%23%24%25%26%27%28%29%2B%2C-.%3B%3D%40%5B%5D%5E_%60%7B%7D%7E%20%C3%B5%C3%A4%C3%B6%C3%BC")
@@ -255,7 +255,7 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getReferencedDataObjects_WhenDataObjectReferenceUriContainsUnencodedSpecialCharacters_ReturnsListOfOneExpectedReference() {
+  void getReferencedDataObjects_WhenDataObjectReferenceUriContainsUnencodedSpecialCharacters_ReturnsListOfOneExpectedReference() {
     DSSDocument manifestDocument = createAsicManifestXmlDocument(
             createAsicDataObjectReferenceXmlElement(null, "!#$&amp;'()+,-.;=@[]^_`{}~ õäöü")
     );
@@ -272,7 +272,7 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getName_WhenDataObjectReferenceUriContainsUnencodedPlusAndPercentCharacters_ReturnsReferenceNameWithPercentEncodedPlusCharacter() {
+  void getName_WhenDataObjectReferenceUriContainsUnencodedPlusAndPercentCharacters_ReturnsReferenceNameWithPercentEncodedPlusCharacter() {
     DSSDocument manifestDocument = createAsicManifestXmlDocument(
             createAsicDataObjectReferenceXmlElement(null, "+%")
     );
@@ -287,7 +287,7 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getName_WhenDataObjectReferenceUriIsUnencodedPercentCharacter_ReturnsReferenceNameAsPercentCharacter() {
+  void getName_WhenDataObjectReferenceUriIsUnencodedPercentCharacter_ReturnsReferenceNameAsPercentCharacter() {
     DSSDocument manifestDocument = createAsicManifestXmlDocument(
             createAsicDataObjectReferenceXmlElement(null, "%")
     );
@@ -302,7 +302,7 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getNonNullEntryNames_WhenDocumentIsNotParsable_ThrowsException() {
+  void getNonNullEntryNames_WhenDocumentIsNotParsable_ThrowsException() {
     DSSDocument manifestDocument = new InMemoryDocument(
             "Not XML".getBytes(StandardCharsets.UTF_8),
             MANIFEST_NAME,
@@ -319,7 +319,7 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getNonNullEntryNames_WhenManifestDoesNotContainDataObjectReferences_ReturnsEmptySet() {
+  void getNonNullEntryNames_WhenManifestDoesNotContainDataObjectReferences_ReturnsEmptySet() {
     DSSDocument manifestDocument = createAsicManifestXmlDocument();
     AsicArchiveManifest asicArchiveManifest = new AsicArchiveManifest(manifestDocument);
 
@@ -329,7 +329,7 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getNonNullEntryNames_WhenManifestContainsDataObjectReferences_ReturnsSetOfNonNullReferenceNames() {
+  void getNonNullEntryNames_WhenManifestContainsDataObjectReferences_ReturnsSetOfNonNullReferenceNames() {
     DSSDocument manifestDocument = createAsicManifestXmlDocument(
             createAsicDataObjectReferenceXmlElement(null, null),
             createAsicDataObjectReferenceXmlElement("element-2-mimetype", null),
@@ -345,7 +345,7 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getNonNullEntryNames_WhenDataObjectReferenceUriContainsUnencodedPlusAndPercentCharacters_ReturnsSetOfSingleValueWithPercentEncodedPlusCharacter() {
+  void getNonNullEntryNames_WhenDataObjectReferenceUriContainsUnencodedPlusAndPercentCharacters_ReturnsSetOfSingleValueWithPercentEncodedPlusCharacter() {
     DSSDocument manifestDocument = createAsicManifestXmlDocument(
             createAsicDataObjectReferenceXmlElement(null, "+%")
     );
@@ -357,7 +357,7 @@ public class AsicArchiveManifestTest {
   }
 
   @Test
-  public void getNonNullEntryNames_WhenDataObjectReferenceUriIsUnencodedPercentCharacter_ReturnsSetOfSinglePercentCharacter() {
+  void getNonNullEntryNames_WhenDataObjectReferenceUriIsUnencodedPercentCharacter_ReturnsSetOfSinglePercentCharacter() {
     DSSDocument manifestDocument = createAsicManifestXmlDocument(
             createAsicDataObjectReferenceXmlElement(null, "%")
     );

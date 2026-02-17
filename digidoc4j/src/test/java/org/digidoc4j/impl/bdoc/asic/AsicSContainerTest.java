@@ -39,10 +39,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Created by Andrei on 15.11.2017.
  */
 
-public class AsicSContainerTest extends AbstractTest {
+class AsicSContainerTest extends AbstractTest {
 
   @Test
-  public void testAddSignatureToAsicSContainer() throws Exception {
+  void testAddSignatureToAsicSContainer() throws Exception {
     Container container = createNonEmptyContainer(Container.DocumentType.ASICS, 1);
 
     assertThrows(
@@ -52,7 +52,7 @@ public class AsicSContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testBuildAsicSContainerWithTwoDataFiles(){
+  void testBuildAsicSContainerWithTwoDataFiles(){
     assertThrows(
             DigiDoc4JException.class,
             () -> createNonEmptyContainer(Container.DocumentType.ASICS, 2)
@@ -60,7 +60,7 @@ public class AsicSContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testAddingDatafileToContainerWithExistingDatafile() throws IOException {
+  void testAddingDatafileToContainerWithExistingDatafile() throws IOException {
     Container container = createNonEmptyContainer(Container.DocumentType.ASICS, 1);
 
     DigiDoc4JException exception = assertThrows(
@@ -71,7 +71,7 @@ public class AsicSContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testExistingAsicSContainerFromPath() {
+  void testExistingAsicSContainerFromPath() {
     ContainerBuilder containerBuilder = ContainerBuilder.aContainer(Container.DocumentType.ASICS)
         .fromExistingFile("src/test/resources/testFiles/valid-containers/testasics.asics");
 
@@ -79,7 +79,7 @@ public class AsicSContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testExistingAsicSContainerFromZIPPath() {
+  void testExistingAsicSContainerFromZIPPath() {
     ContainerBuilder containerBuilder = ContainerBuilder
             .aContainer(Container.DocumentType.ASICS)
             .fromExistingFile("src/test/resources/testFiles/valid-containers/testasics.zip");
@@ -88,7 +88,7 @@ public class AsicSContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testExistingAsicSContainerFromStream() throws IOException {
+  void testExistingAsicSContainerFromStream() throws IOException {
     try (InputStream stream = new FileInputStream(new File("src/test/resources/testFiles/valid-containers/testasics.asics"))) {
       ContainerBuilder containerBuilder = ContainerBuilder
               .aContainer(Container.DocumentType.ASICS)
@@ -99,14 +99,14 @@ public class AsicSContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testExistingAsicSContainerWithSingleSignature() {
+  void testExistingAsicSContainerWithSingleSignature() {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS)
             .fromExistingFile("src/test/resources/testFiles/valid-containers/asics-1-signature.asics").build();
     assertTrue(container.validate().isValid());
   }
 
   @Test
-  public void testExistingAsicSContainerWithTwoSignaturesInDifferentFiles() {
+  void testExistingAsicSContainerWithTwoSignaturesInDifferentFiles() {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS)
             .fromExistingFile("src/test/resources/testFiles/invalid-containers/asics-2-signatures-in-different-files.asics").build();
     ValidationResult result = container.validate();
@@ -115,7 +115,7 @@ public class AsicSContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testExistingAsicSContainerWithTwoSignaturesInDifferentFiles2_withoutGivingContainerType() {
+  void testExistingAsicSContainerWithTwoSignaturesInDifferentFiles2_withoutGivingContainerType() {
     Container container = ContainerBuilder.aContainer()
             .fromExistingFile("src/test/resources/testFiles/invalid-containers/asics-2-signatures-in-different-files.asics").build();
     ValidationResult result = container.validate();
@@ -124,7 +124,7 @@ public class AsicSContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testSignatureExtensionValidationWithoutSignature() {
+  void testSignatureExtensionValidationWithoutSignature() {
     AsicContainer container = (AsicContainer) createNonEmptyContainerBy(Container.DocumentType.ASICS);
 
     Map<String, DigiDoc4JException> validationErrors = container.getExtensionValidationErrors(SignatureProfile.LT_TM);
@@ -133,7 +133,7 @@ public class AsicSContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testSignatureExtensionValidationFromLtToLtaWithExpiredSignerCertificate() {
+  void testSignatureExtensionValidationFromLtToLtaWithExpiredSignerCertificate() {
     AsicContainer container = (AsicContainer) ContainerBuilder.aContainer(Container.DocumentType.ASICS)
             .fromExistingFile("src/test/resources/testFiles/valid-containers/asics-1-signature.asics").build();
 
@@ -146,7 +146,7 @@ public class AsicSContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testLtSignatureExtensionValidationFromLtToLtWithExpiredSignerCertificate() {
+  void testLtSignatureExtensionValidationFromLtToLtWithExpiredSignerCertificate() {
     AsicContainer container = (AsicContainer) ContainerBuilder.aContainer(Container.DocumentType.ASICS)
             .fromExistingFile("src/test/resources/testFiles/valid-containers/asics-1-signature.asics").build();
 
@@ -159,7 +159,7 @@ public class AsicSContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testLtSignatureExtensionValidationFromLtToLtTmWithExpiredSignerCertificate() {
+  void testLtSignatureExtensionValidationFromLtToLtTmWithExpiredSignerCertificate() {
     AsicContainer container = (AsicContainer) ContainerBuilder.aContainer(Container.DocumentType.ASICS)
             .fromExistingFile("src/test/resources/testFiles/valid-containers/asics-1-signature.asics").build();
 
@@ -172,7 +172,7 @@ public class AsicSContainerTest extends AbstractTest {
   }
 
   @Test
-  public void removingNullSignatureDoesNothing() {
+  void removingNullSignatureDoesNothing() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/asics-1-signature.asics");
     assertEquals(1, container.getSignatures().size());
     container.removeSignature(null);

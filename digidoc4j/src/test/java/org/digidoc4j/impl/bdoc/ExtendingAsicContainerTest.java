@@ -63,7 +63,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 
-public class ExtendingAsicContainerTest extends AbstractTest {
+class ExtendingAsicContainerTest extends AbstractTest {
 
   private static final String B_EPES_CONTAINER_PATH = "src/test/resources/testFiles/valid-containers/bdoc-with-b-epes-signature.bdoc";
   private static final String LT_TM_CONTAINER_PATH = "src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc";
@@ -75,7 +75,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   private String containerLocation;
 
   @Test
-  public void validate_WhenNonEstonianSignatureExtendedFromTToLTAfter24h_WarningIsRaised() {
+  void validate_WhenNonEstonianSignatureExtendedFromTToLTAfter24h_WarningIsRaised() {
     configuration = createLatvianSignatureConfiguration();
     configuration.setExtendingOcspSourceFactory(this::getOcspSource);
 
@@ -98,7 +98,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extendEstonianSignatureFromTToLT_After24h_ExtensionSucceedsWithValidationWarning() {
+  void extendEstonianSignatureFromTToLT_After24h_ExtensionSucceedsWithValidationWarning() {
     setupCustomConfigurationWithExtendingOcspSourceFactory();
 
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/signature-level-T.asice",
@@ -118,7 +118,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extendFromB_BESToLT_OcspSourceFactoryDefinedInConf_Success() {
+  void extendFromB_BESToLT_OcspSourceFactoryDefinedInConf_Success() {
     setupCustomConfigurationWithExtendingOcspSourceFactory();
 
     Container container = createNonEmptyContainer();
@@ -141,7 +141,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extendFromB_BESToLT_OcspSourceFactoryDefinedInConf_OcspUnset() {
+  void extendFromB_BESToLT_OcspSourceFactoryDefinedInConf_OcspUnset() {
     Container container = createNonEmptyContainer();
     createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
     container.saveAsFile(containerLocation);
@@ -165,7 +165,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extendFromB_BESToLTA_OcspSourceFactoryDefinedInConf_Success() {
+  void extendFromB_BESToLTA_OcspSourceFactoryDefinedInConf_Success() {
     setupCustomConfigurationWithExtendingOcspSourceFactory();
 
     Container container = createNonEmptyContainer();
@@ -186,7 +186,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extendFromB_BESToLTA_OcspSourceFactoryDefinedInConf_OcspUnset() {
+  void extendFromB_BESToLTA_OcspSourceFactoryDefinedInConf_OcspUnset() {
     Container container = createNonEmptyContainer();
     createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
     container.saveAsFile(containerLocation);
@@ -210,7 +210,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extendFromTToLT_OcspSourceFactoryDefinedInConf_Success() {
+  void extendFromTToLT_OcspSourceFactoryDefinedInConf_Success() {
     setupCustomConfigurationWithExtendingOcspSourceFactory();
 
     Container container = createNonEmptyContainer();
@@ -233,7 +233,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extendFromTToLT_OcspSourceFactoryUnsetInConf_OcspUnset() {
+  void extendFromTToLT_OcspSourceFactoryUnsetInConf_OcspUnset() {
     Container container = createNonEmptyContainer();
     createSignatureBy(container, SignatureProfile.T, pkcs12SignatureToken);
     container.saveAsFile(containerLocation);
@@ -257,7 +257,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extendFromB_BESToLT_TM_ThrowsException() {
+  void extendFromB_BESToLT_TM_ThrowsException() {
     Container container = createNonEmptyContainer();
     createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
 
@@ -272,7 +272,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extendFromB_EPESToLT_TM_ThrowsException() {
+  void extendFromB_EPESToLT_TM_ThrowsException() {
     Container container = ContainerOpener.open(B_EPES_CONTAINER_PATH, Configuration.of(Configuration.Mode.TEST));
 
     NotSupportedException caughtException = assertThrows(
@@ -286,7 +286,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extendFromB_EPESToLT_ThrowsException() {
+  void extendFromB_EPESToLT_ThrowsException() {
     Container container = ContainerOpener.open(B_EPES_CONTAINER_PATH, Configuration.of(Configuration.Mode.TEST));
 
     NotSupportedException caughtException = assertThrows(
@@ -300,7 +300,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extendFromB_EPESToLTA_ThrowsException() {
+  void extendFromB_EPESToLTA_ThrowsException() {
     Container container = ContainerOpener.open(B_EPES_CONTAINER_PATH, Configuration.of(Configuration.Mode.TEST));
 
     NotSupportedException caughtException = assertThrows(
@@ -314,7 +314,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extendFromLTToLT_TM_ThrowsException() {
+  void extendFromLTToLT_TM_ThrowsException() {
     Container container = createNonEmptyContainer();
     createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
 
@@ -329,7 +329,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extendFromLTAToLT_TM_ThrowsException() {
+  void extendFromLTAToLT_TM_ThrowsException() {
     Container container = createNonEmptyContainer();
     createSignatureBy(container, SignatureProfile.LTA, pkcs12SignatureToken);
 
@@ -344,7 +344,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extendFromLTToB_BES_ThrowsException() {
+  void extendFromLTToB_BES_ThrowsException() {
     Container container = createNonEmptyContainer();
     createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
 
@@ -359,7 +359,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extendFromLTToB_EPES_ThrowsException() {
+  void extendFromLTToB_EPES_ThrowsException() {
     Container container = createNonEmptyContainer();
     createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
 
@@ -374,7 +374,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extendFromLT_TMToLT_ThrowsException() {
+  void extendFromLT_TMToLT_ThrowsException() {
     Container container = ContainerOpener.open(LT_TM_CONTAINER_PATH, Configuration.of(Configuration.Mode.TEST));
 
     NotSupportedException caughtException = assertThrows(
@@ -388,7 +388,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extendFromLT_TMToLTA_ThrowsException() {
+  void extendFromLT_TMToLTA_ThrowsException() {
     Container container = ContainerOpener.open(LT_TM_CONTAINER_PATH, Configuration.of(Configuration.Mode.TEST));
 
     NotSupportedException caughtException = assertThrows(
@@ -402,7 +402,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extendToWhenConfirmationAlreadyExists() {
+  void extendToWhenConfirmationAlreadyExists() {
     setupCustomConfigurationWithExtendingOcspSourceFactory();
 
     Container initialContainer = createNonEmptyContainer();
@@ -426,7 +426,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extendToWithMultipleSignatures() {
+  void extendToWithMultipleSignatures() {
     setupCustomConfigurationWithExtendingOcspSourceFactory();
 
     Container container = createNonEmptyContainer();
@@ -452,7 +452,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extendToWithMultipleSignaturesAndMultipleFiles() {
+  void extendToWithMultipleSignaturesAndMultipleFiles() {
     setupCustomConfigurationWithExtendingOcspSourceFactory();
 
     Container container = createNonEmptyContainer();
@@ -478,7 +478,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testContainerExtensionFromNewLTtoLTA() throws InterruptedException {
+  void testContainerExtensionFromNewLTtoLTA() throws InterruptedException {
     Container container = createNonEmptyContainer();
     createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
     sleep(1100);
@@ -492,7 +492,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testContainerExtensionFromExistingLTtoLTA() {
+  void testContainerExtensionFromExistingLTtoLTA() {
     Container container = ContainerOpener
             .open("src/test/resources/testFiles/valid-containers/valid-asice-esteid2018.asice");
 
@@ -505,7 +505,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testContainerExtensionFromExpiredLTtoLTAFails() {
+  void testContainerExtensionFromExpiredLTtoLTAFails() {
     Container container = ContainerOpener
             .open("src/test/resources/testFiles/valid-containers/valid-asice.asice");
 
@@ -521,7 +521,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testExtendingExpiredSignaturesFromLTtoLTAFails() {
+  void testExtendingExpiredSignaturesFromLTtoLTAFails() {
     Container container = ContainerOpener.open(ASICE_LT_WITH_EXPIRED_SIGNER_AND_TS_AND_OCSP, Configuration.of(Configuration.Mode.TEST));
     Signature signature1 = container.getSignatures().get(0);
 
@@ -537,7 +537,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testExtendingSignatureWithInvalidDatafileReferenceFromLTtoLTAFails() {
+  void testExtendingSignatureWithInvalidDatafileReferenceFromLTtoLTAFails() {
     Container container = ContainerOpener.open(ASICE_INVALID_SIGNATURE_DOES_NOT_COVER_DATAFILE, Configuration.of(Configuration.Mode.TEST));
     Signature signature = container.getSignatures().get(0);
 
@@ -555,7 +555,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testContainerExtensionFromLTAtoLTA() {
+  void testContainerExtensionFromLTAtoLTA() {
     Container container = ContainerOpener.open(ASICE_LTA_CONTAINER_PATH, Configuration.of(Configuration.Mode.TEST));
 
     validateAndExtend(container, SignatureProfile.LTA);
@@ -567,7 +567,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testExtendingSelectedSignaturesFromLTtoLTA() {
+  void testExtendingSelectedSignaturesFromLTtoLTA() {
     Container container = ContainerOpener.open(ASICE_LT_2_SIGNATURES_CONTAINER_PATH, Configuration.of(Configuration.Mode.TEST));
     Signature signature1 = container.getSignatures().get(0);
 
@@ -584,7 +584,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testSelectAllSignaturesForExtendingFromLTtoLTA() {
+  void testSelectAllSignaturesForExtendingFromLTtoLTA() {
     Container container = ContainerOpener.open(ASICE_LT_2_SIGNATURES_CONTAINER_PATH, Configuration.of(Configuration.Mode.TEST));
     Signature signature1 = container.getSignatures().get(0);
     Signature signature2 = container.getSignatures().get(1);
@@ -645,7 +645,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testExtendingSelectedSignaturesFromLTAtoLTA() {
+  void testExtendingSelectedSignaturesFromLTAtoLTA() {
     Container container = ContainerOpener.open(ASICE_LTA_2_SIGNATURES_CONTAINER_PATH, Configuration.of(Configuration.Mode.TEST));
     Signature signature2 = container.getSignatures().get(1);
 
@@ -660,7 +660,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extensionNotPossibleFromLTtoLT() {
+  void extensionNotPossibleFromLTtoLT() {
     Container container = createNonEmptyContainer();
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
@@ -676,7 +676,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testCustomOcspSourceUsedForExtendingSignature() {
+  void testCustomOcspSourceUsedForExtendingSignature() {
     configuration = Configuration.of(Configuration.Mode.TEST);
     SKOnlineOCSPSource sourceSpy = (SKOnlineOCSPSource) Mockito.spy(getOcspSource());
     OCSPSourceFactory ocspSourceFactoryMock = Mockito.mock(OCSPSourceFactory.class);
@@ -695,7 +695,7 @@ public class ExtendingAsicContainerTest extends AbstractTest {
   }
 
   @Test
-  public void extendAsicsContainerFromLTtoLTA() {
+  void extendAsicsContainerFromLTtoLTA() {
     Configuration configuration = Configuration.of(Configuration.Mode.TEST);
     DssContainerSigner containerSigner = new DssContainerSigner(configuration);
     DSSDocument dataFile = new InMemoryDocument(

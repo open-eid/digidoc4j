@@ -32,10 +32,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-public class ZipLocalFileHeaderTest {
+class ZipLocalFileHeaderTest {
 
   @Test
-  public void readStaticHeaderPart_WhenInputIsShorterThanHeaderSignature_ThrowsEOFException() {
+  void readStaticHeaderPart_WhenInputIsShorterThanHeaderSignature_ThrowsEOFException() {
     ByteArrayInputStream input = getInputStreamFromHex("504b03");
 
     EOFException caughtException = assertThrows(
@@ -47,7 +47,7 @@ public class ZipLocalFileHeaderTest {
   }
 
   @Test
-  public void readStaticHeaderPart_WhenInputIsNoLongerThanHeaderSignature_ThrowsEOFException() {
+  void readStaticHeaderPart_WhenInputIsNoLongerThanHeaderSignature_ThrowsEOFException() {
     ByteArrayInputStream input = getInputStreamFromHex("504b0304");
 
     EOFException caughtException = assertThrows(
@@ -59,7 +59,7 @@ public class ZipLocalFileHeaderTest {
   }
 
   @Test
-  public void readStaticHeaderPart_WhenInputIsNotZipLocalHeader_ThrowsUnrecognizedSignatureException() {
+  void readStaticHeaderPart_WhenInputIsNotZipLocalHeader_ThrowsUnrecognizedSignatureException() {
     ByteArrayInputStream input = getInputStreamFromUtf8("This is a text file.");
 
     ZipLocalFileHeader.UnrecognizedSignatureException caughtException = assertThrows(
@@ -71,7 +71,7 @@ public class ZipLocalFileHeaderTest {
   }
 
   @Test
-  public void readStaticHeaderPart_WhenInputIsReadableAsZipLocalFileHeader_ReturnsEquivalentHeaderObject() throws Exception {
+  void readStaticHeaderPart_WhenInputIsReadableAsZipLocalFileHeader_ReturnsEquivalentHeaderObject() throws Exception {
     ByteArrayInputStream input = getInputStreamFromHex("504b0304" +
             "0102030405060708090a0b0c0d0e0f101112131415161718191a");
 
@@ -93,7 +93,7 @@ public class ZipLocalFileHeaderTest {
   }
 
   @Test
-  public void readFileNameFrom_WhenNameLengthIs0_ReturnsEmptyArray() throws Exception {
+  void readFileNameFrom_WhenNameLengthIs0_ReturnsEmptyArray() throws Exception {
     ZipLocalFileHeader header = createHeaderMockWithNameLength(0);
     ByteArrayInputStream input = getInputStreamFromBytes();
 
@@ -107,7 +107,7 @@ public class ZipLocalFileHeaderTest {
   }
 
   @Test
-  public void readFileNameFrom_WhenNameLengthIsGreaterThanInputLength_ThrowsEOFException() throws Exception {
+  void readFileNameFrom_WhenNameLengthIsGreaterThanInputLength_ThrowsEOFException() throws Exception {
     ZipLocalFileHeader header = createHeaderMockWithNameLength(10);
     ByteArrayInputStream input = getInputStreamFromUtf8("too short");
 
@@ -123,7 +123,7 @@ public class ZipLocalFileHeaderTest {
   }
 
   @Test
-  public void readFileNameFrom_WhenNameLengthFitsInsideInput_ReturnsNameBytes() throws Exception {
+  void readFileNameFrom_WhenNameLengthFitsInsideInput_ReturnsNameBytes() throws Exception {
     ZipLocalFileHeader header = createHeaderMockWithNameLength(14);
     ByteArrayInputStream input = getInputStreamFromUtf8("some very long input");
 

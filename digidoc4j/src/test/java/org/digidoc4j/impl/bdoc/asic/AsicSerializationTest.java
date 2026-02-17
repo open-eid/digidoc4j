@@ -22,10 +22,10 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class AsicSerializationTest extends AbstractTest {
+class AsicSerializationTest extends AbstractTest {
 
   @Test
-  public void bdocContainerSigningWithSerialization() {
+  void bdocContainerSigningWithSerialization() {
     Container container = createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     assertEquals(0, container.getSignatures().size());
@@ -37,7 +37,7 @@ public class AsicSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void asiceContainerSigningWithSerialization() {
+  void asiceContainerSigningWithSerialization() {
     Container container = createEmptyContainerBy(Container.DocumentType.ASICE);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     assertEquals(0, container.getSignatures().size());
@@ -49,7 +49,7 @@ public class AsicSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void asiceLtaContainerSigningWithSerialization() {
+  void asiceLtaContainerSigningWithSerialization() {
     Container container = createEmptyContainerBy(Container.DocumentType.ASICE);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     assertEquals(0, container.getSignatures().size());

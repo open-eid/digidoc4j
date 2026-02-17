@@ -71,7 +71,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ConfigurationTest extends AbstractTest {
+class ConfigurationTest extends AbstractTest {
 
   private final Logger log = LoggerFactory.getLogger(ConfigurationTest.class);
   private static final String SIGN_OCSP_REQUESTS = "SIGN_OCSP_REQUESTS";
@@ -79,7 +79,7 @@ public class ConfigurationTest extends AbstractTest {
   private static final String OCSP_PKCS_12_PASSWD = "DIGIDOC_PKCS12_PASSWD";
 
   @Test
-  public void getLotlLocationWhenNotFileURL() {
+  void getLotlLocationWhenNotFileURL() {
     String lotlLocation = "URL:test";
     configuration.setLotlLocation(lotlLocation);
     assertEquals(lotlLocation, configuration.getLotlLocation());
@@ -87,7 +87,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void lotlLocationAndTslLocationReferToTheSameValue() {
+  void lotlLocationAndTslLocationReferToTheSameValue() {
     String lotlLocation = "URL:test";
     configuration.setLotlLocation(lotlLocation);
     assertEquals(lotlLocation, configuration.getLotlLocation());
@@ -99,13 +99,13 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void TSLIsLoadedOnlyOnceForGlobalConfiguration() {
+  void TSLIsLoadedOnlyOnceForGlobalConfiguration() {
     TSLCertificateSource tsl = configuration.getTSL();
     assertEquals(tsl, configuration.getTSL());
   }
 
   @Test
-  public void addTSL()  {
+  void addTSL()  {
     TSLCertificateSource source = configuration.getTSL();
     int numberOfTSLCertificates = source.getCertificates().size();
     addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/Juur-SK.pem.crt"), source);
@@ -113,7 +113,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void addingCertificateToTsl() {
+  void addingCertificateToTsl() {
     TSLCertificateSource source = new TSLCertificateSourceImpl();
     addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/Juur-SK.pem.crt"), source);
     CertificateToken certificateToken = source.getCertificates().get(0);
@@ -130,7 +130,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void addingSameCertificateToTSLMultipleTimes_certNumberRemainsSameButServiceInfoIsDuplicated() {
+  void addingSameCertificateToTSLMultipleTimes_certNumberRemainsSameButServiceInfoIsDuplicated() {
     Path certificatePath = Paths.get("src/test/resources/testFiles/certs/Juur-SK.pem.crt");
     TSLCertificateSource source = new TSLCertificateSourceImpl();
 
@@ -151,7 +151,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void clearTSLLoadsFromConfiguration() {
+  void clearTSLLoadsFromConfiguration() {
     TSLCertificateSource tsl = configuration.getTSL();
     int numberOfTSLCertificates = tsl.getCertificates().size();
     configuration.setTSL(null);
@@ -159,7 +159,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void setTSL() throws IOException, CertificateException {
+  void setTSL() throws IOException, CertificateException {
     TSLCertificateSource source = new TSLCertificateSourceImpl();
     addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/Juur-SK.pem.crt"), source);
     configuration.setTSL(source);
@@ -169,7 +169,7 @@ public class ConfigurationTest extends AbstractTest {
   @SuppressWarnings("ConstantConditions")
   @Disabled("Ignored till problem with file times are solved")
   @Test
-  public void clearTSLCache() throws Exception {
+  void clearTSLCache() throws Exception {
     // TODO: find out why file times are equal; till then ignore
     File fileCacheDirectory = TslLoader.fileCacheDirectory;
     if (fileCacheDirectory.exists()) {
@@ -192,7 +192,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getTsl_whenCacheIsNotExpired_shouldUseCachedTsl() {
+  void getTsl_whenCacheIsNotExpired_shouldUseCachedTsl() {
     TestTSLUtil.evictCache();
     configuration.setTslCacheExpirationTime(10000L);
     TSLCertificateSource tsl1 = configuration.getTSL();
@@ -206,7 +206,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getTsl_whenCacheIsExpired_shouldDownloadNewTsl() {
+  void getTsl_whenCacheIsExpired_shouldDownloadNewTsl() {
     TestTSLUtil.evictCache();
     configuration.setTslCacheExpirationTime(500L);
     TSLCertificateSource tsl = configuration.getTSL();
@@ -221,7 +221,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void lotlValidationFailsWithWrongCertsInTruststore() {
+  void lotlValidationFailsWithWrongCertsInTruststore() {
     configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setLotlTruststorePath("truststores/test-lotl-truststore.p12");
     try {
@@ -232,7 +232,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void lotlLoadingWithNoLotlSslCertificateInTruststoreUsingDefaultTslCallback() {
+  void lotlLoadingWithNoLotlSslCertificateInTruststoreUsingDefaultTslCallback() {
     configuration.setSslTruststorePath("classpath:testFiles/truststores/empty-truststore.p12");
     configuration.setSslTruststorePassword("digidoc4j-password");
     configuration.setSslTruststoreType("PKCS12");
@@ -245,7 +245,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void lotlLoadingWithNoLotlSslCertificateInTruststoreUsingCustomTslCallback() {
+  void lotlLoadingWithNoLotlSslCertificateInTruststoreUsingCustomTslCallback() {
     configuration.setSslTruststorePath("classpath:testFiles/truststores/empty-truststore.p12");
     configuration.setSslTruststorePassword("digidoc4j-password");
     configuration.setSslTruststoreType("PKCS12");
@@ -256,7 +256,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void eeTlLoadingFailsWithNoEeTlSslCertificateInTruststore() {
+  void eeTlLoadingFailsWithNoEeTlSslCertificateInTruststore() {
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
     configuration.setSslTruststorePathFor(ExternalConnectionType.TSL, "src/test/resources/testFiles/truststores/lotl-ssl-only-truststore.p12");
     configuration.setSslTruststorePasswordFor(ExternalConnectionType.TSL, "digidoc4j-password");
@@ -269,7 +269,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void addedTSLIsValid() {
+  void addedTSLIsValid() {
     TSLCertificateSource source = configuration.getTSL();
     addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/Juur-SK.pem.crt"), source);
     addCertificateToTSL(Paths.get("src/test/resources/testFiles/certs/EE_Certification_Centre_Root_CA.pem.crt"), source);
@@ -281,13 +281,13 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void policyFileIsReadFromNonDefaultFileLocation() {
+  void policyFileIsReadFromNonDefaultFileLocation() {
     configuration.setValidationPolicy("src/test/resources/testFiles/constraints/moved_constraint.xml");
     ContainerOpener.open("src/test/resources/testFiles/invalid-containers/asics_for_testing.bdoc", configuration);
   }
 
   @Test
-  public void tslIsLoadedAfterSettingNewLotlLocation() throws Exception {
+  void tslIsLoadedAfterSettingNewLotlLocation() throws Exception {
     configuration.setLotlLocation("https://open-eid.github.io/test-TL/tl-mp-test-EE.xml");
     BDocContainer container = (BDocContainer) ContainerBuilder.aContainer(Container.DocumentType.BDOC)
         .withConfiguration(configuration).build();
@@ -307,7 +307,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void LOTLFileNotFoundThrowsNoException() {
+  void LOTLFileNotFoundThrowsNoException() {
     configuration.setLotlLocation("file:test-lotl/NotExisting.xml");
     configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
     BDocContainer container = (BDocContainer) ContainerBuilder.
@@ -319,7 +319,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void LOTLConnectionFailureThrowsNoException() {
+  void LOTLConnectionFailureThrowsNoException() {
     configuration.setLotlLocation("http://127.0.0.1/lotl/incorrect.xml");
     configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
     BDocContainer container = (BDocContainer) ContainerBuilder.
@@ -331,7 +331,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void testLoadConfiguration() {
+  void testLoadConfiguration() {
     BDocContainer container = (BDocContainer) ContainerBuilder.
         aContainer(Container.DocumentType.BDOC).
         withConfiguration(configuration).
@@ -343,49 +343,49 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void whenLOTLLocationIsMalformedURLNoErrorIsRaisedAndThisSameValueIsReturned() {
+  void whenLOTLLocationIsMalformedURLNoErrorIsRaisedAndThisSameValueIsReturned() {
     String lotlLocation = "file://C:\\";
     configuration.setLotlLocation(lotlLocation);
     assertEquals(lotlLocation, configuration.getLotlLocation());
   }
 
   @Test
-  public void getLOTLLocationFileDoesNotExistReturnsUrlPath() {
+  void getLOTLLocationFileDoesNotExistReturnsUrlPath() {
     String lotlLocation = ("file:conf/does-not-exist.xml");
     configuration.setLotlLocation(lotlLocation);
     assertEquals(lotlLocation, configuration.getLotlLocation());
   }
 
   @Test
-  public void setLotlLocation() {
+  void setLotlLocation() {
     configuration.setLotlLocation("lotlLocation");
     assertEquals("lotlLocation", configuration.getLotlLocation());
     assertEquals("lotlLocation", configuration.getTslLocation());
   }
 
   @Test
-  public void setTslLocation() {
+  void setTslLocation() {
     configuration.setTslLocation("tslLocation");
     assertEquals("tslLocation", configuration.getLotlLocation());
     assertEquals("tslLocation", configuration.getTslLocation());
   }
 
   @Test
-  public void getLotlLocationFromConfigurationFile() {
+  void getLotlLocationFromConfigurationFile() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     assertEquals("TEST_LOTL_LOCATION", configuration.getLotlLocation());
     assertEquals("TEST_LOTL_LOCATION", configuration.getTslLocation());
   }
 
   @Test
-  public void getTslLocationFromConfigurationFile() {
+  void getTslLocationFromConfigurationFile() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_tsl_location_and_keystore.yaml");
     assertEquals("file:conf/test_TSLLocation", configuration.getLotlLocation());
     assertEquals("file:conf/test_TSLLocation", configuration.getTslLocation());
   }
 
   @Test
-  public void setLotlLocationOverwritesConfigurationFile() {
+  void setLotlLocationOverwritesConfigurationFile() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     configuration.setLotlLocation("lotlLocation");
     assertEquals("lotlLocation", configuration.getLotlLocation());
@@ -393,14 +393,14 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void setTspSource() {
+  void setTspSource() {
     configuration.setTspSource("tspSource");
     assertEquals("tspSource", configuration.getTspSource());
     assertEquals("tspSource", configuration.getTspSourceForArchiveTimestamps());
   }
 
   @Test
-  public void setTspSourceForArchiveTimestamps() {
+  void setTspSourceForArchiveTimestamps() {
     String tspSource = configuration.getTspSource();
     configuration.setTspSourceForArchiveTimestamps("tspSourceForArchiveTimestamps");
     assertEquals("tspSourceForArchiveTimestamps", configuration.getTspSourceForArchiveTimestamps());
@@ -408,39 +408,39 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void setValidationPolicy() {
+  void setValidationPolicy() {
     configuration.setValidationPolicy("policy");
     assertEquals("policy", configuration.getValidationPolicy());
   }
 
   @Test
-  public void setOcspSource() {
+  void setOcspSource() {
     configuration.setOcspSource("ocsp_source");
     assertEquals("ocsp_source", configuration.getOcspSource());
   }
 
   @Test
-  public void setUseOcspNonce() {
+  void setUseOcspNonce() {
     assertTrue(configuration.isOcspNonceUsed());
     configuration.setUseOcspNonce(false);
     assertFalse(configuration.isOcspNonceUsed());
   }
 
   @Test
-  public void defaultOCSPAccessCertificateFile() {
+  void defaultOCSPAccessCertificateFile() {
     assertEquals("", configuration.getOCSPAccessCertificateFileName());
     assertEquals("", getDDoc4JConfigurationValue(OCSP_PKCS12_CONTAINER));
   }
 
   @Test
-  public void getOCSPAccessCertificateFileFromConfigurationFile() {
+  void getOCSPAccessCertificateFileFromConfigurationFile() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
     assertEquals("conf/OCSP_access_certificate_test_file_name", configuration.getOCSPAccessCertificateFileName());
     assertEquals("conf/OCSP_access_certificate_test_file_name", getDDoc4JConfigurationValue(OCSP_PKCS12_CONTAINER));
   }
 
   @Test
-  public void getOCSPAccessCertificateFileFromStream() throws Exception {
+  void getOCSPAccessCertificateFileFromStream() throws Exception {
     try (InputStream inputStream = new FileInputStream("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml")) {
       configuration.loadConfiguration(inputStream);
     }
@@ -449,7 +449,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void setOCSPAccessCertificateFileNameOverwritesConfigurationFile() {
+  void setOCSPAccessCertificateFileNameOverwritesConfigurationFile() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
     configuration.setOCSPAccessCertificateFileName("New File");
     assertEquals("New File", configuration.getOCSPAccessCertificateFileName());
@@ -457,20 +457,20 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void defaultOCSPAccessCertificatePassword() {
+  void defaultOCSPAccessCertificatePassword() {
     assertEquals(0, configuration.getOCSPAccessCertificatePassword().length);
     assertNull(getDDoc4JConfigurationValue(OCSP_PKCS_12_PASSWD));
   }
 
   @Test
-  public void getOCSPAccessCertificatePasswordFromConfigurationFile() {
+  void getOCSPAccessCertificatePasswordFromConfigurationFile() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
     assertArrayEquals("OCSP_test_password".toCharArray(), configuration.getOCSPAccessCertificatePassword());
     assertEquals("OCSP_test_password", getDDoc4JConfigurationValue(OCSP_PKCS_12_PASSWD));
   }
 
   @Test
-  public void setOCSPAccessCertificatePasswordOverwritesConfigurationFile() {
+  void setOCSPAccessCertificatePasswordOverwritesConfigurationFile() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
     char[] newPassword = "New password".toCharArray();
     configuration.setOCSPAccessCertificatePassword(newPassword);
@@ -479,20 +479,20 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void signingOcspRequest_ShouldBeDisabled_InProdByDefault() {
+  void signingOcspRequest_ShouldBeDisabled_InProdByDefault() {
     configuration = Configuration.of(Configuration.Mode.PROD);
     assertFalse(configuration.hasToBeOCSPRequestSigned());
     assertEquals("false", getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
   }
 
   @Test
-  public void signingOcspRequest_ShouldBeDisabled_InTestByDefault() {
+  void signingOcspRequest_ShouldBeDisabled_InTestByDefault() {
     assertFalse(configuration.hasToBeOCSPRequestSigned());
     assertEquals("false", getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
   }
 
   @Test
-  public void disableSigningOcspRequestsInProd() {
+  void disableSigningOcspRequestsInProd() {
     configuration = Configuration.of(Configuration.Mode.PROD);
     configuration.setSignOCSPRequests(false);
     assertFalse(configuration.hasToBeOCSPRequestSigned());
@@ -500,14 +500,14 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void enableSigningOcspRequestsInTest() {
+  void enableSigningOcspRequestsInTest() {
     configuration.setSignOCSPRequests(true);
     assertTrue(configuration.hasToBeOCSPRequestSigned());
     assertEquals("true", getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
   }
 
   @Test
-  public void loadDisableSigningOcspRequestFromConfFileInProd() {
+  void loadDisableSigningOcspRequestFromConfFileInProd() {
     configuration = Configuration.of(Configuration.Mode.PROD);
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     assertFalse(configuration.hasToBeOCSPRequestSigned());
@@ -515,39 +515,39 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void loadDisableSigningOcspRequestFromConfFile() {
+  void loadDisableSigningOcspRequestFromConfFile() {
     configuration.loadConfiguration(generateConfigurationByParameter("SIGN_OCSP_REQUESTS: false").getPath());
     assertFalse(configuration.hasToBeOCSPRequestSigned());
     assertEquals("false", getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
   }
 
   @Test
-  public void loadEnableSigningOcspRequestFromConfFile() {
+  void loadEnableSigningOcspRequestFromConfFile() {
     configuration.loadConfiguration(generateConfigurationByParameter("SIGN_OCSP_REQUESTS: true").getPath());
     assertTrue(configuration.hasToBeOCSPRequestSigned());
     assertEquals("true", getDDoc4JConfigurationValue(SIGN_OCSP_REQUESTS));
   }
 
   @Test
-  public void defaultOcspSource() {
+  void defaultOcspSource() {
     assertEquals("http://demo.sk.ee/ocsp", configuration.getOcspSource());
   }
 
   @Test
-  public void defaultProductionConfiguration() {
+  void defaultProductionConfiguration() {
     configuration = Configuration.of(Configuration.Mode.PROD);
     assertEquals("https://ec.europa.eu/tools/lotl/eu-lotl.xml",
         configuration.getLotlLocation());
   }
 
   @Test
-  public void defaultConstructorWithSetSystemProperty() {
+  void defaultConstructorWithSetSystemProperty() {
     configuration = new Configuration();
     assertEquals("https://open-eid.github.io/test-TL/tl-mp-test-EE.xml", configuration.getLotlLocation());
   }
 
   @Test
-  public void setMaxDataFileCached() {
+  void setMaxDataFileCached() {
     long maxDataFileCached = 12345;
     configuration.setMaxFileSizeCachedInMemoryInMB(maxDataFileCached);
     assertEquals(maxDataFileCached, configuration.getMaxDataFileCachedInMB());
@@ -555,7 +555,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void setMaxDataFileCachedToNoCaching() {
+  void setMaxDataFileCachedToNoCaching() {
     long maxDataFileCached = Constant.CACHE_NO_DATA_FILES;
     configuration.setMaxFileSizeCachedInMemoryInMB(maxDataFileCached);
     assertEquals(Constant.CACHE_NO_DATA_FILES, configuration.getMaxDataFileCachedInMB());
@@ -563,7 +563,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void setMaxDataFileCachedToAllCaching() {
+  void setMaxDataFileCachedToAllCaching() {
     long maxDataFileCached = Constant.CACHE_ALL_DATA_FILES;
     configuration.setMaxFileSizeCachedInMemoryInMB(maxDataFileCached);
     assertEquals(Constant.CACHE_ALL_DATA_FILES, configuration.getMaxDataFileCachedInMB());
@@ -571,7 +571,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void maxDataFileCachedNotAllowedValue() {
+  void maxDataFileCachedNotAllowedValue() {
     long oldValue = 4096;
     configuration.setMaxFileSizeCachedInMemoryInMB(oldValue);
     configuration.setMaxFileSizeCachedInMemoryInMB(-2);
@@ -579,7 +579,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void maxDataFileCachedNotAllowedValueFromFile() {
+  void maxDataFileCachedNotAllowedValueFromFile() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_max_datafile_cached_invalid.yaml";
     String excpectedErrorMessage = "Configuration parameter DIGIDOC_MAX_DATAFILE_CACHED should be greater or equal " +
             "-1 but the actual value is: -2.";
@@ -593,7 +593,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void defaultConstructorWithUnSetSystemProperty() {
+  void defaultConstructorWithUnSetSystemProperty() {
     clearGlobalMode();
     configuration = new Configuration();
     assertEquals("https://ec.europa.eu/tools/lotl/eu-lotl.xml",
@@ -601,7 +601,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void generateDDoc4JConfig() {
+  void generateDDoc4JConfig() {
     Hashtable<String, String> ddoc4jConf = configuration.loadConfiguration("src/main/resources/digidoc4j.yaml");
     configuration.getDDoc4JConfiguration();
     assertEquals("jar://certs/ESTEID-SK.crt", ddoc4jConf.get("DIGIDOC_CA_1_CERT2"));
@@ -618,26 +618,26 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void loadsDDoc4JSecurityProviderFromFile() {
+  void loadsDDoc4JSecurityProviderFromFile() {
     Hashtable<String, String> ddoc4jConf = configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
     assertEquals("org.bouncycastle.jce.provider.BouncyCastleProvider1", ddoc4jConf.get("DIGIDOC_SECURITY_PROVIDER"));
   }
 
   @Test
-  public void loadsDDoc4JCacheDirectoryFromFile() {
+  void loadsDDoc4JCacheDirectoryFromFile() {
     Hashtable<String, String> ddoc4jConf = configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
     assertEquals("/test_cache_dir", ddoc4jConf.get("DIGIDOC_DF_CACHE_DIR"));
   }
 
   @Test
-  public void defaultDDoc4JCacheDirectory() {
+  void defaultDDoc4JCacheDirectory() {
     Hashtable<String, String> ddoc4jConf =
             configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_without_cache_dir.yaml");
     assertNull(ddoc4jConf.get("DIGIDOC_DF_CACHE_DIR"));
   }
 
   @Test
-  public void loadsMaxDataFileCachedFromFile() {
+  void loadsMaxDataFileCachedFromFile() {
     Hashtable<String, String> ddoc4jConf = configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
     assertEquals("8192", ddoc4jConf.get("DIGIDOC_MAX_DATAFILE_CACHED"));
     assertEquals(8192, configuration.getMaxDataFileCachedInMB());
@@ -645,7 +645,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void settingNonExistingConfigurationFileThrowsError() {
+  void settingNonExistingConfigurationFileThrowsError() {
     ConfigurationException exception = assertThrows(
             ConfigurationException.class,
             () -> configuration.loadConfiguration("src/test/resources/testFiles/not_exists.yaml")
@@ -655,25 +655,25 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void digiDocSecurityProviderDefaultValue() {
+  void digiDocSecurityProviderDefaultValue() {
     Hashtable<String, String> ddoc4jConf = configuration.loadConfiguration("src/main/resources/digidoc4j.yaml");
     assertEquals(Constant.DDoc4J.SECURITY_PROVIDER, ddoc4jConf.get("DIGIDOC_SECURITY_PROVIDER"));
   }
 
   @Test
-  public void digiDocSecurityProviderDefaultName() {
+  void digiDocSecurityProviderDefaultName() {
     Hashtable<String, String> ddoc4jConf = configuration.loadConfiguration("src/main/resources/digidoc4j.yaml");
     assertEquals(Constant.DDoc4J.SECURITY_PROVIDER_NAME, ddoc4jConf.get("DIGIDOC_SECURITY_PROVIDER_NAME"));
   }
 
   @Test
-  public void asksValueOfNonExistingParameter() {
+  void asksValueOfNonExistingParameter() {
     Hashtable<String, String> ddoc4jConf = configuration.loadConfiguration("src/main/resources/digidoc4j.yaml");
     assertNull(ddoc4jConf.get("DIGIDOC_PROXY_HOST"));
   }
 
   @Test
-  public void digidocMaxDataFileCachedParameterIsNotANumber() {
+  void digidocMaxDataFileCachedParameterIsNotANumber() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_invalid_max_data_file_cached.yaml";
     String expectedErrorMessage = "Configuration parameter DIGIDOC_MAX_DATAFILE_CACHED" +
         " should have an integer value but the actual value is: 8192MB.";
@@ -687,7 +687,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void digidocSignOcspRequestIsNotABoolean() {
+  void digidocSignOcspRequestIsNotABoolean() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_invalid_sign_ocsp_request.yaml";
     String expectedErrorMessage = "Configuration parameter SIGN_OCSP_REQUESTS should be set to true or false" +
         " but the actual value is: NonBooleanValue.";
@@ -701,7 +701,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void digidocKeyUsageCheckIsNotABoolean() {
+  void digidocKeyUsageCheckIsNotABoolean() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_invalid_key_usage.yaml";
     String expectedErrorMessage = "Configuration parameter KEY_USAGE_CHECK should be set to true or false" +
             " but the actual value is: NonBooleanValue.";
@@ -715,7 +715,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void digidocUseLocalTslIsNotABoolean() {
+  void digidocUseLocalTslIsNotABoolean() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_invalid_use_local_tsl.yaml";
     String expectedErrorMessage = "Configuration parameter DIGIDOC_USE_LOCAL_TSL should be set to true or false" + 
             " but the actual value is: NonBooleanValue.";
@@ -729,7 +729,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void digidocDataFileHashcodeModeIsNotABoolean() {
+  void digidocDataFileHashcodeModeIsNotABoolean() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_invalid_datafile_hashcode_mode.yaml";
     String expectedErrorMessage = "Configuration parameter DATAFILE_HASHCODE_MODE should be set to true or false" +
         " but the actual value is: NonBooleanValue.";
@@ -743,7 +743,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void missingOCSPSEntryThrowsException() {
+  void missingOCSPSEntryThrowsException() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_ocsps_no_entry.yaml";
     configuration.loadConfiguration(fileName);
 
@@ -756,7 +756,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void emptyOCSPSEntryThrowsException() {
+  void emptyOCSPSEntryThrowsException() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_ocsps_empty.yaml";
     configuration.loadConfiguration(fileName);
 
@@ -769,7 +769,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void OCSPWithoutCaCnValueThrowsException() {
+  void OCSPWithoutCaCnValueThrowsException() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_ocsps_no_ca_cn.yaml";
     String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "OCSPS list entry 2 does not have an entry for CA_CN or the entry is empty\n";
@@ -784,7 +784,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void OCSPWithEmptySubEntriesThrowsException() {
+  void OCSPWithEmptySubEntriesThrowsException() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_ocsps_empty_sub_entries.yaml";
     String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "OCSPS list entry 3 does not have an entry for CA_CN or the entry is empty\n" +
@@ -802,7 +802,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void OCSPWithMissingSubEntriesThrowsException() {
+  void OCSPWithMissingSubEntriesThrowsException() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_ocsps_missing_sub_entries.yaml";
     String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "OCSPS list entry 3 does not have an entry for CN or the entry is empty\n" +
@@ -820,7 +820,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void OCSPWithMissingOcspsCertsEntryThrowsException() {
+  void OCSPWithMissingOcspsCertsEntryThrowsException() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_ocsps_missing_certs_entry.yaml";
     String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "OCSPS list entry 3 does not have an entry for CERTS or the entry is empty\n";
@@ -835,7 +835,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void OCSPWithEmptyOcspsCertsEntryThrowsException() {
+  void OCSPWithEmptyOcspsCertsEntryThrowsException() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_ocsps_empty_certs_entry.yaml";
     String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "OCSPS list entry 2 does not have an entry for CERTS or the entry is empty\n";
@@ -850,7 +850,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void configurationFileIsNotYamlFormatThrowsException() {
+  void configurationFileIsNotYamlFormatThrowsException() {
     String fileName = "src/test/resources/testFiles/helper-files/test.txt";
     String expectedErrorMessage = "Configuration from " + fileName + " is not correctly formatted";
     ConfigurationException exception = assertThrows(
@@ -862,7 +862,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void configurationStreamIsNotYamlFormatThrowsException() {
+  void configurationStreamIsNotYamlFormatThrowsException() {
     String fileName = "src/test/resources/testFiles/helper-files/test.txt";
     String expectedErrorMessage = "Configuration from stream is not correctly formatted";
 
@@ -876,52 +876,52 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void isOCSPSigningConfigurationAvailableWhenItIsNotAvailable() {
+  void isOCSPSigningConfigurationAvailableWhenItIsNotAvailable() {
     assertFalse(configuration.isOCSPSigningConfigurationAvailable());
   }
 
   @Test
-  public void isOCSPSigningConfigurationAvailableWhenItIsAvailable() {
+  void isOCSPSigningConfigurationAvailableWhenItIsAvailable() {
     configuration.setOCSPAccessCertificateFileName("test.p12");
     configuration.setOCSPAccessCertificatePassword("aaa".toCharArray());
     assertTrue(configuration.isOCSPSigningConfigurationAvailable());
   }
 
   @Test
-  public void isOCSPSigningConfigurationAvailableWhenFileIsAvailable() {
+  void isOCSPSigningConfigurationAvailableWhenFileIsAvailable() {
     configuration.setOCSPAccessCertificateFileName("test.p12");
     assertFalse(configuration.isOCSPSigningConfigurationAvailable());
   }
 
   @Test
-  public void isOCSPSigningConfigurationAvailableWhenPasswordIsAvailable() {
+  void isOCSPSigningConfigurationAvailableWhenPasswordIsAvailable() {
     configuration.setOCSPAccessCertificatePassword("aaa".toCharArray());
     assertFalse(configuration.isOCSPSigningConfigurationAvailable());
   }
 
   @Test
-  public void getTspSourceDefaultValuesForProdConfiguration() {
+  void getTspSourceDefaultValuesForProdConfiguration() {
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
     assertEquals(Constant.Production.TSP_SOURCE, configuration.getTspSource());
     assertEquals(Constant.Production.TSP_SOURCE, configuration.getTspSourceForArchiveTimestamps());
   }
 
   @Test
-  public void getTspSourceDefaultValuesForTestConfiguration() {
+  void getTspSourceDefaultValuesForTestConfiguration() {
     Configuration configuration = Configuration.of(Configuration.Mode.TEST);
     assertEquals(Constant.Test.TSP_SOURCE, configuration.getTspSource());
     assertEquals(Constant.Test.TSP_SOURCE, configuration.getTspSourceForArchiveTimestamps());
   }
 
   @Test
-  public void getTspSourceFromConfigurationFile() {
+  void getTspSourceFromConfigurationFile() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
     assertEquals("http://tsp.source.test/HttpTspServer", configuration.getTspSource());
     assertEquals("http://tsp.source.test/HttpTspServer", configuration.getTspSourceForArchiveTimestamps());
   }
 
   @Test
-  public void getTspSourceForArchiveTimestampsFromConfigurationFile() {
+  void getTspSourceForArchiveTimestampsFromConfigurationFile() {
     String tspSource = configuration.getTspSource();
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_archive_timestamp.yaml");
     assertEquals("http://atsp.source.test", configuration.getTspSourceForArchiveTimestamps());
@@ -929,33 +929,33 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getValidationPolicyFromConfigurationFile() {
+  void getValidationPolicyFromConfigurationFile() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
     assertEquals("conf/test_validation_policy.xml", configuration.getValidationPolicy());
   }
 
   @Test
-  public void getOcspSourceFromConfigurationFile() {
+  void getOcspSourceFromConfigurationFile() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
     assertEquals("http://www.openxades.org/cgi-bin/test_ocsp_source.cgi", configuration.getOcspSource());
   }
 
   @Test
-  public void getLotlTruststorePathFromConfigurationFile() {
+  void getLotlTruststorePathFromConfigurationFile() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     assertEquals("TEST_LOTL_TRUSTSTORE_PATH", configuration.getLotlTruststorePath());
     assertEquals("TEST_LOTL_TRUSTSTORE_PATH", configuration.getTslKeyStoreLocation());
   }
 
   @Test
-  public void getTslKeystoreLocationFromConfigurationFile() {
+  void getTslKeystoreLocationFromConfigurationFile() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_tsl_location_and_keystore.yaml");
     assertEquals("file:conf/test_TSLKeyStore_location", configuration.getLotlTruststorePath());
     assertEquals("file:conf/test_TSLKeyStore_location", configuration.getTslKeyStoreLocation());
   }
 
   @Test
-  public void exceptionIsThrownWhenLotlTruststoreIsNotFound() {
+  void exceptionIsThrownWhenLotlTruststoreIsNotFound() {
     configuration = Configuration.of(Configuration.Mode.PROD);
     configuration.setLotlTruststorePath("not/existing/path");
 
@@ -966,65 +966,65 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void testDefaultLotlTruststorePath() {
+  void testDefaultLotlTruststorePath() {
     configuration = Configuration.of(Configuration.Mode.PROD);
     assertEquals("classpath:truststores/lotl-truststore.p12", configuration.getLotlTruststorePath());
     assertEquals("classpath:truststores/lotl-truststore.p12", configuration.getTslKeyStoreLocation());
   }
 
   @Test
-  public void testDefaultTestLotlTruststorePath() {
+  void testDefaultTestLotlTruststorePath() {
     assertEquals("classpath:truststores/test-lotl-truststore.p12", configuration.getLotlTruststorePath());
     assertEquals("classpath:truststores/test-lotl-truststore.p12", configuration.getTslKeyStoreLocation());
   }
 
   @Test
-  public void getLotlTruststoreTypeFromConfigurationFile() {
+  void getLotlTruststoreTypeFromConfigurationFile() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     assertEquals("TEST_LOTL_TRUSTSTORE_TYPE", configuration.getLotlTruststoreType());
   }
 
   @Test
-  public void testDefaultLotlTruststoreType() {
+  void testDefaultLotlTruststoreType() {
     configuration = Configuration.of(Configuration.Mode.PROD);
     assertEquals("PKCS12", configuration.getLotlTruststoreType());
   }
 
   @Test
-  public void testDefaultLotlTruststorePassword() {
+  void testDefaultLotlTruststorePassword() {
     configuration = Configuration.of(Configuration.Mode.PROD);
     assertEquals("digidoc4j-password", configuration.getLotlTruststorePassword());
     assertEquals("digidoc4j-password", configuration.getTslKeyStorePassword());
   }
 
   @Test
-  public void getLotlTruststorePasswordFromConfigurationFile() {
+  void getLotlTruststorePasswordFromConfigurationFile() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     assertEquals("TEST_LOTL_TRUSTSTORE_PASSWORD", configuration.getLotlTruststorePassword());
     assertEquals("TEST_LOTL_TRUSTSTORE_PASSWORD", configuration.getTslKeyStorePassword());
   }
 
   @Test
-  public void getTslKeystorePasswordFromConfigurationFile() {
+  void getTslKeystorePasswordFromConfigurationFile() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_tsl_location_and_keystore.yaml");
     assertEquals("test_TSLKeyStore_password", configuration.getLotlTruststorePassword());
     assertEquals("test_TSLKeyStore_password", configuration.getTslKeyStorePassword());
   }
 
   @Test
-  public void testDefaultLotlPivotSupportEnabled() {
+  void testDefaultLotlPivotSupportEnabled() {
     configuration = Configuration.of(Configuration.Mode.PROD);
     assertTrue(configuration.isLotlPivotSupportEnabled());
   }
 
   @Test
-  public void testDefaultTestLotlPivotSupportDisabled() {
+  void testDefaultTestLotlPivotSupportDisabled() {
     configuration = Configuration.of(Configuration.Mode.TEST);
     assertFalse(configuration.isLotlPivotSupportEnabled());
   }
 
   @Test
-  public void getLotlPivotSupportFromConfigurationFile() throws Exception {
+  void getLotlPivotSupportFromConfigurationFile() throws Exception {
     configuration.setLotlPivotSupportEnabled(true);
     assertTrue(configuration.isLotlPivotSupportEnabled());
     loadConfigurationFromString(configuration, "LOTL_PIVOT_SUPPORT_ENABLED: false");
@@ -1034,26 +1034,26 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void setTslCacheExpirationTime() {
+  void setTslCacheExpirationTime() {
     configuration.setTslCacheExpirationTime(1337);
     assertEquals(1337, configuration.getTslCacheExpirationTime());
   }
 
   @Test
-  public void defaultTslCacheExpirationTime_shouldBeOneDay() {
+  void defaultTslCacheExpirationTime_shouldBeOneDay() {
     long oneDayInMs = 1000 * 60 * 60 * 24;
     assertEquals(oneDayInMs, configuration.getTslCacheExpirationTime());
     assertEquals(oneDayInMs, Configuration.of(Configuration.Mode.PROD).getTslCacheExpirationTime());
   }
 
   @Test
-  public void getTslCacheExpirationTimeFromConfigurationFile() {
+  void getTslCacheExpirationTimeFromConfigurationFile() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf.yaml");
     assertEquals(1776, configuration.getTslCacheExpirationTime());
   }
 
   @Test
-  public void defaultProxyConfiguration_shouldNotBeSet() {
+  void defaultProxyConfiguration_shouldNotBeSet() {
     assertFalse(configuration.isNetworkProxyEnabled());
     assertNull(configuration.getHttpProxyHost());
     assertNull(configuration.getHttpProxyPort());
@@ -1077,7 +1077,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getProxyConfigurationFromConfigurationFile_allParametersSet() {
+  void getProxyConfigurationFromConfigurationFile_allParametersSet() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     assertTrue(configuration.isNetworkProxyEnabled());
     assertEquals("cache.noile.ee", configuration.getHttpProxyHost());
@@ -1102,7 +1102,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getInvalidProxyConfigurationFromConfigurationFile() {
+  void getInvalidProxyConfigurationFromConfigurationFile() {
     String expectedErrorMessage = "Configuration parameter HTTP_PROXY_PORT should have an integer value but the actual value is: notA_number.";
 
     ConfigurationException exception = assertThrows(
@@ -1114,7 +1114,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getProxyConfigurationFromConfigurationFile_GenericParametersSet() {
+  void getProxyConfigurationFromConfigurationFile_GenericParametersSet() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_generic_proxy_and_ssl_settings.yaml");
     assertTrue(configuration.isNetworkProxyEnabled());
     assertEquals("cache.noile.ee", configuration.getHttpProxyHost());
@@ -1139,7 +1139,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getProxyConfigurationFromConfigurationFile_specificParametersSet() {
+  void getProxyConfigurationFromConfigurationFile_specificParametersSet() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_specific_proxy_and_ssl_settings.yaml");
     assertFalse(configuration.isNetworkProxyEnabled());
     assertNull(configuration.getHttpProxyHost());
@@ -1164,7 +1164,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void defaultSslProtocolsAndCiphers_shouldBeSet() {
+  void defaultSslProtocolsAndCiphers_shouldBeSet() {
     assertTrue(configuration.isSslConfigurationEnabled());
     assertNull(configuration.getSslKeystorePath());
     assertNull(configuration.getSslKeystoreType());
@@ -1190,7 +1190,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getSslConfigurationFromConfigurationFile_allParametersSet() {
+  void getSslConfigurationFromConfigurationFile_allParametersSet() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     assertTrue(configuration.isSslConfigurationEnabled());
     assertEquals("sslKeystorePath", configuration.getSslKeystorePath());
@@ -1221,7 +1221,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getSslConfigurationFromConfigurationFile_genericParametersSet() {
+  void getSslConfigurationFromConfigurationFile_genericParametersSet() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_generic_proxy_and_ssl_settings.yaml");
     assertTrue(configuration.isSslConfigurationEnabled());
     assertEquals("sslKeystorePath", configuration.getSslKeystorePath());
@@ -1248,7 +1248,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getSslConfigurationFromConfigurationFile_specificParametersSet() {
+  void getSslConfigurationFromConfigurationFile_specificParametersSet() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_specific_proxy_and_ssl_settings.yaml");
     assertTrue(configuration.isSslConfigurationEnabled());
     assertNull(configuration.getSslKeystorePath());
@@ -1279,13 +1279,13 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void testDefaultZipCompressionConfiguration() {
+  void testDefaultZipCompressionConfiguration() {
     assertEquals(1024 * 1024, configuration.getZipCompressionRatioCheckThresholdInBytes());
     assertEquals(100, configuration.getMaxAllowedZipCompressionRatio());
   }
 
   @Test
-  public void getInvalidZipCompressionRatioCheckThresholdInBytes() {
+  void getInvalidZipCompressionRatioCheckThresholdInBytes() {
     String expectedErrorMessage = "Configuration parameter ZIP_COMPRESSION_RATIO_CHECK_THRESHOLD_IN_BYTES " +
             "should have a long integer value but the actual value is: invalidValue.";
 
@@ -1298,7 +1298,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getInvalidMaxAllowedZipCompressionRatio() {
+  void getInvalidMaxAllowedZipCompressionRatio() {
     String expectedErrorMessage = "Configuration parameter MAX_ALLOWED_ZIP_COMPRESSION_RATIO " +
             "should have an integer value but the actual value is: invalidValue.";
 
@@ -1311,19 +1311,19 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void setZipCompressionRatioCheckThresholdInBytes() {
+  void setZipCompressionRatioCheckThresholdInBytes() {
     configuration.setZipCompressionRatioCheckThresholdInBytes(1234567);
     assertEquals(1234567, configuration.getZipCompressionRatioCheckThresholdInBytes());
   }
 
   @Test
-  public void setMaxAllowedZipCompressionRatio() {
+  void setMaxAllowedZipCompressionRatio() {
     configuration.setMaxAllowedZipCompressionRatio(2345);
     assertEquals(2345, configuration.getMaxAllowedZipCompressionRatio());
   }
 
   @Test
-  public void loadMultipleCAsFromConfigurationFile() {
+  void loadMultipleCAsFromConfigurationFile() {
     Hashtable<String, String> ddoc4jConf = configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_two_cas.yaml");
     configuration.getDDoc4JConfiguration();
     assertEquals("AS Sertifitseerimiskeskus", ddoc4jConf.get("DIGIDOC_CA_1_NAME"));
@@ -1334,12 +1334,12 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void missingCA_shouldNotThrowException() {
+  void missingCA_shouldNotThrowException() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_no_ca.yaml");
   }
 
   @Test
-  public void missingCA_shouldThrowException_whenUsingDDoc() {
+  void missingCA_shouldThrowException_whenUsingDDoc() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_no_ca.yaml";
     String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "Empty or no DIGIDOC_CAS entry";
@@ -1354,7 +1354,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void emptyCAThrowsException() {
+  void emptyCAThrowsException() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_empty_ca.yaml";
     String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "Empty or no DIGIDOC_CA for entry 1";
@@ -1369,18 +1369,18 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void isTestMode() {
+  void isTestMode() {
     assertTrue(configuration.isTest());
   }
 
   @Test
-  public void isNotTestMode() {
+  void isNotTestMode() {
     configuration = Configuration.of(Configuration.Mode.PROD);
     assertFalse(configuration.isTest());
   }
 
   @Test
-  public void verifyAllOptionalConfigurationSettingsAreLoadedFromFile() {
+  void verifyAllOptionalConfigurationSettingsAreLoadedFromFile() {
     configuration.setLotlLocation("Set LOTL location");
     configuration.setTspSource("Set TSP source");
     configuration.setOCSPAccessCertificateFileName("Set OCSP access certificate file name");
@@ -1430,38 +1430,38 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getDefaultTempFileMaxAge() {
+  void getDefaultTempFileMaxAge() {
     assertEquals(86400000, configuration.getTempFileMaxAge());
   }
 
   @Test
-  public void loadTempFileMaxAgeFromFile() {
+  void loadTempFileMaxAgeFromFile() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_temp_file_max_age.yaml");
     assertEquals(60, configuration.getTempFileMaxAge());
   }
 
   @Test
-  public void setTempFileMaxAgeFromCode(){
+  void setTempFileMaxAgeFromCode(){
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_temp_file_max_age.yaml");
     configuration.setTempFileMaxAge(1000);
     assertEquals(1000, configuration.getTempFileMaxAge());
   }
 
   @Test
-  public void getDefaultConnectionTimeout() {
+  void getDefaultConnectionTimeout() {
     assertEquals(60000, configuration.getConnectionTimeout());
     assertEquals(60000, configuration.getSocketTimeout());
   }
 
   @Test
-  public void loadConnectionTimeoutFromFile() {
+  void loadConnectionTimeoutFromFile() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_connection_timeout.yaml");
     assertEquals(4000, configuration.getConnectionTimeout());
     assertEquals(2000, configuration.getSocketTimeout());
   }
 
   @Test
-  public void setConnectionTimeoutFromCode() {
+  void setConnectionTimeoutFromCode() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_connection_timeout.yaml");
     configuration.setConnectionTimeout(2000);
     configuration.setSocketTimeout(5000);
@@ -1470,31 +1470,31 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void revocationAndTimestampDelta_shouldBeOneDay() {
+  void revocationAndTimestampDelta_shouldBeOneDay() {
     int oneDayInMinutes = 24 * 60;
     assertEquals(oneDayInMinutes, configuration.getRevocationAndTimestampDeltaInMinutes());
   }
 
   @Test
-  public void testSettingRevocationAndTimestampDelta() {
+  void testSettingRevocationAndTimestampDelta() {
     int twoDaysInMinutes = 48 * 60;
     configuration.setRevocationAndTimestampDeltaInMinutes(twoDaysInMinutes);
     assertEquals(twoDaysInMinutes, configuration.getRevocationAndTimestampDeltaInMinutes());
   }
 
   @Test
-  public void testLoadingRevocationAndTimestampDeltaFromConf() {
+  void testLoadingRevocationAndTimestampDeltaFromConf() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     assertEquals(1337, configuration.getRevocationAndTimestampDeltaInMinutes());
   }
 
   @Test
-  public void getDefaultAllowedOcspProviders() {
+  void getDefaultAllowedOcspProviders() {
     assertEquals(Arrays.asList(Constant.Test.DEFAULT_OCSP_RESPONDERS), configuration.getAllowedOcspRespondersForTM());
   }
 
   @Test
-  public void loadAllowedOcspProvidersFromConf() {
+  void loadAllowedOcspProvidersFromConf() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     List<String> allowedOcspRespondersForTM = configuration.getAllowedOcspRespondersForTM();
     assertEquals(3,allowedOcspRespondersForTM.size());
@@ -1504,7 +1504,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void setAllowedOcspProviders() {
+  void setAllowedOcspProviders() {
     configuration.setAllowedOcspRespondersForTM("ESTEID-SK OCSP RESPONDER 2005", "ESTEID-SK OCSP RESPONDER");
     List<String> allowedOcspResponders = configuration.getAllowedOcspRespondersForTM();
     assertEquals(2, allowedOcspResponders.size());
@@ -1513,12 +1513,12 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getTrustedTerritories_defaultTesting_shouldBeNull() {
+  void getTrustedTerritories_defaultTesting_shouldBeNull() {
     assertEquals(Collections.emptyList(), configuration.getTrustedTerritories());
   }
 
   @Test
-  public void getTrustedTerritories_defaultProd() {
+  void getTrustedTerritories_defaultProd() {
     configuration = Configuration.of(Configuration.Mode.PROD);
     List<String> trustedTerritories = configuration.getTrustedTerritories();
     assertNotNull(trustedTerritories);
@@ -1530,28 +1530,28 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void setTrustedTerritories() {
+  void setTrustedTerritories() {
     configuration.setTrustedTerritories("AR", "US", "CA");
     List<String> trustedTerritories = configuration.getTrustedTerritories();
     assertEquals(Arrays.asList("AR", "US", "CA"), trustedTerritories);
   }
 
   @Test
-  public void loadTrustedTerritoriesFromConf() {
+  void loadTrustedTerritoriesFromConf() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     List<String> trustedTerritories = configuration.getTrustedTerritories();
     assertEquals(Arrays.asList("NZ", "AU", "BR"), trustedTerritories);
   }
 
   @Test
-  public void loadYamlTrustedTerritoriesFromConf() {
+  void loadYamlTrustedTerritoriesFromConf() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc4j_test_conf_territories_lists.yaml");
     List<String> trustedTerritories = configuration.getTrustedTerritories();
     assertEquals(Arrays.asList("AU", "NZ", "AR"), trustedTerritories);
   }
 
   @Test
-  public void loadEmptyTrustedTerritoriesFromConf() throws Exception {
+  void loadEmptyTrustedTerritoriesFromConf() throws Exception {
     configuration.setTrustedTerritories("EE");
     loadConfigurationFromString(configuration, "TRUSTED_TERRITORIES: []");
     List<String> trustedTerritories = configuration.getTrustedTerritories();
@@ -1559,40 +1559,40 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getRequiredTerritories_defaultTesting_shouldBeNull() {
+  void getRequiredTerritories_defaultTesting_shouldBeNull() {
     assertEquals(Collections.emptyList(), configuration.getRequiredTerritories());
   }
 
   @Test
-  public void getRequiredTerritories_defaultProd() {
+  void getRequiredTerritories_defaultProd() {
     configuration = Configuration.of(Configuration.Mode.PROD);
     List<String> requiredTerritories = configuration.getRequiredTerritories();
     assertEquals(Collections.singletonList("EE"), requiredTerritories);
   }
 
   @Test
-  public void setRequiredTerritories() {
+  void setRequiredTerritories() {
     configuration.setRequiredTerritories("CU", "LV");
     List<String> requiredTerritories = configuration.getRequiredTerritories();
     assertEquals(Arrays.asList("CU", "LV"), requiredTerritories);
   }
 
   @Test
-  public void loadRequiredTerritoriesFromConf() {
+  void loadRequiredTerritoriesFromConf() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     List<String> requiredTerritories = configuration.getRequiredTerritories();
     assertEquals(Arrays.asList("GB", "LT"), requiredTerritories);
   }
 
   @Test
-  public void loadYamlRequiredTerritoriesFromConf() {
+  void loadYamlRequiredTerritoriesFromConf() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc4j_test_conf_territories_lists.yaml");
     List<String> requiredTerritories = configuration.getRequiredTerritories();
     assertEquals(Arrays.asList("IE", "LV"), requiredTerritories);
   }
 
   @Test
-  public void loadEmptyRequiredTerritoriesFromConf() throws Exception {
+  void loadEmptyRequiredTerritoriesFromConf() throws Exception {
     configuration.setRequiredTerritories("EE");
     loadConfigurationFromString(configuration, "REQUIRED_TERRITORIES: []");
     List<String> requiredTerritories = configuration.getRequiredTerritories();
@@ -1600,17 +1600,17 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void aiaOcspPreferredByDefault_defaultTest() {
+  void aiaOcspPreferredByDefault_defaultTest() {
     assertTrue(configuration.isAiaOcspPreferred());
   }
 
   @Test
-  public void aiaOcspPreferredByDefault_defaultProd() {
+  void aiaOcspPreferredByDefault_defaultProd() {
     assertTrue(Configuration.of(Configuration.Mode.PROD).isAiaOcspPreferred());
   }
 
   @Test
-  public void getAiaOcspSourceByCN_defaultTest() {
+  void getAiaOcspSourceByCN_defaultTest() {
     assertNull(configuration.getAiaOcspSourceByCN(null));
     assertNull(configuration.getAiaOcspSourceByCN("ESTEID2018"));
     assertNull(configuration.getAiaOcspSourceByCN("ESTEID-SK 2011"));
@@ -1631,7 +1631,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getAiaOcspSourceByCN_defaultProd() {
+  void getAiaOcspSourceByCN_defaultProd() {
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
     assertNull(configuration.getAiaOcspSourceByCN(null));
     assertEquals("http://aia.sk.ee/esteid2018", configuration.getAiaOcspSourceByCN("ESTEID2018"));
@@ -1653,7 +1653,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getUseNonceForAiaOcspByCN_defaultTest() {
+  void getUseNonceForAiaOcspByCN_defaultTest() {
     assertTrue(configuration.getUseNonceForAiaOcspByCN(null));
     assertTrue(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID2018"));
     assertFalse(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID-SK 2011"));
@@ -1666,7 +1666,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void getUseNonceForAiaOcspByCN_defaultProd() {
+  void getUseNonceForAiaOcspByCN_defaultProd() {
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
     assertTrue(configuration.getUseNonceForAiaOcspByCN(null));
     assertTrue(configuration.getUseNonceForAiaOcspByCN("ESTEID2018"));
@@ -1680,7 +1680,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void testAiaOcspNotConfiguredThroughYamlShouldUseDefaults_customTest() throws Exception {
+  void testAiaOcspNotConfiguredThroughYamlShouldUseDefaults_customTest() throws Exception {
     loadConfigurationFromString(configuration, "");
     assertEquals("http://aia.demo.sk.ee/esteid2018", configuration.getAiaOcspSourceByCN("TEST of ESTEID2018"));
     assertTrue(configuration.getUseNonceForAiaOcspByCN("TEST of ESTEID2018"));
@@ -1701,7 +1701,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void testConfigureAdditionalAiaOcspThroughYaml_customTest() throws Exception {
+  void testConfigureAdditionalAiaOcspThroughYaml_customTest() throws Exception {
     loadConfigurationFromString(configuration, "AIA_OCSPS:",
             "  - ISSUER_CN: OCSP NAME",
             "    OCSP_SOURCE: scheme://host/path",
@@ -1727,7 +1727,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void testReconfigureExistingAiaOcspThroughYaml_customTest() throws Exception {
+  void testReconfigureExistingAiaOcspThroughYaml_customTest() throws Exception {
     loadConfigurationFromString(configuration, "AIA_OCSPS:",
             "  - ISSUER_CN: TEST of ESTEID2018",
             "    OCSP_SOURCE: new-url-for-test-of-esteid-2018",
@@ -1754,7 +1754,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void testConfigureNewAiaOcspThroughYaml_missingIssuerCN() {
+  void testConfigureNewAiaOcspThroughYaml_missingIssuerCN() {
     ConfigurationException exception = assertThrows(
             ConfigurationException.class,
             () -> loadConfigurationFromString(configuration, "AIA_OCSPS:",
@@ -1766,7 +1766,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void testConfigureNewAiaOcspThroughYaml_missingOcspSource() {
+  void testConfigureNewAiaOcspThroughYaml_missingOcspSource() {
     ConfigurationException exception = assertThrows(
             ConfigurationException.class,
             () -> loadConfigurationFromString(configuration, "AIA_OCSPS:", 
@@ -1778,7 +1778,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void testConfigureNewAiaOcspThroughYaml_missingUseNonce() {
+  void testConfigureNewAiaOcspThroughYaml_missingUseNonce() {
     ConfigurationException exception = assertThrows(ConfigurationException.class,
             () -> loadConfigurationFromString(configuration, "AIA_OCSPS:",
                     "  - ISSUER_CN: OCSP NAME",
@@ -1789,7 +1789,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void testOpenBDocWithConfFromSetter() {
+  void testOpenBDocWithConfFromSetter() {
     configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setOcspSource("http://demo.sk.ee/TEST");
     ContainerBuilder.aContainer().withConfiguration(configuration).
@@ -1798,7 +1798,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void testOpenBDocWithConfFromYaml() {
+  void testOpenBDocWithConfFromYaml() {
     configuration = Configuration.of(Configuration.Mode.PROD);
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_parameters.yaml");
     ContainerBuilder.aContainer().withConfiguration(configuration).
@@ -1807,7 +1807,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void testOpenBDocWithConfFromSetterWhenYamlParamPresented() {
+  void testOpenBDocWithConfFromSetterWhenYamlParamPresented() {
     configuration = new Configuration(Configuration.Mode.PROD);
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_parameters.yaml");
     configuration.setOcspSource("http://demo.sk.ee/TEST");
@@ -1817,87 +1817,87 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void loadAllowedTimestampAndOCSPResponseDelta() {
+  void loadAllowedTimestampAndOCSPResponseDelta() {
     assertEquals(15, configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes().longValue());
   }
 
   @Test
-  public void loadAllowedTimestampAndOCSPResponseDeltaFromConf() {
+  void loadAllowedTimestampAndOCSPResponseDeltaFromConf() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     assertEquals(1, configuration.getAllowedTimestampAndOCSPResponseDeltaInMinutes().longValue());
   }
 
   @Test
-  public void testLoadingSignatureProfile() {
+  void testLoadingSignatureProfile() {
     assertNull(configuration.getSignatureProfile());
   }
 
   @Test
-  public void testLoadingSignatureProfileFromConf() {
+  void testLoadingSignatureProfileFromConf() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     assertEquals(SignatureProfile.LT_TM, configuration.getSignatureProfile());
   }
 
   @Test
-  public void testLoadingSignatureDigestAlgorithm() {
+  void testLoadingSignatureDigestAlgorithm() {
     assertNull(configuration.getSignatureDigestAlgorithm());
   }
 
   @Test
-  public void testLoadingSignatureDigestAlgorithmFromConf() {
+  void testLoadingSignatureDigestAlgorithmFromConf() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     assertEquals(DigestAlgorithm.SHA512, configuration.getSignatureDigestAlgorithm());
   }
 
   @Test
-  public void testLoadingDataFileDigestAlgorithm() {
+  void testLoadingDataFileDigestAlgorithm() {
     assertNull(configuration.getDataFileDigestAlgorithm());
   }
 
   @Test
-  public void testLoadingDataFileDigestAlgorithmFromConf() {
+  void testLoadingDataFileDigestAlgorithmFromConf() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_all_optional_settings.yaml");
     assertEquals(DigestAlgorithm.SHA512, configuration.getDataFileDigestAlgorithm());
   }
 
   @Test
-  public void getArchiveTimestampDigestAlgorithm_WhenDefaultProdConfiguration_ReturnsNull() {
+  void getArchiveTimestampDigestAlgorithm_WhenDefaultProdConfiguration_ReturnsNull() {
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
     assertNull(configuration.getArchiveTimestampDigestAlgorithm());
   }
 
   @Test
-  public void getArchiveTimestampDigestAlgorithm_WhenDefaultTestConfiguration_ReturnsNull() {
+  void getArchiveTimestampDigestAlgorithm_WhenDefaultTestConfiguration_ReturnsNull() {
     Configuration configuration = Configuration.of(Configuration.Mode.TEST);
     assertNull(configuration.getArchiveTimestampDigestAlgorithm());
   }
 
   @Test
-  public void getArchiveTimestampDigestAlgorithm_WhenConfigurationLoadedFromFile_ReturnsLoadedValue() {
+  void getArchiveTimestampDigestAlgorithm_WhenConfigurationLoadedFromFile_ReturnsLoadedValue() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_archive_timestamp.yaml");
     assertEquals(DigestAlgorithm.SHA256, configuration.getArchiveTimestampDigestAlgorithm());
   }
 
   @Test
-  public void getArchiveTimestampReferenceDigestAlgorithm_WhenDefaultProdConfiguration_ReturnsNull() {
+  void getArchiveTimestampReferenceDigestAlgorithm_WhenDefaultProdConfiguration_ReturnsNull() {
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
     assertNull(configuration.getArchiveTimestampReferenceDigestAlgorithm());
   }
 
   @Test
-  public void getArchiveTimestampReferenceDigestAlgorithm_WhenDefaultTestConfiguration_ReturnsNull() {
+  void getArchiveTimestampReferenceDigestAlgorithm_WhenDefaultTestConfiguration_ReturnsNull() {
     Configuration configuration = Configuration.of(Configuration.Mode.TEST);
     assertNull(configuration.getArchiveTimestampReferenceDigestAlgorithm());
   }
 
   @Test
-  public void getArchiveTimestampReferenceDigestAlgorithm_WhenConfigurationLoadedFromFile_ReturnsLoadedValue() {
+  void getArchiveTimestampReferenceDigestAlgorithm_WhenConfigurationLoadedFromFile_ReturnsLoadedValue() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_archive_timestamp.yaml");
     assertEquals(DigestAlgorithm.SHA384, configuration.getArchiveTimestampReferenceDigestAlgorithm());
   }
 
   @Test
-  public void testConfigurationHasChanged() throws Exception {
+  void testConfigurationHasChanged() throws Exception {
     Configuration otherConfiguration = Configuration.of(Configuration.Mode.PROD);
     File file = createTemporaryFile();
     Helper.serialize(configuration, file);
@@ -1906,7 +1906,7 @@ public class ConfigurationTest extends AbstractTest {
   }
 
   @Test
-  public void testConfigurationHasNotChanged() throws Exception {
+  void testConfigurationHasNotChanged() throws Exception {
     Configuration otherConfiguration = new Configuration(Configuration.Mode.TEST);
     File file = createTemporaryFile();
     Helper.serialize(configuration, file);

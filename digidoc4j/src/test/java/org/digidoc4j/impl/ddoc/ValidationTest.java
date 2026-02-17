@@ -35,10 +35,10 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ValidationTest extends AbstractTest {
+class ValidationTest extends AbstractTest {
 
   @Test
-  public void setInvalidOcspResponder() {
+  void setInvalidOcspResponder() {
     configuration.setAllowedOcspRespondersForTM("INVALID OCSP RESPONDER");
     ConfigManagerInitializer.forceInitConfigManager(configuration);
     Container container = ContainerOpener
@@ -48,7 +48,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  public void missingURIAttributeValue() {
+  void missingURIAttributeValue() {
     ConfigManagerInitializer.forceInitConfigManager(configuration);
     Container container = ContainerBuilder.aContainer()
         .fromExistingFile("src/test/resources/testFiles/invalid-containers/23133_ddoc-12.ddoc").build();
@@ -57,7 +57,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  public void defaultOcspResponderSuccessful() {
+  void defaultOcspResponderSuccessful() {
     ConfigManagerInitializer.forceInitConfigManager(configuration);
     Container container = ContainerOpener
             .open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
@@ -66,7 +66,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  public void setInvalidOcspResponderConfigurationYamlParameter() {
+  void setInvalidOcspResponderConfigurationYamlParameter() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_invalid_ocsp_responders.yaml");
     ConfigManagerInitializer.forceInitConfigManager(configuration);
     Container container = ContainerOpener
@@ -76,7 +76,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  public void testValidateDDoc10Hashcode() {
+  void testValidateDDoc10Hashcode() {
     configuration = Configuration.of(Configuration.Mode.PROD);
     configuration.getDDoc4JConfiguration().put("DATAFILE_HASHCODE_MODE", "true");
     ConfigManagerInitializer.forceInitConfigManager(configuration);
@@ -90,7 +90,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenDdocHasOneValidAndMultipleInvalidSignatures_ValidationResultContainsProperInfoForEachSignature() {
+  void validate_WhenDdocHasOneValidAndMultipleInvalidSignatures_ValidationResultContainsProperInfoForEachSignature() {
     Container container = TestDataBuilderUtil.open(
             "src/test/resources/testFiles/invalid-containers/one-valid-and-multiple-invalid-signatures.ddoc",
             configuration
@@ -195,7 +195,7 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_whenDDOCValidated_containerValidationResultContainsSHA1Warning() {
+  void validate_whenDDOCValidated_containerValidationResultContainsSHA1Warning() {
     ConfigManagerInitializer.forceInitConfigManager(configuration);
     Container container = ContainerBuilder.aContainer()
             .withConfiguration(configuration)

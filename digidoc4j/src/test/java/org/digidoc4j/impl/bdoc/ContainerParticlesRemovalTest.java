@@ -48,10 +48,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class ContainerParticlesRemovalTest extends AbstractTest {
+class ContainerParticlesRemovalTest extends AbstractTest {
 
   @Test
-  public void signatureRemovalFromBDocContainerThroughoutContainerSavingAndOpening_shouldResultWithCompletelyRemovedSignature() {
+  void signatureRemovalFromBDocContainerThroughoutContainerSavingAndOpening_shouldResultWithCompletelyRemovedSignature() {
     BDocContainer initialContainer = createEmptyContainerBy(BDOC);
     initialContainer.addDataFile(mockDataFile());
 
@@ -90,7 +90,7 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
   }
 
   @Test
-  public void signatureRemovalFromASiCEContainerThroughoutContainerSavingAndOpening_shouldResultWithCompletelyRemovedSignature() {
+  void signatureRemovalFromASiCEContainerThroughoutContainerSavingAndOpening_shouldResultWithCompletelyRemovedSignature() {
     AsicEContainer container = createEmptyContainerBy(ASICE);
     container.addDataFile(mockDataFile());
 
@@ -129,7 +129,7 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
   }
 
   @Test
-  public void addAndRemoveSignatureToNewContainerBeforeSaving_resultsWithCompletelyRemovedSignature() {
+  void addAndRemoveSignatureToNewContainerBeforeSaving_resultsWithCompletelyRemovedSignature() {
     BDocContainer container = createEmptyContainerBy(BDOC);
     container.addDataFile(mockDataFile());
 
@@ -145,7 +145,7 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
   }
 
   @Test
-  public void addAndRemoveSignatureToAlreadySignedContainerBeforeSaving_resultsWithCompletelyRemovedSignature() {
+  void addAndRemoveSignatureToAlreadySignedContainerBeforeSaving_resultsWithCompletelyRemovedSignature() {
     BDocContainer container = (BDocContainer) openContainer(BDOC_WITH_TM_SIG);
     assertSame(1, container.getSignatures().size());
 
@@ -160,7 +160,7 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
   }
 
   @Test
-  public void tryingToRemoveNonExistingSignatureFromBDocContainer_shouldThrowAnException() {
+  void tryingToRemoveNonExistingSignatureFromBDocContainer_shouldThrowAnException() {
     BDocContainer container = createEmptyContainerBy(BDOC);
     container.addDataFile(mockDataFile());
 
@@ -181,7 +181,7 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
   }
 
   @Test
-  public void tryingToRemoveNonExistingSignatureFromASiCEContainer_shouldThrowAnException() {
+  void tryingToRemoveNonExistingSignatureFromASiCEContainer_shouldThrowAnException() {
     AsicEContainer container = createEmptyContainerBy(ASICE);
     container.addDataFile(mockDataFile());
 
@@ -202,7 +202,7 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
   }
 
   @Test
-  public void tryingToRemoveNonExistingSignatureByIndexFromBDocContainer_shouldThrowAnException() {
+  void tryingToRemoveNonExistingSignatureByIndexFromBDocContainer_shouldThrowAnException() {
     BDocContainer container = createEmptyContainerBy(BDOC);
     container.addDataFile(mockDataFile());
 
@@ -227,7 +227,7 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
   }
 
   @Test
-  public void tryingToRemoveNonExistingSignatureByIndexFromASiCEContainer_shouldThrowAnException() {
+  void tryingToRemoveNonExistingSignatureByIndexFromASiCEContainer_shouldThrowAnException() {
     AsicEContainer container = createEmptyContainerBy(ASICE);
     container.addDataFile(mockDataFile());
 
@@ -252,7 +252,7 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
   }
 
   @Test
-  public void dataFileRemovalFromBDocContainerThroughoutContainerSavingAndOpening_shouldResultWithCompletelyRemovedData() {
+  void dataFileRemovalFromBDocContainerThroughoutContainerSavingAndOpening_shouldResultWithCompletelyRemovedData() {
     DataFile dataFile = mockDataFile();
 
     BDocContainer container = createEmptyContainerBy(BDOC);
@@ -282,7 +282,7 @@ public class ContainerParticlesRemovalTest extends AbstractTest {
   }
 
   @Test
-  public void dataFileRemovalFromASiCEContainerThroughoutContainerSavingAndOpening_shouldResultWithCompletelyRemovedData() {
+  void dataFileRemovalFromASiCEContainerThroughoutContainerSavingAndOpening_shouldResultWithCompletelyRemovedData() {
     DataFile dataFile = mockDataFile();
 
     AsicEContainer container = createEmptyContainerBy(ASICE);

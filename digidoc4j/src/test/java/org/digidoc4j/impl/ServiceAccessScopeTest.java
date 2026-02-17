@@ -40,7 +40,7 @@ class ServiceAccessScopeTest {
   private Supplier<ServiceAccessEvent> mockedEventSupplier;
 
   @Test
-  public void listenerShouldBeNotifiedFromInsideServiceAccessScope() {
+  void listenerShouldBeNotifiedFromInsideServiceAccessScope() {
     Mockito.doReturn(mockedEvent).when(mockedEventSupplier).get();
     try (ServiceAccessScope scope = new ServiceAccessScope(mockedListener)) {
       ServiceAccessScope.notifyExternalServiceAccessListenerIfPresent(mockedEventSupplier);
@@ -52,7 +52,7 @@ class ServiceAccessScopeTest {
   }
 
   @Test
-  public void listenerShouldNotBeNotifiedBeforeEnteringServiceAccessScope() {
+  void listenerShouldNotBeNotifiedBeforeEnteringServiceAccessScope() {
     ServiceAccessScope.notifyExternalServiceAccessListenerIfPresent(mockedEventSupplier);
     try (ServiceAccessScope scope = new ServiceAccessScope(mockedListener)) {
     }
@@ -60,7 +60,7 @@ class ServiceAccessScopeTest {
   }
 
   @Test
-  public void listenerShouldNotBeNotifiedAfterLeavingServiceAccessScope() {
+  void listenerShouldNotBeNotifiedAfterLeavingServiceAccessScope() {
     try (ServiceAccessScope scope = new ServiceAccessScope(mockedListener)) {
     }
     ServiceAccessScope.notifyExternalServiceAccessListenerIfPresent(mockedEventSupplier);
@@ -68,7 +68,7 @@ class ServiceAccessScopeTest {
   }
 
   @Test
-  public void listenerShouldNotBeNotifiedAfterManuallyClosingServiceAccessScope() {
+  void listenerShouldNotBeNotifiedAfterManuallyClosingServiceAccessScope() {
     try (ServiceAccessScope scope = new ServiceAccessScope(mockedListener)) {
       scope.close();
       ServiceAccessScope.notifyExternalServiceAccessListenerIfPresent(mockedEventSupplier);
@@ -77,7 +77,7 @@ class ServiceAccessScopeTest {
   }
 
   @Test
-  public void eventsShouldBeCaughtOnlyInTheSameThreadTheyWerePublishedIn() throws Exception {
+  void eventsShouldBeCaughtOnlyInTheSameThreadTheyWerePublishedIn() throws Exception {
     ThreadSafeListener threadSafeListener = new ThreadSafeListener();
     ExecutorService executorService = Executors.newFixedThreadPool(4);
 
@@ -135,7 +135,7 @@ class ServiceAccessScopeTest {
       receivedEvents.add(serviceAccessEvent);
     }
 
-    public synchronized List<ServiceAccessEvent> getReceivedEvents() {
+    synchronized List<ServiceAccessEvent> getReceivedEvents() {
         return new ArrayList<>(receivedEvents);
     }
 
@@ -145,7 +145,7 @@ class ServiceAccessScopeTest {
 
     private final ServiceType serviceType;
 
-    public ThreadBasedEventSupplier(ServiceType serviceType) {
+    ThreadBasedEventSupplier(ServiceType serviceType) {
         this.serviceType = serviceType;
     }
 

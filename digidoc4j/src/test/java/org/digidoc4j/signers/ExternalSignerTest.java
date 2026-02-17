@@ -34,10 +34,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ExternalSignerTest extends AbstractTest {
+class ExternalSignerTest extends AbstractTest {
 
   @Test
-  public void testGetCertificate() throws Exception {
+  void testGetCertificate() throws Exception {
     X509Certificate certificate = DSSUtils.loadCertificate(Base64.decodeBase64(Certificates.SIGNING_CERTIFICATE)).getCertificate();
     ExternalSigner externalSigner = new ExternalSigner(certificate) {
 
@@ -52,7 +52,7 @@ public class ExternalSignerTest extends AbstractTest {
 
   @Test
   @Disabled // TODO Fix me when possible
-  public void testAsyncSigning() {
+  void testAsyncSigning() {
     Container container = this.createNonEmptyContainer();
     DataToSign dataToSign = SignatureBuilder.aSignature(container).withSigningCertificate(pkcs12SignatureToken.getCertificate()).
         buildDataToSign();

@@ -26,7 +26,7 @@ public abstract class AbstractAsicContainerTimestampBuilderTest extends Abstract
   protected abstract Container getEmptyContainerForTimestamping(Configuration configuration);
 
   @Test
-  public void invokeTimestamping_WhenContainerHasNoDataFiles_ThrowsDataFileMissingException() {
+  void invokeTimestamping_WhenContainerHasNoDataFiles_ThrowsDataFileMissingException() {
     TimestampBuilder timestampBuilder = TimestampBuilder
             .aTimestamp(getEmptyContainerForTimestamping(Configuration.of(Configuration.Mode.TEST)));
 

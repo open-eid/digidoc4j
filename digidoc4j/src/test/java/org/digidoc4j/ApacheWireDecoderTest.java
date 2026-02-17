@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j;
 
 import java.io.ByteArrayInputStream;
@@ -11,12 +21,12 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ApacheWireDecoderTest {
+class ApacheWireDecoderTest {
 
   private ApacheWireDecoder decoder = new ApacheWireDecoder();
 
   @Test
-  public void sampleOcspResponse() {
+  void sampleOcspResponse() {
     String input =
         "0[0x82][0x2]U[\\n]\r\n" +
             "[0x1][0x0][0xa0][0x82][0x2]N0[0x82][0x2]J[0x6][0x9]+[0x6][0x1][0x5][0x5][0x7]0[0x1][0x1][0x4][0x82][0x2];0[0x82][0x2]70[0x82][0x1][0x1f][0xa1][0x81][0x86]0[0x81][0x83]1[0xb]0[0x9][0x6][0x3]U[0x4][0x6][0x13][0x2]EE1\"0 [0x6][0x3]U[0x4][\\n]\r\n" +
@@ -29,35 +39,35 @@ public class ApacheWireDecoderTest {
   }
 
   @Test
-  public void testAllPossibleBytes() {
+  void testAllPossibleBytes() {
     String encoded = encodeWithApacheWire(new ByteArrayInputStream(allPossibleBytes()));
     byte[] decodedBack = decoder.decode(encoded);
     assertArrayEquals(allPossibleBytes(), decodedBack);
   }
 
   @Test
-  public void testNonDeterministicEncodingDueToAnOpenBracket() {
+  void testNonDeterministicEncodingDueToAnOpenBracket() {
     String encoded = encodeWithApacheWire(new ByteArrayInputStream(new byte[]{'['}));
     byte[] decodedBack = decoder.decode(encoded);
     assertArrayEquals(new byte[]{'['}, decodedBack);
   }
 
   @Test
-  public void testNonDeterministicEncodingDueToAnOpenBracket_2() {
+  void testNonDeterministicEncodingDueToAnOpenBracket_2() {
     String encoded = encodeWithApacheWire(new ByteArrayInputStream(new byte[]{'[', 'a'}));
     byte[] decodedBack = decoder.decode(encoded);
     assertArrayEquals(new byte[]{'[', 'a'}, decodedBack);
   }
 
   @Test
-  public void testNonDeterministicEncodingDueToAnOpenBracket_3() {
+  void testNonDeterministicEncodingDueToAnOpenBracket_3() {
     String encoded = encodeWithApacheWire(new ByteArrayInputStream(new byte[]{'[', '0', 'x', '1'}));
     byte[] decodedBack = decoder.decode(encoded);
     assertArrayEquals(new byte[]{'[', '0', 'x', '1'}, decodedBack);
   }
 
   @Test
-  public void testIntroducingAClosingBracketMeansAnEscapeSequence() {
+  void testIntroducingAClosingBracketMeansAnEscapeSequence() {
     String encoded = encodeWithApacheWire(new ByteArrayInputStream(new byte[]{'[', '0', 'x', '1', ']'}));
     byte[] decodedBack = decoder.decode(encoded);
     assertArrayEquals(new byte[]{1}, decodedBack);

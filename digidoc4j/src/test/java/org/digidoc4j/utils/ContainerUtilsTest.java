@@ -37,17 +37,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-public class ContainerUtilsTest {
+class ContainerUtilsTest {
 
   @Test
-  public void getMimeTypeStringFor_WhenContainerIsNull_ReturnsApplicationOctetStream() {
+  void getMimeTypeStringFor_WhenContainerIsNull_ReturnsApplicationOctetStream() {
     String result = ContainerUtils.getMimeTypeStringFor(null);
 
     assertThat(result, equalTo("application/octet-stream"));
   }
 
   @Test
-  public void getMimeTypeStringFor_WhenContainerIsMock_ReturnsApplicationOctetStream() {
+  void getMimeTypeStringFor_WhenContainerIsMock_ReturnsApplicationOctetStream() {
     Container mockedContainer = mock(Container.class);
 
     String result = ContainerUtils.getMimeTypeStringFor(mockedContainer);
@@ -58,7 +58,7 @@ public class ContainerUtilsTest {
   }
 
   @Test
-  public void getMimeTypeStringFor_WhenContainerIsAsice_ReturnsAsiceMimeTypeString() {
+  void getMimeTypeStringFor_WhenContainerIsAsice_ReturnsAsiceMimeTypeString() {
     Container asiceContainer = ContainerBuilder
             .aContainer(Container.DocumentType.ASICE)
             .build();
@@ -69,7 +69,7 @@ public class ContainerUtilsTest {
   }
 
   @Test
-  public void getMimeTypeStringFor_WhenContainerIsAsics_ReturnsAsicsMimeTypeString() {
+  void getMimeTypeStringFor_WhenContainerIsAsics_ReturnsAsicsMimeTypeString() {
     Container asiceContainer = ContainerBuilder
             .aContainer(Container.DocumentType.ASICS)
             .build();
@@ -80,7 +80,7 @@ public class ContainerUtilsTest {
   }
 
   @Test
-  public void getMimeTypeStringFor_WhenContainerIsBdoc_ReturnsAsiceMimeTypeString() {
+  void getMimeTypeStringFor_WhenContainerIsBdoc_ReturnsAsiceMimeTypeString() {
     Container asiceContainer = ContainerBuilder
             .aContainer(Container.DocumentType.BDOC)
             .build();
@@ -91,7 +91,7 @@ public class ContainerUtilsTest {
   }
 
   @Test
-  public void getMimeTypeStringFor_WhenContainerIsDdoc_ReturnsDdocMimeTypeString() {
+  void getMimeTypeStringFor_WhenContainerIsDdoc_ReturnsDdocMimeTypeString() {
     Container asiceContainer = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc-valid.ddoc");
 
     String result = ContainerUtils.getMimeTypeStringFor(asiceContainer);
@@ -100,7 +100,7 @@ public class ContainerUtilsTest {
   }
 
   @Test
-  public void isAsicContainer_WhenNoAllowedMimeTypeStringsAreProvided_ThrowsException() {
+  void isAsicContainer_WhenNoAllowedMimeTypeStringsAreProvided_ThrowsException() {
     Supplier<InputStream> inputStreamSupplier = createInputStreamSupplier(new byte[0]);
 
     IllegalArgumentException caughtException = assertThrows(
@@ -112,7 +112,7 @@ public class ContainerUtilsTest {
   }
 
   @Test
-  public void isAsicContainer_WhenInputIsEmpty_ReturnsFalse() {
+  void isAsicContainer_WhenInputIsEmpty_ReturnsFalse() {
     Supplier<InputStream> inputStreamSupplier = createInputStreamSupplier(new byte[0]);
 
     boolean result = ContainerUtils.isAsicContainer(inputStreamSupplier, getDefaultAsicMimeTypeStrings());
@@ -121,7 +121,7 @@ public class ContainerUtilsTest {
   }
 
   @Test
-  public void isAsicContainer_WhenInputIsNotZipFile_ReturnsFalse() {
+  void isAsicContainer_WhenInputIsNotZipFile_ReturnsFalse() {
     Supplier<InputStream> inputStreamSupplier = createInputStreamSupplier("Some text");
 
     boolean result = ContainerUtils.isAsicContainer(inputStreamSupplier, getDefaultAsicMimeTypeStrings());
@@ -130,7 +130,7 @@ public class ContainerUtilsTest {
   }
 
   @Test
-  public void isAsicContainer_WhenInputIsNonAsicZipContainer_ReturnsFalse() {
+  void isAsicContainer_WhenInputIsNonAsicZipContainer_ReturnsFalse() {
     Supplier<InputStream> inputStreamSupplier = createInputStreamSupplier(
             TestZipUtil.createDeflatedEntry("test.txt", "Some text.".getBytes(StandardCharsets.UTF_8))
     );
@@ -141,7 +141,7 @@ public class ContainerUtilsTest {
   }
 
   @Test
-  public void isAsicContainer_WhenInputIsZipContainerWithFirstStoredCustomAllowedMimeType_ReturnsTrue() {
+  void isAsicContainer_WhenInputIsZipContainerWithFirstStoredCustomAllowedMimeType_ReturnsTrue() {
     Supplier<InputStream> inputStreamSupplier = createInputStreamSupplier(
             TestZipUtil.createStoredEntry(ASiCUtils.MIME_TYPE, "custom-mimetype".getBytes(StandardCharsets.UTF_8))
     );
@@ -152,7 +152,7 @@ public class ContainerUtilsTest {
   }
 
   @Test
-  public void isAsicContainer_WhenInputIsZipContainerWithFirstStoredNonAsicMimeType_ReturnsFalse() {
+  void isAsicContainer_WhenInputIsZipContainerWithFirstStoredNonAsicMimeType_ReturnsFalse() {
     Supplier<InputStream> inputStreamSupplier = createInputStreamSupplier(
             TestZipUtil.createStoredEntry(ASiCUtils.MIME_TYPE, "Some text.".getBytes(StandardCharsets.UTF_8))
     );
@@ -163,7 +163,7 @@ public class ContainerUtilsTest {
   }
 
   @Test
-  public void isAsicContainer_WhenInputIsZipContainerWithFirstStoredAsiceMimeType_ReturnsTrue() {
+  void isAsicContainer_WhenInputIsZipContainerWithFirstStoredAsiceMimeType_ReturnsTrue() {
     Supplier<InputStream> inputStreamSupplier = createInputStreamSupplier(
             TestZipUtil.createStoredEntry(ASiCUtils.MIME_TYPE, getMimeTypeBytes(MimeTypeEnum.ASICE))
     );
@@ -174,7 +174,7 @@ public class ContainerUtilsTest {
   }
 
   @Test
-  public void isAsicContainer_WhenInputIsZipContainerWithFirstStoredAsiceMimeTypeButAsiceIsNotAllowed_ReturnsFalse() {
+  void isAsicContainer_WhenInputIsZipContainerWithFirstStoredAsiceMimeTypeButAsiceIsNotAllowed_ReturnsFalse() {
     Supplier<InputStream> inputStreamSupplier = createInputStreamSupplier(
             TestZipUtil.createStoredEntry(ASiCUtils.MIME_TYPE, getMimeTypeBytes(MimeTypeEnum.ASICE))
     );
@@ -185,7 +185,7 @@ public class ContainerUtilsTest {
   }
 
   @Test
-  public void isAsicContainer_WhenInputIsZipContainerWithFirstStoredAsicsMimeType_ReturnsTrue() {
+  void isAsicContainer_WhenInputIsZipContainerWithFirstStoredAsicsMimeType_ReturnsTrue() {
     Supplier<InputStream> inputStreamSupplier = createInputStreamSupplier(
             TestZipUtil.createStoredEntry(ASiCUtils.MIME_TYPE, getMimeTypeBytes(MimeTypeEnum.ASICS))
     );
@@ -196,7 +196,7 @@ public class ContainerUtilsTest {
   }
 
   @Test
-  public void isAsicContainer_WhenInputIsZipContainerWithFirstStoredAsicsMimeTypeButAsicsIsNotAllowed_ReturnsFalse() {
+  void isAsicContainer_WhenInputIsZipContainerWithFirstStoredAsicsMimeTypeButAsicsIsNotAllowed_ReturnsFalse() {
     Supplier<InputStream> inputStreamSupplier = createInputStreamSupplier(
             TestZipUtil.createStoredEntry(ASiCUtils.MIME_TYPE, getMimeTypeBytes(MimeTypeEnum.ASICS))
     );
@@ -207,7 +207,7 @@ public class ContainerUtilsTest {
   }
 
   @Test
-  public void isAsicContainer_WhenInputIsZipContainerWithFirstDeflatedAsiceMimeType_ReturnsTrue() {
+  void isAsicContainer_WhenInputIsZipContainerWithFirstDeflatedAsiceMimeType_ReturnsTrue() {
     Supplier<InputStream> inputStreamSupplier = createInputStreamSupplier(
             TestZipUtil.createDeflatedEntry(ASiCUtils.MIME_TYPE, getMimeTypeBytes(MimeTypeEnum.ASICE))
     );
@@ -218,7 +218,7 @@ public class ContainerUtilsTest {
   }
 
   @Test
-  public void isAsicContainer_WhenInputIsZipContainerWithFirstDeflatedAsicsMimeType_ReturnsTrue() {
+  void isAsicContainer_WhenInputIsZipContainerWithFirstDeflatedAsicsMimeType_ReturnsTrue() {
     Supplier<InputStream> inputStreamSupplier = createInputStreamSupplier(
             TestZipUtil.createDeflatedEntry(ASiCUtils.MIME_TYPE, getMimeTypeBytes(MimeTypeEnum.ASICS))
     );
@@ -229,7 +229,7 @@ public class ContainerUtilsTest {
   }
 
   @Test
-  public void isAsicContainer_WhenInputIsZipContainerWithNonFirstDeflatedAsiceMimeType_ReturnsTrue() {
+  void isAsicContainer_WhenInputIsZipContainerWithNonFirstDeflatedAsiceMimeType_ReturnsTrue() {
     Supplier<InputStream> inputStreamSupplier = createInputStreamSupplier(
             TestZipUtil.createDeflatedEntry("test.txt", "Some text.\n".getBytes(StandardCharsets.UTF_8)),
             TestZipUtil.createDeflatedEntry(ASiCUtils.MIME_TYPE, getMimeTypeBytes(MimeTypeEnum.ASICE))
@@ -241,7 +241,7 @@ public class ContainerUtilsTest {
   }
 
   @Test
-  public void isAsicContainer_WhenInputIsZipContainerWithNonFirstDeflatedAsicsMimeType_ReturnsTrue() {
+  void isAsicContainer_WhenInputIsZipContainerWithNonFirstDeflatedAsicsMimeType_ReturnsTrue() {
     Supplier<InputStream> inputStreamSupplier = createInputStreamSupplier(
             TestZipUtil.createDeflatedEntry("test.txt", "Some text.\n".getBytes(StandardCharsets.UTF_8)),
             TestZipUtil.createDeflatedEntry(ASiCUtils.MIME_TYPE, getMimeTypeBytes(MimeTypeEnum.ASICS))

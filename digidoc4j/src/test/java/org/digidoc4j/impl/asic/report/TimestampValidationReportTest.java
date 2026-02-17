@@ -32,10 +32,10 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 
-public class TimestampValidationReportTest extends TokenValidationReportTest {
+class TimestampValidationReportTest extends TokenValidationReportTest {
 
   @Test
-  public void create_WhenXmlTimestampParametersArePresent_TimestampValidationReportWithMatchingParametersIsCreated() {
+  void create_WhenXmlTimestampParametersArePresent_TimestampValidationReportWithMatchingParametersIsCreated() {
     XmlTimestamp timestamp = new XmlTimestamp();
     timestamp.setId("123abc");
     timestamp.setCertificateChain(new eu.europa.esig.dss.simplereport.jaxb.XmlCertificateChain());
@@ -105,7 +105,7 @@ public class TimestampValidationReportTest extends TokenValidationReportTest {
   }
 
   @Test
-  public void create_WhenXmlTimestampParametersNotPresent_TimestampValidationReportWithMissingParametersIsCreated() {
+  void create_WhenXmlTimestampParametersNotPresent_TimestampValidationReportWithMissingParametersIsCreated() {
     XmlTimestamp timestamp = new XmlTimestamp();
 
     TimestampValidationReport report = TimestampValidationReport.create(timestamp);

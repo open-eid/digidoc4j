@@ -21,10 +21,10 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DDocSignatureTest extends AbstractTest {
+class DDocSignatureTest extends AbstractTest {
 
   @Test
-  public void testSignatureParameters() throws Exception {
+  void testSignatureParameters() throws Exception {
     Container container = new DDocOpener().open("src/test/resources/testFiles/valid-containers/container-with-sig-params.ddoc");
     Signature signature = container.getSignatures().get(0);
     assertEquals("City", signature.getCity());
@@ -36,7 +36,7 @@ public class DDocSignatureTest extends AbstractTest {
   }
 
   @Test
-  public void testSignatureExceptionHandling() {
+  void testSignatureExceptionHandling() {
     Container container = new DDocOpener().open("src/test/resources/prodFiles/invalid-containers/Belgia_kandeavaldus_LIV.ddoc");
     Signature signature = container.getSignatures().get(1);
     ValidationResult validationResult = signature.validateSignature();

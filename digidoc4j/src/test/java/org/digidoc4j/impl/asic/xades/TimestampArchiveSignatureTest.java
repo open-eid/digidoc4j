@@ -23,13 +23,13 @@ import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TimestampArchiveSignatureTest extends AbstractTest {
+class TimestampArchiveSignatureTest extends AbstractTest {
 
     @TempDir
     Path tmpDir;
 
     @Test
-    public void getProfile_returnsLTA() throws IOException {
+    void getProfile_returnsLTA() throws IOException {
         Container container = TestDataBuilderUtil.createContainerWithFile(tmpDir, Container.DocumentType.ASICE);
         AsicESignature asiceSignature = (AsicESignature) TestDataBuilderUtil.signContainer(container, SignatureProfile.LTA);
         LongTermArchiveSignature timestampArchiveSignature = (LongTermArchiveSignature) asiceSignature.getOrigin();

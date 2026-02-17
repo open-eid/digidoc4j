@@ -30,11 +30,11 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class UriEncodingTest extends AbstractTest {
+class UriEncodingTest extends AbstractTest {
 
   @Test
   // DetachedSignatureBuilder.createReference(...) uses UTF-8 from dss5.0
-  public void signatureReferencesUseUriEncodingButManifestUsesPlainUtf8() {
+  void signatureReferencesUseUriEncodingButManifestUsesPlainUtf8() {
     String fileName = "dds_JÜRIÖÖ € žŠ päev.txt";
     String expectedEncoding = "dds_J%C3%9CRI%C3%96%C3%96%20%E2%82%AC%20%C5%BE%C5%A0%20p%C3%A4ev.txt";
     signAndAssert(fileName, expectedEncoding);
@@ -43,21 +43,21 @@ public class UriEncodingTest extends AbstractTest {
 
   @Test
   // DetachedSignatureBuilder.createReference(...) uses UTF-8 from dss5.0
-  public void encodeDataFileWithSpecialCharacters() {
+  void encodeDataFileWithSpecialCharacters() {
     String fileName = "et10i_0123456789!#$%&'()+,-. ;=@[]_`}~ et_EE";
     String expectedEncoding = "et10i_0123456789%21%23%24%25%26%27%28%29%2B%2C-.%20%3B%3D%40%5B%5D_%60%7D%7E%20et_EE";
     signAndAssert(fileName, expectedEncoding);
   }
 
   @Test
-  public void validatePartialEncoding_shouldBeValid() {
+  void validatePartialEncoding_shouldBeValid() {
     Container container = openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/et10_0123456789!#$%&'()+,-. ;=@[]_`}- et_EE_utf8.zip-d_ec.bdoc"), configuration);
     ContainerValidationResult validationResult = container.validate();
     TestAssert.assertContainerIsValid(validationResult);
   }
 
   @Test
-  public void validateContainer_withWhitespaceEncodedAsPlus_shouldBeValid() {
+  void validateContainer_withWhitespaceEncodedAsPlus_shouldBeValid() {
     Container container = openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/M1n1 Testäöüõ!.txt-TS-d4j.bdoc"), configuration);
     ContainerValidationResult validationResult = container.validate();
     TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
@@ -68,7 +68,7 @@ public class UriEncodingTest extends AbstractTest {
   }
 
   @Test
-  public void validateContainer_withSpaceInDataFileNamePercentEncodedInSignature_shouldBeValid() {
+  void validateContainer_withSpaceInDataFileNamePercentEncodedInSignature_shouldBeValid() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/space-in-datafile-name-percent-encoded-in-signature.asice",
             Configuration.of(Configuration.Mode.TEST)
@@ -79,7 +79,7 @@ public class UriEncodingTest extends AbstractTest {
   }
 
   @Test
-  public void validateContainer_withPlusInDataFileNamePercentEncodedInSignature_shouldBeValid() {
+  void validateContainer_withPlusInDataFileNamePercentEncodedInSignature_shouldBeValid() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/plus-in-datafile-name-percent-encoded-in-signature.asice",
             Configuration.of(Configuration.Mode.TEST)
@@ -90,7 +90,7 @@ public class UriEncodingTest extends AbstractTest {
   }
 
   @Test
-  public void validateContainer_withSpaceInDataFileNameEncodedAsPlusInSignature_shouldNotBeValid() {
+  void validateContainer_withSpaceInDataFileNameEncodedAsPlusInSignature_shouldNotBeValid() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/invalid-containers/space-in-datafile-name-encoded-as-plus-in-signature.asice",
             Configuration.of(Configuration.Mode.TEST)
@@ -107,7 +107,7 @@ public class UriEncodingTest extends AbstractTest {
   }
 
   @Test
-  public void validateContainer_withPlusInDataFileNameNotEncodedInSignature_shouldBeValid() {
+  void validateContainer_withPlusInDataFileNameNotEncodedInSignature_shouldBeValid() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/plus-in-datafile-name-unencoded-in-signature.asice",
             Configuration.of(Configuration.Mode.TEST)

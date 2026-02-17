@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-public class TslFileLoaderFactoryTest extends AbstractTest {
+class TslFileLoaderFactoryTest extends AbstractTest {
 
   private static final int MOCK_TIMEOUT_CONNECTION = 273;
   private static final int MOCK_TIMEOUT_SOCKET = 84;
@@ -41,7 +41,7 @@ public class TslFileLoaderFactoryTest extends AbstractTest {
   File tslFileCacheDirectory;
 
   @Test
-  public void testDefaultFileCacheDataLoaderCreatedWhenNoCustomLoaderFactoriesConfigured() throws Exception {
+  void testDefaultFileCacheDataLoaderCreatedWhenNoCustomLoaderFactoriesConfigured() throws Exception {
     configuration.setConnectionTimeout(MOCK_TIMEOUT_CONNECTION);
     configuration.setSocketTimeout(MOCK_TIMEOUT_SOCKET);
 
@@ -68,7 +68,7 @@ public class TslFileLoaderFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void testDefaultFileCacheDataLoaderWithProxyConfigCreatedWhenNoCustomLoaderFactoriesConfigured() throws Exception {
+  void testDefaultFileCacheDataLoaderWithProxyConfigCreatedWhenNoCustomLoaderFactoriesConfigured() throws Exception {
     configuration.setHttpProxyHost("http://proxy.host");
     configuration.setHttpProxyPort(8080);
     configuration.setHttpsProxyHost("https://proxy.host");
@@ -96,7 +96,7 @@ public class TslFileLoaderFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void testDefaultFileCacheDataLoaderWithSslConfigCreatedWhenNoCustomLoaderFactoriesConfigured() throws Exception {
+  void testDefaultFileCacheDataLoaderWithSslConfigCreatedWhenNoCustomLoaderFactoriesConfigured() throws Exception {
     configuration.setLotlLocation("http://lotl.host:8080/path");
     configuration.setSslTruststorePath("classpath:testFiles/truststores/empty-truststore.p12");
     configuration.setSslTruststorePassword("digidoc4j-password");
@@ -124,7 +124,7 @@ public class TslFileLoaderFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void testCustomFileLoaderCreatedWhenCustomFileLoaderFactoryConfigured() throws Exception {
+  void testCustomFileLoaderCreatedWhenCustomFileLoaderFactoryConfigured() throws Exception {
     DSSFileLoader mockFileLoader = Mockito.mock(DSSFileLoader.class);
     DSSFileLoaderFactory mockFileLoaderFactory = Mockito.mock(DSSFileLoaderFactory.class);
     Mockito.doReturn(mockFileLoader).when(mockFileLoaderFactory).create();
@@ -138,7 +138,7 @@ public class TslFileLoaderFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void testCustomFileLoaderCreatedWhenCustomFileLoaderFactoryAndCustomDataLoaderFactoryConfigured() throws Exception {
+  void testCustomFileLoaderCreatedWhenCustomFileLoaderFactoryAndCustomDataLoaderFactoryConfigured() throws Exception {
     DSSFileLoader mockFileLoader = Mockito.mock(DSSFileLoader.class);
     DSSFileLoaderFactory mockFileLoaderFactory = Mockito.mock(DSSFileLoaderFactory.class);
     Mockito.doReturn(mockFileLoader).when(mockFileLoaderFactory).create();
@@ -155,7 +155,7 @@ public class TslFileLoaderFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void testCustomFileLoaderCreatedWhenCustomDataLoaderFactoryConfiguredWhichCreatesDataLoadersImplementingFileLoaderInterface() throws Exception {
+  void testCustomFileLoaderCreatedWhenCustomDataLoaderFactoryConfiguredWhichCreatesDataLoadersImplementingFileLoaderInterface() throws Exception {
     DataLoader mockDataAndFileLoader = Mockito.mock(DataLoaderWithFileLoaderInterface.class);
     DataLoaderFactory mockDataLoaderFactory = Mockito.mock(DataLoaderFactory.class);
     Mockito.doReturn(mockDataAndFileLoader).when(mockDataLoaderFactory).create();
@@ -169,7 +169,7 @@ public class TslFileLoaderFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void testFileCacheDataLoaderWrappingCustomDataLoaderCreatedWhenCustomDataLoaderFactoryConfigured() throws Exception {
+  void testFileCacheDataLoaderWrappingCustomDataLoaderCreatedWhenCustomDataLoaderFactoryConfigured() throws Exception {
     DataLoader mockDataLoader = Mockito.mock(DataLoader.class);
     DataLoaderFactory mockDataLoaderFactory = Mockito.mock(DataLoaderFactory.class);
     Mockito.doReturn(mockDataLoader).when(mockDataLoaderFactory).create();

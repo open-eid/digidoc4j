@@ -56,10 +56,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class SignatureBuilderTest extends AbstractTest {
+class SignatureBuilderTest extends AbstractTest {
 
   @Test
-  public void aSignature_WhenContainerTypeIsDDOC_ThrowsNotSupportedException() {
+  void aSignature_WhenContainerTypeIsDDOC_ThrowsNotSupportedException() {
     Container container = ContainerOpener.open(DDOC_TEST_FILE);
 
     NotSupportedException caughtException = assertThrows(
@@ -71,7 +71,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void aSignature_WhenContainerTypeIsPADES_ThrowsNotSupportedException() {
+  void aSignature_WhenContainerTypeIsPADES_ThrowsNotSupportedException() {
     Container container = ContainerOpener
             .open("src/test/resources/testFiles/invalid-containers/hello_signed_INCSAVE_signed_EDITED.pdf");
 
@@ -84,7 +84,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void buildDataToSign_WhenContainerTypeIsASiCE_ReturnsDataToSign() {
+  void buildDataToSign_WhenContainerTypeIsASiCE_ReturnsDataToSign() {
     SignatureBuilder signatureBuilder = SignatureBuilder
             .aSignature(createNonEmptyContainerBy(ASICE))
             .withSigningCertificate(pkcs12SignatureToken.getCertificate());
@@ -98,7 +98,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void buildDataToSign_WhenContainerTypeIsBDOC_ReturnsDataToSign() {
+  void buildDataToSign_WhenContainerTypeIsBDOC_ReturnsDataToSign() {
     SignatureBuilder signatureBuilder = SignatureBuilder
             .aSignature(createNonEmptyContainerBy(BDOC))
             .withSigningCertificate(pkcs12SignatureToken.getCertificate());
@@ -112,7 +112,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void buildDataToSign_WhenContainerTypeIsASiCS_ReturnsDataToSign() {
+  void buildDataToSign_WhenContainerTypeIsASiCS_ReturnsDataToSign() {
     SignatureBuilder signatureBuilder = SignatureBuilder
             .aSignature(createNonEmptyContainerBy(ASICS))
             .withSigningCertificate(pkcs12SignatureToken.getCertificate());
@@ -126,7 +126,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void buildDataToSign_WhenSignatureParametersAreProvided_ReturnsDataToSignContainingSignatureParameters() {
+  void buildDataToSign_WhenSignatureParametersAreProvided_ReturnsDataToSignContainingSignatureParameters() {
     SignatureBuilder signatureBuilder = SignatureBuilder
             .aSignature(createNonEmptyContainerBy(ASICE))
             .withCity("San Pedro")
@@ -159,7 +159,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void signDocumentExternallyTwice() {
+  void signDocumentExternallyTwice() {
     Container container = createNonEmptyContainer();
 
     DataToSign dataToSign = TestDataBuilderUtil.buildDataToSign(container, "S0");
@@ -179,7 +179,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void invokeSigning_WhenContainerTypeIsASiCE_Signature() {
+  void invokeSigning_WhenContainerTypeIsASiCE_Signature() {
     SignatureBuilder signatureBuilder = SignatureBuilder
             .aSignature(createNonEmptyContainerBy(ASICE))
             .withSignatureToken(pkcs12SignatureToken);
@@ -191,7 +191,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void invokeSigning_WhenSignatureProfileIsT_ResultingSignatureIsOfCorrectProfile() {
+  void invokeSigning_WhenSignatureProfileIsT_ResultingSignatureIsOfCorrectProfile() {
     SignatureBuilder signatureBuilder = SignatureBuilder
             .aSignature(createNonEmptyContainerBy(ASICE))
             .withSignatureProfile(SignatureProfile.T)
@@ -212,7 +212,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void invokeSigning_WhenContainerTypeIsBDOC_Signature() {
+  void invokeSigning_WhenContainerTypeIsBDOC_Signature() {
     SignatureBuilder signatureBuilder = SignatureBuilder
             .aSignature(createNonEmptyContainerBy(BDOC))
             .withSignatureToken(pkcs12SignatureToken);
@@ -224,7 +224,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void invokeSigning_WhenContainerTypeIsASiCS_Signature() {
+  void invokeSigning_WhenContainerTypeIsASiCS_Signature() {
     SignatureBuilder signatureBuilder = SignatureBuilder
             .aSignature(createNonEmptyContainerBy(ASICS))
             .withSignatureToken(pkcs12SignatureToken);
@@ -236,7 +236,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void invokeSigning_WhenSignatureParametersAreProvided_ReturnsDataToSignContainingSignatureParameters() {
+  void invokeSigning_WhenSignatureParametersAreProvided_ReturnsDataToSignContainingSignatureParameters() {
     SignatureBuilder signatureBuilder = SignatureBuilder
             .aSignature(createNonEmptyContainerBy(ASICE))
             .withCity("Tallinn")
@@ -262,7 +262,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void signContainerWithSignatureToken() {
+  void signContainerWithSignatureToken() {
     Container container = createNonEmptyContainerBy(ASICE);
     Signature signature = SignatureBuilder
             .aSignature(container)
@@ -289,7 +289,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void invokeSigning_WhenSignatureTokenIsMissingForASiCE_ThrowsSignatureTokenMissingException() {
+  void invokeSigning_WhenSignatureTokenIsMissingForASiCE_ThrowsSignatureTokenMissingException() {
     Container container = createNonEmptyContainerBy(ASICE);
     SignatureBuilder signatureBuilder = SignatureBuilder.aSignature(container);
 
@@ -300,7 +300,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void invokeSigning_WhenSignatureTokenIsMissingForBDOC_ThrowsSignatureTokenMissingException() {
+  void invokeSigning_WhenSignatureTokenIsMissingForBDOC_ThrowsSignatureTokenMissingException() {
     Container container = createNonEmptyContainerBy(BDOC);
     SignatureBuilder signatureBuilder = SignatureBuilder.aSignature(container);
 
@@ -311,7 +311,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void invokeSigning_WhenSignatureTokenIsMissingForASiCS_ThrowsSignatureTokenMissingException() {
+  void invokeSigning_WhenSignatureTokenIsMissingForASiCS_ThrowsSignatureTokenMissingException() {
     Container container = createNonEmptyContainerBy(ASICS);
     SignatureBuilder signatureBuilder = SignatureBuilder.aSignature(container);
 
@@ -322,7 +322,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void signWithEccCertificate() {
+  void signWithEccCertificate() {
     Container container = createNonEmptyContainer();
     Signature signature = SignatureBuilder.aSignature(container).withSignatureToken(pkcs12EccSignatureToken)
             .withEncryptionAlgorithm(EncryptionAlgorithm.ECDSA).invokeSigning();
@@ -334,7 +334,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void signWith2EccCertificate() {
+  void signWith2EccCertificate() {
     Container container = createNonEmptyContainer();
     Signature signature = SignatureBuilder.aSignature(container).withSignatureToken(pkcs12EccSignatureToken)
             .withEncryptionAlgorithm(EncryptionAlgorithm.ECDSA).withSignatureDigestAlgorithm(DigestAlgorithm.SHA256)
@@ -354,7 +354,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void signWithEccCertificate_determiningEncryptionAlgorithmAutomatically() {
+  void signWithEccCertificate_determiningEncryptionAlgorithmAutomatically() {
     Container container = createNonEmptyContainer();
     Signature signature = createSignatureBy(container, pkcs12EccSignatureToken);
     assertNotNull(signature);
@@ -363,7 +363,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void signWithDeterminedSignatureDigestAlgorithm() throws Exception {
+  void signWithDeterminedSignatureDigestAlgorithm() throws Exception {
     Container container = createNonEmptyContainer();
     DigestAlgorithm digestAlgorithm = TokenAlgorithmSupport.determineSignatureDigestAlgorithm(pkcs12SignatureToken.getCertificate());
     DataToSign dataToSign = SignatureBuilder.aSignature(container).
@@ -377,7 +377,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void openSignatureFromNull_shouldThrowException() {
+  void openSignatureFromNull_shouldThrowException() {
     SignatureBuilder signatureBuilder = SignatureBuilder
             .aSignature(createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt")));
 
@@ -390,14 +390,14 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void openSignatureFromExistingSignatureDocument() throws Exception {
+  void openSignatureFromExistingSignatureDocument() throws Exception {
     Container container = createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"));
     Signature signature = openSignatureFromExistingSignatureDocument(container);
     assertTrue(signature.validateSignature().isValid());
   }
 
   @Test
-  public void openSignatureFromInvalidSignatureDocument() throws Exception {
+  void openSignatureFromInvalidSignatureDocument() throws Exception {
     Container container = createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"));
     byte[] signatureBytes = FileUtils.readFileToByteArray(new File("src/test/resources/testFiles/helper-files/test.txt"));
     SignatureBuilder signatureBuilder = SignatureBuilder.aSignature(container);
@@ -411,7 +411,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void openSignature_withDataFilesMismatch_shouldBeInvalid() throws Exception {
+  void openSignature_withDataFilesMismatch_shouldBeInvalid() throws Exception {
     Container container = createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/word_file.docx"));
     Signature signature = openAdESSignature(container);
     ValidationResult result = signature.validateSignature();
@@ -422,14 +422,14 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void openXadesSignature_withoutXmlPreamble_shouldNotThrowException() throws Exception {
+  void openXadesSignature_withoutXmlPreamble_shouldNotThrowException() throws Exception {
     Container container = createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"));
     byte[] signatureBytes = FileUtils.readFileToByteArray(new File("src/test/resources/testFiles/xades/bdoc-tm-jdigidoc-mobile-id.xml"));
     SignatureBuilder.aSignature(container).openAdESSignature(signatureBytes);
   }
 
   @Test
-  public void openXadesSignature_andSavingContainer_shouldNotChangeSignature() throws Exception {
+  void openXadesSignature_andSavingContainer_shouldNotChangeSignature() throws Exception {
     Container container = TestDataBuilderUtil.createContainerWithFile("src/test/resources/testFiles/helper-files/word_file.docx");
     Signature signature = openAdESSignature(container);
     container.addSignature(signature);
@@ -442,7 +442,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void signUnknownContainerFormat_shouldThrowException() throws Exception {
+  void signUnknownContainerFormat_shouldThrowException() throws Exception {
     ContainerBuilder.setContainerImplementation("TEST-FORMAT", CustomContainer.class);
     Container container = TestDataBuilderUtil.createContainerWithFile(testFolder, "TEST-FORMAT");
 
@@ -455,7 +455,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void signCustomContainer() throws Exception {
+  void signCustomContainer() throws Exception {
     ContainerBuilder.setContainerImplementation("TEST-FORMAT", CustomContainer.class);
     SignatureBuilder.setSignatureBuilderForContainerType("TEST-FORMAT", MockSignatureBuilder.class);
     Container container = TestDataBuilderUtil.createContainerWithFile(testFolder, "TEST-FORMAT");
@@ -467,7 +467,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void signAsiceContainerWithExtRsaLt() {
+  void signAsiceContainerWithExtRsaLt() {
     Container container = createNonEmptyContainerBy(ASICE);
     DataToSign dataToSign = SignatureBuilder.aSignature(container).withSignatureDigestAlgorithm(DigestAlgorithm.SHA256).
         withSignatureProfile(SignatureProfile.LT).withSigningCertificate(pkcs12SignatureToken.getCertificate()).
@@ -485,7 +485,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void signAsiceContainerWithExtEccLt() {
+  void signAsiceContainerWithExtEccLt() {
     Container container = createNonEmptyContainerBy(ASICE);
     DataToSign dataToSign = SignatureBuilder.aSignature(container).withSignatureDigestAlgorithm(DigestAlgorithm.SHA256).
         withSignatureProfile(SignatureProfile.LT).withSigningCertificate(pkcs12EccSignatureToken.getCertificate()).
@@ -509,7 +509,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void invokeSigningForCustomContainer() throws Exception {
+  void invokeSigningForCustomContainer() throws Exception {
     ContainerBuilder.setContainerImplementation("TEST-FORMAT", CustomContainer.class);
     SignatureBuilder.setSignatureBuilderForContainerType("TEST-FORMAT", MockSignatureBuilder.class);
     Container container = TestDataBuilderUtil.createContainerWithFile(testFolder, "TEST-FORMAT");
@@ -519,7 +519,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void invokingSigningBBesSignatureForAsicEContainer() {
+  void invokingSigningBBesSignatureForAsicEContainer() {
     Container container = buildContainer(ASICE, ASICE_WITH_TS_SIG);
     assertAsicEContainer(container);
 
@@ -532,7 +532,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void invokeSigning_whenOverridingBDocContainerFormat() {
+  void invokeSigning_whenOverridingBDocContainerFormat() {
     CustomContainer.type = "BDOC";
     ContainerBuilder.setContainerImplementation("BDOC", CustomContainer.class);
     SignatureBuilder.setSignatureBuilderForContainerType("BDOC", MockSignatureBuilder.class);
@@ -543,7 +543,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithTMSignature_signWithBesSignature_shouldSucceed() {
+  void bDocContainerWithTMSignature_signWithBesSignature_shouldSucceed() {
     Container container = buildContainer(BDOC, BDOC_WITH_TM_SIG);
     assertBDocContainer(container);
     assertSame(1, container.getSignatures().size());
@@ -561,7 +561,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithTMSignature_signWithTimestampSignature_shouldSucceed() {
+  void bDocContainerWithTMSignature_signWithTimestampSignature_shouldSucceed() {
     Container container = buildContainer(BDOC, BDOC_WITH_TM_SIG);
     assertBDocContainer(container);
     assertSame(1, container.getSignatures().size());
@@ -579,7 +579,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithTMSignature_signWithArchiveTimestampSignature_shouldSucceed() {
+  void bDocContainerWithTMSignature_signWithArchiveTimestampSignature_shouldSucceed() {
     Container container = buildContainer(BDOC, BDOC_WITH_TM_SIG);
     assertBDocContainer(container);
     assertSame(1, container.getSignatures().size());
@@ -597,7 +597,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithTMSignature_withSignatureProfileB_EPES_shouldFail() {
+  void bDocContainerWithTMSignature_withSignatureProfileB_EPES_shouldFail() {
     Container container = buildContainer(BDOC, BDOC_WITH_TM_SIG);
     assertBDocContainer(container);
     assertSame(1, container.getSignatures().size());
@@ -613,7 +613,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithTMSignature_withSignatureProfileLT_TM_shouldFail() {
+  void bDocContainerWithTMSignature_withSignatureProfileLT_TM_shouldFail() {
     Container container = buildContainer(BDOC, BDOC_WITH_TM_SIG);
     assertBDocContainer(container);
     assertSame(1, container.getSignatures().size());
@@ -629,7 +629,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithTMSignature_withOwnSignaturePolicy_ShouldFail() {
+  void bDocContainerWithTMSignature_withOwnSignaturePolicy_ShouldFail() {
     Container container = buildContainer(BDOC, BDOC_WITH_TM_SIG);
     assertBDocContainer(container);
     assertSame(1, container.getSignatures().size());
@@ -645,7 +645,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithTMSignature_withOwnSignaturePolicyWithB_BES_ShouldFail() {
+  void bDocContainerWithTMSignature_withOwnSignaturePolicyWithB_BES_ShouldFail() {
     Container container = buildContainer(BDOC, BDOC_WITH_TM_SIG);
     assertBDocContainer(container);
     assertSame(1, container.getSignatures().size());
@@ -662,7 +662,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithTMSignature_withOwnSignaturePolicyWithLT_ShouldFail() {
+  void bDocContainerWithTMSignature_withOwnSignaturePolicyWithLT_ShouldFail() {
     Container container = buildContainer(BDOC, BDOC_WITH_TM_SIG);
     assertBDocContainer(container);
     assertSame(1, container.getSignatures().size());
@@ -679,7 +679,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithTMSignature_withOwnSignaturePolicyWithLTA_ShouldFail() {
+  void bDocContainerWithTMSignature_withOwnSignaturePolicyWithLTA_ShouldFail() {
     Container container = buildContainer(BDOC, BDOC_WITH_TM_SIG);
     assertBDocContainer(container);
     assertSame(1, container.getSignatures().size());
@@ -696,7 +696,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithTMAndTSSignature_signWithBesSignature_shouldSucceed() {
+  void bDocContainerWithTMAndTSSignature_signWithBesSignature_shouldSucceed() {
     Container container = buildContainer(BDOC, BDOC_WITH_TM_AND_TS_SIG);
     assertBDocContainer(container);
     assertSame(2, container.getSignatures().size());
@@ -716,7 +716,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithTMAndTSSignature_signWithTimestampSignature_shouldSucceed() {
+  void bDocContainerWithTMAndTSSignature_signWithTimestampSignature_shouldSucceed() {
     Container container = buildContainer(BDOC, BDOC_WITH_TM_AND_TS_SIG);
     assertBDocContainer(container);
     assertSame(2, container.getSignatures().size());
@@ -736,7 +736,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithTMAndTSSignature_signWithArchiveTimestampSignature_shouldSucceed() {
+  void bDocContainerWithTMAndTSSignature_signWithArchiveTimestampSignature_shouldSucceed() {
     Container container = buildContainer(BDOC, BDOC_WITH_TM_AND_TS_SIG);
     assertBDocContainer(container);
     assertSame(2, container.getSignatures().size());
@@ -756,7 +756,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithTMAndTSSignature_withSignatureProfileB_EPES_shouldFail() {
+  void bDocContainerWithTMAndTSSignature_withSignatureProfileB_EPES_shouldFail() {
     Container container = buildContainer(BDOC, BDOC_WITH_TM_AND_TS_SIG);
     assertBDocContainer(container);
     assertSame(2, container.getSignatures().size());
@@ -773,7 +773,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithTMAndTSSignature_withSignatureProfileLT_TM_shouldFail() {
+  void bDocContainerWithTMAndTSSignature_withSignatureProfileLT_TM_shouldFail() {
     Container container = buildContainer(BDOC, BDOC_WITH_TM_AND_TS_SIG);
     assertBDocContainer(container);
     assertSame(2, container.getSignatures().size());
@@ -790,7 +790,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithTMAndTSSignature_withOwnSignaturePolicy_ShouldFail() {
+  void bDocContainerWithTMAndTSSignature_withOwnSignaturePolicy_ShouldFail() {
     Container container = buildContainer(BDOC, BDOC_WITH_TM_AND_TS_SIG);
     assertBDocContainer(container);
     assertSame(2, container.getSignatures().size());
@@ -807,7 +807,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithTMAndTSSignature_withOwnSignaturePolicyWithB_BES_ShouldFail() {
+  void bDocContainerWithTMAndTSSignature_withOwnSignaturePolicyWithB_BES_ShouldFail() {
     Container container = buildContainer(BDOC, BDOC_WITH_TM_AND_TS_SIG);
     assertBDocContainer(container);
     assertSame(2, container.getSignatures().size());
@@ -825,7 +825,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithTMAndTSSignature_withOwnSignaturePolicyWithLT_ShouldFail() {
+  void bDocContainerWithTMAndTSSignature_withOwnSignaturePolicyWithLT_ShouldFail() {
     Container container = buildContainer(BDOC, BDOC_WITH_TM_AND_TS_SIG);
     assertBDocContainer(container);
     assertSame(2, container.getSignatures().size());
@@ -843,7 +843,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithTMAndTSSignature_withOwnSignaturePolicyWithLTA_ShouldFail() {
+  void bDocContainerWithTMAndTSSignature_withOwnSignaturePolicyWithLTA_ShouldFail() {
     Container container = buildContainer(BDOC, BDOC_WITH_TM_AND_TS_SIG);
     assertBDocContainer(container);
     assertSame(2, container.getSignatures().size());
@@ -861,7 +861,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithoutSignatures_signWithoutAssignedProfile_defaultProfileIsUsed_shouldSucceedWithTimestampSignature() {
+  void bDocContainerWithoutSignatures_signWithoutAssignedProfile_defaultProfileIsUsed_shouldSucceedWithTimestampSignature() {
     Container container = buildContainer(BDOC, ASIC_WITH_NO_SIG);
     assertBDocContainer(container);
     assertTrue(container.getSignatures().isEmpty());
@@ -883,7 +883,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithoutSignatures_signWithBesSignature_shouldSucceed() {
+  void bDocContainerWithoutSignatures_signWithBesSignature_shouldSucceed() {
     Container container = buildContainer(BDOC, ASIC_WITH_NO_SIG);
     assertBDocContainer(container);
     assertTrue(container.getSignatures().isEmpty());
@@ -899,7 +899,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithoutSignatures_signWithTimestampSignature_shouldSucceed() {
+  void bDocContainerWithoutSignatures_signWithTimestampSignature_shouldSucceed() {
     Container container = buildContainer(BDOC, ASIC_WITH_NO_SIG);
     assertBDocContainer(container);
     assertTrue(container.getSignatures().isEmpty());
@@ -915,7 +915,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithoutSignatures_signWithArchiveTimestampSignature_shouldSucceed() {
+  void bDocContainerWithoutSignatures_signWithArchiveTimestampSignature_shouldSucceed() {
     Container container = buildContainer(BDOC, ASIC_WITH_NO_SIG);
     assertBDocContainer(container);
     assertTrue(container.getSignatures().isEmpty());
@@ -931,7 +931,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithoutSignatures_withSignatureProfileB_EPES_shouldFail() {
+  void bDocContainerWithoutSignatures_withSignatureProfileB_EPES_shouldFail() {
     Container container = buildContainer(BDOC, ASIC_WITH_NO_SIG);
     assertBDocContainer(container);
     assertTrue(container.getSignatures().isEmpty());
@@ -946,7 +946,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithoutSignatures_withSignatureProfileLT_TM_shouldFail() {
+  void bDocContainerWithoutSignatures_withSignatureProfileLT_TM_shouldFail() {
     Container container = buildContainer(BDOC, ASIC_WITH_NO_SIG);
     assertBDocContainer(container);
     assertTrue(container.getSignatures().isEmpty());
@@ -961,7 +961,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithoutSignatures_withOwnSignaturePolicy_ShouldFail() {
+  void bDocContainerWithoutSignatures_withOwnSignaturePolicy_ShouldFail() {
     Container container = buildContainer(BDOC, ASIC_WITH_NO_SIG);
     assertBDocContainer(container);
     assertTrue(container.getSignatures().isEmpty());
@@ -976,7 +976,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithoutSignatures_withOwnSignaturePolicyWithB_BES_ShouldFail() {
+  void bDocContainerWithoutSignatures_withOwnSignaturePolicyWithB_BES_ShouldFail() {
     Container container = buildContainer(BDOC, ASIC_WITH_NO_SIG);
     assertBDocContainer(container);
     assertTrue(container.getSignatures().isEmpty());
@@ -992,7 +992,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithoutSignatures_withOwnSignaturePolicyWithLT_ShouldFail() {
+  void bDocContainerWithoutSignatures_withOwnSignaturePolicyWithLT_ShouldFail() {
     Container container = buildContainer(BDOC, ASIC_WITH_NO_SIG);
     assertBDocContainer(container);
     assertTrue(container.getSignatures().isEmpty());
@@ -1008,7 +1008,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void bDocContainerWithoutSignatures_withOwnSignaturePolicyWithLTA_ShouldFail() {
+  void bDocContainerWithoutSignatures_withOwnSignaturePolicyWithLTA_ShouldFail() {
     Container container = buildContainer(BDOC, ASIC_WITH_NO_SIG);
     assertBDocContainer(container);
     assertTrue(container.getSignatures().isEmpty());
@@ -1024,7 +1024,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void asiceContainerWithoutSignatures_signWithoutAssignedProfile_defaultPofileIsUsed_shouldSucceedWithTimestampSignature() {
+  void asiceContainerWithoutSignatures_signWithoutAssignedProfile_defaultPofileIsUsed_shouldSucceedWithTimestampSignature() {
     Container container = buildContainer(ASICE, ASIC_WITH_NO_SIG);
     assertAsicEContainer(container);
     assertTrue(container.getSignatures().isEmpty());
@@ -1046,7 +1046,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void signWith256EcKey_withoutAssigningSignatureDigestAlgo_sha256SignatureDigestAlgoIsUsed() {
+  void signWith256EcKey_withoutAssigningSignatureDigestAlgo_sha256SignatureDigestAlgoIsUsed() {
     Container container = buildContainer(ASICE, ASIC_WITH_NO_SIG);
     assertAsicEContainer(container);
     assertTrue(container.getSignatures().isEmpty());
@@ -1061,7 +1061,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void signWith384EcKey_withoutAssigningSignatureDigestAlgo_sha384SignatureDigestAlgoIsUsed() {
+  void signWith384EcKey_withoutAssigningSignatureDigestAlgo_sha384SignatureDigestAlgoIsUsed() {
     Container container = buildContainer(ASICE, ASIC_WITH_NO_SIG);
     assertAsicEContainer(container);
     assertTrue(container.getSignatures().isEmpty());
@@ -1076,7 +1076,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void signWithDifferentDataFileAndSignatureDigestAlgorithm() {
+  void signWithDifferentDataFileAndSignatureDigestAlgorithm() {
     Container container = createNonEmptyContainer();
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
             .withSignatureDigestAlgorithm(DigestAlgorithm.SHA384)
@@ -1092,7 +1092,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void asiceContainerWithoutSignatures_signWithBesSignature_shouldSucceed() {
+  void asiceContainerWithoutSignatures_signWithBesSignature_shouldSucceed() {
     Container container = buildContainer(ASICE, ASIC_WITH_NO_SIG);
     assertAsicEContainer(container);
     assertTrue(container.getSignatures().isEmpty());
@@ -1108,7 +1108,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void asiceContainerWithoutSignatures_signWithTimestampSignature_shouldSucceed() {
+  void asiceContainerWithoutSignatures_signWithTimestampSignature_shouldSucceed() {
     Container container = buildContainer(ASICE, ASIC_WITH_NO_SIG);
     assertAsicEContainer(container);
     assertTrue(container.getSignatures().isEmpty());
@@ -1124,7 +1124,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void asiceContainerWithoutSignatures_signWithArchiveTimestampSignature_shouldSucceed() {
+  void asiceContainerWithoutSignatures_signWithArchiveTimestampSignature_shouldSucceed() {
     Container container = buildContainer(ASICE, ASIC_WITH_NO_SIG);
     assertAsicEContainer(container);
     assertTrue(container.getSignatures().isEmpty());
@@ -1140,7 +1140,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void asiceContainerWithoutSignatures_withSignatureProfileB_EPES_shouldFail() {
+  void asiceContainerWithoutSignatures_withSignatureProfileB_EPES_shouldFail() {
     Container container = buildContainer(ASICE, ASIC_WITH_NO_SIG);
     assertAsicEContainer(container);
     assertTrue(container.getSignatures().isEmpty());
@@ -1155,7 +1155,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void asiceContainerWithoutSignatures_withSignatureProfileLT_TM_shouldFail() {
+  void asiceContainerWithoutSignatures_withSignatureProfileLT_TM_shouldFail() {
     Container container = buildContainer(ASICE, ASIC_WITH_NO_SIG);
     assertAsicEContainer(container);
     assertTrue(container.getSignatures().isEmpty());
@@ -1170,7 +1170,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void asiceContainerWithoutSignatures_withOwnSignaturePolicy_ShouldFail() {
+  void asiceContainerWithoutSignatures_withOwnSignaturePolicy_ShouldFail() {
     Container container = buildContainer(ASICE, ASIC_WITH_NO_SIG);
     assertAsicEContainer(container);
     assertTrue(container.getSignatures().isEmpty());
@@ -1185,7 +1185,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void asiceContainerWithoutSignatures_withOwnSignaturePolicyWithB_BES_ShouldFail() {
+  void asiceContainerWithoutSignatures_withOwnSignaturePolicyWithB_BES_ShouldFail() {
     Container container = buildContainer(ASICE, ASIC_WITH_NO_SIG);
     assertAsicEContainer(container);
     assertTrue(container.getSignatures().isEmpty());
@@ -1201,7 +1201,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void asiceContainerWithoutSignatures_withOwnSignaturePolicyWithLT_ShouldFail() {
+  void asiceContainerWithoutSignatures_withOwnSignaturePolicyWithLT_ShouldFail() {
     Container container = buildContainer(ASICE, ASIC_WITH_NO_SIG);
     assertAsicEContainer(container);
     assertTrue(container.getSignatures().isEmpty());
@@ -1217,7 +1217,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void asiceContainerWithoutSignatures_withOwnSignaturePolicyWithLTA_ShouldFail() {
+  void asiceContainerWithoutSignatures_withOwnSignaturePolicyWithLTA_ShouldFail() {
     Container container = buildContainer(ASICE, ASIC_WITH_NO_SIG);
     assertAsicEContainer(container);
     assertTrue(container.getSignatures().isEmpty());
@@ -1233,7 +1233,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void asicEContainerWithTSSignature_signWithBesSignature_shouldSucceed() {
+  void asicEContainerWithTSSignature_signWithBesSignature_shouldSucceed() {
     Container container = buildContainer(ASICE, ASICE_WITH_TS_SIG);
     assertAsicEContainer(container);
     assertSame(1, container.getSignatures().size());
@@ -1251,7 +1251,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void asicEContainerWithTSSignature_signWithTimestampSignature_shouldSucceed() {
+  void asicEContainerWithTSSignature_signWithTimestampSignature_shouldSucceed() {
     Container container = buildContainer(ASICE, ASICE_WITH_TS_SIG);
     assertAsicEContainer(container);
     assertSame(1, container.getSignatures().size());
@@ -1269,7 +1269,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void asicEContainerWithTSSignature_signWithArchiveTimestampSignature_shouldSucceed() {
+  void asicEContainerWithTSSignature_signWithArchiveTimestampSignature_shouldSucceed() {
     Container container = buildContainer(ASICE, ASICE_WITH_TS_SIG);
     assertAsicEContainer(container);
     assertSame(1, container.getSignatures().size());
@@ -1287,7 +1287,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void asicEContainerWithTSSignature_withSignatureProfileB_EPES_ShouldFail() {
+  void asicEContainerWithTSSignature_withSignatureProfileB_EPES_ShouldFail() {
     Container container = buildContainer(ASICE, ASICE_WITH_TS_SIG);
     assertAsicEContainer(container);
     assertSame(1, container.getSignatures().size());
@@ -1303,7 +1303,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void asicEContainerWithTSSignature_withSignatureProfileLT_TM_ShouldFail() {
+  void asicEContainerWithTSSignature_withSignatureProfileLT_TM_ShouldFail() {
     Container container = buildContainer(ASICE, ASICE_WITH_TS_SIG);
     assertAsicEContainer(container);
     assertSame(1, container.getSignatures().size());
@@ -1319,7 +1319,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void asicEContainerWithTSSignature_withOwnSignaturePolicy_ShouldFail() {
+  void asicEContainerWithTSSignature_withOwnSignaturePolicy_ShouldFail() {
     Container container = buildContainer(ASICE, ASICE_WITH_TS_SIG);
     assertAsicEContainer(container);
     assertSame(1, container.getSignatures().size());
@@ -1335,7 +1335,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void asicEContainerWithTSSignature_withOwnSignaturePolicyWithB_BES_ShouldFail() {
+  void asicEContainerWithTSSignature_withOwnSignaturePolicyWithB_BES_ShouldFail() {
     Container container = buildContainer(ASICE, ASICE_WITH_TS_SIG);
     assertAsicEContainer(container);
     assertSame(1, container.getSignatures().size());
@@ -1352,7 +1352,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void asicEContainerWithTSSignature_withOwnSignaturePolicyWithLT_ShouldFail() {
+  void asicEContainerWithTSSignature_withOwnSignaturePolicyWithLT_ShouldFail() {
     Container container = buildContainer(ASICE, ASICE_WITH_TS_SIG);
     assertAsicEContainer(container);
     assertSame(1, container.getSignatures().size());
@@ -1369,7 +1369,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void asicEContainerWithTSSignature_withOwnSignaturePolicyWithLTA_ShouldFail() {
+  void asicEContainerWithTSSignature_withOwnSignaturePolicyWithLTA_ShouldFail() {
     Container container = buildContainer(ASICE, ASICE_WITH_TS_SIG);
     assertAsicEContainer(container);
     assertSame(1, container.getSignatures().size());
@@ -1386,7 +1386,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void claimedSigningTimeInitializedDuringDataToSignBuilding() {
+  void claimedSigningTimeInitializedDuringDataToSignBuilding() {
     Container container = ContainerBuilder.aContainer(ASICE).build();
     container.addDataFile(new ByteArrayInputStream("something".getBytes()), "name", "text/plain");
 
@@ -1399,7 +1399,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void invokeSigning_networkExceptionIsNotCaught() {
+  void invokeSigning_networkExceptionIsNotCaught() {
     Configuration configuration = Configuration.of(TEST);
     configuration.setPreferAiaOcsp(false);
     configuration.setOcspSource("http://invalid.ocsp.url");
@@ -1419,7 +1419,7 @@ public class SignatureBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void dataToSignFinalize_networkExceptionIsNotCaught() {
+  void dataToSignFinalize_networkExceptionIsNotCaught() {
     Configuration configuration = Configuration.of(TEST);
     configuration.setPreferAiaOcsp(false);
     configuration.setOcspSource("http://invalid.ocsp.url");

@@ -26,13 +26,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Created by kamlatm on 4.05.2017.
  */
 
-public class TimeStampValidationForEDocTest extends AbstractTest {
+class TimeStampValidationForEDocTest extends AbstractTest {
 
   private static final String EDOC_LOCATION = "src/test/resources/testFiles/invalid-containers/latvian_signed_container.edoc";
   private static final String ASICE_LOCATION = "src/test/resources/testFiles/valid-containers/latvian_signed_container.asice";
 
   @Test
-  public void timestampAfterOcspResponseTimeShouldResultInInvalidContainerForEDOC() {
+  void timestampAfterOcspResponseTimeShouldResultInInvalidContainerForEDOC() {
     ContainerValidationResult validationResult = openContainerByConfiguration(Paths.get(EDOC_LOCATION)).validate();
     assertFalse(validationResult.isValid(), "Signature should be invalid if timestamp was taken after OCSP");
     TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
@@ -51,7 +51,7 @@ public class TimeStampValidationForEDocTest extends AbstractTest {
   }
 
   @Test
-  public void invalidTimestampMsgIsNotExistForASICE() {
+  void invalidTimestampMsgIsNotExistForASICE() {
     ContainerValidationResult validationResult = openContainerByConfiguration(Paths.get(ASICE_LOCATION)).validate();
     TestAssert.assertContainsExactSetOfErrors(validationResult.getErrors(),
             "The certificate is not related to a TSA/QTST!",

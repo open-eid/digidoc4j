@@ -42,10 +42,10 @@ import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class TimestampedContainerModificationTest extends AbstractTest {
+class TimestampedContainerModificationTest extends AbstractTest {
 
   @Test
-  public void addDataFile_WhenDataFileIsAddedToTimestampedContainer_ThrowsException() {
+  void addDataFile_WhenDataFileIsAddedToTimestampedContainer_ThrowsException() {
     Container container = createTimestampedAsics(1);
     DataFile dataFile = createTextDataFile("another.txt", "Test.");
 
@@ -61,7 +61,7 @@ public class TimestampedContainerModificationTest extends AbstractTest {
   }
 
   @Test
-  public void addDataFile_WhenDataFileAsFileIsAddedToTimestampedContainer_ThrowsException() {
+  void addDataFile_WhenDataFileAsFileIsAddedToTimestampedContainer_ThrowsException() {
     Container container = createTimestampedAsics(1);
     File dataFile = new File("src/test/resources/testFiles/helper-files/test.txt");
 
@@ -77,7 +77,7 @@ public class TimestampedContainerModificationTest extends AbstractTest {
   }
 
   @Test
-  public void addDataFile_WhenDataFileAsPathIsAddedToTimestampedContainer_ThrowsException() {
+  void addDataFile_WhenDataFileAsPathIsAddedToTimestampedContainer_ThrowsException() {
     Container container = createTimestampedAsics(1);
     String dataFilePath = "src/test/resources/testFiles/helper-files/test.txt";
 
@@ -93,7 +93,7 @@ public class TimestampedContainerModificationTest extends AbstractTest {
   }
 
   @Test
-  public void addDataFile_WhenDataFileAsStreamIsAddedToTimestampedContainer_ThrowsException() {
+  void addDataFile_WhenDataFileAsStreamIsAddedToTimestampedContainer_ThrowsException() {
     Container container = createTimestampedAsics(1);
     ByteArrayInputStream dataFileStream = new ByteArrayInputStream("This is a test file.".getBytes(StandardCharsets.UTF_8));
 
@@ -109,7 +109,7 @@ public class TimestampedContainerModificationTest extends AbstractTest {
   }
 
   @Test
-  public void removeDataFile_WhenDataFileIsRemovedFromTimestampedContainer_ThrowsException() {
+  void removeDataFile_WhenDataFileIsRemovedFromTimestampedContainer_ThrowsException() {
     Container container = createTimestampedAsics(1);
     DataFile dataFile = container.getDataFiles().get(0);
 
@@ -125,7 +125,7 @@ public class TimestampedContainerModificationTest extends AbstractTest {
   }
 
   @Test
-  public void addSignature_WhenSignatureIsAddedToTimestampedContainer_ThrowsException() {
+  void addSignature_WhenSignatureIsAddedToTimestampedContainer_ThrowsException() {
     Container container = createTimestampedAsics(1);
     Signature signature = createSignatureBy(Container.DocumentType.ASICE, pkcs12Esteid2018SignatureToken);
 
@@ -141,7 +141,7 @@ public class TimestampedContainerModificationTest extends AbstractTest {
   }
 
   @Test
-  public void removeTimestamp_WhenRemovingTimestampThatIsCoveredByAnotherTimestamp_ThrowsException() {
+  void removeTimestamp_WhenRemovingTimestampThatIsCoveredByAnotherTimestamp_ThrowsException() {
     Container container = createTimestampedAsics(2);
     Timestamp initialTimestamp = container.getTimestamps().get(0);
 
@@ -157,7 +157,7 @@ public class TimestampedContainerModificationTest extends AbstractTest {
   }
 
   @Test
-  public void removeTimestamp_WhenTimestampWithManifestBecomesLastTimestamp_ManifestIsRenamedToUnindexedName() {
+  void removeTimestamp_WhenTimestampWithManifestBecomesLastTimestamp_ManifestIsRenamedToUnindexedName() {
     Container container = createTimestampedAsics(3);
     TimestampAndManifestPair firstTimestampWithManifest = (TimestampAndManifestPair) container.getTimestamps().get(1);
     assertThat(firstTimestampWithManifest.getCadesTimestamp(), notNullValue());
@@ -173,7 +173,7 @@ public class TimestampedContainerModificationTest extends AbstractTest {
   }
 
   @Test
-  public void removeTimestamp_WhenTimestampedAreRemovedFromLastToFirst_AllTimestampsAreRemovedSuccessfully() {
+  void removeTimestamp_WhenTimestampedAreRemovedFromLastToFirst_AllTimestampsAreRemovedSuccessfully() {
     Container container = createTimestampedAsics(3);
     assertThat(container.getTimestamps(), hasSize(3));
 
@@ -188,7 +188,7 @@ public class TimestampedContainerModificationTest extends AbstractTest {
   }
 
   @Test
-  public void removeAndAddTimestamp_WhenSpecialCharactersInDataFileNameArePercentEncodedInArchiveManifestDataReferenceUri_Succeeds() {
+  void removeAndAddTimestamp_WhenSpecialCharactersInDataFileNameArePercentEncodedInArchiveManifestDataReferenceUri_Succeeds() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/2xTST-datafile-with-special-characters-percentencoded-in-archive-manifest.asics",
             Configuration.of(Configuration.Mode.TEST)
@@ -203,7 +203,7 @@ public class TimestampedContainerModificationTest extends AbstractTest {
   }
 
   @Test
-  public void removeAndAddTimestamp_WhenSpecialCharactersInDataFileNameAreUnencodedInArchiveManifestDataReferenceUri_Succeeds() {
+  void removeAndAddTimestamp_WhenSpecialCharactersInDataFileNameAreUnencodedInArchiveManifestDataReferenceUri_Succeeds() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/2xTST-datafile-with-special-characters-unencoded-in-archive-manifest.asics",
             Configuration.of(Configuration.Mode.TEST)
@@ -218,7 +218,7 @@ public class TimestampedContainerModificationTest extends AbstractTest {
   }
 
   @Test
-  public void removeAndAddTimestamp_WhenPercentCharacterInDataFileNameIsUnencodedInArchiveManifestDataReferenceUri_Succeeds() {
+  void removeAndAddTimestamp_WhenPercentCharacterInDataFileNameIsUnencodedInArchiveManifestDataReferenceUri_Succeeds() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/2xTST-datafile-with-%-unencoded-in-archive-manifest.asics",
             Configuration.of(Configuration.Mode.TEST)
@@ -233,7 +233,7 @@ public class TimestampedContainerModificationTest extends AbstractTest {
   }
 
   @Test
-  public void addTimestamp_WhenReintroducingTimestampWithPlusEncodedSpaceCharacterInArchiveManifestDataReferenceUri_ThrowsException() {
+  void addTimestamp_WhenReintroducingTimestampWithPlusEncodedSpaceCharacterInArchiveManifestDataReferenceUri_ThrowsException() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/invalid-containers/2xTST-datafile-with-space-plusencoded-in-archive-manifest.asics",
             Configuration.of(Configuration.Mode.TEST)
@@ -253,7 +253,7 @@ public class TimestampedContainerModificationTest extends AbstractTest {
   }
 
   @Test
-  public void addTimestamp_WhenReintroducingTimestampWithUnencodedPercent20InArchiveManifestDataReferenceUri_ThrowsException() {
+  void addTimestamp_WhenReintroducingTimestampWithUnencodedPercent20InArchiveManifestDataReferenceUri_ThrowsException() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/invalid-containers/2xTST-datafile-with-%20-unencoded-in-archive-manifest.asics",
             Configuration.of(Configuration.Mode.TEST)
@@ -273,7 +273,7 @@ public class TimestampedContainerModificationTest extends AbstractTest {
   }
 
   @Test
-  public void addTimestamp_WhenReintroducingTimestampWithUnencodedPlusAndPercentInArchiveManifestDataReferenceUri_ThrowsException() {
+  void addTimestamp_WhenReintroducingTimestampWithUnencodedPlusAndPercentInArchiveManifestDataReferenceUri_ThrowsException() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/invalid-containers/2xTST-datafile-with-+%-unencoded-in-archive-manifest.asics",
             Configuration.of(Configuration.Mode.TEST)

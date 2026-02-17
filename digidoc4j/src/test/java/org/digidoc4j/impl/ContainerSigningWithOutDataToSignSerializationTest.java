@@ -39,10 +39,10 @@ import static org.digidoc4j.Container.DocumentType.BDOC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ContainerSigningWithOutDataToSignSerializationTest extends AbstractTest {
+class ContainerSigningWithOutDataToSignSerializationTest extends AbstractTest {
 
   @Test
-  public void emptyBdocTwoStepSigning() {
+  void emptyBdocTwoStepSigning() {
     Container container = createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile(new ByteArrayInputStream("something".getBytes(StandardCharsets.UTF_8)), "file name", "text/plain");
 
@@ -87,7 +87,7 @@ public class ContainerSigningWithOutDataToSignSerializationTest extends Abstract
   }
 
   @Test
-  public void emptyAsicETwoStepSigning() {
+  void emptyAsicETwoStepSigning() {
     Container container = createEmptyContainerBy(ASICE);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
@@ -122,7 +122,7 @@ public class ContainerSigningWithOutDataToSignSerializationTest extends Abstract
   }
 
   @Test
-  public void signedBDocTwoStepSigning() {
+  void signedBDocTwoStepSigning() {
     Container container = openContainerBy(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"));
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
           .withSigningCertificate(pkcs12SignatureToken.getCertificate())
@@ -153,7 +153,7 @@ public class ContainerSigningWithOutDataToSignSerializationTest extends Abstract
   }
 
   @Test
-  public void signedAsicETwoStepSigning() {
+  void signedAsicETwoStepSigning() {
     Container container = openContainerBy(Paths.get("src/test/resources/testFiles/valid-containers/valid-asice.asice"));
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
           .withSigningCertificate(pkcs12SignatureToken.getCertificate())
@@ -184,7 +184,7 @@ public class ContainerSigningWithOutDataToSignSerializationTest extends Abstract
   }
 
   @Test
-  public void twoStepSigningSigningTimeAssertion() throws InterruptedException {
+  void twoStepSigningSigningTimeAssertion() throws InterruptedException {
     Container container = openContainerBy(Paths.get("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc"));
 
     // Signature object returned signing dates have milliseconds removed, truncated also from test data

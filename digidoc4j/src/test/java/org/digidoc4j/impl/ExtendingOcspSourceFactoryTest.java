@@ -20,10 +20,10 @@ import org.mockito.Mockito;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-public class ExtendingOcspSourceFactoryTest extends AbstractTest {
+class ExtendingOcspSourceFactoryTest extends AbstractTest {
 
   @Test
-  public void testCreateReturnsResultProvidedByFactoryFromConfigurationIfSet() {
+  void testCreateReturnsResultProvidedByFactoryFromConfigurationIfSet() {
     OCSPSource mockOCSPSource = Mockito.mock(OCSPSource.class);
     OCSPSourceFactory mockExtendingOcspSourceFactory = Mockito.mock(OCSPSourceFactory.class);
     Mockito.doReturn(mockOCSPSource).when(mockExtendingOcspSourceFactory).create();
@@ -37,7 +37,7 @@ public class ExtendingOcspSourceFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void testCreateReturnsNullProvidedByFactoryFromConfigurationIfExplicitlyConfigured() {
+  void testCreateReturnsNullProvidedByFactoryFromConfigurationIfExplicitlyConfigured() {
     OCSPSourceFactory mockExtendingOcspSourceFactory = Mockito.mock(OCSPSourceFactory.class);
     Mockito.doReturn(null).when(mockExtendingOcspSourceFactory).create();
 
@@ -50,7 +50,7 @@ public class ExtendingOcspSourceFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void testCreateReturnsNullIfFactoryUnsetInConfiguration() {
+  void testCreateReturnsNullIfFactoryUnsetInConfiguration() {
     assertNull(new ExtendingOcspSourceFactory(Configuration.of(Configuration.Mode.TEST)).create());
   }
 

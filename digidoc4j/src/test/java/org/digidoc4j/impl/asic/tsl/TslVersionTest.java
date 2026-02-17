@@ -61,13 +61,13 @@ import static org.digidoc4j.test.util.TestTSLUtil.loadTslFromTemplate;
 import static org.digidoc4j.test.util.TestTSLUtil.signTslV5;
 import static org.digidoc4j.test.util.TestTSLUtil.signTslV6;
 
-public class TslVersionTest extends AbstractTest {
+class TslVersionTest extends AbstractTest {
 
   private static final String TRUSTSTORE_PASSWORD = "pass";
   private static final String TRUSTSTORE_TYPE = "PKCS12";
 
   @BeforeAll
-  public static void setUpStatic() {
+  static void setUpStatic() {
     Security.addProvider(new BouncyCastleProvider());
   }
 
@@ -84,7 +84,7 @@ public class TslVersionTest extends AbstractTest {
   }
 
   @Test
-  public void validateContainer_WhenTslV5IsLoadedButOnlyV6IsSupported_InvalidWithTrustedListErrors() {
+  void validateContainer_WhenTslV5IsLoadedButOnlyV6IsSupported_InvalidWithTrustedListErrors() {
     configuration.setValidationPolicy("src/test/resources/testFiles/constraints/eIDAS_test_constraint_version_6.xml");
     configureCustomTsl(
             "secp256r1",
@@ -121,7 +121,7 @@ public class TslVersionTest extends AbstractTest {
   }
 
   @Test
-  public void validateContainer_WhenTslV6IsLoadedButOnlyV5IsSupported_InvalidWithTrustedListErrors() {
+  void validateContainer_WhenTslV6IsLoadedButOnlyV5IsSupported_InvalidWithTrustedListErrors() {
     configuration.setValidationPolicy("src/test/resources/testFiles/constraints/eIDAS_test_constraint_version_5.xml");
     configureCustomTsl(
             "secp521r1",
@@ -158,7 +158,7 @@ public class TslVersionTest extends AbstractTest {
   }
 
   @Test
-  public void validateContainer_WhenTslV5IsLoadedUsingDefaultPolicy_Succeeds() {
+  void validateContainer_WhenTslV5IsLoadedUsingDefaultPolicy_Succeeds() {
     configureCustomTsl(
             "secp384r1",
             (signer, otherTlLocation) -> signTslV5(
@@ -190,7 +190,7 @@ public class TslVersionTest extends AbstractTest {
   }
 
   @Test
-  public void validateContainer_WhenTslV6IsLoadedUsingDefaultPolicy_Succeeds() {
+  void validateContainer_WhenTslV6IsLoadedUsingDefaultPolicy_Succeeds() {
     configureCustomTsl(
             "brainpoolP512r1",
             (signer, otherTlLocation) -> signTslV6(

@@ -34,13 +34,13 @@ import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class SignatureExtendingValidatorTest extends AbstractTest {
+class SignatureExtendingValidatorTest extends AbstractTest {
 
   private SignatureExtendingValidator validator;
 
   @Test
   // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
-  public void validateExtendability_ValidExtension_Succeeds() {
+  void validateExtendability_ValidExtension_Succeeds() {
     runValidateProfileExtendability(B_BES, T);
     runValidateProfileExtendability(B_BES, LT);
     runValidateProfileExtendability(B_BES, LTA);
@@ -52,7 +52,7 @@ public class SignatureExtendingValidatorTest extends AbstractTest {
 
   @Test
   // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
-  public void validateExtendability_InvalidExtension_Throws() {
+  void validateExtendability_InvalidExtension_Throws() {
     assertProfileExtendabilityNotAllowed(B_BES, LT_TM);
     assertProfileExtendabilityNotAllowed(B_BES, B_EPES);
     assertProfileExtendabilityNotAllowed(LT, B_BES);
@@ -71,7 +71,7 @@ public class SignatureExtendingValidatorTest extends AbstractTest {
   }
 
   @Test
-  public void validateExtendability_ProfileValidationFails_Throws() {
+  void validateExtendability_ProfileValidationFails_Throws() {
     NotSupportedException caughtException = assertThrows(
         NotSupportedException.class,
         () -> runValidateExtendability(LTA, LT)
@@ -81,7 +81,7 @@ public class SignatureExtendingValidatorTest extends AbstractTest {
   }
 
   @Test
-  public void validateExtendability_DssValidationFailsWithAlertException_Throws() {
+  void validateExtendability_DssValidationFailsWithAlertException_Throws() {
     Container container = ContainerOpener.open(ASICE_WITH_TS_SIG, configuration);
     Signature signature = container.getSignatures().get(0);
 
@@ -96,7 +96,7 @@ public class SignatureExtendingValidatorTest extends AbstractTest {
   }
 
   @Test
-  public void validateExtendability_SignatureDoesNotCoverDatafile_Throws() {
+  void validateExtendability_SignatureDoesNotCoverDatafile_Throws() {
     Container container = ContainerOpener.open(ASICE_INVALID_SIGNATURE_DOES_NOT_COVER_DATAFILE, configuration);
     Signature signature = container.getSignatures().get(0);
 

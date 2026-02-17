@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class EmptyDataFilesAsicEContainerTest extends EmptyDataFilesContainerTest {
+class EmptyDataFilesAsicEContainerTest extends EmptyDataFilesContainerTest {
 
   @Override
   protected void before() {
@@ -39,7 +39,7 @@ public class EmptyDataFilesAsicEContainerTest extends EmptyDataFilesContainerTes
   }
 
   @Test
-  public void testValidateUnsignedContainerWithEmptyDataFiles() {
+  void testValidateUnsignedContainerWithEmptyDataFiles() {
     Container container = loadUnsignedContainerWithEmptyDataFiles();
 
     ContainerValidationResult validationResult = container.validate();
@@ -58,7 +58,7 @@ public class EmptyDataFilesAsicEContainerTest extends EmptyDataFilesContainerTes
   }
 
   @Test
-  public void testValidateSignedContainerWithEmptyDataFiles() {
+  void testValidateSignedContainerWithEmptyDataFiles() {
     Container container = loadSignedContainerWithEmptyDataFiles();
 
     ContainerValidationResult validationResult = container.validate();
@@ -77,7 +77,7 @@ public class EmptyDataFilesAsicEContainerTest extends EmptyDataFilesContainerTes
   }
 
   @Test
-  public void testInvokeSigningForUnsignedContainerWithEmptyDataFiles() {
+  void testInvokeSigningForUnsignedContainerWithEmptyDataFiles() {
     Container container = loadUnsignedContainerWithEmptyDataFiles();
 
     InvalidDataFileException caughtException = assertThrows(
@@ -92,7 +92,7 @@ public class EmptyDataFilesAsicEContainerTest extends EmptyDataFilesContainerTes
   }
 
   @Test
-  public void testBuildDataToSignForUnsignedContainerWithEmptyDataFiles() {
+  void testBuildDataToSignForUnsignedContainerWithEmptyDataFiles() {
     Container container = loadUnsignedContainerWithEmptyDataFiles();
 
     InvalidDataFileException caughtException = assertThrows(
@@ -107,7 +107,7 @@ public class EmptyDataFilesAsicEContainerTest extends EmptyDataFilesContainerTes
   }
 
   @Test
-  public void testInvokeSigningForSignedContainerWithEmptyDataFiles() {
+  void testInvokeSigningForSignedContainerWithEmptyDataFiles() {
     Container container = loadSignedContainerWithEmptyDataFiles();
 
     InvalidDataFileException caughtException = assertThrows(
@@ -122,7 +122,7 @@ public class EmptyDataFilesAsicEContainerTest extends EmptyDataFilesContainerTes
   }
 
   @Test
-  public void testBuildDataToSignForSignedContainerWithEmptyDataFiles() {
+  void testBuildDataToSignForSignedContainerWithEmptyDataFiles() {
     Container container = loadSignedContainerWithEmptyDataFiles();
 
     InvalidDataFileException caughtException = assertThrows(

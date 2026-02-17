@@ -82,7 +82,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * ...WhenDataLoadersFail() - uses TEST configuration with successfully loaded TSL and subsequently configured failing
  * data loaders in order to make TSA and OCSP requests to fail.
  */
-public class IncompleteSigningTest extends AbstractTest {
+class IncompleteSigningTest extends AbstractTest {
 
   private static final String CERTIFICATE_VALIDATION_EXCEPTION_MESSAGE_REGEX = "OCSP response certificate <C-[A-F0-9]+> match is not found in TSL";
   private static final String CONTAINER_VALIDATION_ERROR_MESSAGE = "The certificate validation is not conclusive!";
@@ -91,12 +91,12 @@ public class IncompleteSigningTest extends AbstractTest {
   private static final String TSL_REFRESH_EXCEPTION_MESSAGE_PART = "Failed to download LoTL";
 
   @BeforeAll
-  public static void setUpStatic() {
+  static void setUpStatic() {
     Security.addProvider(new BouncyCastleProvider());
   }
 
   @Test
-  public void signatureProfileLtShouldFailWhenSigningCertificateIsNotTrustedByTSL() throws Exception {
+  void signatureProfileLtShouldFailWhenSigningCertificateIsNotTrustedByTSL() throws Exception {
     setUpTestConfiguration();
     setUpMockedOcspResponder(true);
     SignatureToken signatureToken = createCustomSignatureToken(false);
@@ -111,7 +111,7 @@ public class IncompleteSigningTest extends AbstractTest {
   }
 
   @Test
-  public void signatureProfileLtaShouldFailWhenSigningCertificateIsNotTrustedByTSL() throws Exception {
+  void signatureProfileLtaShouldFailWhenSigningCertificateIsNotTrustedByTSL() throws Exception {
     setUpTestConfiguration();
     setUpMockedOcspResponder(true);
     SignatureToken signatureToken = createCustomSignatureToken(false);
@@ -126,7 +126,7 @@ public class IncompleteSigningTest extends AbstractTest {
   }
 
   @Test
-  public void signatureProfileBbesShouldNotFailWhenSigningCertificateIsNotTrustedByTSL() throws Exception {
+  void signatureProfileBbesShouldNotFailWhenSigningCertificateIsNotTrustedByTSL() throws Exception {
     setUpTestConfiguration();
     SignatureToken signatureToken = createCustomSignatureToken(false);
     Container container = createNonEmptyContainerByConfiguration();
@@ -139,7 +139,7 @@ public class IncompleteSigningTest extends AbstractTest {
   }
 
   @Test
-  public void signatureProfileLtShouldFailWhenOcspResponderIsNotTrustedByTSL() throws Exception {
+  void signatureProfileLtShouldFailWhenOcspResponderIsNotTrustedByTSL() throws Exception {
     setUpTestConfiguration();
     setUpMockedOcspResponder(false);
     Container container = createNonEmptyContainerByConfiguration();
@@ -153,7 +153,7 @@ public class IncompleteSigningTest extends AbstractTest {
   }
 
   @Test
-  public void signatureProfileLtaShouldFailWhenOcspResponderIsNotTrustedByTSL() throws Exception {
+  void signatureProfileLtaShouldFailWhenOcspResponderIsNotTrustedByTSL() throws Exception {
     setUpTestConfiguration();
     setUpMockedOcspResponder(false);
     Container container = createNonEmptyContainerByConfiguration();
@@ -167,7 +167,7 @@ public class IncompleteSigningTest extends AbstractTest {
   }
 
   @Test
-  public void signatureProfileBbesShouldNotFailWhenOcspResponderIsNotTrustedByTSL() throws Exception {
+  void signatureProfileBbesShouldNotFailWhenOcspResponderIsNotTrustedByTSL() throws Exception {
     setUpTestConfiguration();
     setUpMockedOcspResponder(false);
     Container container = createNonEmptyContainerByConfiguration();
@@ -179,7 +179,7 @@ public class IncompleteSigningTest extends AbstractTest {
   }
 
   @Test
-  public void signatureProfileLtShouldFailWhenTslCouldNotBeLoadedWithDefaultTslCallback() {
+  void signatureProfileLtShouldFailWhenTslCouldNotBeLoadedWithDefaultTslCallback() {
     setUpTestConfigurationWithEmptyTSL();
     Container container = createNonEmptyContainerByConfiguration();
 
@@ -192,7 +192,7 @@ public class IncompleteSigningTest extends AbstractTest {
   }
 
   @Test
-  public void signatureProfileLtShouldFailWhenTslCouldNotBeLoadedWithCustomTslCallback() {
+  void signatureProfileLtShouldFailWhenTslCouldNotBeLoadedWithCustomTslCallback() {
     setUpTestConfigurationWithEmptyTSL();
     configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
     Container container = createNonEmptyContainerByConfiguration();
@@ -206,7 +206,7 @@ public class IncompleteSigningTest extends AbstractTest {
   }
 
   @Test
-  public void signatureProfileLtaShouldFailWhenTslCouldNotBeLoadedWithDefaultTslCallback() {
+  void signatureProfileLtaShouldFailWhenTslCouldNotBeLoadedWithDefaultTslCallback() {
     setUpTestConfigurationWithEmptyTSL();
     Container container = createNonEmptyContainerByConfiguration();
 
@@ -219,7 +219,7 @@ public class IncompleteSigningTest extends AbstractTest {
   }
 
   @Test
-  public void signatureProfileLtaShouldFailWhenTslCouldNotBeLoadedWithCustomTslCallback() {
+  void signatureProfileLtaShouldFailWhenTslCouldNotBeLoadedWithCustomTslCallback() {
     setUpTestConfigurationWithEmptyTSL();
     configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
     Container container = createNonEmptyContainerByConfiguration();
@@ -233,7 +233,7 @@ public class IncompleteSigningTest extends AbstractTest {
   }
 
   @Test
-  public void signatureProfileBbesShouldNotFailWhenTslCouldNotBeLoaded() {
+  void signatureProfileBbesShouldNotFailWhenTslCouldNotBeLoaded() {
     setUpTestConfigurationWithEmptyTSL();
     Container container = createNonEmptyContainerByConfiguration();
 
@@ -244,7 +244,7 @@ public class IncompleteSigningTest extends AbstractTest {
   }
 
   @Test
-  public void signatureProfileLtShouldFailWhenTslLoadingFails() {
+  void signatureProfileLtShouldFailWhenTslLoadingFails() {
     setUpTestConfigurationWithFailingTSL();
     Container container = createNonEmptyContainerByConfiguration();
 
@@ -259,7 +259,7 @@ public class IncompleteSigningTest extends AbstractTest {
   }
 
   @Test
-  public void signatureProfileLtaShouldFailWhenTslLoadingFails() {
+  void signatureProfileLtaShouldFailWhenTslLoadingFails() {
     setUpTestConfigurationWithFailingTSL();
     Container container = createNonEmptyContainerByConfiguration();
 
@@ -274,7 +274,7 @@ public class IncompleteSigningTest extends AbstractTest {
   }
 
   @Test
-  public void signatureProfileBbesShouldNotFailWhenTslLoadingFails() {
+  void signatureProfileBbesShouldNotFailWhenTslLoadingFails() {
     setUpTestConfigurationWithFailingTSL();
     Container container = createNonEmptyContainerByConfiguration();
 
@@ -285,7 +285,7 @@ public class IncompleteSigningTest extends AbstractTest {
   }
 
   @Test
-  public void signatureProfileLtShouldFailWhenDataLoadersFail() {
+  void signatureProfileLtShouldFailWhenDataLoadersFail() {
     setUpTestConfigurationWithOkTslButFailingDataLoaders();
     Container container = createNonEmptyContainerByConfiguration();
 
@@ -300,7 +300,7 @@ public class IncompleteSigningTest extends AbstractTest {
   }
 
   @Test
-  public void signatureProfileLtaShouldFailWhenDataLoadersFail() {
+  void signatureProfileLtaShouldFailWhenDataLoadersFail() {
     setUpTestConfigurationWithOkTslButFailingDataLoaders();
     Container container = createNonEmptyContainerByConfiguration();
 
@@ -315,7 +315,7 @@ public class IncompleteSigningTest extends AbstractTest {
   }
 
   @Test
-  public void signatureProfileBbesShouldNotFailWhenDataLoadersFail() {
+  void signatureProfileBbesShouldNotFailWhenDataLoadersFail() {
     setUpTestConfigurationWithOkTslButFailingDataLoaders();
     Container container = createNonEmptyContainerByConfiguration();
 

@@ -30,10 +30,10 @@ import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class AsicEContainerTest extends AbstractTest {
+class AsicEContainerTest extends AbstractTest {
 
   @Test
-  public void getExtensionValidationErrors_NoSignaturesInContainer_NoErrors() {
+  void getExtensionValidationErrors_NoSignaturesInContainer_NoErrors() {
     AsicContainer container = (AsicContainer) createNonEmptyContainerBy(DocumentType.ASICE);
 
     Map<String, DigiDoc4JException> validationErrors = container.getExtensionValidationErrors(SignatureProfile.LT_TM);
@@ -42,7 +42,7 @@ public class AsicEContainerTest extends AbstractTest {
   }
 
   @Test
-  public void getExtensionValidationErrors_ExtendFromLtToLta_NoErrors() {
+  void getExtensionValidationErrors_ExtendFromLtToLta_NoErrors() {
     String containerPath = createSignedContainerBy(DocumentType.ASICE, "asice");
     AsicContainer container = (AsicContainer) ContainerBuilder.aContainer().fromExistingFile(containerPath).build();
 
@@ -52,7 +52,7 @@ public class AsicEContainerTest extends AbstractTest {
   }
 
   @Test
-  public void getExtensionValidationErrors_ExtendFromLtToLtaWithExpiredSignerCertificate_NotAllowed() {
+  void getExtensionValidationErrors_ExtendFromLtToLtaWithExpiredSignerCertificate_NotAllowed() {
     AsicContainer container = (AsicContainer) ContainerBuilder.aContainer(DocumentType.ASICE)
             .fromExistingFile("src/test/resources/testFiles/invalid-containers/two_signatures_one_invalid.bdoc").build();
 
@@ -68,7 +68,7 @@ public class AsicEContainerTest extends AbstractTest {
   }
 
   @Test
-  public void getExtensionValidationErrors_ExtendFromLtToLt_NotAllowed() {
+  void getExtensionValidationErrors_ExtendFromLtToLt_NotAllowed() {
     String containerPath = createSignedContainerBy(DocumentType.ASICE, "asice");
     AsicContainer container = (AsicContainer) ContainerBuilder.aContainer().fromExistingFile(containerPath).build();
     String signatureUniqueId = container.getSignatures().get(0).getUniqueId();
@@ -82,7 +82,7 @@ public class AsicEContainerTest extends AbstractTest {
   }
 
   @Test
-  public void getExtensionValidationErrors_ExtendFromLtToLtTm_NotAllowed() {
+  void getExtensionValidationErrors_ExtendFromLtToLtTm_NotAllowed() {
     String containerPath = createSignedContainerBy(DocumentType.ASICE, "asice");
     AsicContainer container = (AsicContainer) ContainerBuilder.aContainer().fromExistingFile(containerPath).build();
     String signatureUniqueId = container.getSignatures().get(0).getUniqueId();
@@ -94,7 +94,7 @@ public class AsicEContainerTest extends AbstractTest {
   }
 
   @Test
-  public void getExtensionValidationErrors_InvalidProfileTransitionAndInvalidDssResult_OnlyInvalidProfileTransitionErrorIsPresent() {
+  void getExtensionValidationErrors_InvalidProfileTransitionAndInvalidDssResult_OnlyInvalidProfileTransitionErrorIsPresent() {
     AsicContainer container = (AsicContainer) ContainerBuilder.aContainer(DocumentType.ASICE)
             .fromExistingFile(BDOC_WITH_TM_SIG).build();
 
@@ -107,7 +107,7 @@ public class AsicEContainerTest extends AbstractTest {
   }
 
   @Test
-  public void getExtensionValidationErrors_ValidationFromBepesToLta_NotAllowed() {
+  void getExtensionValidationErrors_ValidationFromBepesToLta_NotAllowed() {
     AsicContainer container = (AsicContainer) ContainerBuilder.aContainer(DocumentType.ASICE)
             .fromExistingFile(BDOC_WITH_B_EPES_SIG).build();
 
@@ -120,7 +120,7 @@ public class AsicEContainerTest extends AbstractTest {
   }
 
   @Test
-  public void getExtensionValidationErrors_OnlyExtendableSignaturesAreSelectedOfMultipleSignatures_Success() {
+  void getExtensionValidationErrors_OnlyExtendableSignaturesAreSelectedOfMultipleSignatures_Success() {
     AsicContainer container = (AsicContainer) ContainerBuilder.aContainer(DocumentType.ASICE)
             .fromExistingFile(BDOC_WITH_TM_SIG).build();
     List<Signature> extendableSignatures = new ArrayList<>();
@@ -134,7 +134,7 @@ public class AsicEContainerTest extends AbstractTest {
   }
 
   @Test
-  public void getExtensionValidationErrors_SelectedSignatureNotInContainer_Throws() {
+  void getExtensionValidationErrors_SelectedSignatureNotInContainer_Throws() {
     AsicContainer container = (AsicContainer) createNonEmptyContainerBy(DocumentType.ASICE);
     Signature signature = createSignatureBy(DocumentType.ASICE, SignatureProfile.LT, pkcs12EccSignatureToken);
 

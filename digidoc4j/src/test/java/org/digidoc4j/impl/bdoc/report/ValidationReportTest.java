@@ -33,10 +33,10 @@ import static org.digidoc4j.test.TestAssert.assertContainerIsValid;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ValidationReportTest extends AbstractTest {
+class ValidationReportTest extends AbstractTest {
 
   @Test
-  public void validContainerWithOneSignature() throws Exception {
+  void validContainerWithOneSignature() throws Exception {
     Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"));
     Signature signature = this.createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
     String signatureId = signature.getId();
@@ -64,7 +64,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void validContainerWithOneTmSignature() throws Exception {
+  void validContainerWithOneTmSignature() throws Exception {
     Container container = TestDataBuilderUtil.open(BDOC_WITH_TM_SIG);
     String report = container.validate().getReport();
     Signature signature = container.getSignatures().get(0);
@@ -85,7 +85,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void containerWithOneBesSignature() throws Exception {
+  void containerWithOneBesSignature() throws Exception {
     Container container = this.createNonEmptyContainerBy(Paths.get("src/test/resources/testFiles/helper-files/test.txt"));
     Signature signature = this.createSignatureBy(container, SignatureProfile.B_BES, pkcs12SignatureToken);
     String signatureId = signature.getId();
@@ -105,7 +105,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void containerWithOneEpesSignature() throws Exception {
+  void containerWithOneEpesSignature() throws Exception {
     Container container = TestDataBuilderUtil.open(BDOC_WITH_B_EPES_SIG);
     Signature signature = container.getSignatures().get(0);
     String signatureId = signature.getId();
@@ -125,7 +125,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void validContainerWithTwoSignatures() throws Exception {
+  void validContainerWithTwoSignatures() throws Exception {
     Container container = TestDataBuilderUtil.open(BDOC_WITH_TM_AND_TS_SIG);
     ContainerValidationResult result = container.validate();
     List<String> signatureUniqueIds = container.getSignatures().stream().map(Signature::getUniqueId).collect(Collectors.toList());
@@ -149,7 +149,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void invalidContainerWithOneSignature() throws Exception {
+  void invalidContainerWithOneSignature() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/invalid-containers/bdoc-tm-ocsp-revoked.bdoc");
     SignatureValidationResult result = container.validate();
     String signatureUniqueId = container.getSignatures().get(0).getUniqueId();
@@ -172,7 +172,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void invalidContainerWithManifestErrors() throws Exception {
+  void invalidContainerWithManifestErrors() throws Exception {
     Container container = TestDataBuilderUtil.open
         ("src/test/resources/prodFiles/invalid-containers/filename_mismatch_manifest.asice");
     SignatureValidationResult result = container.validate();
@@ -196,7 +196,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void containerWithoutSignatures() throws Exception {
+  void containerWithoutSignatures() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/container_without_signatures.bdoc");
     String report = container.validate().getReport();
     TestAssert.assertXPathHasValue("0", "/SimpleReport/SignaturesCount", report);
@@ -205,7 +205,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void unsignedAsiceContainerWithEmptyDataFiles() throws Exception {
+  void unsignedAsiceContainerWithEmptyDataFiles() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/unsigned-container-with-empty-datafiles.asice");
     String report = container.validate().getReport();
     TestAssert.assertXPathHasValue("0", "/SimpleReport/SignaturesCount", report);
@@ -218,7 +218,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void unsignedAsicsContainerWithEmptyDataFile() throws Exception {
+  void unsignedAsicsContainerWithEmptyDataFile() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/unsigned-container-with-empty-datafile.asics");
     String report = container.validate().getReport();
     TestAssert.assertXPathHasValue("0", "/SimpleReport/SignaturesCount", report);
@@ -230,7 +230,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void signedAsiceContainerWithEmptyDataFiles() throws Exception {
+  void signedAsiceContainerWithEmptyDataFiles() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/signed-container-with-empty-datafiles.asice");
     String report = container.validate().getReport();
     TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
@@ -243,7 +243,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void signedBdocContainerWithEmptyDataFiles() throws Exception {
+  void signedBdocContainerWithEmptyDataFiles() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/signed-container-with-empty-datafiles.bdoc");
     String report = container.validate().getReport();
     TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
@@ -256,7 +256,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void signedAsicsContainerWithEmptyDataFile() throws Exception {
+  void signedAsicsContainerWithEmptyDataFile() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/signed-container-with-empty-datafile.asics");
     String report = container.validate().getReport();
     TestAssert.assertXPathHasValue("1", "/SimpleReport/SignaturesCount", report);
@@ -268,7 +268,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void timestampedAsicsContainerWithEmptyDataFile() throws Exception {
+  void timestampedAsicsContainerWithEmptyDataFile() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/timestamped-container-with-empty-datafile.asics");
     String report = container.validate().getReport();
     TestAssert.assertXPathHasValue("0", "/SimpleReport/SignaturesCount", report);
@@ -280,7 +280,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void signatureContainsAdditionalErrors() throws Exception {
+  void signatureContainsAdditionalErrors() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/invalid-containers/TS-08_23634_TS_OCSP_before_TS.asice");
     String signatureUniqueId = container.getSignatures().get(0).getUniqueId();
     String report = container.validate().getReport();
@@ -296,7 +296,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void signatureRevocationAndTimeStampDifferenceMoreThan15min() throws Exception {
+  void signatureRevocationAndTimeStampDifferenceMoreThan15min() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/EE_LT_sig_OCSP_15m6s_after_TS.asice");
     String signatureUniqueId = container.getSignatures().get(0).getUniqueId();
     String report = container.validate().getReport();
@@ -314,7 +314,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void validContainerWithOneTimestampToken() throws Exception {
+  void validContainerWithOneTimestampToken() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/1xTST-text-data-file.asics");
     String timestampUniqueId = container.getTimestamps().get(0).getUniqueId();
     String report = container.validate().getReport();
@@ -331,7 +331,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void validTimestampedContainerWithNestedInvalidAsiceWithMultipleSignatures() throws Exception {
+  void validTimestampedContainerWithNestedInvalidAsiceWithMultipleSignatures() throws Exception {
     String containerPath = "src/test/resources/testFiles/invalid-containers/one-valid-and-multiple-invalid-signatures.asice";
     String containerFilename = Paths.get(containerPath).getFileName().toString();
     Container container = CompositeContainerBuilder.fromContainerFile(containerPath)
@@ -348,7 +348,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void validTimestampedContainerWithNestedValidBdoc() throws Exception {
+  void validTimestampedContainerWithNestedValidBdoc() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/1xTST-valid-bdoc-data-file.asics");
     Container nestedContainer = TestDataBuilderUtil.open(container.getDataFiles().get(0));
     String timestampUniqueId = container.getTimestamps().get(0).getUniqueId();
@@ -373,7 +373,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void valid2xTimestampedContainerWithNestedValidBdoc() throws Exception {
+  void valid2xTimestampedContainerWithNestedValidBdoc() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/2xTST-valid-bdoc-data-file.asics");
     Container nestedContainer = TestDataBuilderUtil.open(container.getDataFiles().get(0));
     String timestamp1UniqueId = container.getTimestamps().get(0).getUniqueId();
@@ -409,7 +409,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void invalidTimestampedContainerWithNestedValidBdoc() throws Exception {
+  void invalidTimestampedContainerWithNestedValidBdoc() throws Exception {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/invalid-containers/1xTST-valid-bdoc-data-file-hash-failure-in-tst.asics");
     Container nestedContainer = TestDataBuilderUtil.open(container.getDataFiles().get(0));
     String timestampUniqueId = container.getTimestamps().get(0).getUniqueId();
@@ -436,7 +436,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void test_valid3xTimestampedContainerWithNestedValidDdoc_includesSHA1ContainerWarning() throws Exception {
+  void test_valid3xTimestampedContainerWithNestedValidDdoc_includesSHA1ContainerWarning() throws Exception {
     // TODO (DD4J-1123): Currently JDigiDoc configuration (for validating DDoc containers and signatures) is
     //  automatically initialized only once per process, and thus is dependent on the order the unit tests are run.
     //  This workaround helps to avoid unit test failures caused by incompatible configuration being loaded.
@@ -484,7 +484,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void test_validTimestampedContainerWithNestedInvalidDdocWithMultipleSignatures_includesSHA1ContainerWarning() throws Exception {
+  void test_validTimestampedContainerWithNestedInvalidDdocWithMultipleSignatures_includesSHA1ContainerWarning() throws Exception {
     String containerPath = "src/test/resources/testFiles/invalid-containers/one-valid-and-multiple-invalid-signatures.ddoc";
     String containerFilename = Paths.get(containerPath).getFileName().toString();
     // TODO (DD4J-1123): Currently JDigiDoc configuration (for validating DDoc containers and signatures) is
@@ -508,7 +508,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void validTimestampedContainerWithExpiredTimestampToken() throws Exception {
+  void validTimestampedContainerWithExpiredTimestampToken() throws Exception {
     Container container = ContainerOpener.open(
             "src/test/resources/prodFiles/invalid-containers/1xTST-text-data-file-expired-tst.asics",
             Configuration.of(Configuration.Mode.PROD)
@@ -541,7 +541,7 @@ public class ValidationReportTest extends AbstractTest {
   }
 
   @Test
-  public void validTimestampedContainerWithOneInvalidSecondNoCoverageThirdValidTimestampTokens() throws Exception {
+  void validTimestampedContainerWithOneInvalidSecondNoCoverageThirdValidTimestampTokens() throws Exception {
     Container container = ContainerOpener.open(
             "src/test/resources/prodFiles/valid-containers/3xTST-text-data-file-1st-tst-invalid-2nd-tst-no-coverage-3rd-tst-valid.asics",
             Configuration.of(Configuration.Mode.PROD)

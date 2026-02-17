@@ -37,10 +37,10 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 
-public class AsicSignatureFinalizerTest extends AbstractTest {
+class AsicSignatureFinalizerTest extends AbstractTest {
 
   @Test
-  public void asiceLtSignatureFinalization() {
+  void asiceLtSignatureFinalization() {
     Container container = createEmptyContainerBy(Container.DocumentType.ASICE);
     container.addDataFile(createTextDataFile("file name", "something"));
 
@@ -58,7 +58,7 @@ public class AsicSignatureFinalizerTest extends AbstractTest {
   }
 
   @Test
-  public void asiceLtaSignatureFinalization() {
+  void asiceLtaSignatureFinalization() {
     Container container = createEmptyContainerBy(Container.DocumentType.ASICE);
     container.addDataFile(createTextDataFile("file name", "something"));
 
@@ -76,7 +76,7 @@ public class AsicSignatureFinalizerTest extends AbstractTest {
   }
 
   @Test
-  public void signatureFinalizerFieldsEqualToDataToSign() {
+  void signatureFinalizerFieldsEqualToDataToSign() {
     Container container = createEmptyContainerBy(Container.DocumentType.ASICE);
     container.addDataFile(createTextDataFile("file name", "something"));
 
@@ -92,7 +92,7 @@ public class AsicSignatureFinalizerTest extends AbstractTest {
   }
 
   @Test
-  public void getDataToSignBytesEqualToValueFromDataToSignObject() {
+  void getDataToSignBytesEqualToValueFromDataToSignObject() {
     Container container = createEmptyContainerBy(Container.DocumentType.ASICE);
     container.addDataFile(createTextDataFile("file name", "something"));
 
@@ -116,7 +116,7 @@ public class AsicSignatureFinalizerTest extends AbstractTest {
   }
 
   @Test
-  public void testCustomTspDataLoaderUsedForSigning() {
+  void testCustomTspDataLoaderUsedForSigning() {
     configuration = Configuration.of(Configuration.Mode.TEST);
     SkTimestampDataLoader tspDataLoader = new SkTimestampDataLoader(configuration);
     tspDataLoader.setUserAgent("custom-user-agent-string");
@@ -135,7 +135,7 @@ public class AsicSignatureFinalizerTest extends AbstractTest {
   }
 
   @Test
-  public void testCustomOcspDataLoaderUsedForSigning() {
+  void testCustomOcspDataLoaderUsedForSigning() {
     configuration = Configuration.of(Configuration.Mode.TEST);
     configuration.setPreferAiaOcsp(false);
     SkOCSPDataLoader ocspDataLoader = new SkOCSPDataLoader(configuration);
@@ -155,7 +155,7 @@ public class AsicSignatureFinalizerTest extends AbstractTest {
   }
 
   @Test
-  public void testCustomAiaDataLoaderUsedForSigning() {
+  void testCustomAiaDataLoaderUsedForSigning() {
     configuration = Configuration.of(Configuration.Mode.TEST);
     CommonsDataLoader aiaDataLoader = new CommonsDataLoader();
     DataLoader dataLoaderSpy = Mockito.spy(aiaDataLoader);
@@ -173,7 +173,7 @@ public class AsicSignatureFinalizerTest extends AbstractTest {
   }
 
   @Test
-  public void testCustomOcspSourceUsedForSigning() {
+  void testCustomOcspSourceUsedForSigning() {
     configuration = Configuration.of(Configuration.Mode.TEST);
     SKOnlineOCSPSource source = new CommonOCSPSource(configuration);
     DataLoader dataLoader = new OcspDataLoaderFactory(configuration).create();

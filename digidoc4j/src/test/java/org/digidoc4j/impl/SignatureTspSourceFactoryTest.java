@@ -39,25 +39,25 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-public class SignatureTspSourceFactoryTest extends AbstractTest {
+class SignatureTspSourceFactoryTest extends AbstractTest {
 
   private static final String COUNTRY = "CUSTOM_COUNTRY_CODE";
   private static final String SERVICE_URL = "http://host/path";
 
   @Test
-  public void create_WhenCustomSourceFactoryIsConfiguredAndNoPreferredLanguage_ReturnsCustomTspSource() {
+  void create_WhenCustomSourceFactoryIsConfiguredAndNoPreferredLanguage_ReturnsCustomTspSource() {
     create_WhenCustomSourceFactoryIsConfigured_ReturnsCustomTspSource(SignatureTspSourceFactory::new);
   }
 
   @Test
-  public void create_WhenCustomSourceFactoryIsConfiguredAndPreferredLanguageIsNull_ReturnsCustomTspSource() {
+  void create_WhenCustomSourceFactoryIsConfiguredAndPreferredLanguageIsNull_ReturnsCustomTspSource() {
     create_WhenCustomSourceFactoryIsConfigured_ReturnsCustomTspSource(
             configuration -> new SignatureTspSourceFactory(configuration, null)
     );
   }
 
   @Test
-  public void create_WhenCustomSourceFactoryIsConfiguredAndPreferredLanguageIsPresent_ReturnsCustomTspSource() {
+  void create_WhenCustomSourceFactoryIsConfiguredAndPreferredLanguageIsPresent_ReturnsCustomTspSource() {
     create_WhenCustomSourceFactoryIsConfigured_ReturnsCustomTspSource(
             configuration -> new SignatureTspSourceFactory(configuration, COUNTRY)
     );
@@ -84,7 +84,7 @@ public class SignatureTspSourceFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void create_WhenNoSourceFactoryConfiguredAndPreferredCountryNotSetAndDefaultTestConfigurationUsed_ReturnsOnlineTspSource() throws Exception {
+  void create_WhenNoSourceFactoryConfiguredAndPreferredCountryNotSetAndDefaultTestConfigurationUsed_ReturnsOnlineTspSource() throws Exception {
     create_WhenNoSourceFactoryConfiguredAndPreferredCountryNotSet_ReturnsOnlineTspSourceThatUsesExpectedServiceUrl(
             Configuration.of(Configuration.Mode.TEST),
             Constant.Test.TSP_SOURCE
@@ -92,7 +92,7 @@ public class SignatureTspSourceFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void create_WhenNoSourceFactoryConfiguredAndPreferredCountryNotSetAndDefaultProdConfigurationUsed_ReturnsOnlineTspSource() throws Exception {
+  void create_WhenNoSourceFactoryConfiguredAndPreferredCountryNotSetAndDefaultProdConfigurationUsed_ReturnsOnlineTspSource() throws Exception {
     create_WhenNoSourceFactoryConfiguredAndPreferredCountryNotSet_ReturnsOnlineTspSourceThatUsesExpectedServiceUrl(
             Configuration.of(Configuration.Mode.PROD),
             Constant.Production.TSP_SOURCE
@@ -117,7 +117,7 @@ public class SignatureTspSourceFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void create_WhenNoSourceFactoryConfiguredAndPreferredCountryIsSetButNotFoundAndDefaultTestConfigurationUsed_ReturnsOnlineTspSource() throws Exception {
+  void create_WhenNoSourceFactoryConfiguredAndPreferredCountryIsSetButNotFoundAndDefaultTestConfigurationUsed_ReturnsOnlineTspSource() throws Exception {
     create_WhenNoSourceFactoryConfiguredAndPreferredCountryIsSet_ReturnsOnlineTspSourceThatUsesExpectedServiceUrl(
             Configuration.of(Configuration.Mode.TEST),
             Constant.Test.TSP_SOURCE
@@ -125,7 +125,7 @@ public class SignatureTspSourceFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void create_WhenNoSourceFactoryConfiguredAndPreferredCountryIsSetButNotFoundAndDefaultProdConfigurationUsed_ReturnsOnlineTspSource() throws Exception {
+  void create_WhenNoSourceFactoryConfiguredAndPreferredCountryIsSetButNotFoundAndDefaultProdConfigurationUsed_ReturnsOnlineTspSource() throws Exception {
     create_WhenNoSourceFactoryConfiguredAndPreferredCountryIsSet_ReturnsOnlineTspSourceThatUsesExpectedServiceUrl(
             Configuration.of(Configuration.Mode.PROD),
             Constant.Production.TSP_SOURCE
@@ -133,7 +133,7 @@ public class SignatureTspSourceFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void create_WhenNoSourceFactoryConfiguredAndPreferredCountryIsSetAndDefaultTestConfigurationUsed_ReturnsOnlineTspSourceWithCountryUrl() throws Exception {
+  void create_WhenNoSourceFactoryConfiguredAndPreferredCountryIsSetAndDefaultTestConfigurationUsed_ReturnsOnlineTspSourceWithCountryUrl() throws Exception {
     Configuration configuration = Configuration.of(Configuration.Mode.TEST);
     configureCountryTspSource(configuration);
     create_WhenNoSourceFactoryConfiguredAndPreferredCountryIsSet_ReturnsOnlineTspSourceThatUsesExpectedServiceUrl(
@@ -143,7 +143,7 @@ public class SignatureTspSourceFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void create_WhenNoSourceFactoryConfiguredAndPreferredCountryIsSetAndDefaultProdConfigurationUsed_ReturnsOnlineTspSourceWithCountryUrl() throws Exception {
+  void create_WhenNoSourceFactoryConfiguredAndPreferredCountryIsSetAndDefaultProdConfigurationUsed_ReturnsOnlineTspSourceWithCountryUrl() throws Exception {
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
     configureCountryTspSource(configuration);
     create_WhenNoSourceFactoryConfiguredAndPreferredCountryIsSet_ReturnsOnlineTspSourceThatUsesExpectedServiceUrl(

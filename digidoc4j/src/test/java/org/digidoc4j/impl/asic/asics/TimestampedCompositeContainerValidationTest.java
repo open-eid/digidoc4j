@@ -47,10 +47,10 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 
-public class TimestampedCompositeContainerValidationTest extends AbstractTest {
+class TimestampedCompositeContainerValidationTest extends AbstractTest {
 
   @Test
-  public void validate_WhenAsicsWithOneValidTimestampAndNestedContainerIsValidBdoc_ValidationResultContainsAggregatedInfo() {
+  void validate_WhenAsicsWithOneValidTimestampAndNestedContainerIsValidBdoc_ValidationResultContainsAggregatedInfo() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/1xTST-valid-bdoc-data-file.asics",
             configuration
@@ -105,7 +105,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenAsicsWithTwoValidTimestampsAndNestedContainerIsValidBdoc_ValidationResultContainsAggregatedInfo() {
+  void validate_WhenAsicsWithTwoValidTimestampsAndNestedContainerIsValidBdoc_ValidationResultContainsAggregatedInfo() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/2xTST-valid-bdoc-data-file.asics",
             configuration
@@ -175,7 +175,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenAsicsWithOneInvalidTimestampAndNestedContainerIsValidBdoc_ValidationResultContainsAggregatedInfo() {
+  void validate_WhenAsicsWithOneInvalidTimestampAndNestedContainerIsValidBdoc_ValidationResultContainsAggregatedInfo() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/invalid-containers/1xTST-valid-bdoc-data-file-hash-failure-in-tst.asics",
             configuration
@@ -235,7 +235,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenAsicsWithInvalidAndNonCoveringTimestampAndNestedContainerIsValidBdoc_ValidationResultContainsAggregatedInfo() {
+  void validate_WhenAsicsWithInvalidAndNonCoveringTimestampAndNestedContainerIsValidBdoc_ValidationResultContainsAggregatedInfo() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/invalid-containers/2xTST-valid-bdoc-data-file-1st-tst-invalid-2nd-tst-no-coverage.asics",
             configuration
@@ -320,7 +320,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenAsicsWithInvalidAndNonCoveringAndValidTimestampAndNestedContainerIsValidBdoc_ValidationResultContainsAggregatedInfo() {
+  void validate_WhenAsicsWithInvalidAndNonCoveringAndValidTimestampAndNestedContainerIsValidBdoc_ValidationResultContainsAggregatedInfo() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/3xTST-valid-bdoc-data-file-1st-tst-invalid-2nd-tst-no-coverage-3rd-tst-valid.asics",
             configuration
@@ -422,7 +422,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenTimestampedNestedContainerIsAsiceWithExpiredOcspAndSigner_ValidationResultContainsAggregatedInfo() {
+  void validate_WhenTimestampedNestedContainerIsAsiceWithExpiredOcspAndSigner_ValidationResultContainsAggregatedInfo() {
     // This test container contains an ASiC-E container with a signature which already had an expired OCSP and signer
     //  certificate prior to wrapping it into a timestamped ASiC-S container.
     //  But expired OCSP nor signer make no difference for Estonian validation policy, so the ASiC-S timestamp token
@@ -484,7 +484,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenTimestampedNestedContainerIsInvalidAsiceWithMultipleSignatures_ValidationResultContainsAggregatedInfo() {
+  void validate_WhenTimestampedNestedContainerIsInvalidAsiceWithMultipleSignatures_ValidationResultContainsAggregatedInfo() {
     String path = "src/test/resources/testFiles/invalid-containers/one-valid-and-multiple-invalid-signatures.asice";
     Container nestedContainer = TestDataBuilderUtil.open(path, configuration);
     Container container = CompositeContainerBuilder
@@ -673,7 +673,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenAsicsWithTimeStampBeforeTeraSupportEndAndNestedContainerIsDdoc_ContainerValidationResultHasNoSha1WarningNestedValidationResultHasSha1Warning() {
+  void validate_WhenAsicsWithTimeStampBeforeTeraSupportEndAndNestedContainerIsDdoc_ContainerValidationResultHasNoSha1WarningNestedValidationResultHasSha1Warning() {
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
 
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/timestamptoken-ddoc.asics", configuration);
@@ -741,7 +741,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenAsicsWithTimestampAfterTeraSupportAndNestedContainerIsValidDdocWithSha1Warning_ValidationResultContainsAggregatedInfo() {
+  void validate_WhenAsicsWithTimestampAfterTeraSupportAndNestedContainerIsValidDdocWithSha1Warning_ValidationResultContainsAggregatedInfo() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/1xTST-valid-ddoc-data-file.asics",
             configuration
@@ -800,7 +800,7 @@ public class TimestampedCompositeContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenAsicsWithTimestampAfterTeraSupportAndNestedContainerIsInvalidDdocWithMultipleSignaturesAndSha1Warning_ValidationResultContainsAggregatedInfo() {
+  void validate_WhenAsicsWithTimestampAfterTeraSupportAndNestedContainerIsInvalidDdocWithMultipleSignaturesAndSha1Warning_ValidationResultContainsAggregatedInfo() {
     String path = "src/test/resources/testFiles/invalid-containers/one-valid-and-multiple-invalid-signatures.ddoc";
     Container nestedContainer = TestDataBuilderUtil.open(path, configuration);
     Container container = CompositeContainerBuilder

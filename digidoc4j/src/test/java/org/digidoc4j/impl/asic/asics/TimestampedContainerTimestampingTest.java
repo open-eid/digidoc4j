@@ -46,10 +46,10 @@ import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class TimestampedContainerTimestampingTest extends AbstractTest {
+class TimestampedContainerTimestampingTest extends AbstractTest {
 
   @Test
-  public void addTimestamp_WhenContainerWithInMemoryDataFileIsTimestampedOnce_TimestampProperlyAdded() {
+  void addTimestamp_WhenContainerWithInMemoryDataFileIsTimestampedOnce_TimestampProperlyAdded() {
     Container container = createAsicsContainerWithInMemoryDataFile();
     Timestamp timestamp = TimestampBuilder.aTimestamp(container)
             .invokeTimestamping();
@@ -66,7 +66,7 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
   }
 
   @Test
-  public void addTimestamp_WhenContainerWithDataFileFromFileIsTimestampedOnce_TimestampProperlyAdded() {
+  void addTimestamp_WhenContainerWithDataFileFromFileIsTimestampedOnce_TimestampProperlyAdded() {
     Container container = createAsicsContainerWithDataFileFromFile();
     Timestamp timestamp = TimestampBuilder.aTimestamp(container)
             .invokeTimestamping();
@@ -83,7 +83,7 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
   }
 
   @Test
-  public void addTimestamp_WhenContainerWithInMemoryDataFileIsTimestampedTwice_DataFileIsCorrectlyReferencedInManifest() {
+  void addTimestamp_WhenContainerWithInMemoryDataFileIsTimestampedTwice_DataFileIsCorrectlyReferencedInManifest() {
     Container container = createAsicsContainerWithInMemoryDataFile();
     container.addTimestamp(TimestampBuilder.aTimestamp(container).invokeTimestamping());
     Timestamp timestamp = TimestampBuilder.aTimestamp(container)
@@ -105,7 +105,7 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
   }
 
   @Test
-  public void addTimestamp_WhenContainerWithDataFileFromFileIsTimestampedTwice_DataFileIsCorrectlyReferencedInManifest() {
+  void addTimestamp_WhenContainerWithDataFileFromFileIsTimestampedTwice_DataFileIsCorrectlyReferencedInManifest() {
     Container container = createAsicsContainerWithDataFileFromFile();
     container.addTimestamp(TimestampBuilder.aTimestamp(container).invokeTimestamping());
     Timestamp timestamp = TimestampBuilder.aTimestamp(container)
@@ -127,7 +127,7 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
   }
 
   @Test
-  public void addTimestamp_WhenSecondTimestampIsAdded_PreviousTimestampTokenIsAugmented() {
+  void addTimestamp_WhenSecondTimestampIsAdded_PreviousTimestampTokenIsAugmented() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/1xTST-text-data-file.asics",
             configuration
@@ -164,7 +164,7 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
   }
 
   @Test
-  public void addTimestamp_WhenThirdTimestampIsAdded_ManifestOfPreviousTimestampIsRenamed() {
+  void addTimestamp_WhenThirdTimestampIsAdded_ManifestOfPreviousTimestampIsRenamed() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/2xTST-text-data-file.asics",
             configuration
@@ -199,7 +199,7 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
   }
 
   @Test
-  public void addTimestamp_WhenSecondTimestampIsAddedButContainerContentDoesNotMatchWithTimestamp_ThrowsException() {
+  void addTimestamp_WhenSecondTimestampIsAddedButContainerContentDoesNotMatchWithTimestamp_ThrowsException() {
     Container container = createAsicsContainerWithInMemoryDataFile();
     Timestamp timestamp1 = TimestampBuilder.aTimestamp(container).invokeTimestamping();
     Timestamp timestamp2 = TimestampBuilder.aTimestamp(container).invokeTimestamping();
@@ -219,7 +219,7 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
   }
 
   @Test
-  public void addTimestamp_WhenThirdTimestampIsAddedButContainerContentDoesNotMatchWithTimestamp_ThrowsException() {
+  void addTimestamp_WhenThirdTimestampIsAddedButContainerContentDoesNotMatchWithTimestamp_ThrowsException() {
     Container container = createAsicsContainerWithInMemoryDataFile();
     Timestamp timestamp1 = TimestampBuilder.aTimestamp(container).invokeTimestamping();
     container.addTimestamp(timestamp1);
@@ -240,7 +240,7 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
   }
 
   @Test
-  public void addTimestamp_WhenSecondTimestampIsAddedToExistingContainerWithSpecialCharactersInDataFileName_Succeeds() {
+  void addTimestamp_WhenSecondTimestampIsAddedToExistingContainerWithSpecialCharactersInDataFileName_Succeeds() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/1xTST-datafile-with-special-characters.asics",
             configuration
@@ -267,7 +267,7 @@ public class TimestampedContainerTimestampingTest extends AbstractTest {
   }
 
   @Test
-  public void addTimestamp_WhenThirdTimestampIsAddedToExistingContainerWithSpecialCharactersInDataFileName_Succeeds() {
+  void addTimestamp_WhenThirdTimestampIsAddedToExistingContainerWithSpecialCharactersInDataFileName_Succeeds() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/2xTST-datafile-with-special-characters-percentencoded-in-archive-manifest.asics",
             configuration

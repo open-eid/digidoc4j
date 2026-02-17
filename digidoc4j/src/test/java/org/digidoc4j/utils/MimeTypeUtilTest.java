@@ -22,10 +22,10 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class MimeTypeUtilTest extends AbstractTest {
+class MimeTypeUtilTest extends AbstractTest {
 
   @Test
-  public void fromMimeTypeString_WhenInputIsNull_ThrowsException() {
+  void fromMimeTypeString_WhenInputIsNull_ThrowsException() {
     NullPointerException caughtException = assertThrows(
             NullPointerException.class,
             () -> MimeTypeUtil.fromMimeTypeString(null)
@@ -38,7 +38,7 @@ public class MimeTypeUtilTest extends AbstractTest {
   }
 
   @Test
-  public void fromMimeTypeString_WhenInputCorrespondsToExistingMimeTypeEnumValue_ReturnsCorrespondingMimeTypeObject() {
+  void fromMimeTypeString_WhenInputCorrespondsToExistingMimeTypeEnumValue_ReturnsCorrespondingMimeTypeObject() {
     String mimeTypeString = MimeTypeEnum.TEXT.getMimeTypeString();
 
     MimeType result = MimeTypeUtil.fromMimeTypeString(mimeTypeString);
@@ -47,7 +47,7 @@ public class MimeTypeUtilTest extends AbstractTest {
   }
 
   @Test
-  public void fromMimeTypeString_WhenInputCorrespondsToNoMimeTypeEnumValue_ReturnsCustomMimeTypeObjectWithSpecifiedMimeTypeString() {
+  void fromMimeTypeString_WhenInputCorrespondsToNoMimeTypeEnumValue_ReturnsCustomMimeTypeObjectWithSpecifiedMimeTypeString() {
     String mimeTypeString = "foo/bar";
 
     MimeType result = MimeTypeUtil.fromMimeTypeString(mimeTypeString);

@@ -21,10 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class PolicyUtilsTest {
+class PolicyUtilsTest {
 
   @Test
-  public void createBDocSignaturePolicy() {
+  void createBDocSignaturePolicy() {
     Policy policy = PolicyUtils.createBDocSignaturePolicy();
     assertEquals("urn:oid:1.3.6.1.4.1.10015.1000.3.2.1", policy.getId());
     assertEquals("OIDAsURN", policy.getQualifier().getValue());
@@ -34,13 +34,13 @@ public class PolicyUtilsTest {
   }
 
   @Test
-  public void allPolicyValuesDefined() {
+  void allPolicyValuesDefined() {
     Policy policy = PolicyUtils.createBDocSignaturePolicy();
     assertTrue(PolicyUtils.areAllPolicyValuesDefined(policy));
   }
 
   @Test
-  public void allPolicyValuesNotDefined() {
+  void allPolicyValuesNotDefined() {
     Policy policy = PolicyUtils.createBDocSignaturePolicy();
     policy.setSpuri(null);
     assertFalse(PolicyUtils.areAllPolicyValuesDefined(policy));

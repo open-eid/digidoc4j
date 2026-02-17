@@ -28,10 +28,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class AsicSContainerParsingTest extends AbstractTest {
+class AsicSContainerParsingTest extends AbstractTest {
 
   @Test
-  public void openContainer_WhenAsicsContainsSignatureAndTimestamp_ThrowsIllegalContainerContentException() {
+  void openContainer_WhenAsicsContainsSignatureAndTimestamp_ThrowsIllegalContainerContentException() {
     IllegalContainerContentException caughtException = assertThrows(
             IllegalContainerContentException.class,
             () -> ContainerOpener.open(
@@ -46,7 +46,7 @@ public class AsicSContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenAsicsContainsCadesLtSignature_ThrowsIllegalContainerContentException() {
+  void openContainer_WhenAsicsContainsCadesLtSignature_ThrowsIllegalContainerContentException() {
     IllegalContainerContentException caughtException = assertThrows(
             IllegalContainerContentException.class,
             () -> ContainerOpener.open(
@@ -61,7 +61,7 @@ public class AsicSContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenAsicsContainsCadesLtaSignature_ThrowsIllegalContainerContentException() {
+  void openContainer_WhenAsicsContainsCadesLtaSignature_ThrowsIllegalContainerContentException() {
     IllegalContainerContentException caughtException = assertThrows(
             IllegalContainerContentException.class,
             () -> ContainerOpener.open(
@@ -76,7 +76,7 @@ public class AsicSContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenAsicsContainsAsiceStyleCadesLtSignature_ThrowsIllegalContainerContentException() {
+  void openContainer_WhenAsicsContainsAsiceStyleCadesLtSignature_ThrowsIllegalContainerContentException() {
     IllegalContainerContentException caughtException = assertThrows(
                 IllegalContainerContentException.class,
                 () -> ContainerOpener.open(
@@ -91,7 +91,7 @@ public class AsicSContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenAsicsContainsAsiceStyleCadesLtaSignatureWithDetachedTimestamp_ThrowsIllegalContainerContentException() {
+  void openContainer_WhenAsicsContainsAsiceStyleCadesLtaSignatureWithDetachedTimestamp_ThrowsIllegalContainerContentException() {
     IllegalContainerContentException caughtException = assertThrows(
             IllegalContainerContentException.class,
             () -> ContainerOpener.open(
@@ -106,7 +106,7 @@ public class AsicSContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenUnsignedAsicsContainsMultipleDataFiles_ThrowsIllegalContainerContentException() {
+  void openContainer_WhenUnsignedAsicsContainsMultipleDataFiles_ThrowsIllegalContainerContentException() {
     byte[] containerBytes = writeEntriesToByteArray(
             createStoredEntry(ASiCUtils.MIME_TYPE, MimeTypeEnum.ASICS.getMimeTypeString().getBytes(StandardCharsets.UTF_8)),
             createDeflatedEntry("datafile-1", "unused".getBytes(StandardCharsets.UTF_8)),
@@ -125,12 +125,12 @@ public class AsicSContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenAsicsContainsCadesSignature_ThrowsIllegalContainerContentException() {
+  void openContainer_WhenAsicsContainsCadesSignature_ThrowsIllegalContainerContentException() {
     openContainer_WhenAsicsContainsCadesSignature_ThrowsIllegalContainerContentException("signature.p7s");
   }
 
   @Test
-  public void openContainer_WhenAsicsContainsCadesSignatureUpperCase_ThrowsIllegalContainerContentException() {
+  void openContainer_WhenAsicsContainsCadesSignatureUpperCase_ThrowsIllegalContainerContentException() {
     openContainer_WhenAsicsContainsCadesSignature_ThrowsIllegalContainerContentException("SIGNATURE.P7S");
   }
 
@@ -154,22 +154,22 @@ public class AsicSContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenAsicsContainsEvidenceRecordErs_ThrowsIllegalContainerContentException() {
+  void openContainer_WhenAsicsContainsEvidenceRecordErs_ThrowsIllegalContainerContentException() {
     openContainer_WhenAsicsContainsEvidenceRecord_ThrowsIllegalContainerContentException("evidencerecord.ers");
   }
 
   @Test
-  public void openContainer_WhenAsicsContainsEvidenceRecordErsUpperCase_ThrowsIllegalContainerContentException() {
+  void openContainer_WhenAsicsContainsEvidenceRecordErsUpperCase_ThrowsIllegalContainerContentException() {
     openContainer_WhenAsicsContainsEvidenceRecord_ThrowsIllegalContainerContentException("EVIDENCERECORD.ERS");
   }
 
   @Test
-  public void openContainer_WhenAsicsContainsEvidenceRecordXml_ThrowsIllegalContainerContentException() {
+  void openContainer_WhenAsicsContainsEvidenceRecordXml_ThrowsIllegalContainerContentException() {
     openContainer_WhenAsicsContainsEvidenceRecord_ThrowsIllegalContainerContentException("evidencerecord.xml");
   }
 
   @Test
-  public void openContainer_WhenAsicsContainsEvidenceRecordXmlUpperCase_ThrowsIllegalContainerContentException() {
+  void openContainer_WhenAsicsContainsEvidenceRecordXmlUpperCase_ThrowsIllegalContainerContentException() {
     openContainer_WhenAsicsContainsEvidenceRecord_ThrowsIllegalContainerContentException("EVIDENCERECORD.XML");
   }
 

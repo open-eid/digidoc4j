@@ -61,7 +61,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class SKOnlineOCSPSourceTest extends AbstractTest {
+class SKOnlineOCSPSourceTest extends AbstractTest {
 
   private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
   private X509Certificate issuerCert;
@@ -70,7 +70,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
   private SkOCSPDataLoader dataLoader;
 
   @Test
-  public void getValidCertificateOCSPToken() throws CertificateEncodingException {
+  void getValidCertificateOCSPToken() throws CertificateEncodingException {
     CommonOCSPCertificateSource certificateSource = new CommonOCSPCertificateSource();
     certificateSource.addCertificate(new CertificateToken(openX509Certificate(Paths.get("src/test/resources/testFiles/certs/TESTofEECertificationCentreRootCA.crt"))));
 
@@ -83,7 +83,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getRevokedCertificateOCSPToken_thenThrowRevokedCertificateValidationException() throws CertificateEncodingException {
+  void getRevokedCertificateOCSPToken_thenThrowRevokedCertificateValidationException() throws CertificateEncodingException {
     CommonOCSPCertificateSource certificateSource = new CommonOCSPCertificateSource();
     certificateSource.addCertificate(new CertificateToken(openX509Certificate(Paths.get("src/test/resources/testFiles/certs/TESTofESTEID-SK2011.crt"))));
 
@@ -104,7 +104,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getTestCertificateOCSPTokenFromProdOCSP_thenThrowUnknownCertificateValidationException() throws CertificateException {
+  void getTestCertificateOCSPTokenFromProdOCSP_thenThrowUnknownCertificateValidationException() throws CertificateException {
     CommonOCSPCertificateSource certificateSource = new CommonOCSPCertificateSource();
     certificateSource.addCertificate(new CertificateToken(openX509Certificate(Paths.get("src/test/resources/testFiles/certs/TESTofESTEID-SK2011.crt"))));
 
@@ -125,7 +125,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void ocspAccessSettingsInvalid_throwsServiceAccessDeniedException() throws CertificateEncodingException {
+  void ocspAccessSettingsInvalid_throwsServiceAccessDeniedException() throws CertificateEncodingException {
     Configuration configuration = Configuration.of(TEST);
     configuration.setSignOCSPRequests(true);
     configuration.setOCSPAccessCertificateFileName(TestSigningUtil.TEST_PKI_CONTAINER);
@@ -150,7 +150,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void ocspRespondsWithEmptyBody_thenThrowTechnicalCertificateValidationException() throws CertificateEncodingException {
+  void ocspRespondsWithEmptyBody_thenThrowTechnicalCertificateValidationException() throws CertificateEncodingException {
     CommonOCSPCertificateSource certificateSource = new CommonOCSPCertificateSource();
     certificateSource.addCertificate(new CertificateToken(openX509Certificate(Paths.get("src/test/resources/testFiles/certs/EE_Certification_Centre_Root_CA.pem.crt"))));
 
@@ -173,7 +173,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getOCSPToken_malformedOCSPRequest_thenThrowTechnicalCertificateValidationException() {
+  void getOCSPToken_malformedOCSPRequest_thenThrowTechnicalCertificateValidationException() {
     mockOcspResponse(OCSPResponseStatus.MALFORMED_REQUEST);
 
     SKOnlineOCSPSource ocspSource = constructOCSPSource();
@@ -190,7 +190,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getOCSPToken_ocspServiceInternalError_thenThrowTechnicalCertificateValidationException() {
+  void getOCSPToken_ocspServiceInternalError_thenThrowTechnicalCertificateValidationException() {
     mockOcspResponse(OCSPResponseStatus.INTERNAL_ERROR);
 
     SKOnlineOCSPSource ocspSource = constructOCSPSource();
@@ -207,7 +207,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getOCSPToken_ocspResponseTryLater_thenThrowServiceUnavailableException() {
+  void getOCSPToken_ocspResponseTryLater_thenThrowServiceUnavailableException() {
     mockOcspResponse(OCSPResponseStatus.TRY_LATER);
 
     SKOnlineOCSPSource ocspSource = constructOCSPSource();
@@ -223,7 +223,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getOCSPToken_ocspRequestNotSigned_thenThrowTechnicalCertificateValidationException() {
+  void getOCSPToken_ocspRequestNotSigned_thenThrowTechnicalCertificateValidationException() {
     mockOcspResponse(OCSPResponseStatus.SIG_REQUIRED);
 
     SKOnlineOCSPSource ocspSource = constructOCSPSource();
@@ -240,7 +240,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getOCSPToken_whenOCSPResponseIsUnauthorized_thenThrowAccessDeniedException() {
+  void getOCSPToken_whenOCSPResponseIsUnauthorized_thenThrowAccessDeniedException() {
     mockOcspResponse(OCSPResponseStatus.UNAUTHORIZED);
 
     SKOnlineOCSPSource ocspSource = constructOCSPSource();
@@ -256,7 +256,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getOCSPToken_unhandledOcspResponseStatus_thenThrowTechnicalCertificateValidationException() {
+  void getOCSPToken_unhandledOcspResponseStatus_thenThrowTechnicalCertificateValidationException() {
     mockOcspResponse(7);
 
     SKOnlineOCSPSource ocspSource = constructOCSPSource();
@@ -273,7 +273,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getOCSPToken_failedToParseOCSPResponse_thenThrowTechnicalCertificateValidationException() {
+  void getOCSPToken_failedToParseOCSPResponse_thenThrowTechnicalCertificateValidationException() {
     String response = "INVALID_RESPONSE_FORMAT";
     when(dataLoader.post(anyString(), any(byte[].class))).thenReturn(response.getBytes(StandardCharsets.UTF_8));
 
@@ -291,7 +291,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getOCSPToken_nonceValidationFailed_thenThrowUntrustedCertificateValidationException() {
+  void getOCSPToken_nonceValidationFailed_thenThrowUntrustedCertificateValidationException() {
     String response = "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";
     when(dataLoader.post(anyString(), any(byte[].class))).thenReturn(Base64.decode(response));
     configuration.setPreferAiaOcsp(false);
@@ -310,7 +310,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getOCSPToken_ocspCertificateExpired() throws Exception {
+  void getOCSPToken_ocspCertificateExpired() throws Exception {
     X509Certificate subjectCertificate = openX509Certificate(Paths.get("src/test/resources/testFiles/certs/SK-OCSP-RESPONDER-2011_test.cer"));
     Configuration configuration = Configuration.of(Configuration.Mode.TEST);
     SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) new SigningOcspSourceFactory(configuration).create();
@@ -326,7 +326,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getOCSPToken_ocspCertificateNotYetValid() throws Exception {
+  void getOCSPToken_ocspCertificateNotYetValid() throws Exception {
     X509Certificate subjectCertificate = openX509Certificate(Paths.get("src/test/resources/testFiles/certs/SK-OCSP-RESPONDER-2011_test.cer"));
     Configuration configuration = Configuration.of(Configuration.Mode.TEST);
     SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) new SigningOcspSourceFactory(configuration).create();
@@ -342,7 +342,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getOCSPToken_anyDSSExceptionRethrownAsTechnicalException() {
+  void getOCSPToken_anyDSSExceptionRethrownAsTechnicalException() {
     when(dataLoader.post(anyString(), any(byte[].class))).thenThrow(DSSException.class);
     SKOnlineOCSPSource ocspSource = constructOCSPSource();
     ocspSource.setDataLoader(dataLoader);
@@ -356,7 +356,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void ocspResponseWithCaCertificate() throws IOException {
+  void ocspResponseWithCaCertificate() throws IOException {
     X509Certificate subjectCertificate = openX509Certificate(Paths.get("src/test/resources/testFiles/certs/d-trust-ca.cer"));
     configuration.getTSL().addTSLCertificate(subjectCertificate);
     SKOnlineOCSPSource skOnlineOCSPSource = Mockito.spy(constructOCSPSource());
@@ -367,7 +367,7 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void dataLoaderMissing() {
+  void dataLoaderMissing() {
     SKOnlineOCSPSource ocspSource = constructOCSPSource();
     ocspSource.setDataLoader(null);
 

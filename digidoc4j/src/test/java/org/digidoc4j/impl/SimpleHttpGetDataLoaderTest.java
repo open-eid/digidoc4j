@@ -48,7 +48,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class SimpleHttpGetDataLoaderTest {
+class SimpleHttpGetDataLoaderTest {
 
   private static final byte[] MOCK_RESPONSE = new byte[] {0, 1, 2, 3};
   private static final byte[] MOCK_REDIRECT_RESPONSE = "\tRedirect Page\n".getBytes(StandardCharsets.UTF_8);
@@ -79,7 +79,7 @@ public class SimpleHttpGetDataLoaderTest {
   private Appender<ILoggingEvent> mockedAppender;
 
   @BeforeEach
-  public void setUpLoggingEnvironment() {
+  void setUpLoggingEnvironment() {
     Logger logger = (Logger) LoggerFactory.getLogger(SimpleHttpGetDataLoader.class.getName());
     mockedAppender = (Appender<ILoggingEvent>) Mockito.mock(Appender.class);
     logger.addAppender(mockedAppender);
@@ -88,7 +88,7 @@ public class SimpleHttpGetDataLoaderTest {
 
 
   @Test
-  public void requestShouldReturnResponseBytesOnHttp200_NoContentLengthHeader() {
+  void requestShouldReturnResponseBytesOnHttp200_NoContentLengthHeader() {
     wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(200).withBody(MOCK_RESPONSE)));
     byte[] response = createDataLoader(0).request(wireMock.url(REQUEST_PATH), true);
     assertResponseForStatus(200, MOCK_RESPONSE, response);
@@ -99,7 +99,7 @@ public class SimpleHttpGetDataLoaderTest {
   }
 
   @Test
-  public void requestShouldReturnResponseBytesOnHttp200_ValidContentLengthHeader() {
+  void requestShouldReturnResponseBytesOnHttp200_ValidContentLengthHeader() {
     wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(200)
             .withHeader("Content-Length", Integer.toString(MOCK_RESPONSE.length)).withBody(MOCK_RESPONSE)));
     byte[] response = createDataLoader(0).request(wireMock.url(REQUEST_PATH), true);
@@ -111,7 +111,7 @@ public class SimpleHttpGetDataLoaderTest {
   }
 
   @Test
-  public void requestShouldFailToReturnResponseOnHttp200_ContentLengthHeaderTooLarge() {
+  void requestShouldFailToReturnResponseOnHttp200_ContentLengthHeaderTooLarge() {
     wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(200)
             .withHeader("Content-Length", Long.toString(Integer.MAX_VALUE + 1L)).withBody(new byte[1])));
     try {
@@ -125,7 +125,7 @@ public class SimpleHttpGetDataLoaderTest {
 
   @Test
   // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
-  public void requestShouldNotRedirectOnHttp3xx_RedirectsNotEnabled() {
+  void requestShouldNotRedirectOnHttp3xx_RedirectsNotEnabled() {
     for (int status = 300; status <= 399; ++status) {
       wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status).withBody(MOCK_REDIRECT_RESPONSE)));
       byte[] response = createDataLoader(0).request(wireMock.url(REQUEST_PATH), true);
@@ -137,7 +137,7 @@ public class SimpleHttpGetDataLoaderTest {
 
   @Test
   // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
-  public void requestShouldNotRedirectOnHttp3xx_NoLocationProvided_RedirectsEnabled() {
+  void requestShouldNotRedirectOnHttp3xx_NoLocationProvided_RedirectsEnabled() {
     for (int status = 300; status <= 399; ++status) {
       wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status).withBody(MOCK_REDIRECT_RESPONSE)));
       byte[] response = createDataLoader(1).request(wireMock.url(REQUEST_PATH), true);
@@ -149,7 +149,7 @@ public class SimpleHttpGetDataLoaderTest {
 
   @Test
   // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
-  public void requestShouldNotFollowRedirectOnUnallowedHttp3xx_RedirectsEnabled() {
+  void requestShouldNotFollowRedirectOnUnallowedHttp3xx_RedirectsEnabled() {
     for (int status = 300; status <= 399; ++status) {
       if (ALLOWED_REDIRECT_STATUSES.contains(status))
         continue;
@@ -164,7 +164,7 @@ public class SimpleHttpGetDataLoaderTest {
 
   @Test
   // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
-  public void requestShouldFollowRedirectOnAllowedHttp3xx_RedirectsEnabled() {
+  void requestShouldFollowRedirectOnAllowedHttp3xx_RedirectsEnabled() {
     for (int status : ALLOWED_REDIRECT_STATUSES) {
       wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status).withHeader(LOCATION_HEADER, wireMock.url(REDIRECT_PATH))));
       wireMock.stubFor(get(REDIRECT_PATH).willReturn(WireMock.aResponse().withStatus(200).withBody(MOCK_RESPONSE)));
@@ -178,7 +178,7 @@ public class SimpleHttpGetDataLoaderTest {
 
   @Test
   // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
-  public void requestShouldFollowMultipleRedirectsOnAllowedHttp3xx_RedirectsEnabled() {
+  void requestShouldFollowMultipleRedirectsOnAllowedHttp3xx_RedirectsEnabled() {
     for (int status : ALLOWED_REDIRECT_STATUSES) {
       wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status).withHeader(LOCATION_HEADER, wireMock.url(REDIRECT_PATH))));
       wireMock.stubFor(get(REDIRECT_PATH).willReturn(WireMock.aResponse().withStatus(status).withHeader(LOCATION_HEADER, wireMock.url(REDIRECT_PATH_2))));
@@ -194,7 +194,7 @@ public class SimpleHttpGetDataLoaderTest {
 
   @Test
   // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
-  public void requestShouldFollowLimitedAmountOfRedirectsOnAllowedHttp3xx_RedirectsEnabled() {
+  void requestShouldFollowLimitedAmountOfRedirectsOnAllowedHttp3xx_RedirectsEnabled() {
     for (int status : ALLOWED_REDIRECT_STATUSES) {
       wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status)
               .withHeader(LOCATION_HEADER, wireMock.url(REDIRECT_PATH)).withBody(MOCK_REDIRECT_RESPONSE)));
@@ -211,7 +211,7 @@ public class SimpleHttpGetDataLoaderTest {
 
   @Test
   // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
-  public void requestShouldFollowRedirectOnAllowedHttp3xx_RelativeLocation_RedirectsEnabled() {
+  void requestShouldFollowRedirectOnAllowedHttp3xx_RelativeLocation_RedirectsEnabled() {
     for (int status : ALLOWED_REDIRECT_STATUSES) {
       wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status).withHeader(LOCATION_HEADER, REDIRECT_PATH)));
       wireMock.stubFor(get(REDIRECT_PATH).willReturn(WireMock.aResponse().withStatus(200).withBody(MOCK_RESPONSE)));
@@ -231,7 +231,7 @@ public class SimpleHttpGetDataLoaderTest {
   @Test
   @Disabled("TODO: find a way to run this test together with the rest of the test suite")
   // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
-  public void requestShouldFollowHttpToHttpsRedirectOnAllowedHttp3xx_RedirectsEnabled() {
+  void requestShouldFollowHttpToHttpsRedirectOnAllowedHttp3xx_RedirectsEnabled() {
     System.setProperty("javax.net.ssl.trustStore", "src/test/resources/testFiles/truststores/client-localhost.jks");
     System.setProperty("javax.net.ssl.trustStorePassword", "digidoc4j-password");
     System.setProperty("javax.net.ssl.trustStoreType", "JKS");
@@ -256,7 +256,7 @@ public class SimpleHttpGetDataLoaderTest {
   @Test
   @Disabled("TODO: find a way to run this test together with the rest of the test suite")
   // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
-  public void requestShouldFollowHttpsToHttpRedirectOnAllowedHttp3xx_RedirectsEnabled() {
+  void requestShouldFollowHttpsToHttpRedirectOnAllowedHttp3xx_RedirectsEnabled() {
     System.setProperty("javax.net.ssl.trustStore", "src/test/resources/testFiles/truststores/client-localhost.jks");
     System.setProperty("javax.net.ssl.trustStorePassword", "digidoc4j-password");
     System.setProperty("javax.net.ssl.trustStoreType", "JKS");
@@ -279,7 +279,7 @@ public class SimpleHttpGetDataLoaderTest {
    * {@code EE Certification Centre Root CA}
    */
   @Test
-  public void requestShouldFollowRedirectsOfValidCertificate() {
+  void requestShouldFollowRedirectsOfValidCertificate() {
     byte[] response = createDataLoader(3).request("http://www.sk.ee/certs/EE_Certification_Centre_Root_CA.der.crt", true);
     CertificateToken loadedCertificate = DSSUtils.loadCertificate(response);
     assertTrue(
@@ -295,7 +295,7 @@ public class SimpleHttpGetDataLoaderTest {
 
   @Test
   // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
-  public void requestShouldNotFollowRedirectOnAllowedHttp3xx_UnsupportedProtocol_RedirectsEnabled() {
+  void requestShouldNotFollowRedirectOnAllowedHttp3xx_UnsupportedProtocol_RedirectsEnabled() {
     for (int status : ALLOWED_REDIRECT_STATUSES) {
       wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status).withHeader(LOCATION_HEADER, "ftp://host:1234/path")));
       try {
@@ -310,7 +310,7 @@ public class SimpleHttpGetDataLoaderTest {
   }
 
   @Test
-  public void requestShouldFailOn404() {
+  void requestShouldFailOn404() {
     wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(404)));
     try {
       createDataLoader(1).request(wireMock.url(REQUEST_PATH), true);
@@ -323,7 +323,7 @@ public class SimpleHttpGetDataLoaderTest {
   }
 
   @Test
-  public void requestShouldFailOn410() {
+  void requestShouldFailOn410() {
     wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(410)));
     try {
       createDataLoader(1).request(wireMock.url(REQUEST_PATH), true);
@@ -337,7 +337,7 @@ public class SimpleHttpGetDataLoaderTest {
 
   @Test
   // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
-  public void requestShouldFailOnClientError() {
+  void requestShouldFailOnClientError() {
     for (int status = 400; status <= 499; ++status) {
       if (Arrays.asList(404, 410).contains(status))
         continue;
@@ -358,7 +358,7 @@ public class SimpleHttpGetDataLoaderTest {
 
   @Test
   // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
-  public void requestShouldFailOnServerError() {
+  void requestShouldFailOnServerError() {
     for (int status = 500; status <= 599; ++status) {
       wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(status)));
       try {
@@ -375,7 +375,7 @@ public class SimpleHttpGetDataLoaderTest {
   }
 
   @Test
-  public void requestShouldFailWhenReadTimeoutIsReached() {
+  void requestShouldFailWhenReadTimeoutIsReached() {
     wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.aResponse().withStatus(200).withFixedDelay(1500)));
     SimpleHttpGetDataLoader dataLoader = createDataLoader(0);
     dataLoader.setConnectTimeout(1000);
@@ -390,7 +390,7 @@ public class SimpleHttpGetDataLoaderTest {
   }
 
   @Test
-  public void requestShouldIncludeSpecificUserAgentHeaderIfSpecified() {
+  void requestShouldIncludeSpecificUserAgentHeaderIfSpecified() {
     wireMock.stubFor(get(REQUEST_PATH).willReturn(WireMock.ok()));
     SimpleHttpGetDataLoader dataLoader = new SimpleHttpGetDataLoader();
     dataLoader.setUserAgent("test-user-agent-string");

@@ -49,10 +49,10 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class TimestampedContainerParsingTest extends AbstractTest {
+class TimestampedContainerParsingTest extends AbstractTest {
 
   @Test
-  public void openContainer_WhenAsicsWithOnlyDataFile_AsicsWithOneDataFileAndNoTimestampsNorSignaturesIsOpened() {
+  void openContainer_WhenAsicsWithOnlyDataFile_AsicsWithOneDataFileAndNoTimestampsNorSignaturesIsOpened() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/container_without_signatures.asics",
             configuration
@@ -67,7 +67,7 @@ public class TimestampedContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenAsicsWithOneTimestamp_AsicsWithOneDataFileAndOneTimestampIsOpened() {
+  void openContainer_WhenAsicsWithOneTimestamp_AsicsWithOneDataFileAndOneTimestampIsOpened() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/testtimestamp.asics",
             configuration
@@ -89,7 +89,7 @@ public class TimestampedContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenAsicsWith3Timestamps_AsicsWithOneDataFileAnd3TimestampsInExpectedOrderIsOpened() {
+  void openContainer_WhenAsicsWith3Timestamps_AsicsWithOneDataFileAnd3TimestampsInExpectedOrderIsOpened() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/3xTST-text-data-file.asics",
             configuration
@@ -149,7 +149,7 @@ public class TimestampedContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenAsicsWithOneTimestampWithoutManifest_DataFileMimeTypeIsInferred() {
+  void openContainer_WhenAsicsWithOneTimestampWithoutManifest_DataFileMimeTypeIsInferred() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/1xTST-image-no-manifest.asics",
             configuration
@@ -167,7 +167,7 @@ public class TimestampedContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenAsicsWithOneTimestampAndManifestOverridesDataFileMimeType_DataFileMimeTypeAsSpecifiedInManifest() {
+  void openContainer_WhenAsicsWithOneTimestampAndManifestOverridesDataFileMimeType_DataFileMimeTypeAsSpecifiedInManifest() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/1xTST-image-but-pdf-in-manifest.asics",
             configuration
@@ -185,7 +185,7 @@ public class TimestampedContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenAsicsWith3TimestampsAndDifferentMimeTypesInDifferentManifests_MimeTypesOfLastManifestAreApplied() {
+  void openContainer_WhenAsicsWith3TimestampsAndDifferentMimeTypesInDifferentManifests_MimeTypesOfLastManifestAreApplied() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/3xTST-different-mimetypes-in-different-manifests.asics",
             configuration
@@ -233,7 +233,7 @@ public class TimestampedContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenTimestampedAsicsContainsNoDataFiles_ThrowsIllegalContainerContentException() {
+  void openContainer_WhenTimestampedAsicsContainsNoDataFiles_ThrowsIllegalContainerContentException() {
     IllegalContainerContentException caughtException = assertThrows(
             IllegalContainerContentException.class,
             () -> ContainerOpener.open(
@@ -248,7 +248,7 @@ public class TimestampedContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenTimestampedAsicsContainsTwoDataFiles_ThrowsIllegalContainerContentException() {
+  void openContainer_WhenTimestampedAsicsContainsTwoDataFiles_ThrowsIllegalContainerContentException() {
     IllegalContainerContentException caughtException = assertThrows(
             IllegalContainerContentException.class,
             () -> ContainerOpener.open(
@@ -263,7 +263,7 @@ public class TimestampedContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenTimestampedAsicsContainsUnrecognizedXadesSignature_ThrowsIllegalContainerContentException() {
+  void openContainer_WhenTimestampedAsicsContainsUnrecognizedXadesSignature_ThrowsIllegalContainerContentException() {
     byte[] containerBytes = writeEntriesToByteArray(
             createStoredEntry(ASiCUtils.MIME_TYPE, MimeTypeEnum.ASICS.getMimeTypeString().getBytes(StandardCharsets.UTF_8)),
             createDeflatedEntry(ASiCUtils.META_INF_FOLDER + "timestamp.tst", "unused".getBytes(StandardCharsets.UTF_8)),
@@ -286,12 +286,12 @@ public class TimestampedContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenTimestampedAsicsContainsCadesSignature_ThrowsIllegalContainerContentException() {
+  void openContainer_WhenTimestampedAsicsContainsCadesSignature_ThrowsIllegalContainerContentException() {
     openContainer_WhenTimestampedAsicsContainsCadesSignature_ThrowsIllegalContainerContentException("signature.p7s");
   }
 
   @Test
-  public void openContainer_WhenTimestampedAsicsContainsCadesSignatureUpperCase_ThrowsIllegalContainerContentException() {
+  void openContainer_WhenTimestampedAsicsContainsCadesSignatureUpperCase_ThrowsIllegalContainerContentException() {
     openContainer_WhenTimestampedAsicsContainsCadesSignature_ThrowsIllegalContainerContentException("SIGNATURE.P7S");
   }
 
@@ -316,22 +316,22 @@ public class TimestampedContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenTimestampedAsicsContainsEvidenceRecordErs_ThrowsIllegalContainerContentException() {
+  void openContainer_WhenTimestampedAsicsContainsEvidenceRecordErs_ThrowsIllegalContainerContentException() {
     openContainer_WhenTimestampedAsicsContainsEvidenceRecord_ThrowsIllegalContainerContentException("evidencerecord.ers");
   }
 
   @Test
-  public void openContainer_WhenTimestampedAsicsContainsEvidenceRecordErsUpperCase_ThrowsIllegalContainerContentException() {
+  void openContainer_WhenTimestampedAsicsContainsEvidenceRecordErsUpperCase_ThrowsIllegalContainerContentException() {
     openContainer_WhenTimestampedAsicsContainsEvidenceRecord_ThrowsIllegalContainerContentException("EVIDENCERECORD.ERS");
   }
 
   @Test
-  public void openContainer_WhenTimestampedAsicsContainsEvidenceRecordXml_ThrowsIllegalContainerContentException() {
+  void openContainer_WhenTimestampedAsicsContainsEvidenceRecordXml_ThrowsIllegalContainerContentException() {
     openContainer_WhenTimestampedAsicsContainsEvidenceRecord_ThrowsIllegalContainerContentException("evidencerecord.xml");
   }
 
   @Test
-  public void openContainer_WhenTimestampedAsicsContainsEvidenceRecordXmlUpperCase_ThrowsIllegalContainerContentException() {
+  void openContainer_WhenTimestampedAsicsContainsEvidenceRecordXmlUpperCase_ThrowsIllegalContainerContentException() {
     openContainer_WhenTimestampedAsicsContainsEvidenceRecord_ThrowsIllegalContainerContentException("EVIDENCERECORD.XML");
   }
 
@@ -356,7 +356,7 @@ public class TimestampedContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenAsicsWithSpecialCharactersInDataFileNamePercentEncodedInTimestampManifest_AsicsWithExpectedContentsIsOpened() {
+  void openContainer_WhenAsicsWithSpecialCharactersInDataFileNamePercentEncodedInTimestampManifest_AsicsWithExpectedContentsIsOpened() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/2xTST-datafile-with-special-characters-percentencoded-in-archive-manifest.asics",
             configuration
@@ -395,7 +395,7 @@ public class TimestampedContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenAsicsWithSpecialCharactersInDataFileNameUnencodedInTimestampManifest_AsicsWithExpectedContentsIsOpened() {
+  void openContainer_WhenAsicsWithSpecialCharactersInDataFileNameUnencodedInTimestampManifest_AsicsWithExpectedContentsIsOpened() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/2xTST-datafile-with-special-characters-unencoded-in-archive-manifest.asics",
             configuration

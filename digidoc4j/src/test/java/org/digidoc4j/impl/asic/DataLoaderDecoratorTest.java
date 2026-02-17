@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
-public class DataLoaderDecoratorTest {
+class DataLoaderDecoratorTest {
 
   private static final String KEYSTORE_PATH = "classpath:testFiles/keystores/keystore.jks";
   private static final String TRUSTSTORE_PATH = "classpath:testFiles/keystores/truststore.p12";
@@ -49,14 +49,14 @@ public class DataLoaderDecoratorTest {
   private CommonsDataLoader dataLoader;
 
   @Test
-  public void decorateWithSslSettingsShouldDoNothingWhenSslConfigurationNotEnabled() {
+  void decorateWithSslSettingsShouldDoNothingWhenSslConfigurationNotEnabled() {
     Mockito.doReturn(false).when(configuration).isSslConfigurationEnabled();
     DataLoaderDecorator.decorateWithSslSettings(dataLoader, configuration);
     Mockito.verifyNoInteractions(dataLoader);
   }
 
   @Test
-  public void decorateWithSslSettingsForShouldDoNothingWhenSslConfigurationNotEnabled() {
+  void decorateWithSslSettingsForShouldDoNothingWhenSslConfigurationNotEnabled() {
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Mockito.doReturn(false).when(configuration).isSslConfigurationEnabled();
       Mockito.doReturn(false).when(configuration).isSslConfigurationEnabledFor(connectionType);
@@ -68,7 +68,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithSslSettingsShouldApplySslKeystorePathIfConfigured() {
+  void decorateWithSslSettingsShouldApplySslKeystorePathIfConfigured() {
     Mockito.doReturn(true).when(configuration).isSslConfigurationEnabled();
     Mockito.doReturn(KEYSTORE_PATH).when(configuration).getSslKeystorePath();
     Mockito.doReturn(null).when(configuration).getSupportedSslProtocols();
@@ -80,7 +80,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithSslSettingsForShouldApplySslKeystorePathIfConfigured() {
+  void decorateWithSslSettingsForShouldApplySslKeystorePathIfConfigured() {
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Mockito.doReturn(true).when(configuration).isSslConfigurationEnabledFor(connectionType);
       Mockito.doReturn(KEYSTORE_PATH).when(configuration).getSslKeystorePathFor(connectionType);
@@ -96,7 +96,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithSslSettingsShouldApplyAllSslKeystoreConfigurationIfPresent() {
+  void decorateWithSslSettingsShouldApplyAllSslKeystoreConfigurationIfPresent() {
     Mockito.doReturn(true).when(configuration).isSslConfigurationEnabled();
     Mockito.doReturn(KEYSTORE_PATH).when(configuration).getSslKeystorePath();
     Mockito.doReturn(KEYSTORE_TYPE).when(configuration).getSslKeystoreType();
@@ -112,7 +112,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithSslSettingsForShouldApplyAllSslKeystoreConfigurationIfPresent() {
+  void decorateWithSslSettingsForShouldApplyAllSslKeystoreConfigurationIfPresent() {
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Mockito.doReturn(true).when(configuration).isSslConfigurationEnabledFor(connectionType);
       Mockito.doReturn(KEYSTORE_PATH).when(configuration).getSslKeystorePathFor(connectionType);
@@ -132,7 +132,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithSslSettingsShouldApplySslTruststorePathIfConfigured() {
+  void decorateWithSslSettingsShouldApplySslTruststorePathIfConfigured() {
     Mockito.doReturn(true).when(configuration).isSslConfigurationEnabled();
     Mockito.doReturn(TRUSTSTORE_PATH).when(configuration).getSslTruststorePath();
     Mockito.doReturn(null).when(configuration).getSupportedSslProtocols();
@@ -144,7 +144,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithSslSettingsForShouldApplySslTruststorePathIfConfigured() {
+  void decorateWithSslSettingsForShouldApplySslTruststorePathIfConfigured() {
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Mockito.doReturn(true).when(configuration).isSslConfigurationEnabledFor(connectionType);
       Mockito.doReturn(TRUSTSTORE_PATH).when(configuration).getSslTruststorePathFor(connectionType);
@@ -160,7 +160,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithSslSettingsShouldApplyAllSslTruststoreConfigurationIfPresent() {
+  void decorateWithSslSettingsShouldApplyAllSslTruststoreConfigurationIfPresent() {
     Mockito.doReturn(true).when(configuration).isSslConfigurationEnabled();
     Mockito.doReturn(TRUSTSTORE_PATH).when(configuration).getSslTruststorePath();
     Mockito.doReturn(TRUSTSTORE_TYPE).when(configuration).getSslTruststoreType();
@@ -176,7 +176,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithSslSettingsForShouldApplyAllSslTruststoreConfigurationIfPresent() {
+  void decorateWithSslSettingsForShouldApplyAllSslTruststoreConfigurationIfPresent() {
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Mockito.doReturn(true).when(configuration).isSslConfigurationEnabledFor(connectionType);
       Mockito.doReturn(TRUSTSTORE_PATH).when(configuration).getSslTruststorePathFor(connectionType);
@@ -196,7 +196,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithSslSettingsShouldApplySupportedSslProtocolsIfConfigured() {
+  void decorateWithSslSettingsShouldApplySupportedSslProtocolsIfConfigured() {
     Mockito.doReturn(true).when(configuration).isSslConfigurationEnabled();
     Mockito.doReturn(Arrays.asList("sslProtocol1", "sslProtocol2")).when(configuration).getSupportedSslProtocols();
     Mockito.doReturn(null).when(configuration).getSupportedSslCipherSuites();
@@ -210,7 +210,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithSslSettingsForShouldApplySupportedSslProtocolsIfConfigured() {
+  void decorateWithSslSettingsForShouldApplySupportedSslProtocolsIfConfigured() {
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Mockito.doReturn(true).when(configuration).isSslConfigurationEnabledFor(connectionType);
       Mockito.doReturn(Arrays.asList("sslProtocol1", "sslProtocol2")).when(configuration).getSupportedSslProtocolsFor(connectionType);
@@ -228,7 +228,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithSslSettingsShouldApplySupportedSslCipherSuitesIfConfigured() {
+  void decorateWithSslSettingsShouldApplySupportedSslCipherSuitesIfConfigured() {
     Mockito.doReturn(true).when(configuration).isSslConfigurationEnabled();
     Mockito.doReturn(null).when(configuration).getSupportedSslProtocols();
     Mockito.doReturn(Arrays.asList("sslCipherSuite1", "sslCipherSuite2")).when(configuration).getSupportedSslCipherSuites();
@@ -242,7 +242,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithSslSettingsForShouldApplySupportedSslCipherSuitesIfConfigured() {
+  void decorateWithSslSettingsForShouldApplySupportedSslCipherSuitesIfConfigured() {
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Mockito.doReturn(true).when(configuration).isSslConfigurationEnabledFor(connectionType);
       Mockito.doReturn(null).when(configuration).getSupportedSslProtocolsFor(connectionType);
@@ -260,7 +260,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithSslSettingsShouldApplyAllConfiguredSslProperties() {
+  void decorateWithSslSettingsShouldApplyAllConfiguredSslProperties() {
     Mockito.doReturn(true).when(configuration).isSslConfigurationEnabled();
     Mockito.doReturn(KEYSTORE_PATH).when(configuration).getSslKeystorePath();
     Mockito.doReturn(KEYSTORE_TYPE).when(configuration).getSslKeystoreType();
@@ -293,7 +293,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithSslSettingsForShouldApplyAllConfiguredSslProperties() {
+  void decorateWithSslSettingsForShouldApplyAllConfiguredSslProperties() {
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Mockito.doReturn(true).when(configuration).isSslConfigurationEnabledFor(connectionType);
       Mockito.doReturn(KEYSTORE_PATH).when(configuration).getSslKeystorePathFor(connectionType);
@@ -329,14 +329,14 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithProxySettingsShouldDoNothingWhenNetworkProxyNotEnabled() {
+  void decorateWithProxySettingsShouldDoNothingWhenNetworkProxyNotEnabled() {
     Mockito.doReturn(false).when(configuration).isNetworkProxyEnabled();
     DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
     Mockito.verifyNoInteractions(dataLoader);
   }
 
   @Test
-  public void decorateWithProxySettingsForShouldDoNothingWhenNetworkProxyNotEnabled() {
+  void decorateWithProxySettingsForShouldDoNothingWhenNetworkProxyNotEnabled() {
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Mockito.doReturn(false).when(configuration).isNetworkProxyEnabledFor(connectionType);
       DataLoaderDecorator.decorateWithProxySettingsFor(connectionType, dataLoader, configuration);
@@ -347,7 +347,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithProxySettingsShouldApplyNullConfigIfHostIsNotConfigured() {
+  void decorateWithProxySettingsShouldApplyNullConfigIfHostIsNotConfigured() {
     Mockito.doReturn(true).when(configuration).isNetworkProxyEnabled();
     Mockito.doReturn(8073).when(configuration).getHttpProxyPort();
     Mockito.doReturn("httpProxyUser").when(configuration).getHttpProxyUser();
@@ -362,7 +362,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithProxySettingsForShouldApplyNullConfigIfHostIsNotConfigured() {
+  void decorateWithProxySettingsForShouldApplyNullConfigIfHostIsNotConfigured() {
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Mockito.doReturn(true).when(configuration).isNetworkProxyEnabledFor(connectionType);
       Mockito.doReturn(8073).when(configuration).getHttpProxyPortFor(connectionType);
@@ -381,7 +381,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithProxySettingsShouldApplyNullConfigIfPortIsNotConfigured() {
+  void decorateWithProxySettingsShouldApplyNullConfigIfPortIsNotConfigured() {
     Mockito.doReturn(true).when(configuration).isNetworkProxyEnabled();
     Mockito.doReturn(null).when(configuration).getHttpProxyPort();
     Mockito.doReturn("httpProxyHost").when(configuration).getHttpProxyHost();
@@ -398,7 +398,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithProxySettingsForShouldApplyNullConfigIfPortIsNotConfigured() {
+  void decorateWithProxySettingsForShouldApplyNullConfigIfPortIsNotConfigured() {
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Mockito.doReturn(true).when(configuration).isNetworkProxyEnabledFor(connectionType);
       Mockito.doReturn(null).when(configuration).getHttpProxyPortFor(connectionType);
@@ -419,7 +419,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithProxySettingsShouldApplyHttpHostAndPortIfConfigured() {
+  void decorateWithProxySettingsShouldApplyHttpHostAndPortIfConfigured() {
     Mockito.doReturn(true).when(configuration).isNetworkProxyEnabled();
     Mockito.doReturn(8073).when(configuration).getHttpProxyPort();
     Mockito.doReturn("httpProxyHost").when(configuration).getHttpProxyHost();
@@ -437,7 +437,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithProxySettingsForShouldApplyHttpHostAndPortIfConfigured() {
+  void decorateWithProxySettingsForShouldApplyHttpHostAndPortIfConfigured() {
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Mockito.doReturn(true).when(configuration).isNetworkProxyEnabledFor(connectionType);
       Mockito.doReturn(8073).when(configuration).getHttpProxyPortFor(connectionType);
@@ -459,7 +459,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithProxySettingsShouldApplyHttpsHostAndPortIfConfigured() {
+  void decorateWithProxySettingsShouldApplyHttpsHostAndPortIfConfigured() {
     Mockito.doReturn(true).when(configuration).isNetworkProxyEnabled();
     Mockito.doReturn(473).when(configuration).getHttpsProxyPort();
     Mockito.doReturn("httpsProxyHost").when(configuration).getHttpsProxyHost();
@@ -477,7 +477,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithProxySettingsForShouldApplyHttpsHostAndPortIfConfigured() {
+  void decorateWithProxySettingsForShouldApplyHttpsHostAndPortIfConfigured() {
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Mockito.doReturn(true).when(configuration).isNetworkProxyEnabledFor(connectionType);
       Mockito.doReturn(473).when(configuration).getHttpsProxyPortFor(connectionType);
@@ -499,7 +499,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithProxySettingsShouldApplyHttpUserAndPasswordIfConfigured() {
+  void decorateWithProxySettingsShouldApplyHttpUserAndPasswordIfConfigured() {
     Mockito.doReturn(true).when(configuration).isNetworkProxyEnabled();
     Mockito.doReturn(8073).when(configuration).getHttpProxyPort();
     Mockito.doReturn("httpProxyHost").when(configuration).getHttpProxyHost();
@@ -519,7 +519,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithProxySettingsForShouldApplyHttpUserAndPasswordIfConfigured() {
+  void decorateWithProxySettingsForShouldApplyHttpUserAndPasswordIfConfigured() {
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Mockito.doReturn(true).when(configuration).isNetworkProxyEnabledFor(connectionType);
       Mockito.doReturn(8073).when(configuration).getHttpProxyPortFor(connectionType);
@@ -543,7 +543,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithProxySettingsShouldApplyHttpsUserAndPasswordIfConfigured() {
+  void decorateWithProxySettingsShouldApplyHttpsUserAndPasswordIfConfigured() {
     Mockito.doReturn(true).when(configuration).isNetworkProxyEnabled();
     Mockito.doReturn(473).when(configuration).getHttpsProxyPort();
     Mockito.doReturn("httpsProxyHost").when(configuration).getHttpsProxyHost();
@@ -563,7 +563,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithProxySettingsForShouldApplyHttpsUserAndPasswordIfConfigured() {
+  void decorateWithProxySettingsForShouldApplyHttpsUserAndPasswordIfConfigured() {
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Mockito.doReturn(true).when(configuration).isNetworkProxyEnabledFor(connectionType);
       Mockito.doReturn(473).when(configuration).getHttpsProxyPortFor(connectionType);
@@ -587,7 +587,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithProxySettingsShouldApplyAllButHttpUserAndPasswordIfNotConfigured() {
+  void decorateWithProxySettingsShouldApplyAllButHttpUserAndPasswordIfNotConfigured() {
     Mockito.doReturn(true).when(configuration).isNetworkProxyEnabled();
     Mockito.doReturn(8073).when(configuration).getHttpProxyPort();
     Mockito.doReturn("httpProxyHost").when(configuration).getHttpProxyHost();
@@ -615,7 +615,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithProxySettingsForShouldApplyAllButHttpUserAndPasswordIfNotConfigured() {
+  void decorateWithProxySettingsForShouldApplyAllButHttpUserAndPasswordIfNotConfigured() {
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Mockito.doReturn(true).when(configuration).isNetworkProxyEnabledFor(connectionType);
       Mockito.doReturn(8073).when(configuration).getHttpProxyPortFor(connectionType);
@@ -647,7 +647,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithProxySettingsShouldApplyAllButHttpsUserAndPasswordIfNotConfigured() {
+  void decorateWithProxySettingsShouldApplyAllButHttpsUserAndPasswordIfNotConfigured() {
     Mockito.doReturn(true).when(configuration).isNetworkProxyEnabled();
     Mockito.doReturn(8073).when(configuration).getHttpProxyPort();
     Mockito.doReturn("httpProxyHost").when(configuration).getHttpProxyHost();
@@ -675,7 +675,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithProxySettingsForShouldApplyAllButHttpsUserAndPasswordIfNotConfigured() {
+  void decorateWithProxySettingsForShouldApplyAllButHttpsUserAndPasswordIfNotConfigured() {
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Mockito.doReturn(true).when(configuration).isNetworkProxyEnabledFor(connectionType);
       Mockito.doReturn(8073).when(configuration).getHttpProxyPortFor(connectionType);
@@ -707,7 +707,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithProxySettingsShouldApplyAllConfiguredProxySettings() {
+  void decorateWithProxySettingsShouldApplyAllConfiguredProxySettings() {
     Mockito.doReturn(true).when(configuration).isNetworkProxyEnabled();
     Mockito.doReturn(8073).when(configuration).getHttpProxyPort();
     Mockito.doReturn("httpProxyHost").when(configuration).getHttpProxyHost();
@@ -737,7 +737,7 @@ public class DataLoaderDecoratorTest {
   }
 
   @Test
-  public void decorateWithProxySettingsForShouldApplyAllConfiguredProxySettings() {
+  void decorateWithProxySettingsForShouldApplyAllConfiguredProxySettings() {
     for (final ExternalConnectionType connectionType : ExternalConnectionType.values()) {
       Mockito.doReturn(true).when(configuration).isNetworkProxyEnabledFor(connectionType);
       Mockito.doReturn(8073).when(configuration).getHttpProxyPortFor(connectionType);

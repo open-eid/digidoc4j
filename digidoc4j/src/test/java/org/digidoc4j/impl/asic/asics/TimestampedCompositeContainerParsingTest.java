@@ -45,10 +45,10 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class TimestampedCompositeContainerParsingTest extends AbstractTest {
+class TimestampedCompositeContainerParsingTest extends AbstractTest {
 
   @Test
-  public void openContainer_WhenDataFileIsTextFileAndLoadFromFile_ReturnsRegularAsicsContainer() {
+  void openContainer_WhenDataFileIsTextFileAndLoadFromFile_ReturnsRegularAsicsContainer() {
     Container container = openContainerFromFile(
             "src/test/resources/testFiles/valid-containers/1xTST-text-data-file.asics"
     );
@@ -62,7 +62,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsTextFileAndLoadFromStream_ReturnsRegularAsicsContainer() {
+  void openContainer_WhenDataFileIsTextFileAndLoadFromStream_ReturnsRegularAsicsContainer() {
     Container container = openContainerFromStream(
             "src/test/resources/testFiles/valid-containers/1xTST-text-data-file.asics"
     );
@@ -76,7 +76,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsZipFileAndLoadFromFile_ReturnsRegularAsicsContainer() {
+  void openContainer_WhenDataFileIsZipFileAndLoadFromFile_ReturnsRegularAsicsContainer() {
     byte[] zipBytes = TestZipUtil.writeEntriesToByteArray(
             TestZipUtil.createDeflatedEntry("name.ext", "Content.".getBytes(StandardCharsets.UTF_8)),
             TestZipUtil.createDeflatedEntry("other", "Something...".getBytes(StandardCharsets.UTF_8))
@@ -96,7 +96,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsZipFileAndLoadFromStream_ReturnsRegularAsicsContainer() {
+  void openContainer_WhenDataFileIsZipFileAndLoadFromStream_ReturnsRegularAsicsContainer() {
     byte[] zipBytes = TestZipUtil.writeEntriesToByteArray(
             TestZipUtil.createDeflatedEntry("name.ext", "Content.".getBytes(StandardCharsets.UTF_8)),
             TestZipUtil.createDeflatedEntry("other", "Something...".getBytes(StandardCharsets.UTF_8))
@@ -116,7 +116,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsXmlFileAndLoadFromFile_ReturnsRegularAsicsContainer() {
+  void openContainer_WhenDataFileIsXmlFileAndLoadFromFile_ReturnsRegularAsicsContainer() {
     Container container = openContainerFromFile(createTimestampedAsics(builder -> builder.withDataFile(
             "src/test/resources/testFiles/helper-files/test.xml",
             MimeTypeEnum.XML.getMimeTypeString()
@@ -131,7 +131,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsXmlFileAndLoadFromStream_ReturnsRegularAsicsContainer() {
+  void openContainer_WhenDataFileIsXmlFileAndLoadFromStream_ReturnsRegularAsicsContainer() {
     Container container = openContainerFromStream(createTimestampedAsics(builder -> builder.withDataFile(
             "src/test/resources/testFiles/helper-files/test.xml",
             MimeTypeEnum.XML.getMimeTypeString()
@@ -146,7 +146,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsAsiceContainerAndLoadFromFile_ReturnsCompositeAsicsContainer() {
+  void openContainer_WhenDataFileIsAsiceContainerAndLoadFromFile_ReturnsCompositeAsicsContainer() {
     Container container = openContainerFromFile(
             "src/test/resources/testFiles/valid-containers/1xTST-asice-datafile-with-expired-signer-and-ocsp.asics"
     );
@@ -168,7 +168,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsAsiceContainerAndLoadFromStream_ReturnsCompositeAsicsContainer() {
+  void openContainer_WhenDataFileIsAsiceContainerAndLoadFromStream_ReturnsCompositeAsicsContainer() {
     Container container = openContainerFromStream(
             "src/test/resources/testFiles/valid-containers/1xTST-asice-datafile-with-expired-signer-and-ocsp.asics"
     );
@@ -190,7 +190,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsDegenerateAsiceContainerAndLoadFromFile_ThrowsNestedContainerParsingException() {
+  void openContainer_WhenDataFileIsDegenerateAsiceContainerAndLoadFromFile_ThrowsNestedContainerParsingException() {
     Container container = createTimestampedAsics(builder -> builder.withDataFile(
             "src/test/resources/testFiles/degenerate-containers/2-mimetypes.asice",
             MimeTypeEnum.ASICE.getMimeTypeString()
@@ -206,7 +206,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsDegenerateAsiceContainerAndLoadFromStream_ThrowsNestedContainerParsingException() {
+  void openContainer_WhenDataFileIsDegenerateAsiceContainerAndLoadFromStream_ThrowsNestedContainerParsingException() {
     Container container = createTimestampedAsics(builder -> builder.withDataFile(
             "src/test/resources/testFiles/degenerate-containers/2-mimetypes.asice",
             MimeTypeEnum.ASICE.getMimeTypeString()
@@ -221,7 +221,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsSignedAsicsContainerAndLoadFromFile_ReturnsCompositeAsicsContainer() {
+  void openContainer_WhenDataFileIsSignedAsicsContainerAndLoadFromFile_ReturnsCompositeAsicsContainer() {
     Container container = openContainerFromFile(createTimestampedAsics(builder -> builder.withDataFile(
             "src/test/resources/testFiles/valid-containers/asics-1-signature.asics",
             MimeTypeEnum.ASICS.getMimeTypeString()
@@ -244,7 +244,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsSignedAsicsContainerAndLoadFromStream_ReturnsCompositeAsicsContainer() {
+  void openContainer_WhenDataFileIsSignedAsicsContainerAndLoadFromStream_ReturnsCompositeAsicsContainer() {
     Container container = openContainerFromStream(createTimestampedAsics(builder -> builder.withDataFile(
             "src/test/resources/testFiles/valid-containers/asics-1-signature.asics",
             MimeTypeEnum.ASICS.getMimeTypeString()
@@ -267,7 +267,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsTimestampedAsicsContainerAndLoadFromFile_ReturnsCompositeAsicsContainer() {
+  void openContainer_WhenDataFileIsTimestampedAsicsContainerAndLoadFromFile_ReturnsCompositeAsicsContainer() {
     Container container = openContainerFromFile(createTimestampedAsics(builder -> builder.withDataFile(
             "src/test/resources/testFiles/valid-containers/1xTST-text-data-file.asics",
             MimeTypeEnum.ASICS.getMimeTypeString()
@@ -290,7 +290,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsTimestampedAsicsContainerAndLoadFromStream_ReturnsCompositeAsicsContainer() {
+  void openContainer_WhenDataFileIsTimestampedAsicsContainerAndLoadFromStream_ReturnsCompositeAsicsContainer() {
     Container container = openContainerFromStream(createTimestampedAsics(builder -> builder.withDataFile(
             "src/test/resources/testFiles/valid-containers/1xTST-text-data-file.asics",
             MimeTypeEnum.ASICS.getMimeTypeString()
@@ -313,7 +313,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsDegenerateAsicsContainerAndLoadFromFile_ThrowsNestedContainerParsingException() {
+  void openContainer_WhenDataFileIsDegenerateAsicsContainerAndLoadFromFile_ThrowsNestedContainerParsingException() {
     Container container = createTimestampedAsics(builder -> builder.withDataFile(
             "src/test/resources/testFiles/degenerate-containers/2-mimetypes.asics",
             MimeTypeEnum.ASICS.getMimeTypeString()
@@ -329,7 +329,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsDegenerateAsicsContainerAndLoadFromStream_ThrowsNestedContainerParsingException() {
+  void openContainer_WhenDataFileIsDegenerateAsicsContainerAndLoadFromStream_ThrowsNestedContainerParsingException() {
     Container container = createTimestampedAsics(builder -> builder.withDataFile(
             "src/test/resources/testFiles/degenerate-containers/2-mimetypes.asics",
             MimeTypeEnum.ASICS.getMimeTypeString()
@@ -344,7 +344,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsBdocContainerAndLoadFromFile_ReturnsCompositeAsicsContainer() {
+  void openContainer_WhenDataFileIsBdocContainerAndLoadFromFile_ReturnsCompositeAsicsContainer() {
     Container container = openContainerFromFile(
             "src/test/resources/testFiles/valid-containers/1xTST-valid-bdoc-data-file.asics"
     );
@@ -366,7 +366,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsBdocContainerAndLoadFromStream_ReturnsCompositeAsicsContainer() {
+  void openContainer_WhenDataFileIsBdocContainerAndLoadFromStream_ReturnsCompositeAsicsContainer() {
     Container container = openContainerFromStream(
             "src/test/resources/testFiles/valid-containers/1xTST-valid-bdoc-data-file.asics"
     );
@@ -388,7 +388,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsDegenerateBdocContainerAndLoadFromFile_ThrowsNestedContainerParsingException() {
+  void openContainer_WhenDataFileIsDegenerateBdocContainerAndLoadFromFile_ThrowsNestedContainerParsingException() {
     Container container = createTimestampedAsics(builder -> builder.withDataFile(
             "src/test/resources/testFiles/degenerate-containers/2-mimetypes.bdoc",
             MimeTypeEnum.ASICE.getMimeTypeString()
@@ -404,7 +404,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsDegenerateBdocContainerAndLoadFromStream_ThrowsNestedContainerParsingException() {
+  void openContainer_WhenDataFileIsDegenerateBdocContainerAndLoadFromStream_ThrowsNestedContainerParsingException() {
     Container container = createTimestampedAsics(builder -> builder.withDataFile(
             "src/test/resources/testFiles/degenerate-containers/2-mimetypes.bdoc",
             MimeTypeEnum.ASICE.getMimeTypeString()
@@ -419,7 +419,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsDdocContainerAndLoadFromFile_ReturnsCompositeAsicsContainer() {
+  void openContainer_WhenDataFileIsDdocContainerAndLoadFromFile_ReturnsCompositeAsicsContainer() {
     Container container = openContainerFromFile(
             "src/test/resources/testFiles/valid-containers/ddoc-valid.asics"
     );
@@ -441,7 +441,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsDdocContainerAndLoadFromStream_ReturnsCompositeAsicsContainer() {
+  void openContainer_WhenDataFileIsDdocContainerAndLoadFromStream_ReturnsCompositeAsicsContainer() {
     Container container = openContainerFromStream(
             "src/test/resources/testFiles/valid-containers/ddoc-valid.asics"
     );
@@ -463,7 +463,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsPadesContainerAndLoadFromFile_ReturnsRegularAsicsContainer() {
+  void openContainer_WhenDataFileIsPadesContainerAndLoadFromFile_ReturnsRegularAsicsContainer() {
     Container container = openContainerFromFile(createTimestampedAsics(builder -> builder.withDataFile(
             "src/test/resources/testFiles/invalid-containers/EE_AS-P-BpLT-V-009.pdf",
             MimeTypeEnum.XML.getMimeTypeString()
@@ -478,7 +478,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenDataFileIsPadesContainerAndLoadFromStream_ReturnsRegularAsicsContainer() {
+  void openContainer_WhenDataFileIsPadesContainerAndLoadFromStream_ReturnsRegularAsicsContainer() {
     Container container = openContainerFromStream(createTimestampedAsics(builder -> builder.withDataFile(
             "src/test/resources/testFiles/invalid-containers/EE_AS-P-BpLT-V-009.pdf",
             MimeTypeEnum.XML.getMimeTypeString()
@@ -493,7 +493,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenMultipleTimestampsAndDataFileIsContainerAndLoadFromFile_ReturnsCompositeAsicsContainer() {
+  void openContainer_WhenMultipleTimestampsAndDataFileIsContainerAndLoadFromFile_ReturnsCompositeAsicsContainer() {
     Container container = openContainerFromFile(
             "src/test/resources/testFiles/valid-containers/2xTST-valid-bdoc-data-file.asics"
     );
@@ -515,7 +515,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenMultipleTimestampsAndDataFileIsContainerAndLoadFromStream_ReturnsCompositeAsicsContainer() {
+  void openContainer_WhenMultipleTimestampsAndDataFileIsContainerAndLoadFromStream_ReturnsCompositeAsicsContainer() {
     Container container = openContainerFromStream(
             "src/test/resources/testFiles/valid-containers/2xTST-valid-bdoc-data-file.asics"
     );
@@ -537,7 +537,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenMultipleTimestampedAsicsContainersRecursivelyAndLoadFromFile_ReturnsCompositeAsicsContainerWithOneLevelOfNesting() {
+  void openContainer_WhenMultipleTimestampedAsicsContainersRecursivelyAndLoadFromFile_ReturnsCompositeAsicsContainerWithOneLevelOfNesting() {
     Container container = openContainerFromFile(
             "src/test/resources/testFiles/valid-containers/1xTST-recursive-asics-datafile.asics"
     );
@@ -562,7 +562,7 @@ public class TimestampedCompositeContainerParsingTest extends AbstractTest {
   }
 
   @Test
-  public void openContainer_WhenMultipleTimestampedAsicsContainersRecursivelyAndLoadFromStream_ReturnsCompositeAsicsContainerWithOneLevelOfNesting() {
+  void openContainer_WhenMultipleTimestampedAsicsContainersRecursivelyAndLoadFromStream_ReturnsCompositeAsicsContainerWithOneLevelOfNesting() {
     Container container = openContainerFromStream(
             "src/test/resources/testFiles/valid-containers/1xTST-recursive-asics-datafile.asics"
     );

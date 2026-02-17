@@ -17,17 +17,17 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import java.nio.charset.StandardCharsets;
 
-public final class AsicManifestTestUtils {
+final class AsicManifestTestUtils {
 
-  public static final String MANIFEST_NAME = "ManifestName.xml";
-  public static final String XML_DOCUMENT_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>";
-  public static final String ASIC_MANIFEST_ELEMENT_START = "<asic:ASiCManifest xmlns:asic=\"http://uri.etsi.org/02918/v1.2.1#\">";
-  public static final String ASIC_MANIFEST_ELEMENT_END = "</asic:ASiCManifest>";
+  static final String MANIFEST_NAME = "ManifestName.xml";
+  static final String XML_DOCUMENT_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>";
+  static final String ASIC_MANIFEST_ELEMENT_START = "<asic:ASiCManifest xmlns:asic=\"http://uri.etsi.org/02918/v1.2.1#\">";
+  static final String ASIC_MANIFEST_ELEMENT_END = "</asic:ASiCManifest>";
 
   private static final String DS_NAMESPACE = "http://www.w3.org/2000/09/xmldsig#";
   private static final String DS_NAMESPACE_ATTRIBUTE = "xmlns:ds=\"" + DS_NAMESPACE + '"';
 
-  public static String createAsicManifestXmlString(String... content) {
+  static String createAsicManifestXmlString(String... content) {
     StringBuilder sb = new StringBuilder(XML_DOCUMENT_HEADER);
     sb.append(ASIC_MANIFEST_ELEMENT_START);
     for (String string : content) {
@@ -37,7 +37,7 @@ public final class AsicManifestTestUtils {
     return sb.toString();
   }
 
-  public static DSSDocument createAsicManifestXmlDocument(String... content) {
+  static DSSDocument createAsicManifestXmlDocument(String... content) {
     return new InMemoryDocument(
             createAsicManifestXmlString(content).getBytes(StandardCharsets.UTF_8),
             MANIFEST_NAME,
@@ -45,7 +45,7 @@ public final class AsicManifestTestUtils {
     );
   }
 
-  public static String createAsicSigReferenceXmlElement(String mimeType, String uri) {
+  static String createAsicSigReferenceXmlElement(String mimeType, String uri) {
     StringBuilder sb = new StringBuilder("<asic:SigReference");
     if (mimeType != null) {
       sb.append(" MimeType=\"").append(mimeType).append('"');
@@ -56,7 +56,7 @@ public final class AsicManifestTestUtils {
     return sb.append("/>").toString();
   }
 
-  public static String createAsicDataObjectReferenceXmlElement(String mimeType, String uri, String... content) {
+  static String createAsicDataObjectReferenceXmlElement(String mimeType, String uri, String... content) {
     StringBuilder sb = new StringBuilder("<asic:DataObjectReference");
     if (mimeType != null) {
       sb.append(" MimeType=\"").append(mimeType).append('"');
@@ -74,7 +74,7 @@ public final class AsicManifestTestUtils {
     return sb.append("</asic:DataObjectReference>").toString();
   }
 
-  public static String createDsDigestMethodXmlElement(String algorithm) {
+  static String createDsDigestMethodXmlElement(String algorithm) {
     StringBuilder sb = new StringBuilder("<ds:DigestMethod ");
     sb.append(DS_NAMESPACE_ATTRIBUTE);
     if (algorithm != null) {
@@ -83,7 +83,7 @@ public final class AsicManifestTestUtils {
     return sb.append("/>").toString();
   }
 
-  public static String createDsDigestValueXmlElement(String value) {
+  static String createDsDigestValueXmlElement(String value) {
     StringBuilder sb = new StringBuilder("<ds:DigestValue ");
     sb.append(DS_NAMESPACE_ATTRIBUTE);
     if (value != null) {

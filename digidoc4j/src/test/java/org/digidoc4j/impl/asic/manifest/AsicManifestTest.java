@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.xmlunit.matchers.CompareMatcher.isIdenticalTo;
 
-public class AsicManifestTest {
+class AsicManifestTest {
 
   private static final String ROOT_MEDIA_TYPE_PLACEHOLDER = "{ROOT_MEDIA_TYPE}";
   private static final String ENTRY_MEDIA_TYPE_PLACEHOLDER = "{ENTRY_MEDIA_TYPE}";
@@ -28,7 +28,7 @@ public class AsicManifestTest {
           "</manifest:manifest>";
 
   @Test
-  public void getBytes_WhenContainerTypeIsNotSpecified_ReturnsASiCEManifest() {
+  void getBytes_WhenContainerTypeIsNotSpecified_ReturnsASiCEManifest() {
     AsicManifest manifest = new AsicManifest();
     addFileEntry(manifest, "text/plain");
 
@@ -38,7 +38,7 @@ public class AsicManifestTest {
   }
 
   @Test
-  public void getBytes_WhenContainerTypeIsASiCE_ReturnsASiCEManifest() {
+  void getBytes_WhenContainerTypeIsASiCE_ReturnsASiCEManifest() {
     AsicManifest manifest = new AsicManifest(Constant.ASICE_CONTAINER_TYPE);
     addFileEntry(manifest, "text/plain");
 
@@ -48,7 +48,7 @@ public class AsicManifestTest {
   }
 
   @Test
-  public void getBytes_WhenContainerTypeIsASiCS_ReturnsASiCSManifest() {
+  void getBytes_WhenContainerTypeIsASiCS_ReturnsASiCSManifest() {
     AsicManifest manifest = new AsicManifest(Constant.ASICS_CONTAINER_TYPE);
     addFileEntry(manifest, "text/plain");
 
@@ -58,7 +58,7 @@ public class AsicManifestTest {
   }
 
   @Test
-  public void getBytes_WhenContainerMimeTypeIsGiven_ReturnsManifestContainingEntryWithGivenMimeType() {
+  void getBytes_WhenContainerMimeTypeIsGiven_ReturnsManifestContainingEntryWithGivenMimeType() {
     AsicManifest manifest = new AsicManifest();
     addFileEntry(manifest, "application/octet-stream");
 

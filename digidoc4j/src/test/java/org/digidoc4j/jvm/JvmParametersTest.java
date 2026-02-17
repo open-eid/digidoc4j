@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.jvm;
 
 import org.digidoc4j.AbstractTest;
@@ -15,10 +25,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * Created by Andrei on 15.09.2017.
  */
 
-public class JvmParametersTest extends AbstractTest {
+class JvmParametersTest extends AbstractTest {
 
   @Test
-  public void getProxySystemParamsFromConfig() {
+  void getProxySystemParamsFromConfig() {
     assertEquals("http.proxyHost", configuration.getHttpProxyHost());
     assertEquals(Integer.valueOf(8800), configuration.getHttpProxyPort());
     assertEquals("https.proxyHost", configuration.getHttpsProxyHost());
@@ -26,7 +36,7 @@ public class JvmParametersTest extends AbstractTest {
   }
 
   @Test
-  public void getSSLSystemParamsFromConfig() {
+  void getSSLSystemParamsFromConfig() {
     assertEquals("javax.net.ssl.keyStore", configuration.getSslKeystorePath());
     assertEquals("javax.net.ssl.keyStorePassword", configuration.getSslKeystorePassword());
     assertEquals("javax.net.ssl.trustStore", configuration.getSslTruststorePath());
@@ -34,7 +44,7 @@ public class JvmParametersTest extends AbstractTest {
   }
 
   @Test
-  public void dataLoaderProxyEnabledTest() {
+  void dataLoaderProxyEnabledTest() {
     CommonsDataLoader dataLoader = new CommonsDataLoader();
     DataLoaderDecorator.decorateWithProxySettings(dataLoader, configuration);
     ProxyProperties httpProperties = dataLoader.getProxyConfig().getHttpProperties();
@@ -46,7 +56,7 @@ public class JvmParametersTest extends AbstractTest {
   }
 
   @Test
-  public void dataLoaderHttpsProxyEmptyTest() {
+  void dataLoaderHttpsProxyEmptyTest() {
     System.clearProperty("https.proxyHost");
     System.clearProperty("https.proxyPort");
     configuration = new Configuration(Configuration.Mode.TEST);
@@ -60,7 +70,7 @@ public class JvmParametersTest extends AbstractTest {
   }
 
   @Test
-  public void dataLoaderHttpProxyEmptyTest() {
+  void dataLoaderHttpProxyEmptyTest() {
     System.clearProperty("http.proxyHost");
     System.clearProperty("http.proxyPort");
     configuration = new Configuration(Configuration.Mode.TEST);
@@ -74,7 +84,7 @@ public class JvmParametersTest extends AbstractTest {
   }
 
   @Test
-  public void dataLoaderProxyDisabledTest() {
+  void dataLoaderProxyDisabledTest() {
     System.clearProperty("http.proxyHost");
     System.clearProperty("http.proxyPort");
     System.clearProperty("https.proxyHost");
@@ -86,7 +96,7 @@ public class JvmParametersTest extends AbstractTest {
   }
 
   @Test
-  public void getParamsFromJVMAndFilePriorityTest() {
+  void getParamsFromJVMAndFilePriorityTest() {
     configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_jvm_params.yaml");
     assertEquals("http.proxyHost", configuration.getHttpProxyHost());
     assertEquals(Integer.valueOf(8800), configuration.getHttpProxyPort());
@@ -99,7 +109,7 @@ public class JvmParametersTest extends AbstractTest {
   }
 
   @Test
-  public void getParamsFromFileJVMNullTest() {
+  void getParamsFromFileJVMNullTest() {
     System.clearProperty("http.proxyHost");
     System.clearProperty("http.proxyPort");
     System.clearProperty("https.proxyHost");

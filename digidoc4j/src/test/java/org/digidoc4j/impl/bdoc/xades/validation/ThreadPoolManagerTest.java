@@ -32,31 +32,31 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-public class ThreadPoolManagerTest extends AbstractTest {
+class ThreadPoolManagerTest extends AbstractTest {
 
   private ThreadPoolManager manager;
 
   @Test
-  public void getDefaultThreadExecutor() {
+  void getDefaultThreadExecutor() {
     assertNotNull(manager.getThreadExecutor());
   }
 
   @Test
-  public void setDefaultThreadExecutor() {
+  void setDefaultThreadExecutor() {
     ExecutorService executor = Executors.newSingleThreadExecutor();
     ThreadPoolManager.setDefaultThreadExecutor(executor);
     assertSame(executor, manager.getThreadExecutor());
   }
 
   @Test
-  public void setThreadExecutorInConfiguration() {
+  void setThreadExecutorInConfiguration() {
     ExecutorService executor = Executors.newSingleThreadExecutor();
     configuration.setThreadExecutor(executor);
     assertSame(executor, manager.getThreadExecutor());
   }
 
   @Test
-  public void submitTaskToThreadExecutorSetInConfiguration() {
+  void submitTaskToThreadExecutorSetInConfiguration() {
     CustomExecutorService executor = new CustomExecutorService();
     configuration.setThreadExecutor(executor);
     Callable callable = new Callable<Object>() {
@@ -72,7 +72,7 @@ public class ThreadPoolManagerTest extends AbstractTest {
   }
 
   @Test
-  public void validateContainerWithCustomThreadExecutor() {
+  void validateContainerWithCustomThreadExecutor() {
     CustomExecutorService executor = new CustomExecutorService();
     configuration.setThreadExecutor(executor);
     SignatureValidationResult result = openContainerByConfiguration(Paths.get("src/test/resources/testFiles/invalid-containers/two_signatures.bdoc"), configuration).validate();
@@ -94,7 +94,7 @@ public class ThreadPoolManagerTest extends AbstractTest {
 
     private List<Callable> tasks = new ArrayList<>();
 
-    public CustomExecutorService() {
+    CustomExecutorService() {
       super(1, 1, 1, TimeUnit.SECONDS, new ArrayBlockingQueue(10));
     }
 
@@ -104,7 +104,7 @@ public class ThreadPoolManagerTest extends AbstractTest {
       return super.submit(task);
     }
 
-    public List<Callable> getTasks() {
+    List<Callable> getTasks() {
       return tasks;
     }
 

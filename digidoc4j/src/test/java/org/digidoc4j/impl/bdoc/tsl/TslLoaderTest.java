@@ -28,13 +28,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class TslLoaderTest extends AbstractTest {
+class TslLoaderTest extends AbstractTest {
 
   private TslLoader tslLoader;
 
   @Disabled
   @Test
-  public void loadAndValidateProdTsl() {
+  void loadAndValidateProdTsl() {
     configuration = new Configuration(Configuration.Mode.PROD);
     createTSLLoader();
     tslLoader.prepareTsl();
@@ -44,7 +44,7 @@ public class TslLoaderTest extends AbstractTest {
   }
 
   @Test
-  public void loadTsl_whenCacheIsNotExpired_shouldUseCachedTsl() {
+  void loadTsl_whenCacheIsNotExpired_shouldUseCachedTsl() {
     configuration = new Configuration(Configuration.Mode.TEST);
     configuration.setTslCacheExpirationTime(10000L);
     createTSLLoader();
@@ -55,7 +55,7 @@ public class TslLoaderTest extends AbstractTest {
   }
 
   @Test
-  public void loadTsl_whenCacheIsExpired_shouldDownloadNewTsl() {
+  void loadTsl_whenCacheIsExpired_shouldDownloadNewTsl() {
     configuration = new Configuration(Configuration.Mode.TEST);
     configuration.setTslCacheExpirationTime(500L);
     createTSLLoader();
@@ -67,7 +67,7 @@ public class TslLoaderTest extends AbstractTest {
 
   @Test
   @Disabled
-  public void loadTsl_forAllCountries_byDefault() {
+  void loadTsl_forAllCountries_byDefault() {
     configuration = new Configuration(Configuration.Mode.PROD);
     LOTLInfo tslRepository = initTSLAndGetRepository();
     assertCountryLoaded(tslRepository, "EE");
@@ -77,7 +77,7 @@ public class TslLoaderTest extends AbstractTest {
 
   @Test
   @Disabled
-  public void loadTsl_forOneCountry() {
+  void loadTsl_forOneCountry() {
     configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setTrustedTerritories("EE");
     LOTLInfo tslRepository = initTSLAndGetRepository();
@@ -87,7 +87,7 @@ public class TslLoaderTest extends AbstractTest {
 
   @Test
   @Disabled
-  public void loadTsl_forTwoCountries() {
+  void loadTsl_forTwoCountries() {
     configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setTrustedTerritories("EE", "ES");
     LOTLInfo tslRepository = initTSLAndGetRepository();
@@ -97,7 +97,7 @@ public class TslLoaderTest extends AbstractTest {
   }
 
   @Test
-  public void loadTestTsl_shouldContainTestTerritory() {
+  void loadTestTsl_shouldContainTestTerritory() {
     configuration = new Configuration(Configuration.Mode.TEST);
     LOTLInfo tslRepository = initTSLAndGetRepository();
     assertCountryLoaded(tslRepository, "EE_T");
@@ -109,7 +109,7 @@ public class TslLoaderTest extends AbstractTest {
 
   @Test
   @Disabled
-  public void loadTsl_withoutCountryHr_byDefault() {
+  void loadTsl_withoutCountryHr_byDefault() {
     configuration = new Configuration(Configuration.Mode.PROD);
     LOTLInfo tslRepository = initTSLAndGetRepository();
     assertCountryLoaded(tslRepository, "EE");
@@ -120,7 +120,7 @@ public class TslLoaderTest extends AbstractTest {
   }
 
   @Test
-  public void loadProdTsl_withDefaultLotlTruststoreAndPivotSupportDisabled_shouldFail() {
+  void loadProdTsl_withDefaultLotlTruststoreAndPivotSupportDisabled_shouldFail() {
     // TODO: this test might be needed to be updated after the pivot chain is reset
     configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setLotlPivotSupportEnabled(false);
@@ -132,7 +132,7 @@ public class TslLoaderTest extends AbstractTest {
   }
 
   @Test
-  public void loadProdTsl_withDefaultLotlTruststoreAndPivotSupportEnabled_shouldSucceed() {
+  void loadProdTsl_withDefaultLotlTruststoreAndPivotSupportEnabled_shouldSucceed() {
     // TODO: this test might be needed to be updated after the pivot chain is reset
     configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setLotlPivotSupportEnabled(true);
@@ -142,7 +142,7 @@ public class TslLoaderTest extends AbstractTest {
   }
 
   @Test
-  public void loadProdTsl_withPivot336LotlTruststoreAndPivotSupportDisabled_shouldSucceed() {
+  void loadProdTsl_withPivot336LotlTruststoreAndPivotSupportDisabled_shouldSucceed() {
     configuration = new Configuration(Configuration.Mode.PROD);
     // TODO: this might be needed to be updated after the next pivot release
     //  The used truststore contains the certificates specified in pivot LOTL with sequence number 336
@@ -154,7 +154,7 @@ public class TslLoaderTest extends AbstractTest {
   }
 
   @Test
-  public void loadProdTsl_withPivot336LotlTruststoreAndPivotSupportEnabled_shouldSucceed() {
+  void loadProdTsl_withPivot336LotlTruststoreAndPivotSupportEnabled_shouldSucceed() {
     configuration = new Configuration(Configuration.Mode.PROD);
     // TODO: this might be needed to be updated after the next pivot release
     //  The used truststore contains the certificates specified in pivot LOTL with sequence number 336
@@ -166,7 +166,7 @@ public class TslLoaderTest extends AbstractTest {
   }
 
   @Test
-  public void loadProdTsl_withNonLotlSignersTruststoreAndPivotSupportDisabled_shouldFail() {
+  void loadProdTsl_withNonLotlSignersTruststoreAndPivotSupportDisabled_shouldFail() {
     configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setLotlTruststorePath("testFiles/truststores/lotl-ssl-only-truststore.p12");
     configuration.setLotlPivotSupportEnabled(false);
@@ -178,7 +178,7 @@ public class TslLoaderTest extends AbstractTest {
   }
 
   @Test
-  public void loadProdTsl_withNonLotlSignersTruststoreAndPivotSupportEnabled_shouldFail() {
+  void loadProdTsl_withNonLotlSignersTruststoreAndPivotSupportEnabled_shouldFail() {
     configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setLotlTruststorePath("testFiles/truststores/lotl-ssl-only-truststore.p12");
     configuration.setLotlPivotSupportEnabled(true);

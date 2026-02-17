@@ -29,17 +29,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * Created by Andrei on 20.11.2017.
  */
-public class PadesValidationTest extends AbstractTest {
+ class PadesValidationTest extends AbstractTest {
 
   @Test
-  public void invalidPDFProvided_shouldThrowException() {
+   void invalidPDFProvided_shouldThrowException() {
     Container container = new PadesContainer(configuration, "src/test/resources/prodFiles/valid-containers/valid_prod_bdoc_eid.bdoc");
 
     assertThrows(DigiDoc4JException.class, container::validate);
   }
 
   @Test
-  public void validPadesLT_shouldSucceed() {
+   void validPadesLT_shouldSucceed() {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.PADES).withConfiguration(Configuration.of(Configuration.Mode.PROD)).
             fromExistingFile("src/test/resources/prodFiles/valid-containers/hellopades-pades-lt-sha256-sign.pdf").build();
     ContainerValidationResult result = container.validate();
@@ -47,7 +47,7 @@ public class PadesValidationTest extends AbstractTest {
   }
 
   @Test
-  public void PadesT_shouldFail() {
+   void PadesT_shouldFail() {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.PADES).withConfiguration(Configuration.of(Configuration.Mode.PROD)).
             fromExistingFile("src/test/resources/prodFiles/invalid-containers/PadesProfileT.pdf").build();
     ContainerValidationResult result = container.validate();
@@ -59,7 +59,7 @@ public class PadesValidationTest extends AbstractTest {
   }
 
   @Test
-  public void PadesLTAndPadesB_shouldFail() {
+   void PadesLTAndPadesB_shouldFail() {
     /*
     Given PDF contains two signatures from the same certificate : B and LT
     Only LT signature contains revocation aand somehow it gets included while validating B level signature
@@ -78,7 +78,7 @@ public class PadesValidationTest extends AbstractTest {
   }
 
   @Test
-  public void padesLTWithCRL_shouldFail() {
+   void padesLTWithCRL_shouldFail() {
     /**
      * @see org.digidoc4j.impl.asic.xades.validation.TimestampSignatureValidator#addRevocationErrors() for Xades
      */
@@ -90,7 +90,7 @@ public class PadesValidationTest extends AbstractTest {
   }
 
   @Test
-  public void verboseMode() {
+   void verboseMode() {
     int result = invokeDigiDoc4jAndReturnExitStatus(
             "-in", "src/test/resources/testFiles/invalid-containers/hello_signed_INCSAVE_signed_EDITED.pdf",
             "-verify"

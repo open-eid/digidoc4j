@@ -42,12 +42,12 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.doReturn;
 
-public class XadesValidationReportProcessorTest {
+class XadesValidationReportProcessorTest {
 
   private static final I18nProvider i18nProvider = new I18nProvider();
 
   @Test
-  public void process_WhenSignatureContainsOrganizationNameMissingWarnings_WarningsRemoved() {
+  void process_WhenSignatureContainsOrganizationNameMissingWarnings_WarningsRemoved() {
     XmlSignature signature = new MockSignatureBuilder()
             .adesValidationDetails(b -> b.warnings(
                     MessageTag.BBB_XCV_ISSSC_ANS,
@@ -84,7 +84,7 @@ public class XadesValidationReportProcessorTest {
   }
 
   @Test
-  public void process_WhenTimestampContainsOrganizationNameMissingWarnings_WarningsRemoved() {
+  void process_WhenTimestampContainsOrganizationNameMissingWarnings_WarningsRemoved() {
     XmlTimestamp timestamp = new MockTimestampBuilder()
             .adesValidationDetails(b -> b.warnings(
                     MessageTag.ADEST_IBSVPTC_ANS,
@@ -142,7 +142,7 @@ public class XadesValidationReportProcessorTest {
   }
 
   @Test
-  public void process_WhenSignatureContainsTrustedCertificateNotMatchingTrustedServiceWarnings_WarningsRemoved() {
+  void process_WhenSignatureContainsTrustedCertificateNotMatchingTrustedServiceWarnings_WarningsRemoved() {
     XmlSignature signature = new MockSignatureBuilder()
             .adesValidationDetails(b -> b.warnings(
                     MessageTag.BBB_XCV_IRDC_ANS,
@@ -179,7 +179,7 @@ public class XadesValidationReportProcessorTest {
   }
 
   @Test
-  public void process_WhenTimestampContainsTrustedCertificateNotMatchingTrustedServiceWarnings_WarningsRemoved() {
+  void process_WhenTimestampContainsTrustedCertificateNotMatchingTrustedServiceWarnings_WarningsRemoved() {
     XmlTimestamp timestamp = new MockTimestampBuilder()
             .adesValidationDetails(b -> b.warnings(
                     MessageTag.ADEST_IBSVPTADC_ANS,
@@ -237,7 +237,7 @@ public class XadesValidationReportProcessorTest {
   }
 
   @Test
-  public void process_WhenSignatureNorTimestampContainsNoFilterableWarnings_NoWarningsRemoved() {
+  void process_WhenSignatureNorTimestampContainsNoFilterableWarnings_NoWarningsRemoved() {
     XmlTimestamp timestamp = new MockTimestampBuilder()
             .adesValidationDetails(b -> b.warnings(
                     MessageTag.BBB_ACCEPT_ANS
@@ -295,7 +295,7 @@ public class XadesValidationReportProcessorTest {
   }
 
   @Test
-  public void process_WhenSignatureAndTimestampContainFilterableWarningsButAsErrorsAndInfo_NoErrorsNorInfoRemoved() {
+  void process_WhenSignatureAndTimestampContainFilterableWarningsButAsErrorsAndInfo_NoErrorsNorInfoRemoved() {
     XmlTimestamp timestamp = new MockTimestampBuilder()
             .adesValidationDetails(b -> b
                     .errors(
@@ -433,7 +433,7 @@ public class XadesValidationReportProcessorTest {
   }
 
   @Test
-  public void process_WhenSignatureTimestampContainsTstPoeTimeStatusErrorInQualificationDetails_ErrorRemoved() {
+  void process_WhenSignatureTimestampContainsTstPoeTimeStatusErrorInQualificationDetails_ErrorRemoved() {
     XmlTimestamp timestamp = new MockTimestampBuilder()
             .qualificationDetails(b -> b.errors(
                     toMessage(MessageTag.QUAL_HAS_QTST_ANS),
@@ -460,7 +460,7 @@ public class XadesValidationReportProcessorTest {
   }
 
   @Test
-  public void process_WhenSignatureTimestampContainsOtherStatusErrorsInQualificationDetails_NoErrorsRemoved() {
+  void process_WhenSignatureTimestampContainsOtherStatusErrorsInQualificationDetails_NoErrorsRemoved() {
     List<Object> validationTimes = Stream.concat(
             Stream.of(MessageTag.values())
                     .filter(mt -> StringUtils.startsWith(mt.getId(), "VT_"))
@@ -497,7 +497,7 @@ public class XadesValidationReportProcessorTest {
   }
 
   @Test
-  public void process_WhenSignatureOrTimestampContainsTstPoeTimeStatusErrorInAnywhereElseThanTimestampQualificationDetailsAsError_NothingRemoved() {
+  void process_WhenSignatureOrTimestampContainsTstPoeTimeStatusErrorInAnywhereElseThanTimestampQualificationDetailsAsError_NothingRemoved() {
     XmlTimestamp timestamp = new MockTimestampBuilder()
             .adesValidationDetails(b -> b
                     .errors(toMessage(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME))
@@ -649,46 +649,46 @@ public class XadesValidationReportProcessorTest {
     private List<XmlMessage> warnings;
     private List<XmlMessage> infos;
 
-    public DetailsBuilder errors(List<XmlMessage> errors) {
+    DetailsBuilder errors(List<XmlMessage> errors) {
       this.errors = errors;
       return this;
     }
 
-    public DetailsBuilder errors(XmlMessage... errors) {
+    DetailsBuilder errors(XmlMessage... errors) {
       return errors(new ArrayList<>(Arrays.asList(errors)));
     }
 
-    public DetailsBuilder errors(MessageTag... errors) {
+    DetailsBuilder errors(MessageTag... errors) {
       return errors(toMessages(errors));
     }
 
-    public DetailsBuilder warnings(List<XmlMessage> warnings) {
+    DetailsBuilder warnings(List<XmlMessage> warnings) {
       this.warnings = warnings;
       return this;
     }
 
-    public DetailsBuilder warnings(XmlMessage... warnings) {
+    DetailsBuilder warnings(XmlMessage... warnings) {
       return warnings(new ArrayList<>(Arrays.asList(warnings)));
     }
 
-    public DetailsBuilder warnings(MessageTag... warnings) {
+    DetailsBuilder warnings(MessageTag... warnings) {
       return warnings(toMessages(warnings));
     }
 
-    public DetailsBuilder infos(List<XmlMessage> infos) {
+    DetailsBuilder infos(List<XmlMessage> infos) {
       this.infos = infos;
       return this;
     }
 
-    public DetailsBuilder infos(XmlMessage... infos) {
+    DetailsBuilder infos(XmlMessage... infos) {
       return infos(new ArrayList<>(Arrays.asList(infos)));
     }
 
-    public DetailsBuilder infos(MessageTag... infos) {
+    DetailsBuilder infos(MessageTag... infos) {
       return infos(toMessages(infos));
     }
 
-    public XmlDetails build() {
+    XmlDetails build() {
       XmlDetails details = new XmlDetails();
       Optional.ofNullable(errors).ifPresent(details.getError()::addAll);
       Optional.ofNullable(warnings).ifPresent(details.getWarning()::addAll);
@@ -703,29 +703,29 @@ public class XadesValidationReportProcessorTest {
     private String key;
     private String value;
 
-    public MessageBuilder key(String key) {
+    MessageBuilder key(String key) {
       this.key = key;
       return this;
     }
 
-    public MessageBuilder key(MessageTag messageTag) {
+    MessageBuilder key(MessageTag messageTag) {
       return key(messageTag.getId());
     }
 
-    public MessageBuilder value(String value) {
+    MessageBuilder value(String value) {
       this.value = value;
       return this;
     }
 
-    public MessageBuilder value(MessageTag messageTag, Object... args) {
+    MessageBuilder value(MessageTag messageTag, Object... args) {
       return value(i18nProvider.getMessage(messageTag, args));
     }
 
-    public MessageBuilder with(MessageTag messageTag, Object... args) {
+    MessageBuilder with(MessageTag messageTag, Object... args) {
       return key(messageTag).value(messageTag, args);
     }
 
-    public XmlMessage build() {
+    XmlMessage build() {
       XmlMessage message = new XmlMessage();
       Optional.ofNullable(key).ifPresent(message::setKey);
       Optional.ofNullable(value).ifPresent(message::setValue);
@@ -745,30 +745,30 @@ public class XadesValidationReportProcessorTest {
     }
 
     @SuppressWarnings("unchecked")
-    public B adesValidationDetails(XmlDetails details) {
+    B adesValidationDetails(XmlDetails details) {
       adesValidationDetails = details;
       return (B) this;
     }
 
-    public B adesValidationDetails(Consumer<DetailsBuilder> builderConsumer) {
+    B adesValidationDetails(Consumer<DetailsBuilder> builderConsumer) {
       DetailsBuilder detailsBuilder = new DetailsBuilder();
       builderConsumer.accept(detailsBuilder);
       return adesValidationDetails(detailsBuilder.build());
     }
 
     @SuppressWarnings("unchecked")
-    public B qualificationDetails(XmlDetails details) {
+    B qualificationDetails(XmlDetails details) {
       qualificationDetails = details;
       return (B) this;
     }
 
-    public B qualificationDetails(Consumer<DetailsBuilder> builderConsumer) {
+    B qualificationDetails(Consumer<DetailsBuilder> builderConsumer) {
       DetailsBuilder detailsBuilder = new DetailsBuilder();
       builderConsumer.accept(detailsBuilder);
       return qualificationDetails(detailsBuilder.build());
     }
 
-    public T build() {
+    T build() {
       T tokenMock = Mockito.mock(tokenType);
       if (adesValidationDetails != null) {
         doReturn(adesValidationDetails).when(tokenMock).getAdESValidationDetails();
@@ -785,23 +785,23 @@ public class XadesValidationReportProcessorTest {
 
     private XmlTimestamps timestamps;
 
-    public MockSignatureBuilder() {
+    MockSignatureBuilder() {
       super(XmlSignature.class);
     }
 
-    public MockSignatureBuilder timestamps(XmlTimestamps timestamps) {
+    MockSignatureBuilder timestamps(XmlTimestamps timestamps) {
       this.timestamps = timestamps;
       return this;
     }
 
-    public MockSignatureBuilder timestamps(XmlTimestamp... timestamps) {
+    MockSignatureBuilder timestamps(XmlTimestamp... timestamps) {
       XmlTimestamps xmlTimestamps = new XmlTimestamps();
       xmlTimestamps.getTimestamp().addAll(Arrays.asList(timestamps));
       return timestamps(xmlTimestamps);
     }
 
     @Override
-    public XmlSignature build() {
+    XmlSignature build() {
       XmlSignature signatureMock = super.build();
       if (timestamps != null) {
         doReturn(timestamps).when(signatureMock).getTimestamps();
@@ -813,7 +813,7 @@ public class XadesValidationReportProcessorTest {
 
   private static class MockTimestampBuilder extends MockTokenBuilder<XmlTimestamp, MockTimestampBuilder> {
 
-    public MockTimestampBuilder() {
+    MockTimestampBuilder() {
       super(XmlTimestamp.class);
     }
 

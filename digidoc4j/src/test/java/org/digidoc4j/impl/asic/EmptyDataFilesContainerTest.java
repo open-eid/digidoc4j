@@ -35,7 +35,7 @@ public abstract class EmptyDataFilesContainerTest extends AbstractTest {
   protected abstract Container.DocumentType getDocumentType();
 
   @Test
-  public void testAddEmptyDataFileFromPath() {
+  void testAddEmptyDataFileFromPath() {
     Container container = createEmptyContainerBy(getDocumentType());
 
     InvalidDataFileException caughtException = assertThrows(
@@ -48,7 +48,7 @@ public abstract class EmptyDataFilesContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testAddEmptyDataFileFromStream() {
+  void testAddEmptyDataFileFromStream() {
     Container container = createEmptyContainerBy(getDocumentType());
 
     InvalidDataFileException caughtException = assertThrows(
@@ -67,7 +67,7 @@ public abstract class EmptyDataFilesContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testAddEmptyDataFileFromFile() {
+  void testAddEmptyDataFileFromFile() {
     Container container = createEmptyContainerBy(getDocumentType());
     File emptyFile = new File(EMPTY_FILE_PATH);
 
@@ -81,7 +81,7 @@ public abstract class EmptyDataFilesContainerTest extends AbstractTest {
   }
 
   @Test
-  public void testAddEmptyDataFile() {
+  void testAddEmptyDataFile() {
     Container container = createEmptyContainerBy(getDocumentType());
     DataFile emptyDataFile = new DataFile(new byte[0], TEST_FILE_NAME, TEST_FILE_MIMETYPE);
 

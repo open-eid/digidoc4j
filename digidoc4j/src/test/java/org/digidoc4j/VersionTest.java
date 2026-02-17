@@ -17,10 +17,10 @@ import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class VersionTest {
+class VersionTest {
 
   @Test
-  public void testVersion() {
+  void testVersion() {
     Properties properties = PropertiesUtil.getTestProperties();
     String expectedVersionString = properties.getProperty(PropertiesUtil.VERSION);
 

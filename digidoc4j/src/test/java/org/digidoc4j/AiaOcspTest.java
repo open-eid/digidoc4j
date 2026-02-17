@@ -26,10 +26,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class AiaOcspTest extends AbstractTest {
+class AiaOcspTest extends AbstractTest {
 
     @Test
-    public void signAsiceContainerWithoutAiaOcsp() {
+    void signAsiceContainerWithoutAiaOcsp() {
         Configuration configuration = new Configuration(Configuration.Mode.TEST);
         configuration.setPreferAiaOcsp(false);
 
@@ -47,7 +47,7 @@ public class AiaOcspTest extends AbstractTest {
     }
 
     @Test
-    public void signAsiceContainerUsingAiaOcsp() {
+    void signAsiceContainerUsingAiaOcsp() {
         Configuration configuration = new Configuration(Configuration.Mode.TEST);
         assertTrue(configuration.isAiaOcspPreferred());
         File testFile1 = createTemporaryFileBy("testFile.txt", "TEST");
@@ -61,7 +61,7 @@ public class AiaOcspTest extends AbstractTest {
     }
 
     @Test
-    public void signAsiceContainerWithEccTokenUsingAiaOcsp() {
+    void signAsiceContainerWithEccTokenUsingAiaOcsp() {
         Configuration configuration = new Configuration(Configuration.Mode.TEST);
         assertTrue(configuration.isAiaOcspPreferred());
         File testFile1 = createTemporaryFileBy("testFile.txt", "TEST");
@@ -75,7 +75,7 @@ public class AiaOcspTest extends AbstractTest {
     }
 
     @Test
-    public void signAsiceContainerWithEsteid2018UsingAiaOcsp() {
+    void signAsiceContainerWithEsteid2018UsingAiaOcsp() {
         Configuration configuration = new Configuration(Configuration.Mode.TEST);
         assertTrue(configuration.isAiaOcspPreferred());
         File testFile1 = createTemporaryFileBy("testFile.txt", "TEST");
@@ -91,7 +91,7 @@ public class AiaOcspTest extends AbstractTest {
     }
 
     @Test
-    public void signAsiceContainerWithManuallyConfiguredAiaOcsp() {
+    void signAsiceContainerWithManuallyConfiguredAiaOcsp() {
         Configuration configuration = new Configuration(Configuration.Mode.TEST);
         configuration.setPreferAiaOcsp(false);
         configuration.setOcspSource("http://aia.demo.sk.ee/esteid2015");
@@ -109,7 +109,7 @@ public class AiaOcspTest extends AbstractTest {
 
     @Test
     @Disabled("Fix by adding AdditionalServiceInformation to TEST of ESTEID-SK 2015 in test TSL")
-    public void signAsiceContainerWithManuallyConfiguredOlderAiaOcsp_whileUsingOcspNonce_thenOcspRetrievalShouldFail() {
+    void signAsiceContainerWithManuallyConfiguredOlderAiaOcsp_whileUsingOcspNonce_thenOcspRetrievalShouldFail() {
         Configuration configuration = new Configuration(Configuration.Mode.TEST);
         configuration.setPreferAiaOcsp(false);
         configuration.setOcspSource("http://aia.demo.sk.ee/esteid2015");

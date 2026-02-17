@@ -36,12 +36,12 @@ abstract class AbstractCadesDssFacadeTest<T extends AbstractCadesDssFacade> exte
   protected abstract T getDefaultCadesDssFacade();
 
   @Test
-  public void setContainerType_WhenContainerTypeIsAsice_Succeeds() {
+  void setContainerType_WhenContainerTypeIsAsice_Succeeds() {
     setContainerType_WhenContainerTypeIsSupported_Succeeds(Container.DocumentType.ASICE);
   }
 
   @Test
-  public void setContainerType_WhenContainerTypeIsAsics_Succeeds() {
+  void setContainerType_WhenContainerTypeIsAsics_Succeeds() {
     setContainerType_WhenContainerTypeIsSupported_Succeeds(Container.DocumentType.ASICS);
   }
 
@@ -51,17 +51,17 @@ abstract class AbstractCadesDssFacadeTest<T extends AbstractCadesDssFacade> exte
   }
 
   @Test
-  public void setContainerType_WhenContainerTypeIsBdoc_ThrowsNotSupportedException() {
+  void setContainerType_WhenContainerTypeIsBdoc_ThrowsNotSupportedException() {
     setContainerType_WhenContainerTypeIsNotSupported_ThrowsNotSupportedException(Container.DocumentType.BDOC);
   }
 
   @Test
-  public void setContainerType_WhenContainerTypeIsDdoc_ThrowsNotSupportedException() {
+  void setContainerType_WhenContainerTypeIsDdoc_ThrowsNotSupportedException() {
     setContainerType_WhenContainerTypeIsNotSupported_ThrowsNotSupportedException(Container.DocumentType.DDOC);
   }
 
   @Test
-  public void setContainerType_WhenContainerTypeIsPades_ThrowsNotSupportedException() {
+  void setContainerType_WhenContainerTypeIsPades_ThrowsNotSupportedException() {
     setContainerType_WhenContainerTypeIsNotSupported_ThrowsNotSupportedException(Container.DocumentType.PADES);
   }
 

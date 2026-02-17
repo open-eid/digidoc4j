@@ -30,16 +30,16 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.sameInstance;
 
-public class CadesValidationDssFacadeTest extends AbstractCadesDssFacadeTest<CadesValidationDssFacade> {
+class CadesValidationDssFacadeTest extends AbstractCadesDssFacadeTest<CadesValidationDssFacade> {
 
   @Test
-  public void openValidator_WhenAsiceWithoutDataFilesAndTimestampsSpecified_ReturnsAppropriateSignedDocumentValidator() {
+  void openValidator_WhenAsiceWithoutDataFilesAndTimestampsSpecified_ReturnsAppropriateSignedDocumentValidator() {
     openValidator_WhenNoDataFilesAndTimestampsSpecified_ReturnsAppropriateSignedDocumentValidator(
             Container.DocumentType.ASICE, ASiCContainerType.ASiC_E);
   }
 
   @Test
-  public void openValidator_WhenAsicsWithoutDataFilesAndTimestampsSpecified_ReturnsAppropriateSignedDocumentValidator() {
+  void openValidator_WhenAsicsWithoutDataFilesAndTimestampsSpecified_ReturnsAppropriateSignedDocumentValidator() {
     openValidator_WhenNoDataFilesAndTimestampsSpecified_ReturnsAppropriateSignedDocumentValidator(
             Container.DocumentType.ASICS, ASiCContainerType.ASiC_S);
   }
@@ -65,13 +65,13 @@ public class CadesValidationDssFacadeTest extends AbstractCadesDssFacadeTest<Cad
   }
 
   @Test
-  public void openValidator_WhenAsiceWithoutTimestampsSpecified_ReturnsAppropriateSignedDocumentValidator() {
+  void openValidator_WhenAsiceWithoutTimestampsSpecified_ReturnsAppropriateSignedDocumentValidator() {
     openValidator_WhenNoTimestampsSpecified_ReturnsAppropriateSignedDocumentValidator(
             Container.DocumentType.ASICE, ASiCContainerType.ASiC_E);
   }
 
   @Test
-  public void openValidator_WhenAsicsWithoutTimestampsSpecified_ReturnsAppropriateSignedDocumentValidator() {
+  void openValidator_WhenAsicsWithoutTimestampsSpecified_ReturnsAppropriateSignedDocumentValidator() {
     openValidator_WhenNoTimestampsSpecified_ReturnsAppropriateSignedDocumentValidator(
             Container.DocumentType.ASICS, ASiCContainerType.ASiC_S);
   }
@@ -99,13 +99,13 @@ public class CadesValidationDssFacadeTest extends AbstractCadesDssFacadeTest<Cad
   }
 
   @Test
-  public void openValidator_WhenAsiceWithTimestampWithoutManifestSpecified_ReturnsAppropriateSignedDocumentValidator() {
+  void openValidator_WhenAsiceWithTimestampWithoutManifestSpecified_ReturnsAppropriateSignedDocumentValidator() {
     openValidator_WhenTimestampWithoutManifestSpecified_ReturnsAppropriateSignedDocumentValidator(
             Container.DocumentType.ASICE, ASiCContainerType.ASiC_E);
   }
 
   @Test
-  public void openValidator_WhenAsicsWithTimestampWithoutManifestSpecified_ReturnsAppropriateSignedDocumentValidator() {
+  void openValidator_WhenAsicsWithTimestampWithoutManifestSpecified_ReturnsAppropriateSignedDocumentValidator() {
     openValidator_WhenTimestampWithoutManifestSpecified_ReturnsAppropriateSignedDocumentValidator(
             Container.DocumentType.ASICS, ASiCContainerType.ASiC_S);
   }
@@ -140,13 +140,13 @@ public class CadesValidationDssFacadeTest extends AbstractCadesDssFacadeTest<Cad
   }
 
   @Test
-  public void openValidator_WhenAsiceWithTimestampWithManifestIncluded_ReturnsAppropriateSignedDocumentValidator() {
+  void openValidator_WhenAsiceWithTimestampWithManifestIncluded_ReturnsAppropriateSignedDocumentValidator() {
     openValidator_WhenTimestampWithManifestIncluded_ReturnsAppropriateSignedDocumentValidator(
             Container.DocumentType.ASICE, ASiCContainerType.ASiC_E);
   }
 
   @Test
-  public void openValidator_WhenAsicsWithTimestampWithManifestIncluded_ReturnsAppropriateSignedDocumentValidator() {
+  void openValidator_WhenAsicsWithTimestampWithManifestIncluded_ReturnsAppropriateSignedDocumentValidator() {
     openValidator_WhenTimestampWithManifestIncluded_ReturnsAppropriateSignedDocumentValidator(
             Container.DocumentType.ASICS, ASiCContainerType.ASiC_S);
   }

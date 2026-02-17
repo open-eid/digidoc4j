@@ -14,31 +14,31 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class SignatureProductionPlaceTest {
+class SignatureProductionPlaceTest {
 
   @Test
-  public void setCity() {
+  void setCity() {
     SignatureProductionPlace signatureProductionPlace = new SignatureProductionPlace();
     signatureProductionPlace.setCity("City");
     assertEquals("City", signatureProductionPlace.getCity());
   }
 
   @Test
-  public void setStateOrProvince() {
+  void setStateOrProvince() {
     SignatureProductionPlace signatureProductionPlace = new SignatureProductionPlace();
     signatureProductionPlace.setStateOrProvince("StateOrProvince");
     assertEquals("StateOrProvince", signatureProductionPlace.getStateOrProvince());
   }
 
   @Test
-  public void setPostalCode() {
+  void setPostalCode() {
     SignatureProductionPlace signatureProductionPlace = new SignatureProductionPlace();
     signatureProductionPlace.setPostalCode("PostalCode");
     assertEquals("PostalCode", signatureProductionPlace.getPostalCode());
   }
 
   @Test
-  public void setCountry() {
+  void setCountry() {
     SignatureProductionPlace signatureProductionPlace = new SignatureProductionPlace();
     signatureProductionPlace.setCountry("Country");
     assertEquals("Country", signatureProductionPlace.getCountry());

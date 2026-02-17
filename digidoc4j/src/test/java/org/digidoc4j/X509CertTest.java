@@ -29,13 +29,13 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class X509CertTest {
+class X509CertTest {
 
   private final X509Cert certificate = new X509Cert("src/test/resources/testFiles/certs/sign_RSA_from_TEST_of_ESTEIDSK2015.pem");
   private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
 
   @Test
-  public void testGetX509Certificate() {
+  void testGetX509Certificate() {
     X509Certificate x509Certificate = certificate.getX509Certificate();
     assertEquals("SERIALNUMBER=60001013739, GIVENNAME=MARY ÄNN, SURNAME=O’CONNEŽ-ŠUSLIK TESTNUMBER, " +
             "CN=\"O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739\", C=EE",
@@ -43,18 +43,18 @@ public class X509CertTest {
   }
 
   @Test
-  public void testGetSerialNumber() {
+  void testGetSerialNumber() {
     assertEquals("6ec00b8b8c54c4f76082bd843e3a1526", certificate.getSerial());
   }
 
   @Test
-  public void testGetIssuerName() {
+  void testGetIssuerName() {
     assertEquals("cn=test of esteid-sk 2015, oid.2.5.4.97=ntree-10747013, o=as sertifitseerimiskeskus, c=ee",
         certificate.issuerName().toLowerCase());
   }
 
   @Test
-  public void testGetIssuerNameByPart() {
+  void testGetIssuerNameByPart() {
     assertNull(certificate.issuerName(X509Cert.Issuer.EMAILADDRESS));
     assertEquals("as sertifitseerimiskeskus", certificate.issuerName(X509Cert.Issuer.O).toLowerCase());
     assertEquals("test of esteid-sk 2015", certificate.issuerName(X509Cert.Issuer.CN).toLowerCase());
@@ -62,53 +62,53 @@ public class X509CertTest {
   }
 
   @Test
-  public void testGetPolicies() throws IOException {
+  void testGetPolicies() throws IOException {
     assertEquals(2, certificate.getCertificatePolicies().size());
   }
 
   @Test
-  public void testIsValidAtSpecifiedDate() {
+  void testIsValidAtSpecifiedDate() {
     assertTrue(certificate.isValid(new Date()));
   }
 
   @Test
-  public void testIsNotValidYet() throws ParseException {
+  void testIsNotValidYet() throws ParseException {
     Date certValidFrom = dateFormat.parse("17.04.2014");
     assertFalse(certificate.isValid(new Date(certValidFrom.getTime() - TestConstants.ONE_DAY_IN_MILLIS)));
   }
 
   @Test
-  public void testIsNoLongerValid() throws ParseException {
+  void testIsNoLongerValid() throws ParseException {
     Date certValidFrom = dateFormat.parse("12.04.2016");
     assertFalse(certificate.isValid(new Date(certValidFrom.getTime() + TestConstants.ONE_DAY_IN_MILLIS)));
   }
 
   @Test
-  public void testIsValidThrowsCertificateExpiredException() throws Exception {
+  void testIsValidThrowsCertificateExpiredException() throws Exception {
     X509Certificate mock = Mockito.mock(X509Certificate.class);
     Mockito.doThrow(new CertificateExpiredException()).when(mock).checkValidity();
     new X509Cert(mock).isValid();
   }
 
   @Test
-  public void testIsValidThrowsCertificateNotYetValidException() throws Exception {
+  void testIsValidThrowsCertificateNotYetValidException() throws Exception {
     X509Certificate mock = Mockito.mock(X509Certificate.class);
     Mockito.doThrow(new CertificateNotYetValidException()).when(mock).checkValidity();
     new X509Cert(mock).isValid();
   }
 
   @Test
-  public void testIsCertValidToday() {
+  void testIsCertValidToday() {
     assertTrue(certificate.isValid());
   }
 
   @Test
-  public void testKeyUsage() {
+  void testKeyUsage() {
     assertEquals(Arrays.asList(X509Cert.KeyUsage.NON_REPUDIATION), certificate.getKeyUsages());
   }
 
   @Test
-  public void testGetPartOfSubjectName() {
+  void testGetPartOfSubjectName() {
     assertEquals("60001013739", certificate.getSubjectName(X509Cert.SubjectName.SERIALNUMBER));
     assertEquals("mary änn", certificate.getSubjectName(X509Cert.SubjectName.GIVENNAME).toLowerCase());
     assertEquals("o’connež-šuslik testnumber", certificate.getSubjectName(X509Cert.SubjectName.SURNAME).toLowerCase());
@@ -119,13 +119,13 @@ public class X509CertTest {
   }
 
   @Test
-  public void testGetSubjectName() {
+  void testGetSubjectName() {
     assertEquals("SERIALNUMBER=60001013739, GIVENNAME=MARY ÄNN, SURNAME=O’CONNEŽ-ŠUSLIK TESTNUMBER, " +
         "CN=\"O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001013739\", C=EE", certificate.getSubjectName());
   }
 
   @Test
-  public void testDateCompare() {
+  void testDateCompare() {
     Date startTime = Calendar.getInstance().getTime();
     Date usageTime = Calendar.getInstance().getTime();
     assertTrue(usageTime.compareTo(startTime) >= 0);

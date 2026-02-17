@@ -36,17 +36,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-public class ContainerTimestampUtilsTest {
+class ContainerTimestampUtilsTest {
 
   @Test
-  public void findLastTimestamp_WhenTimestampListIsEmpty_ReturnsNull() {
+  void findLastTimestamp_WhenTimestampListIsEmpty_ReturnsNull() {
     TimestampAndManifestPair result = ContainerTimestampUtils.findLastTimestamp(Collections.emptyList());
 
     assertThat(result, nullValue());
   }
 
   @Test
-  public void findLastTimestamp_WhenListContainsOneTimestampWithoutManifest_ReturnsTheTimestamp() {
+  void findLastTimestamp_WhenListContainsOneTimestampWithoutManifest_ReturnsTheTimestamp() {
     TimestampAndManifestPair timestamp = createTimestampMock("timestamp-name", Instant.now(), null);
     List<TimestampAndManifestPair> timestamps = Collections.singletonList(timestamp);
 
@@ -56,7 +56,7 @@ public class ContainerTimestampUtilsTest {
   }
 
   @Test
-  public void findLastTimestamp_WhenListContainsTwoTimestampsCoveringEachOther_ReturnsNull() {
+  void findLastTimestamp_WhenListContainsTwoTimestampsCoveringEachOther_ReturnsNull() {
     TimestampAndManifestPair timestamp1 = createTimestampMock(
             "timestamp-1-name",
             Instant.now(),
@@ -79,7 +79,7 @@ public class ContainerTimestampUtilsTest {
   }
 
   @Test
-  public void findLastTimestamp_WhenLastTimestampInListIsNotCoveredByAnyTimestamp_ReturnsThatTimestamp() {
+  void findLastTimestamp_WhenLastTimestampInListIsNotCoveredByAnyTimestamp_ReturnsThatTimestamp() {
     TimestampAndManifestPair timestamp1 = createTimestampMock(
             "timestamp-1-name",
             Instant.now(),
@@ -100,7 +100,7 @@ public class ContainerTimestampUtilsTest {
   }
 
   @Test
-  public void findLastTimestamp_WhenMultipleTimestampsAreNotCoveredByOtherTimestamps_ReturnsTheOneWithLatestCreationTime() {
+  void findLastTimestamp_WhenMultipleTimestampsAreNotCoveredByOtherTimestamps_ReturnsTheOneWithLatestCreationTime() {
     TimestampAndManifestPair timestamp1 = createTimestampMock(
             "timestamp-1-name",
             Instant.parse("2024-05-13T11:28:41.5Z"),
@@ -124,7 +124,7 @@ public class ContainerTimestampUtilsTest {
   }
 
   @Test
-  public void isTimestampCoveredByTimestamp_WhenTimestampWithoutManifestIsNotCoveredInTimestampList_ReturnsFalse() {
+  void isTimestampCoveredByTimestamp_WhenTimestampWithoutManifestIsNotCoveredInTimestampList_ReturnsFalse() {
     TimestampAndManifestPair timestamp = createTimestampMock(
             new InMemoryDocument(EMPTY_BYTE_ARRAY, "timestamp-name"),
             null
@@ -142,7 +142,7 @@ public class ContainerTimestampUtilsTest {
   }
 
   @Test
-  public void isTimestampCoveredByTimestamp_WhenTimestampNorItsManifestIsNotCoveredInTimestampList_ReturnsFalse() {
+  void isTimestampCoveredByTimestamp_WhenTimestampNorItsManifestIsNotCoveredInTimestampList_ReturnsFalse() {
     TimestampAndManifestPair timestamp = createTimestampMock(
             new InMemoryDocument(EMPTY_BYTE_ARRAY, "timestamp-name"),
             new InMemoryDocument(EMPTY_BYTE_ARRAY, "timestamp-manifest-name")
@@ -160,7 +160,7 @@ public class ContainerTimestampUtilsTest {
   }
 
   @Test
-  public void isTimestampCoveredByTimestamp_WhenTimestampWithoutManifestIsCoveredInTimestampList_ReturnsTrue() {
+  void isTimestampCoveredByTimestamp_WhenTimestampWithoutManifestIsCoveredInTimestampList_ReturnsTrue() {
     TimestampAndManifestPair timestamp = createTimestampMock(
             new InMemoryDocument(EMPTY_BYTE_ARRAY, "timestamp-name"),
             null
@@ -177,7 +177,7 @@ public class ContainerTimestampUtilsTest {
   }
 
   @Test
-  public void isTimestampCoveredByTimestamp_WhenTimestampManifestIsCoveredInTimestampList_ReturnsTrue() {
+  void isTimestampCoveredByTimestamp_WhenTimestampManifestIsCoveredInTimestampList_ReturnsTrue() {
     TimestampAndManifestPair timestamp = createTimestampMock(
             new InMemoryDocument(EMPTY_BYTE_ARRAY, "timestamp-name"),
             new InMemoryDocument(EMPTY_BYTE_ARRAY, "timestamp-manifest-name")
@@ -195,14 +195,14 @@ public class ContainerTimestampUtilsTest {
   }
 
   @Test
-  public void isEntryCoveredByTimestamp_WhenListIsEmpty_ReturnsFalse() {
+  void isEntryCoveredByTimestamp_WhenListIsEmpty_ReturnsFalse() {
     boolean result = ContainerTimestampUtils.isEntryCoveredByTimestamp("entry-name", Collections.emptyList());
 
     assertThat(result, equalTo(false));
   }
 
   @Test
-  public void isEntryCoveredByTimestamp_WhenListContainsTimestampWithoutManifest_ReturnsFalse() {
+  void isEntryCoveredByTimestamp_WhenListContainsTimestampWithoutManifest_ReturnsFalse() {
     TimestampAndManifestPair timestamp = createTimestampMock(null);
     List<TimestampAndManifestPair> timestamps = Collections.singletonList(timestamp);
 
@@ -214,7 +214,7 @@ public class ContainerTimestampUtilsTest {
   }
 
   @Test
-  public void isEntryCoveredByTimestamp_WhenNoManifestContainsEntryName_ReturnsFalse() {
+  void isEntryCoveredByTimestamp_WhenNoManifestContainsEntryName_ReturnsFalse() {
     AsicArchiveManifest manifest = createAsicArchiveManifestMock(Collections.singleton("another-name"));
     TimestampAndManifestPair timestamp = createTimestampMock(manifest);
     List<TimestampAndManifestPair> timestamps = Collections.singletonList(timestamp);
@@ -228,7 +228,7 @@ public class ContainerTimestampUtilsTest {
   }
 
   @Test
-  public void isEntryCoveredByTimestamp_WhenOneManifestContainsEntryName_ReturnsTrue() {
+  void isEntryCoveredByTimestamp_WhenOneManifestContainsEntryName_ReturnsTrue() {
     AsicArchiveManifest manifest1 = createAsicArchiveManifestMock(Collections.singleton("another-name"));
     TimestampAndManifestPair timestamp1 = createTimestampMock(manifest1);
     AsicArchiveManifest manifest2 = createAsicArchiveManifestMock(Collections.singleton("entry-name"));
@@ -246,7 +246,7 @@ public class ContainerTimestampUtilsTest {
   }
 
   @Test
-  public void getTimestampAndManifestNames_WhenListContainsTimestampsAndManifests_ReturnsAllNames() {
+  void getTimestampAndManifestNames_WhenListContainsTimestampsAndManifests_ReturnsAllNames() {
     List<TimestampAndManifestPair> timestamps = Arrays.asList(
             createTimestampMock(
                     new InMemoryDocument(EMPTY_BYTE_ARRAY, "timestamp-1-name"),
@@ -270,7 +270,7 @@ public class ContainerTimestampUtilsTest {
   }
 
   @Test
-  public void getTimestampAndManifestNames_WhenListContainsTimestampWithNullName_ReturnsEmptySet() {
+  void getTimestampAndManifestNames_WhenListContainsTimestampWithNullName_ReturnsEmptySet() {
     TimestampAndManifestPair timestamp = createTimestampMock(
             new InMemoryDocument(EMPTY_BYTE_ARRAY),
             null
@@ -285,105 +285,105 @@ public class ContainerTimestampUtilsTest {
   }
 
   @Test
-  public void isTimestampFileName_WhenInputIsNull_ReturnsFalse() {
+  void isTimestampFileName_WhenInputIsNull_ReturnsFalse() {
     boolean result = ContainerTimestampUtils.isTimestampFileName(null);
 
     assertThat(result, equalTo(false));
   }
 
   @Test
-  public void isTimestampFileName_WhenInputIsBlank_ReturnsFalse() {
+  void isTimestampFileName_WhenInputIsBlank_ReturnsFalse() {
     boolean result = ContainerTimestampUtils.isTimestampFileName(StringUtils.SPACE);
 
     assertThat(result, equalTo(false));
   }
 
   @Test
-  public void isTimestampFileName_WhenInputDoesNotBeginWithMetaInf_ReturnsFalse() {
+  void isTimestampFileName_WhenInputDoesNotBeginWithMetaInf_ReturnsFalse() {
     boolean result = ContainerTimestampUtils.isTimestampFileName("timestamp.tst");
 
     assertThat(result, equalTo(false));
   }
 
   @Test
-  public void isTimestampFileName_WhenInputDoesNotEndWithTst_ReturnsFalse() {
+  void isTimestampFileName_WhenInputDoesNotEndWithTst_ReturnsFalse() {
     boolean result = ContainerTimestampUtils.isTimestampFileName("META-INF/timestamp");
 
     assertThat(result, equalTo(false));
   }
 
   @Test
-  public void isTimestampFileName_WhenInputContainsSpace_ReturnsFalse() {
+  void isTimestampFileName_WhenInputContainsSpace_ReturnsFalse() {
     boolean result = ContainerTimestampUtils.isTimestampFileName("META-INF/time stamp.tst");
 
     assertThat(result, equalTo(false));
   }
 
   @Test
-  public void isTimestampFileName_WhenInputIsStandardTstName_ReturnsTrue() {
+  void isTimestampFileName_WhenInputIsStandardTstName_ReturnsTrue() {
     boolean result = ContainerTimestampUtils.isTimestampFileName("META-INF/timestamp.tst");
 
     assertThat(result, equalTo(true));
   }
 
   @Test
-  public void isTimestampFileName_WhenInputIsValidTstName_ReturnsTrue() {
+  void isTimestampFileName_WhenInputIsValidTstName_ReturnsTrue() {
     boolean result = ContainerTimestampUtils.isTimestampFileName("META-INF/random.tst");
 
     assertThat(result, equalTo(true));
   }
 
   @Test
-  public void isTimestampFileName_WhenInputIsTstNameWithNumber_ReturnsTrue() {
+  void isTimestampFileName_WhenInputIsTstNameWithNumber_ReturnsTrue() {
     boolean result = ContainerTimestampUtils.isTimestampFileName("META-INF/timestamp001.tst");
 
     assertThat(result, equalTo(true));
   }
 
   @Test
-  public void isArchiveManifestFileName_WhenInputIsNull_ReturnsFalse() {
+  void isArchiveManifestFileName_WhenInputIsNull_ReturnsFalse() {
     boolean result = ContainerTimestampUtils.isArchiveManifestFileName(null);
 
     assertThat(result, equalTo(false));
   }
 
   @Test
-  public void isArchiveManifestFileName_WhenInputIsBlank_ReturnsFalse() {
+  void isArchiveManifestFileName_WhenInputIsBlank_ReturnsFalse() {
     boolean result = ContainerTimestampUtils.isArchiveManifestFileName(StringUtils.SPACE);
 
     assertThat(result, equalTo(false));
   }
 
   @Test
-  public void isArchiveManifestFileName_WhenInputDoesNotBeginWithMetaInf_ReturnsFalse() {
+  void isArchiveManifestFileName_WhenInputDoesNotBeginWithMetaInf_ReturnsFalse() {
     boolean result = ContainerTimestampUtils.isArchiveManifestFileName("ASiCArchiveManifest.xml");
 
     assertThat(result, equalTo(false));
   }
 
   @Test
-  public void isArchiveManifestFileName_WhenInputDoesNotEndWithXml_ReturnsFalse() {
+  void isArchiveManifestFileName_WhenInputDoesNotEndWithXml_ReturnsFalse() {
     boolean result = ContainerTimestampUtils.isArchiveManifestFileName("META-INF/ASiCArchiveManifest");
 
     assertThat(result, equalTo(false));
   }
 
   @Test
-  public void isArchiveManifestFileName_WhenInputIsNotAsicArchiveManifest_ReturnsFalse() {
+  void isArchiveManifestFileName_WhenInputIsNotAsicArchiveManifest_ReturnsFalse() {
     boolean result = ContainerTimestampUtils.isArchiveManifestFileName("META-INF/ASiCManifest.xml");
 
     assertThat(result, equalTo(false));
   }
 
   @Test
-  public void isArchiveManifestFileName_WhenInputIsStandardAsicArchiveManifestName_ReturnsTrue() {
+  void isArchiveManifestFileName_WhenInputIsStandardAsicArchiveManifestName_ReturnsTrue() {
     boolean result = ContainerTimestampUtils.isArchiveManifestFileName("META-INF/ASiCArchiveManifest.xml");
 
     assertThat(result, equalTo(true));
   }
 
   @Test
-  public void isArchiveManifestFileName_WhenInputIsAsicArchiveManifestNameWithNumber_ReturnsTrue() {
+  void isArchiveManifestFileName_WhenInputIsAsicArchiveManifestNameWithNumber_ReturnsTrue() {
     boolean result = ContainerTimestampUtils.isArchiveManifestFileName("META-INF/ASiCArchiveManifest001.xml");
 
     assertThat(result, equalTo(true));

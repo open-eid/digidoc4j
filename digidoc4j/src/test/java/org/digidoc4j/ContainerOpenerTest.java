@@ -28,45 +28,45 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ContainerOpenerTest extends AbstractTest {
+class ContainerOpenerTest extends AbstractTest {
 
   @Test
-  public void openBDocContainer() {
+  void openBDocContainer() {
     Container container = ContainerOpener.open(BDOC_WITH_TM_SIG, configuration);
     assertBDocContainer(container);
     TestAssert.assertContainerIsOpened(container, Container.DocumentType.BDOC);
   }
 
   @Test
-  public void openAsicEContainer() {
+  void openAsicEContainer() {
     Container container = ContainerOpener.open(ASICE_WITH_TS_SIG, configuration);
     assertAsicEContainer(container);
     TestAssert.assertContainerIsOpened(container, Container.DocumentType.ASICE);
   }
 
   @Test
-  public void openAsicSContainer() {
+  void openAsicSContainer() {
     Container container = ContainerOpener.open(ASICS_WITH_TS, configuration);
     assertAsicSContainer(container);
     assertTrue(container.getSignatures().isEmpty());
   }
 
   @Test
-  public void openDDocContainer() {
+  void openDDocContainer() {
     Container container = ContainerOpener.open(DDOC_TEST_FILE, configuration);
     assertDDocContainer(container);
     TestAssert.assertContainerIsOpened(container, Container.DocumentType.DDOC);
   }
 
   @Test
-  public void openAsicContainerWithNoSignatures_alwaysReturnsAsicEContainer() {
+  void openAsicContainerWithNoSignatures_alwaysReturnsAsicEContainer() {
     Container container = ContainerOpener.open(ASIC_WITH_NO_SIG, configuration);
     assertAsicEContainer(container);
     assertTrue(container.getSignatures().isEmpty());
   }
 
   @Test
-  public void openBDocContainerAsStream() throws Exception {
+  void openBDocContainerAsStream() throws Exception {
     FileInputStream stream = FileUtils.openInputStream(new File(BDOC_WITH_TM_SIG));
     Container container = ContainerOpener.open(stream, configuration);
     assertBDocContainer(container);
@@ -76,7 +76,7 @@ public class ContainerOpenerTest extends AbstractTest {
   }
 
   @Test
-  public void openBDocContainerWithTMAndTSSignaturesAsStream() throws Exception {
+  void openBDocContainerWithTMAndTSSignaturesAsStream() throws Exception {
     FileInputStream stream = FileUtils.openInputStream(new File(BDOC_WITH_TM_AND_TS_SIG));
     Container container = ContainerOpener.open(stream, configuration);
     assertBDocContainer(container);
@@ -87,7 +87,7 @@ public class ContainerOpenerTest extends AbstractTest {
   }
 
   @Test
-  public void openBDocContainerWithBEpesSignaturesAsStream() throws Exception {
+  void openBDocContainerWithBEpesSignaturesAsStream() throws Exception {
     FileInputStream stream = FileUtils.openInputStream(new File(BDOC_WITH_B_EPES_SIG));
     Container container = ContainerOpener.open(stream, configuration);
     assertBDocContainer(container);
@@ -97,7 +97,7 @@ public class ContainerOpenerTest extends AbstractTest {
   }
 
   @Test
-  public void openAsicEContainerAsStream() throws Exception {
+  void openAsicEContainerAsStream() throws Exception {
     FileInputStream stream = FileUtils.openInputStream(new File(ASICE_WITH_TS_SIG));
     Container container = ContainerOpener.open(stream, configuration);
     assertAsicEContainer(container);
@@ -107,7 +107,7 @@ public class ContainerOpenerTest extends AbstractTest {
   }
 
   @Test
-  public void openDDocContainerAsStream() throws Exception {
+  void openDDocContainerAsStream() throws Exception {
     FileInputStream stream = FileUtils.openInputStream(new File(DDOC_TEST_FILE));
     Container container = ContainerOpener.open(stream, configuration);
     assertDDocContainer(container);
@@ -115,7 +115,7 @@ public class ContainerOpenerTest extends AbstractTest {
   }
 
   @Test
-  public void openAsicContainerWithNoSignaturesAsStream_alwaysReturnsAsicEContainer() throws IOException {
+  void openAsicContainerWithNoSignaturesAsStream_alwaysReturnsAsicEContainer() throws IOException {
     FileInputStream stream = FileUtils.openInputStream(new File(ASIC_WITH_NO_SIG));
     Container container = ContainerOpener.open(stream, configuration);
     assertAsicEContainer(container);
@@ -123,7 +123,7 @@ public class ContainerOpenerTest extends AbstractTest {
   }
 
   @Test
-  public void openBDocContainerAsStream_WithBigFilesNotSupported() throws Exception {
+  void openBDocContainerAsStream_WithBigFilesNotSupported() throws Exception {
     FileInputStream stream = FileUtils.openInputStream(new File(BDOC_WITH_TM_SIG));
     Container container = ContainerOpener.open(stream, false);
     assertBDocContainer(container);
@@ -131,7 +131,7 @@ public class ContainerOpenerTest extends AbstractTest {
   }
 
   @Test
-  public void testErrorTextDDOCInvalidFileFormat() {
+  void testErrorTextDDOCInvalidFileFormat() {
     try {
       ContainerBuilder.aContainer().fromExistingFile("src/test/resources/testFiles/invalid-containers/error75.ddoc").build();
 
@@ -141,7 +141,7 @@ public class ContainerOpenerTest extends AbstractTest {
   }
 
   @Test
-  public void testErrorText75NotChanged() {
+  void testErrorText75NotChanged() {
     try {
       ContainerBuilder.aContainer()
           .fromExistingFile("src/test/resources/testFiles/invalid-containers/23181_SignedInfo_topelt_D1_lisatud.ddoc").
@@ -153,7 +153,7 @@ public class ContainerOpenerTest extends AbstractTest {
   }
 
   @Test
-  public void testErrorText75AndInvalidPath() {
+  void testErrorText75AndInvalidPath() {
     try {
       ContainerBuilder.aContainer().fromExistingFile("src/test/resources/testFiles/invalid-containers/23033_D1_lisatud.ddoc").
               build();
@@ -164,7 +164,7 @@ public class ContainerOpenerTest extends AbstractTest {
 
   @Test
   @Disabled("TODO: solve anomaly where results are different")
-  public void testErrorText75NotChangedInvalidXmlElement() {
+  void testErrorText75NotChangedInvalidXmlElement() {
     try {
       ContainerBuilder.aContainer().fromExistingFile("src/test/resources/testFiles/invalid-containers/BOF.ddoc").build();
     } catch (DigiDoc4JException e) {
@@ -173,12 +173,12 @@ public class ContainerOpenerTest extends AbstractTest {
   }
 
   @Test
-  public void testSignatureXMLContainsTrailingContent() {
+  void testSignatureXMLContainsTrailingContent() {
     ContainerOpener.open("src/test/resources/testFiles/valid-containers/signature_xml_contains_trailing_content.bdoc");
   }
 
   @Test
-  public void containerOpener_fileWithZipBomb() {
+  void containerOpener_fileWithZipBomb() {
     TechnicalException exception = assertThrows(
             TechnicalException.class,
             () -> ContainerOpener.open("src/test/resources/testFiles/invalid-containers/zip-bomb-package-zip-1gb.bdoc")
@@ -188,7 +188,7 @@ public class ContainerOpenerTest extends AbstractTest {
   }
 
   @Test
-  public void containerOpener_fileWithZipBomb_fileCachedInMemory() {
+  void containerOpener_fileWithZipBomb_fileCachedInMemory() {
     configuration.setMaxFileSizeCachedInMemoryInMB(1);
 
     TechnicalException exception = assertThrows(
@@ -200,7 +200,7 @@ public class ContainerOpenerTest extends AbstractTest {
   }
 
   @Test
-  public void containerOpener_streamWithZipBomb() {
+  void containerOpener_streamWithZipBomb() {
     TechnicalException exception = assertThrows(
             TechnicalException.class,
             () -> ContainerOpener.open(new FileInputStream("src/test/resources/testFiles/invalid-containers/zip-bomb-package-zip-1gb.bdoc"), configuration)
@@ -211,7 +211,7 @@ public class ContainerOpenerTest extends AbstractTest {
 
   @Test
   @Disabled("DD4J-1377") //throws technical exception
-  public void containerOpener_streamWithZipBomb_fileCachedInMemory() {
+  void containerOpener_streamWithZipBomb_fileCachedInMemory() {
     configuration.setMaxFileSizeCachedInMemoryInMB(1);
 
     FileNotFoundException exception = assertThrows(

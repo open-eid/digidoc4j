@@ -28,10 +28,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * Created by Andrei on 26.04.2017.
  */
 
-public class SignatureTimeTest extends AbstractTest {
+class SignatureTimeTest extends AbstractTest {
 
   @Test
-  public void signatureProfileLTTest() {
+  void signatureProfileLTTest() {
     Instant notBefore = truncatedCurrentTime();
     Container container = createNonEmptyContainerBy(Container.DocumentType.ASICE);
     AsicESignature signature = createSignatureBy(Container.DocumentType.ASICE, SignatureProfile.LT, pkcs12SignatureToken);
@@ -41,7 +41,7 @@ public class SignatureTimeTest extends AbstractTest {
   }
 
   @Test
-  public void signatureProfileLTATest() {
+  void signatureProfileLTATest() {
     Instant notBefore = truncatedCurrentTime();
     Container container = createNonEmptyContainerBy(Container.DocumentType.ASICE);
     AsicESignature signature = createSignatureBy(Container.DocumentType.ASICE, SignatureProfile.LTA, pkcs12SignatureToken);
@@ -51,7 +51,7 @@ public class SignatureTimeTest extends AbstractTest {
   }
 
   @Test
-  public void signatureProfileB_BESTest() {
+  void signatureProfileB_BESTest() {
     Instant notBefore = truncatedCurrentTime();
     Container container = createNonEmptyContainerBy(Container.DocumentType.ASICE);
     AsicESignature signature = createSignatureBy(Container.DocumentType.ASICE, SignatureProfile.B_BES, pkcs12SignatureToken);

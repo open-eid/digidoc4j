@@ -38,13 +38,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BDocSerializationTest extends AbstractTest {
+class BDocSerializationTest extends AbstractTest {
 
   private String containerLocation;
   private String serializedContainerLocation;
 
   @Test
-  public void twoStepSigningWithSerialization() {
+  void twoStepSigningWithSerialization() {
     String serializedDataToSignPath = getFileBy("bdoc");
     Container container = createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
@@ -66,7 +66,7 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void changeConfigurationAfterDeserializationToInvalidOcspAndThrowConnectionFailureException() {
+  void changeConfigurationAfterDeserializationToInvalidOcspAndThrowConnectionFailureException() {
     String serializedDataToSignPath = getFileBy("bdoc");
     Container container = createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
@@ -89,7 +89,7 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void verifySerialization() {
+  void verifySerialization() {
     Container container = createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     createSignatureBy(container, pkcs12SignatureToken);
@@ -99,7 +99,7 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void serializeExistingContainer() {
+  void serializeExistingContainer() {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc");
     serialize(container, serializedContainerLocation);
     Container deserializedContainer = deserializer(serializedContainerLocation);
@@ -108,7 +108,7 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void validateAfterSerializingExistingContainer() {
+  void validateAfterSerializingExistingContainer() {
     Container container = TestDataBuilderUtil.open("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc");
     serialize(container, serializedContainerLocation);
     Container deserializedContainer = deserializer(serializedContainerLocation);
@@ -116,7 +116,7 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void serializationVerifySpecifiedSignatureParameters() {
+  void serializationVerifySpecifiedSignatureParameters() {
     Container container = createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     Signature signature = SignatureBuilder.aSignature(container).withSignatureDigestAlgorithm(DigestAlgorithm.SHA512).
@@ -137,7 +137,7 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void serializationVerifyDefaultSignatureParameters() {
+  void serializationVerifyDefaultSignatureParameters() {
     Container container = createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     createSignatureBy(container, pkcs12SignatureToken);
@@ -151,7 +151,7 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void serializationGetDocumentType() {
+  void serializationGetDocumentType() {
     Container container = createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     createSignatureBy(container, pkcs12SignatureToken);
@@ -161,7 +161,7 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void serializationGetOCSPCertificate() throws Exception {
+  void serializationGetOCSPCertificate() throws Exception {
     Container container = createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     createSignatureBy(container, pkcs12SignatureToken);
@@ -175,7 +175,7 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void serializationGetSigningTime() {
+  void serializationGetSigningTime() {
     Container container = createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     createSignatureBy(container, pkcs12SignatureToken);
@@ -187,7 +187,7 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void serializationGetSigningCertificate() throws Exception {
+  void serializationGetSigningCertificate() throws Exception {
     Container container = createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     createSignatureBy(container, pkcs12SignatureToken);
@@ -201,7 +201,7 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void serializationGetRawSignature() {
+  void serializationGetRawSignature() {
     Container container = createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     createSignatureBy(container, pkcs12SignatureToken);
@@ -213,7 +213,7 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void serializationGetTimeStampTokenCertificate() throws Exception {
+  void serializationGetTimeStampTokenCertificate() throws Exception {
     Container container = createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     createSignatureBy(container, SignatureProfile.LT, pkcs12SignatureToken);
@@ -227,7 +227,7 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void serializationGetProfile() {
+  void serializationGetProfile() {
     Container container = createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     createSignatureBy(container, pkcs12SignatureToken);
@@ -239,7 +239,7 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void serializationGetDataFiles() {
+  void serializationGetDataFiles() {
     Container container = createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     createSignatureBy(container, pkcs12SignatureToken);
@@ -251,7 +251,7 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void serializationDataFileCheck() throws Exception {
+  void serializationDataFileCheck() throws Exception {
     Container container = createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     createSignatureBy(container, pkcs12SignatureToken);
@@ -271,7 +271,7 @@ public class BDocSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void twoStepSigningWithSerialization2() {
+  void twoStepSigningWithSerialization2() {
     Container container = createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
 

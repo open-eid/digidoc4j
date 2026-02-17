@@ -72,7 +72,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(MockitoExtension.class)
-public class CommonOCSPSourceTest extends AbstractTest {
+class CommonOCSPSourceTest extends AbstractTest {
 
   private static final String MOCK_OCSP_URL = "mock://issuer/ocsp";
   private static final AccessDescription OCSP_ACCESS_DESCRIPTION = TestCertificateUtil.createOcspUrlAccessDescription(MOCK_OCSP_URL);
@@ -85,7 +85,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
   private TSLCertificateSourceImpl tslCertificateSource;
 
   @BeforeAll
-  public static void setUpStatic() {
+  static void setUpStatic() {
     Security.addProvider(new BouncyCastleProvider());
   }
 
@@ -96,7 +96,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getRevocationToken_ocspRespondsWithTrustedOcspCertificate_1elementOcspChain() {
+  void getRevocationToken_ocspRespondsWithTrustedOcspCertificate_1elementOcspChain() {
     CertificateToken[] signerCertificateChain = issueSignerCertificateChain(2);
     Pair<PrivateKey, X509CertificateHolder[]> ocspKeyAndCertificates = issueOcspKeyAndCertificateChain(1);
     X509Certificate ocspTrustedCertificate = TestCertificateUtil.toX509Certificate(ocspKeyAndCertificates.getValue()[0]);
@@ -113,7 +113,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getRevocationToken_ocspRespondsWithUntrustedOcspCertificate_1elementOcspChain() {
+  void getRevocationToken_ocspRespondsWithUntrustedOcspCertificate_1elementOcspChain() {
     CertificateToken[] signerCertificateChain = issueSignerCertificateChain(2);
     Pair<PrivateKey, X509CertificateHolder[]> ocspKeyAndCertificates = issueOcspKeyAndCertificateChain(1);
 
@@ -131,7 +131,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getRevocationToken_ocspRespondsWithUntrustedOcspCertificate_2elementOcspChain_ocspRootInTSL() {
+  void getRevocationToken_ocspRespondsWithUntrustedOcspCertificate_2elementOcspChain_ocspRootInTSL() {
     CertificateToken[] signerCertificateChain = issueSignerCertificateChain(2);
     Pair<PrivateKey, X509CertificateHolder[]> ocspKeyAndCertificates = issueOcspKeyAndCertificateChain(2);
     X509Certificate ocspTrustedCertificate = TestCertificateUtil.toX509Certificate(ocspKeyAndCertificates.getValue()[1]);
@@ -148,7 +148,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getRevocationToken_ocspRespondsWithUntrustedOcspCertificate_2elementOcspChain() {
+  void getRevocationToken_ocspRespondsWithUntrustedOcspCertificate_2elementOcspChain() {
     CertificateToken[] signerCertificateChain = issueSignerCertificateChain(2);
     Pair<PrivateKey, X509CertificateHolder[]> ocspKeyAndCertificates = issueOcspKeyAndCertificateChain(2);
 
@@ -166,7 +166,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getRevocationToken_ocspRespondsWithTrustedOcspCertificateAndUntrustedOcspRoot_2elementOcspChain() {
+  void getRevocationToken_ocspRespondsWithTrustedOcspCertificateAndUntrustedOcspRoot_2elementOcspChain() {
     CertificateToken[] signerCertificateChain = issueSignerCertificateChain(2);
     Pair<PrivateKey, X509CertificateHolder[]> ocspKeyAndCertificates = issueOcspKeyAndCertificateChain(2);
     X509Certificate ocspTrustedCertificate = TestCertificateUtil.toX509Certificate(ocspKeyAndCertificates.getValue()[0]);
@@ -183,7 +183,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getRevocationToken_ocspRespondsWithUntrustedOcspCertificateAndTrustedOcspRoot_2elementOcspChain() {
+  void getRevocationToken_ocspRespondsWithUntrustedOcspCertificateAndTrustedOcspRoot_2elementOcspChain() {
     CertificateToken[] signerCertificateChain = issueSignerCertificateChain(2);
     Pair<PrivateKey, X509CertificateHolder[]> ocspKeyAndCertificates = issueOcspKeyAndCertificateChain(2);
     X509Certificate ocspTrustedCertificate = TestCertificateUtil.toX509Certificate(ocspKeyAndCertificates.getValue()[1]);
@@ -200,7 +200,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getRevocationToken_ocspRespondsWithUntrustedOcspCertificateAndUntrustedOcspRoot_2elementOcspChain() {
+  void getRevocationToken_ocspRespondsWithUntrustedOcspCertificateAndUntrustedOcspRoot_2elementOcspChain() {
     CertificateToken[] signerCertificateChain = issueSignerCertificateChain(2);
     Pair<PrivateKey, X509CertificateHolder[]> ocspKeyAndCertificates = issueOcspKeyAndCertificateChain(2);
 
@@ -218,7 +218,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getRevocationToken_ocspRespondsWithUntrustedOcspCertificateAndTrustedOcspIntermediate_3elementOcspChain() {
+  void getRevocationToken_ocspRespondsWithUntrustedOcspCertificateAndTrustedOcspIntermediate_3elementOcspChain() {
     CertificateToken[] signerCertificateChain = issueSignerCertificateChain(2);
     Pair<PrivateKey, X509CertificateHolder[]> ocspKeyAndCertificates = issueOcspKeyAndCertificateChain(3);
     X509Certificate ocspTrustedCertificate = TestCertificateUtil.toX509Certificate(ocspKeyAndCertificates.getValue()[1]);
@@ -236,7 +236,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getRevocationToken_ocspRespondsWithUntrustedOcspCertificateAndUntrustedOcspIntermediate_3elementOcspChain_ocspRootInTSL() {
+  void getRevocationToken_ocspRespondsWithUntrustedOcspCertificateAndUntrustedOcspIntermediate_3elementOcspChain_ocspRootInTSL() {
     CertificateToken[] signerCertificateChain = issueSignerCertificateChain(2);
     Pair<PrivateKey, X509CertificateHolder[]> ocspKeyAndCertificates = issueOcspKeyAndCertificateChain(3);
     X509Certificate ocspTrustedCertificate = TestCertificateUtil.toX509Certificate(ocspKeyAndCertificates.getValue()[2]);
@@ -254,7 +254,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getRevocationToken_ocspRespondsWithUntrustedOcspCertificateAndUntrustedOcspIntermediate_3elementOcspChain() {
+  void getRevocationToken_ocspRespondsWithUntrustedOcspCertificateAndUntrustedOcspIntermediate_3elementOcspChain() {
     CertificateToken[] signerCertificateChain = issueSignerCertificateChain(2);
     Pair<PrivateKey, X509CertificateHolder[]> ocspKeyAndCertificates = issueOcspKeyAndCertificateChain(3);
 
@@ -273,7 +273,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getRevocationToken_ocspRespondsWithUntrustedOcspCertificateAndTrustedOcspIntermediateAndUntrustedOcspRoot_3elementOcspChain() {
+  void getRevocationToken_ocspRespondsWithUntrustedOcspCertificateAndTrustedOcspIntermediateAndUntrustedOcspRoot_3elementOcspChain() {
     CertificateToken[] signerCertificateChain = issueSignerCertificateChain(2);
     Pair<PrivateKey, X509CertificateHolder[]> ocspKeyAndCertificates = issueOcspKeyAndCertificateChain(3);
     X509Certificate ocspTrustedCertificate = TestCertificateUtil.toX509Certificate(ocspKeyAndCertificates.getValue()[1]);
@@ -290,7 +290,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getRevocationToken_ocspRespondsWithUntrustedOcspCertificateAndUntrustedOcspIntermediateAndTrustedOcspRoot_3elementOcspChain() {
+  void getRevocationToken_ocspRespondsWithUntrustedOcspCertificateAndUntrustedOcspIntermediateAndTrustedOcspRoot_3elementOcspChain() {
     CertificateToken[] signerCertificateChain = issueSignerCertificateChain(2);
     Pair<PrivateKey, X509CertificateHolder[]> ocspKeyAndCertificates = issueOcspKeyAndCertificateChain(3);
     X509Certificate ocspTrustedCertificate = TestCertificateUtil.toX509Certificate(ocspKeyAndCertificates.getValue()[2]);
@@ -307,7 +307,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getRevocationToken_ocspRespondsWithUntrustedOcspCertificateAndUntrustedOcspIntermediateAndUntrustedOcspRoot_3elementOcspChain() {
+  void getRevocationToken_ocspRespondsWithUntrustedOcspCertificateAndUntrustedOcspIntermediateAndUntrustedOcspRoot_3elementOcspChain() {
     CertificateToken[] signerCertificateChain = issueSignerCertificateChain(2);
     Pair<PrivateKey, X509CertificateHolder[]> ocspKeyAndCertificates = issueOcspKeyAndCertificateChain(3);
 
@@ -325,7 +325,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getRevocationToken_ocspRespondsWith4elementCertificate_ocspRootInTsl() {
+  void getRevocationToken_ocspRespondsWith4elementCertificate_ocspRootInTsl() {
     CertificateToken[] signerCertificateChain = issueSignerCertificateChain(2);
     Pair<PrivateKey, X509CertificateHolder[]> ocspKeyAndCertificates = issueOcspKeyAndCertificateChain(4);
     X509Certificate ocspTrustedCertificate = TestCertificateUtil.toX509Certificate(ocspKeyAndCertificates.getValue()[3]);
@@ -342,7 +342,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getRevocationToken_ocspRespondsWith7elementCertificate_ocspFirstIntermediateInTsl() {
+  void getRevocationToken_ocspRespondsWith7elementCertificate_ocspFirstIntermediateInTsl() {
     CertificateToken[] signerCertificateChain = issueSignerCertificateChain(2);
     Pair<PrivateKey, X509CertificateHolder[]> ocspKeyAndCertificates = issueOcspKeyAndCertificateChain(7);
     X509Certificate ocspTrustedCertificate = TestCertificateUtil.toX509Certificate(ocspKeyAndCertificates.getValue()[5]);
@@ -359,7 +359,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getRevocationToken_WhenOcspRespondsWithoutNonceButNonceExpected_ThrowsCertificateValidationException() {
+  void getRevocationToken_WhenOcspRespondsWithoutNonceButNonceExpected_ThrowsCertificateValidationException() {
     CertificateToken[] signerCertificateChain = issueSignerCertificateChain(2);
     Pair<PrivateKey, X509CertificateHolder[]> ocspKeyAndCertificates = issueOcspKeyAndCertificateChain(1);
     X509Certificate ocspTrustedCertificate = TestCertificateUtil.toX509Certificate(ocspKeyAndCertificates.getValue()[0]);
@@ -385,7 +385,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getRevocationToken_WhenOcspRespondsWithNonMatchingNonce_ThrowsCertificateValidationException() {
+  void getRevocationToken_WhenOcspRespondsWithNonMatchingNonce_ThrowsCertificateValidationException() {
     CertificateToken[] signerCertificateChain = issueSignerCertificateChain(2);
     Pair<PrivateKey, X509CertificateHolder[]> ocspKeyAndCertificates = issueOcspKeyAndCertificateChain(1);
     X509Certificate ocspTrustedCertificate = TestCertificateUtil.toX509Certificate(ocspKeyAndCertificates.getValue()[0]);
@@ -418,7 +418,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void getRevocationToken_WhenOcspRespondsWithIncorrectlyWrappedNonce_ThrowsCertificateValidationException() {
+  void getRevocationToken_WhenOcspRespondsWithIncorrectlyWrappedNonce_ThrowsCertificateValidationException() {
     CertificateToken[] signerCertificateChain = issueSignerCertificateChain(2);
     Pair<PrivateKey, X509CertificateHolder[]> ocspKeyAndCertificates = issueOcspKeyAndCertificateChain(1);
     X509Certificate ocspTrustedCertificate = TestCertificateUtil.toX509Certificate(ocspKeyAndCertificates.getValue()[0]);

@@ -51,7 +51,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class KeyStoreDocumentTest extends AbstractTest {
+class KeyStoreDocumentTest extends AbstractTest {
 
     private static final String KEYSTORE_TYPE = "PKCS12";
     private static final String KEYSTORE_PASSWORD = "Passw0rd";
@@ -60,7 +60,7 @@ public class KeyStoreDocumentTest extends AbstractTest {
     private TestLog testLog;
 
     @BeforeAll
-    public static void setUpStatic() {
+    static void setUpStatic() {
         Security.addProvider(new BouncyCastleProvider());
     }
 
@@ -70,7 +70,7 @@ public class KeyStoreDocumentTest extends AbstractTest {
     }
 
     @Test
-    public void testKeyStoreFailsToLoadWhenNotExisting() throws IOException {
+    void testKeyStoreFailsToLoadWhenNotExisting() throws IOException {
         String nonExistingPath = String.valueOf(testFolder.resolve("non-existing-keystore" + KEYSTORE_EXTENSION));
         Duration minValidationInterval = Duration.ofMinutes(1L);
         Period maxWarningPeriod = Period.ofDays(1);
@@ -85,7 +85,7 @@ public class KeyStoreDocumentTest extends AbstractTest {
     }
 
     @Test
-    public void testKeyStoreFailsToParseOnInvalidKeystoreType() {
+    void testKeyStoreFailsToParseOnInvalidKeystoreType() {
         String keyStorePath = "classpath:testFiles/truststores/empty-truststore.p12";
         String invalidKeyStoreType = "INVALID";
         Duration minValidationInterval = Duration.ofMinutes(1L);
@@ -101,7 +101,7 @@ public class KeyStoreDocumentTest extends AbstractTest {
     }
 
     @Test
-    public void testKeyStoreFailsToParseOnInvalidKeystorePassword() {
+    void testKeyStoreFailsToParseOnInvalidKeystorePassword() {
         String keyStorePath = "classpath:testFiles/truststores/empty-truststore.p12";
         String invalidKeyStorePassword = "Inval1d";
         Duration minValidationInterval = Duration.ofMinutes(1L);
@@ -117,7 +117,7 @@ public class KeyStoreDocumentTest extends AbstractTest {
     }
 
     @Test
-    public void testInitialKeystoreValidationWithWarningPeriod() throws Exception {
+    void testInitialKeystoreValidationWithWarningPeriod() throws Exception {
         Instant now = Instant.now();
 
         Map<String, Certificate> certificates = new LinkedHashMap<>();
@@ -156,7 +156,7 @@ public class KeyStoreDocumentTest extends AbstractTest {
     }
 
     @Test
-    public void testInitialKeystoreValidationWithWarningDuration() throws Exception {
+    void testInitialKeystoreValidationWithWarningDuration() throws Exception {
         Instant now = Instant.now();
 
         Map<String, Certificate> certificates = new LinkedHashMap<>();
@@ -190,7 +190,7 @@ public class KeyStoreDocumentTest extends AbstractTest {
     }
 
     @Test
-    public void testOpenStreamTriggersValidationWhenPreviousValidationHasExpired() throws Exception {
+    void testOpenStreamTriggersValidationWhenPreviousValidationHasExpired() throws Exception {
         Instant now = Instant.now();
 
         Map<String, Certificate> certificates = new LinkedHashMap<>();
@@ -223,7 +223,7 @@ public class KeyStoreDocumentTest extends AbstractTest {
     }
 
     @Test
-    public void testOpenStreamDoesNotTriggerValidationWhenPreviousValidationHasNotExpired() throws Exception {
+    void testOpenStreamDoesNotTriggerValidationWhenPreviousValidationHasNotExpired() throws Exception {
         Instant now = Instant.now();
 
         Map<String, Certificate> certificates = new LinkedHashMap<>();

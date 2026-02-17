@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class EmptyDataFilesAsicSContainerTest extends EmptyDataFilesContainerTest {
+class EmptyDataFilesAsicSContainerTest extends EmptyDataFilesContainerTest {
 
   @Override
   protected void before() {
@@ -39,7 +39,7 @@ public class EmptyDataFilesAsicSContainerTest extends EmptyDataFilesContainerTes
   }
 
   @Test
-  public void testValidateUnsignedContainerWithEmptyDataFile() {
+  void testValidateUnsignedContainerWithEmptyDataFile() {
     Container container = loadUnsignedContainerWithEmptyDataFile();
 
     ContainerValidationResult validationResult = container.validate();
@@ -56,7 +56,7 @@ public class EmptyDataFilesAsicSContainerTest extends EmptyDataFilesContainerTes
   }
 
   @Test
-  public void testValidateSignedContainerWithEmptyDataFile() {
+  void testValidateSignedContainerWithEmptyDataFile() {
     Container container = loadSignedContainerWithEmptyDataFile();
 
     ContainerValidationResult validationResult = container.validate();
@@ -73,7 +73,7 @@ public class EmptyDataFilesAsicSContainerTest extends EmptyDataFilesContainerTes
   }
 
   @Test
-  public void testValidateTimestampedContainerWithEmptyDataFile() {
+  void testValidateTimestampedContainerWithEmptyDataFile() {
     Container container = loadTimestampedContainerWithEmptyDataFile();
 
     ContainerValidationResult validationResult = container.validate();
@@ -90,7 +90,7 @@ public class EmptyDataFilesAsicSContainerTest extends EmptyDataFilesContainerTes
   }
 
   @Test
-  public void testInvokeTimestampingForUnsignedContainerWithEmptyDataFile() {
+  void testInvokeTimestampingForUnsignedContainerWithEmptyDataFile() {
     Container container = loadUnsignedContainerWithEmptyDataFile();
 
     InvalidDataFileException caughtException = assertThrows(
@@ -102,7 +102,7 @@ public class EmptyDataFilesAsicSContainerTest extends EmptyDataFilesContainerTes
   }
 
   @Test
-  public void testInvokeTimestampingForTimestampedContainerWithEmptyDataFile() {
+  void testInvokeTimestampingForTimestampedContainerWithEmptyDataFile() {
     Container container = loadTimestampedContainerWithEmptyDataFile();
 
     InvalidDataFileException caughtException = assertThrows(

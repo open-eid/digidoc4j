@@ -43,10 +43,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-public class TimestampNotGrantedValidationUtilsTest {
+class TimestampNotGrantedValidationUtilsTest {
 
   @Test
-  public void convertNotGrantedErrorsToWarnings_WhenSimpleReportHasNoTokens_NothingChanged() {
+  void convertNotGrantedErrorsToWarnings_WhenSimpleReportHasNoTokens_NothingChanged() {
     XmlSimpleReport simpleReport = mockSimpleReportWithTokens();
     Reports reports = mockReports(simpleReport);
 
@@ -58,7 +58,7 @@ public class TimestampNotGrantedValidationUtilsTest {
   }
 
   @Test
-  public void convertNotGrantedErrorsToWarnings_WhenSimpleReportHasNullToken_NothingChanged() {
+  void convertNotGrantedErrorsToWarnings_WhenSimpleReportHasNullToken_NothingChanged() {
     XmlSimpleReport simpleReport = mockSimpleReportWithTokens(Collections.singletonList(null));
     Reports reports = mockReports(simpleReport);
 
@@ -70,7 +70,7 @@ public class TimestampNotGrantedValidationUtilsTest {
   }
 
   @Test
-  public void convertNotGrantedErrorsToWarnings_WhenSimpleReportHasSignatureToken_NoInteractionWithToken() {
+  void convertNotGrantedErrorsToWarnings_WhenSimpleReportHasSignatureToken_NoInteractionWithToken() {
     XmlSignature signature = mock(XmlSignature.class);
     XmlSimpleReport simpleReport = mockSimpleReportWithTokens(Collections.singletonList(signature));
     Reports reports = mockReports(simpleReport);
@@ -84,7 +84,7 @@ public class TimestampNotGrantedValidationUtilsTest {
   }
 
   @Test
-  public void convertNotGrantedErrorsToWarnings_WhenSimpleReportHasEvidenceRecordToken_NoInteractionWithToken() {
+  void convertNotGrantedErrorsToWarnings_WhenSimpleReportHasEvidenceRecordToken_NoInteractionWithToken() {
     XmlEvidenceRecord evidenceRecord = mock(XmlEvidenceRecord.class);
     XmlSimpleReport simpleReport = mockSimpleReportWithTokens(Collections.singletonList(evidenceRecord));
     Reports reports = mockReports(simpleReport);
@@ -98,22 +98,22 @@ public class TimestampNotGrantedValidationUtilsTest {
   }
 
   @Test
-  public void convertNotGrantedErrorsToWarnings_WhenSimpleReportHasTotalPassedTimestamp_NoFurtherInteraction() {
+  void convertNotGrantedErrorsToWarnings_WhenSimpleReportHasTotalPassedTimestamp_NoFurtherInteraction() {
     convertNotGrantedErrorsToWarnings_WhenSimpleReportHasNonPassedTimestamp_NoFurtherInteraction(Indication.TOTAL_PASSED);
   }
 
   @Test
-  public void convertNotGrantedErrorsToWarnings_WhenSimpleReportHasTotalFailedTimestamp_NoFurtherInteraction() {
+  void convertNotGrantedErrorsToWarnings_WhenSimpleReportHasTotalFailedTimestamp_NoFurtherInteraction() {
     convertNotGrantedErrorsToWarnings_WhenSimpleReportHasNonPassedTimestamp_NoFurtherInteraction(Indication.TOTAL_FAILED);
   }
 
   @Test
-  public void convertNotGrantedErrorsToWarnings_WhenSimpleReportHasIndeterminateTimestamp_NoFurtherInteraction() {
+  void convertNotGrantedErrorsToWarnings_WhenSimpleReportHasIndeterminateTimestamp_NoFurtherInteraction() {
     convertNotGrantedErrorsToWarnings_WhenSimpleReportHasNonPassedTimestamp_NoFurtherInteraction(Indication.INDETERMINATE);
   }
 
   @Test
-  public void convertNotGrantedErrorsToWarnings_WhenSimpleReportHasFailedTimestamp_NoFurtherInteraction() {
+  void convertNotGrantedErrorsToWarnings_WhenSimpleReportHasFailedTimestamp_NoFurtherInteraction() {
     convertNotGrantedErrorsToWarnings_WhenSimpleReportHasNonPassedTimestamp_NoFurtherInteraction(Indication.FAILED);
   }
 
@@ -133,7 +133,7 @@ public class TimestampNotGrantedValidationUtilsTest {
   }
 
   @Test
-  public void convertNotGrantedErrorsToWarnings_WhenPassedTimestampHasNotGrantedErrorInAdesDetailsBlock_NothingChanged() {
+  void convertNotGrantedErrorsToWarnings_WhenPassedTimestampHasNotGrantedErrorInAdesDetailsBlock_NothingChanged() {
     XmlTimestamp timestamp = createXmlTimestampWithIndication(Indication.PASSED);
     XmlMessage notGrantedMessage = createXmlMessage(
             MessageTag.QUAL_HAS_GRANTED_AT_ANS.getId(),
@@ -156,7 +156,7 @@ public class TimestampNotGrantedValidationUtilsTest {
   }
 
   @Test
-  public void convertNotGrantedErrorsToWarnings_WhenPassedTimestampHasUnrelatedErrorInQualificationBlock_NothingChanged() {
+  void convertNotGrantedErrorsToWarnings_WhenPassedTimestampHasUnrelatedErrorInQualificationBlock_NothingChanged() {
     XmlTimestamp timestamp = createXmlTimestampWithIndication(Indication.PASSED);
     XmlMessage testMessage = createXmlMessage("TEST", "Some test message");
     timestamp.setQualificationDetails(createXmlDetailsWithErrors(testMessage));
@@ -176,7 +176,7 @@ public class TimestampNotGrantedValidationUtilsTest {
   }
 
   @Test
-  public void convertNotGrantedErrorsToWarnings_WhenPassedTimestampHasNotGrantedErrorInQualificationBlock_ConvertsToWarning() {
+  void convertNotGrantedErrorsToWarnings_WhenPassedTimestampHasNotGrantedErrorInQualificationBlock_ConvertsToWarning() {
     XmlTimestamp timestamp = createXmlTimestampWithIndication(Indication.PASSED);
     XmlMessage notGrantedMessage = createXmlMessage(
             MessageTag.QUAL_HAS_GRANTED_AT_ANS.getId(),
@@ -199,7 +199,7 @@ public class TimestampNotGrantedValidationUtilsTest {
   }
 
   @Test
-  public void convertNotGrantedErrorsToWarnings_WhenPassedTimestampHasNotGrantedErrorInQualificationBlockButAlsoQualificationWarnings_ConvertsToWarning() {
+  void convertNotGrantedErrorsToWarnings_WhenPassedTimestampHasNotGrantedErrorInQualificationBlockButAlsoQualificationWarnings_ConvertsToWarning() {
     XmlTimestamp timestamp = createXmlTimestampWithIndication(Indication.PASSED);
     XmlMessage notGrantedMessage = createXmlMessage(
             MessageTag.QUAL_HAS_GRANTED_AT_ANS.getId(),
@@ -224,7 +224,7 @@ public class TimestampNotGrantedValidationUtilsTest {
   }
 
   @Test
-  public void convertNotGrantedErrorsToWarnings_WhenPassedTimestampHasNotGrantedErrorInQualificationBlockButAlsoAdesErrors_NothingChanged() {
+  void convertNotGrantedErrorsToWarnings_WhenPassedTimestampHasNotGrantedErrorInQualificationBlockButAlsoAdesErrors_NothingChanged() {
     XmlTimestamp timestamp = createXmlTimestampWithIndication(Indication.PASSED);
     XmlMessage testMessage = createXmlMessage("TEST", "Some test message");
     timestamp.setAdESValidationDetails(createXmlDetailsWithErrors(testMessage));
@@ -252,7 +252,7 @@ public class TimestampNotGrantedValidationUtilsTest {
   }
 
   @Test
-  public void convertNotGrantedErrorsToWarnings_WhenPassedTimestampHasNotGrantedErrorAndOtherErrorsInQualificationBlock_NothingChanged() {
+  void convertNotGrantedErrorsToWarnings_WhenPassedTimestampHasNotGrantedErrorAndOtherErrorsInQualificationBlock_NothingChanged() {
     XmlTimestamp timestamp = createXmlTimestampWithIndication(Indication.PASSED);
     XmlMessage notGrantedMessage = createXmlMessage(
             MessageTag.QUAL_HAS_GRANTED_AT_ANS.getId(),
@@ -276,7 +276,7 @@ public class TimestampNotGrantedValidationUtilsTest {
   }
 
   @Test
-  public void addContainerWarningIfNotGrantedTimestampExists_WhenWarningsIsNull_NothingChanged() {
+  void addContainerWarningIfNotGrantedTimestampExists_WhenWarningsIsNull_NothingChanged() {
     AbstractContainerValidationResult containerValidationResult = mock(AbstractContainerValidationResult.class);
     doReturn(null).when(containerValidationResult).getWarnings();
 
@@ -287,7 +287,7 @@ public class TimestampNotGrantedValidationUtilsTest {
   }
 
   @Test
-  public void addContainerWarningIfNotGrantedTimestampExists_WhenWarningsIsEmpty_NothingChanged() {
+  void addContainerWarningIfNotGrantedTimestampExists_WhenWarningsIsEmpty_NothingChanged() {
     AbstractContainerValidationResult containerValidationResult = mock(AbstractContainerValidationResult.class);
     doReturn(Collections.emptyList()).when(containerValidationResult).getWarnings();
 
@@ -298,7 +298,7 @@ public class TimestampNotGrantedValidationUtilsTest {
   }
 
   @Test
-  public void addContainerWarningIfNotGrantedTimestampExists_WhenWarningsContainsUnrelatedWarning_NothingChanged() {
+  void addContainerWarningIfNotGrantedTimestampExists_WhenWarningsContainsUnrelatedWarning_NothingChanged() {
     AbstractContainerValidationResult containerValidationResult = mock(AbstractContainerValidationResult.class);
     DigiDoc4JException unrelatedWarning = new DigiDoc4JException("Unrelated warning message");
     doReturn(Collections.singletonList(unrelatedWarning)).when(containerValidationResult).getWarnings();
@@ -310,7 +310,7 @@ public class TimestampNotGrantedValidationUtilsTest {
   }
 
   @Test
-  public void addContainerWarningIfNotGrantedTimestampExists_WhenWarningsContainsNotGrantedWarning_ContainerWarningIsAdded() {
+  void addContainerWarningIfNotGrantedTimestampExists_WhenWarningsContainsNotGrantedWarning_ContainerWarningIsAdded() {
     AbstractContainerValidationResult containerValidationResult = mock(AbstractContainerValidationResult.class);
     DigiDoc4JException notGrantedWarning = new DigiDoc4JException(
             new I18nProvider().getMessage(MessageTag.QUAL_HAS_GRANTED_AT_ANS, MessageTag.VT_TST_POE_TIME)
@@ -329,7 +329,7 @@ public class TimestampNotGrantedValidationUtilsTest {
   }
 
   @Test
-  public void addContainerWarningIfNotGrantedTimestampExists_WhenWarningsContainsNotGrantedWarningsAmongOthers_ContainerWarningIsAdded() {
+  void addContainerWarningIfNotGrantedTimestampExists_WhenWarningsContainsNotGrantedWarningsAmongOthers_ContainerWarningIsAdded() {
     AbstractContainerValidationResult containerValidationResult = mock(AbstractContainerValidationResult.class);
     doReturn(Collections.unmodifiableList(Arrays.asList(
             new DigiDoc4JException("Unrelated warning 1"),

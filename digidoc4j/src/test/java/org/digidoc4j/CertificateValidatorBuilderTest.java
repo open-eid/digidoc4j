@@ -27,10 +27,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * Created by Janar Rahumeel (CGI Estonia)
  */
-public class CertificateValidatorBuilderTest extends AbstractTest {
+class CertificateValidatorBuilderTest extends AbstractTest {
 
   @Test
-  public void validate_WhenCnOfIssuerCertificatesAreSame_OnlyOneIssuerIsFound() {
+  void validate_WhenCnOfIssuerCertificatesAreSame_OnlyOneIssuerIsFound() {
     CertificateValidator validator = new CertificateValidatorBuilder().withConfiguration(configuration).build();
     validator.getCertificateSource().addCertificate(openCertificateToken("src/test/resources/testFiles/certs/sameCN_first.crt"));
     validator.getCertificateSource().addCertificate(openCertificateToken("src/test/resources/testFiles/certs/sameCN_second.crt"));
@@ -52,7 +52,7 @@ public class CertificateValidatorBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenCertificateStatusIsGood_NothingIsThrown() {
+  void validate_WhenCertificateStatusIsGood_NothingIsThrown() {
     CertificateValidator validator = new CertificateValidatorBuilder().withConfiguration(configuration).build();
     validator.getCertificateSource().addCertificate(openCertificateToken("src/test/resources/testFiles/certs/TESTofEECertificationCentreRootCA.crt"));
     X509Certificate certificateToTest = openX509Certificate("src/test/resources/testFiles/certs/TEST_of_ESTEID-SK_2015.pem.crt");
@@ -62,7 +62,7 @@ public class CertificateValidatorBuilderTest extends AbstractTest {
 
   @Test
   @Disabled("DD4J-931")
-  public void validate_WhenCertificateIsNotTrusted_ValidationExceptionWithUntrustedStatusIsThrown() {
+  void validate_WhenCertificateIsNotTrusted_ValidationExceptionWithUntrustedStatusIsThrown() {
     CertificateValidator validator = new CertificateValidatorBuilder().withConfiguration(configuration).build();
     X509Certificate certificateToTest = openX509Certificate("src/test/resources/testFiles/certs/TEST_of_ESTEID-SK_2015.pem.crt");
 
@@ -82,7 +82,7 @@ public class CertificateValidatorBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenCertificateIsRevoked_ValidationExceptionWithRevokedStatusIsThrown() {
+  void validate_WhenCertificateIsRevoked_ValidationExceptionWithRevokedStatusIsThrown() {
     Configuration configuration = Configuration.of(Configuration.Mode.TEST);
     configuration.setPreferAiaOcsp(false);
     CertificateValidator validator = new CertificateValidatorBuilder().withConfiguration(configuration).build();
@@ -105,7 +105,7 @@ public class CertificateValidatorBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenOcspResponderCertificateIsNotTrusted_ValidationExceptionWithUntrustedStatusIsThrown() {
+  void validate_WhenOcspResponderCertificateIsNotTrusted_ValidationExceptionWithUntrustedStatusIsThrown() {
     configuration = Configuration.of(Configuration.Mode.PROD);
     configuration.setTSL(new TSLCertificateSourceImpl());
     CertificateValidator validator = new CertificateValidatorBuilder().withConfiguration(configuration).build();
@@ -128,7 +128,7 @@ public class CertificateValidatorBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenOcspResponseStatusIsUnknown_ValidationExceptionWithUnknownStatusIsThrown() {
+  void validate_WhenOcspResponseStatusIsUnknown_ValidationExceptionWithUnknownStatusIsThrown() {
     configuration = Configuration.of(Configuration.Mode.PROD);
     CertificateValidator validator = new CertificateValidatorBuilder().withConfiguration(configuration).build();
     validator.getCertificateSource().addCertificate(openCertificateToken("src/test/resources/testFiles/certs/TESTofESTEID-SK2011.crt"));
@@ -150,7 +150,7 @@ public class CertificateValidatorBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void importFromPath_WhenLoadingCertificatesFromCustomLocation_SourceContainsExpectedNumberOfCertificates() {
+  void importFromPath_WhenLoadingCertificatesFromCustomLocation_SourceContainsExpectedNumberOfCertificates() {
     ExtendedCertificateSource source = CertificateValidatorBuilder.getDefaultCertificateSource();
 
     source.importFromPath(Paths.get("src/test/resources/testFiles/certs"));

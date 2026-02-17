@@ -34,12 +34,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class XadesSignatureParserTest extends AbstractTest {
+class XadesSignatureParserTest extends AbstractTest {
 
   private List<? extends DSSDocument> detachedContents;
 
   @Test
-  public void parseBesSignature() {
+  void parseBesSignature() {
     XadesValidationReportGenerator xadesReportGenerator = createXadesReportGenerator("src/test/resources/testFiles/xades/test-bes-signature.xml");
     XadesSignature signature = new XadesSignatureParser().parse(xadesReportGenerator);
     assertEquals(SignatureProfile.B_BES, signature.getProfile());
@@ -62,7 +62,7 @@ public class XadesSignatureParserTest extends AbstractTest {
   }
 
   @Test
-  public void parseBDocTmSignature() {
+  void parseBDocTmSignature() {
     XadesValidationReportGenerator xadesReportGenerator = createXadesReportGenerator("src/test/resources/testFiles/xades/test-bdoc-tm.xml");
     XadesSignature signature = new XadesSignatureParser().parse(xadesReportGenerator);
     assertEquals(SignatureProfile.LT_TM, signature.getProfile());
@@ -75,7 +75,7 @@ public class XadesSignatureParserTest extends AbstractTest {
   }
 
   @Test
-  public void parseBdocTsSignature() {
+  void parseBdocTsSignature() {
     XadesValidationReportGenerator xadesReportGenerator = createXadesReportGenerator("src/test/resources/testFiles/xades/test-bdoc-ts.xml");
     XadesSignature signature = new XadesSignatureParser().parse(xadesReportGenerator);
     assertEquals(SignatureProfile.LT, signature.getProfile());
@@ -85,7 +85,7 @@ public class XadesSignatureParserTest extends AbstractTest {
   }
 
   @Test
-  public void parseBDocTsaSignature() {
+  void parseBDocTsaSignature() {
     XadesValidationReportGenerator xadesReportGenerator = createXadesReportGenerator("src/test/resources/testFiles/xades/test-bdoc-tsa.xml");
     XadesSignature signature = new XadesSignatureParser().parse(xadesReportGenerator);
     assertEquals(SignatureProfile.LTA, signature.getProfile());
@@ -99,7 +99,7 @@ public class XadesSignatureParserTest extends AbstractTest {
   }
 
   @Test
-  public void serializeSignature() throws Exception {
+  void serializeSignature() throws Exception {
     XadesValidationReportGenerator xadesReportGenerator = createXadesReportGenerator("src/test/resources/testFiles/xades/test-bdoc-tsa.xml");
     XadesSignature signature = new XadesSignatureParser().parse(xadesReportGenerator);
     String signatureId = signature.getId();
@@ -113,7 +113,7 @@ public class XadesSignatureParserTest extends AbstractTest {
   }
 
   @Test
-  public void parsingInvalidSignatureFile_shouldThrowException() {
+  void parsingInvalidSignatureFile_shouldThrowException() {
     XadesValidationReportGenerator xadesReportGenerator = createXadesReportGenerator("src/test/resources/testFiles/helper-files/test.txt");
     assertThrows(InvalidSignatureException.class, () -> new XadesSignatureParser().parse(xadesReportGenerator));
   }

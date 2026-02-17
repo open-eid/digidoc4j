@@ -27,10 +27,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.xmlunit.matchers.CompareMatcher.isIdenticalTo;
 
-public class DDocSignatureValidationResultTest {
+class DDocSignatureValidationResultTest {
 
   @Test
-  public void testFromListHasNoErrorsAndNoWarnings() {
+  void testFromListHasNoErrorsAndNoWarnings() {
     DDocSignatureValidationResult result = new DDocSignatureValidationResult(new ArrayList<DigiDocException>(), SignedDoc.FORMAT_DIGIDOC_XML);
     assertTrue(result.isValid());
     assertEquals(0, result.getErrors().size());
@@ -40,7 +40,7 @@ public class DDocSignatureValidationResultTest {
   }
 
   @Test
-  public void testFromListHasErrors() {
+  void testFromListHasErrors() {
     ArrayList<DigiDocException> exceptions = new ArrayList<DigiDocException>();
     exceptions.add(new DigiDocException(DigiDocException.ERR_UNSUPPORTED, "test", new Throwable("exception1")));
     exceptions.add(new DigiDocException(DigiDocException.ERR_CALCULATE_DIGEST, "test2", new Throwable("exception2")));
@@ -61,7 +61,7 @@ public class DDocSignatureValidationResultTest {
   }
 
   @Test
-  public void testFromListHasWarnings() {
+  void testFromListHasWarnings() {
     ArrayList<DigiDocException> exceptions = new ArrayList<>();
     exceptions.add(new DigiDocException(DigiDocException.ERR_OLD_VER, "test", new Throwable("exception1")));
     exceptions.add(new DigiDocException(DigiDocException.WARN_WEAK_DIGEST, "test2", new Throwable("exception2")));
@@ -82,7 +82,7 @@ public class DDocSignatureValidationResultTest {
 
   @EnabledOnJre(JRE.JAVA_8)
   @Test
-  public void testReportJava8() {
+  void testReportJava8() {
     ArrayList<DigiDocException> exceptions = new ArrayList<>();
     exceptions.add(new DigiDocException(DigiDocException.ERR_UNSUPPORTED, "test", new Throwable("exception1")));
     exceptions.add(new DigiDocException(DigiDocException.ERR_CALCULATE_DIGEST, "test2", new Throwable("exception2")));
@@ -105,7 +105,7 @@ public class DDocSignatureValidationResultTest {
 
   @DisabledOnJre(JRE.JAVA_8)
   @Test
-  public void testReportJava9Plus() {
+  void testReportJava9Plus() {
     ArrayList<DigiDocException> exceptions = new ArrayList<>();
     exceptions.add(new DigiDocException(DigiDocException.ERR_UNSUPPORTED, "test", new Throwable("exception1")));
     exceptions.add(new DigiDocException(DigiDocException.ERR_CALCULATE_DIGEST, "test2", new Throwable("exception2")));

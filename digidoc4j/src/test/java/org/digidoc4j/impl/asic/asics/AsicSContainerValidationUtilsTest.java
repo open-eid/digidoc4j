@@ -35,12 +35,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
-public class AsicSContainerValidationUtilsTest {
+class AsicSContainerValidationUtilsTest {
 
   private static final String INVALID_MIMETYPE_MESSAGE = "Invalid mimetype for ASiC-S container";
 
   @Test
-  public void validateContainerParseResult_WhenMimeTypeIsMissing_ThrowsException() {
+  void validateContainerParseResult_WhenMimeTypeIsMissing_ThrowsException() {
     AsicParseResult parseResult = createParseResultWithMimeType((String) null);
 
     IllegalContainerContentException caughtException = assertThrows(
@@ -52,7 +52,7 @@ public class AsicSContainerValidationUtilsTest {
   }
 
   @Test
-  public void validateContainerParseResult_WhenMimeTypeIsEmpty_ThrowsException() {
+  void validateContainerParseResult_WhenMimeTypeIsEmpty_ThrowsException() {
     AsicParseResult parseResult = createParseResultWithMimeType(StringUtils.EMPTY);
 
     IllegalContainerContentException caughtException = assertThrows(
@@ -64,7 +64,7 @@ public class AsicSContainerValidationUtilsTest {
   }
 
   @Test
-  public void validateContainerParseResult_WhenMimeTypeIsNonAsic_ThrowsException() {
+  void validateContainerParseResult_WhenMimeTypeIsNonAsic_ThrowsException() {
     AsicParseResult parseResult = createParseResultWithMimeType(MimeTypeEnum.TEXT);
 
     IllegalContainerContentException caughtException = assertThrows(
@@ -76,7 +76,7 @@ public class AsicSContainerValidationUtilsTest {
   }
 
   @Test
-  public void validateContainerParseResult_WhenMimeTypeIsAsice_ThrowsException() {
+  void validateContainerParseResult_WhenMimeTypeIsAsice_ThrowsException() {
     AsicParseResult parseResult = createParseResultWithMimeType(MimeTypeEnum.ASICE);
 
     IllegalContainerContentException caughtException = assertThrows(
@@ -88,7 +88,7 @@ public class AsicSContainerValidationUtilsTest {
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenContainsBothSignaturesAndTimestamps_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenContainsBothSignaturesAndTimestamps_ThrowsException() {
     AsicParseResult parseResult = createAsicsParseResult();
     XadesSignatureWrapper signature = mock(XadesSignatureWrapper.class);
     parseResult.setSignatures(Collections.singletonList(signature));
@@ -108,22 +108,22 @@ public class AsicSContainerValidationUtilsTest {
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenUnsignedContainerHasCadesSignatureEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenUnsignedContainerHasCadesSignatureEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenUnsignedContainerHasUnsupportedCadesSignatureEntry_ThrowsException("signature.p7s");
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenUnsignedContainerHasCadesSignaturesEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenUnsignedContainerHasCadesSignaturesEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenUnsignedContainerHasUnsupportedCadesSignatureEntry_ThrowsException("signatures.p7s");
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenUnsignedContainerHasCadesSignature0Entry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenUnsignedContainerHasCadesSignature0Entry_ThrowsException() {
     validateAsicsContainerParseResult_WhenUnsignedContainerHasUnsupportedCadesSignatureEntry_ThrowsException("signature0.p7s");
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenUnsignedContainerHasCadesSignatureUpperCaseEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenUnsignedContainerHasCadesSignatureUpperCaseEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenUnsignedContainerHasUnsupportedCadesSignatureEntry_ThrowsException("SIGNATURE.P7S");
   }
 
@@ -144,22 +144,22 @@ public class AsicSContainerValidationUtilsTest {
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenUnsignedContainerHasEvidenceRecordErsEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenUnsignedContainerHasEvidenceRecordErsEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenUnsignedContainerHasUnsupportedEvidenceRecordEntry_ThrowsException("evidencerecord.ers");
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenUnsignedContainerHasEvidenceRecordErsUpperCaseEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenUnsignedContainerHasEvidenceRecordErsUpperCaseEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenUnsignedContainerHasUnsupportedEvidenceRecordEntry_ThrowsException("EVIDENCERECORD.ERS");
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenUnsignedContainerHasEvidenceRecordXmlEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenUnsignedContainerHasEvidenceRecordXmlEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenUnsignedContainerHasUnsupportedEvidenceRecordEntry_ThrowsException("evidencerecord.xml");
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenUnsignedContainerHasEvidenceRecordXmlUpperCaseEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenUnsignedContainerHasEvidenceRecordXmlUpperCaseEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenUnsignedContainerHasUnsupportedEvidenceRecordEntry_ThrowsException("EVIDENCERECORD.XML");
   }
 
@@ -180,12 +180,12 @@ public class AsicSContainerValidationUtilsTest {
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenUnsignedContainerHasNoDataFiles_Succeeds() {
+  void validateAsicsContainerParseResult_WhenUnsignedContainerHasNoDataFiles_Succeeds() {
     validateAsicsContainerParseResult_WhenUnsignedContainerHasNoMoreThanOneDataFile_Succeeds(0);
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenUnsignedContainerHasOneDataFile_Succeeds() {
+  void validateAsicsContainerParseResult_WhenUnsignedContainerHasOneDataFile_Succeeds() {
     validateAsicsContainerParseResult_WhenUnsignedContainerHasNoMoreThanOneDataFile_Succeeds(1);
   }
 
@@ -198,7 +198,7 @@ public class AsicSContainerValidationUtilsTest {
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenUnsignedContainerHasMoreThanOneDataFile_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenUnsignedContainerHasMoreThanOneDataFile_ThrowsException() {
     AsicParseResult parseResult = createAsicsParseResult();
     parseResult.setDataFiles(createDataFiles(2));
 
@@ -214,7 +214,7 @@ public class AsicSContainerValidationUtilsTest {
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenSignedContainerHasOneDataFile_Succeeds() {
+  void validateAsicsContainerParseResult_WhenSignedContainerHasOneDataFile_Succeeds() {
     AsicParseResult parseResult = createAsicsParseResult();
     XadesSignatureWrapper signature = mock(XadesSignatureWrapper.class);
     parseResult.setSignatures(Collections.singletonList(signature));
@@ -225,12 +225,12 @@ public class AsicSContainerValidationUtilsTest {
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenSignedContainerHasNoDataFiles_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenSignedContainerHasNoDataFiles_ThrowsException() {
     validateAsicsContainerParseResult_WhenSignedContainerDoesNotHaveOneDataFile_ThrowsException(0);
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenSignedContainerHasMoreThanOneDataFile_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenSignedContainerHasMoreThanOneDataFile_ThrowsException() {
     validateAsicsContainerParseResult_WhenSignedContainerDoesNotHaveOneDataFile_ThrowsException(2);
   }
 
@@ -254,16 +254,16 @@ public class AsicSContainerValidationUtilsTest {
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenSignedContainerHasTimestampEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenSignedContainerHasTimestampEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenSignedContainerHasTimestampTokenEntry_ThrowsException("timestamp.tst");
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenSignedContainerHasTimestamp0Entry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenSignedContainerHasTimestamp0Entry_ThrowsException() {
     validateAsicsContainerParseResult_WhenSignedContainerHasTimestampTokenEntry_ThrowsException("timestamp0.tst");
   }
   @Test
-  public void validateAsicsContainerParseResult_WhenSignedContainerHasTimestampUpperCaseEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenSignedContainerHasTimestampUpperCaseEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenSignedContainerHasTimestampTokenEntry_ThrowsException("TIMESTAMP.TST");
   }
 
@@ -288,22 +288,22 @@ public class AsicSContainerValidationUtilsTest {
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenSignedContainerHasCadesSignatureEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenSignedContainerHasCadesSignatureEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenSignedContainerHasUnsupportedCadesSignatureEntry_ThrowsException("signature.p7s");
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenSignedContainerHasCadesSignaturesEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenSignedContainerHasCadesSignaturesEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenSignedContainerHasUnsupportedCadesSignatureEntry_ThrowsException("signatures.p7s");
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenSignedContainerHasCadesSignature0Entry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenSignedContainerHasCadesSignature0Entry_ThrowsException() {
     validateAsicsContainerParseResult_WhenSignedContainerHasUnsupportedCadesSignatureEntry_ThrowsException("signature0.p7s");
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenSignedContainerHasCadesSignatureUpperCaseEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenSignedContainerHasCadesSignatureUpperCaseEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenSignedContainerHasUnsupportedCadesSignatureEntry_ThrowsException("SIGNATURE.P7S");
   }
 
@@ -328,22 +328,22 @@ public class AsicSContainerValidationUtilsTest {
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenSignedContainerHasEvidenceRecordErsEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenSignedContainerHasEvidenceRecordErsEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenSignedContainerHasUnsupportedEvidenceRecordEntry_ThrowsException("evidencerecord.ers");
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenSignedContainerHasEvidenceRecordErsUpperCaseEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenSignedContainerHasEvidenceRecordErsUpperCaseEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenSignedContainerHasUnsupportedEvidenceRecordEntry_ThrowsException("EVIDENCERECORD.ERS");
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenSignedContainerHasEvidenceRecordXmlEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenSignedContainerHasEvidenceRecordXmlEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenSignedContainerHasUnsupportedEvidenceRecordEntry_ThrowsException("evidencerecord.xml");
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenSignedContainerHasEvidenceRecordXmlUpperCaseEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenSignedContainerHasEvidenceRecordXmlUpperCaseEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenSignedContainerHasUnsupportedEvidenceRecordEntry_ThrowsException("EVIDENCERECORD.XML");
   }
 
@@ -368,7 +368,7 @@ public class AsicSContainerValidationUtilsTest {
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenTimestampContainerHasOneDataFile_Succeeds() {
+  void validateAsicsContainerParseResult_WhenTimestampContainerHasOneDataFile_Succeeds() {
     AsicParseResult parseResult = createAsicsParseResult();
     ContainerTimestampWrapper timestamp = mock(ContainerTimestampWrapper.class);
     parseResult.setTimestamps(Collections.singletonList(timestamp));
@@ -378,12 +378,12 @@ public class AsicSContainerValidationUtilsTest {
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenTimestampedContainerHasNoDataFiles_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenTimestampedContainerHasNoDataFiles_ThrowsException() {
     validateAsicsContainerParseResult_WhenTimestampedContainerDoesNotHaveOneDataFile_ThrowsException(0);
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenTimestampedContainerHasMoreThanOneDataFile_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenTimestampedContainerHasMoreThanOneDataFile_ThrowsException() {
     validateAsicsContainerParseResult_WhenTimestampedContainerDoesNotHaveOneDataFile_ThrowsException(2);
   }
 
@@ -407,17 +407,17 @@ public class AsicSContainerValidationUtilsTest {
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenTimestampedContainerHasXadesSignaturesEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenTimestampedContainerHasXadesSignaturesEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenTimestampedContainerHasXadesSignaturesEntry_ThrowsException("signatures.xml");
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenTimestampedContainerHasXadesSignatures0Entry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenTimestampedContainerHasXadesSignatures0Entry_ThrowsException() {
     validateAsicsContainerParseResult_WhenTimestampedContainerHasXadesSignaturesEntry_ThrowsException("signatures0.xml");
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenTimestampedContainerHasXadesSignaturesUpperCaseEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenTimestampedContainerHasXadesSignaturesUpperCaseEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenTimestampedContainerHasXadesSignaturesEntry_ThrowsException("SIGNATURES.XML");
   }
 
@@ -442,22 +442,22 @@ public class AsicSContainerValidationUtilsTest {
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenTimestampedContainerHasCadesSignatureEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenTimestampedContainerHasCadesSignatureEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenTimestampedContainerHasUnsupportedCadesSignatureEntry_ThrowsException("signature.p7s");
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenTimestampedContainerHasCadesSignaturesEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenTimestampedContainerHasCadesSignaturesEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenTimestampedContainerHasUnsupportedCadesSignatureEntry_ThrowsException("signatures.p7s");
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenTimestampedContainerHasCadesSignature0Entry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenTimestampedContainerHasCadesSignature0Entry_ThrowsException() {
     validateAsicsContainerParseResult_WhenTimestampedContainerHasUnsupportedCadesSignatureEntry_ThrowsException("signature0.p7s");
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenTimestampedContainerHasCadesSignatureUpperCaseEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenTimestampedContainerHasCadesSignatureUpperCaseEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenTimestampedContainerHasUnsupportedCadesSignatureEntry_ThrowsException("SIGNATURE.P7S");
   }
 
@@ -482,22 +482,22 @@ public class AsicSContainerValidationUtilsTest {
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenTimestampedContainerHasEvidenceRecordErsEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenTimestampedContainerHasEvidenceRecordErsEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenTimestampedContainerHasUnsupportedEvidenceRecordEntry_ThrowsException("evidencerecord.ers");
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenTimestampedContainerHasEvidenceRecordErsUpperCaseEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenTimestampedContainerHasEvidenceRecordErsUpperCaseEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenTimestampedContainerHasUnsupportedEvidenceRecordEntry_ThrowsException("EVIDENCERECORD.ERS");
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenTimestampedContainerHasEvidenceRecordXmlEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenTimestampedContainerHasEvidenceRecordXmlEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenTimestampedContainerHasUnsupportedEvidenceRecordEntry_ThrowsException("evidencerecord.xml");
   }
 
   @Test
-  public void validateAsicsContainerParseResult_WhenTimestampedContainerHasEvidenceRecordXmlUpperCaseEntry_ThrowsException() {
+  void validateAsicsContainerParseResult_WhenTimestampedContainerHasEvidenceRecordXmlUpperCaseEntry_ThrowsException() {
     validateAsicsContainerParseResult_WhenTimestampedContainerHasUnsupportedEvidenceRecordEntry_ThrowsException("EVIDENCERECORD.XML");
   }
 

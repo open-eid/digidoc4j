@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class HelperTest extends AbstractTest {
+class HelperTest extends AbstractTest {
 
   @Test
   void testIsXMLFileWhenFileIsNotXMLFile() throws Exception {
@@ -38,17 +38,17 @@ public class HelperTest extends AbstractTest {
   }
 
   @Test
-  public void testIsXMLFileWhenFileIsXMLFile() throws Exception {
+  void testIsXMLFileWhenFileIsXMLFile() throws Exception {
     assertTrue(Helper.isXMLFile(new File(createXMLFile())));
   }
 
   @Test
-  public void testIsZIPFileWhenFileIsNotZIPFile() throws Exception {
+  void testIsZIPFileWhenFileIsNotZIPFile() throws Exception {
     assertFalse(Helper.isZipFile(new File("src/test/resources/testFiles/helper-files/test.txt")));
   }
 
   @Test
-  public void testIsZIPFileWhenFileIsZIPFile() throws Exception {
+  void testIsZIPFileWhenFileIsZIPFile() throws Exception {
     String file = getFileBy("zip");
     try (FileOutputStream stream = new FileOutputStream(file)) {
       ZipOutputStream zipStream = new ZipOutputStream(stream);
@@ -59,7 +59,7 @@ public class HelperTest extends AbstractTest {
   }
 
   @Test
-  public void testDeleteFileIfExists() throws Exception {
+  void testDeleteFileIfExists() throws Exception {
     String filePath = getFileBy("txt", true);
     File file = new File(filePath);
     assertTrue(file.exists());
@@ -68,23 +68,23 @@ public class HelperTest extends AbstractTest {
   }
 
   @Test
-  public void testDeleteFileIfNotExists() throws Exception {
+  void testDeleteFileIfNotExists() throws Exception {
     Helper.deleteFile("testDeleteNotExists.txt");
     assertFalse(new File("testDeleteNotExists.txt").exists());
   }
 
   @Test
-  public void extractSignatureS0() throws Exception {
+  void extractSignatureS0() throws Exception {
     assertEquals("A", Helper.extractSignature(createZIPFile(), 0));
   }
 
   @Test
-  public void extractSignatureS1() throws Exception {
+  void extractSignatureS1() throws Exception {
     assertEquals("B", Helper.extractSignature(createZIPFile(), 1));
   }
 
   @Test
-  public void extractSignatureThrowsErrorWhenSignatureIsNotFound() throws Exception {
+  void extractSignatureThrowsErrorWhenSignatureIsNotFound() throws Exception {
     String file = getFileBy("zip");
     try (
         FileOutputStream fileStream = new FileOutputStream(file);
@@ -102,7 +102,7 @@ public class HelperTest extends AbstractTest {
   }
 
   @Test
-  public void deserializeThrowsException() {
+  void deserializeThrowsException() {
     assertThrows(
             DigiDoc4JException.class,
             () -> Helper.deserializer((File) null)
@@ -117,7 +117,7 @@ public class HelperTest extends AbstractTest {
   }
 
   @Test
-  public void testSaveFileNamesFromString() {
+  void testSaveFileNamesFromString() {
     String pathToContainer = "src/test/resources/testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc";
     String folder = testFolder.toString();
     Helper.saveAllFilesFromContainerPathToFolder(pathToContainer, folder);
@@ -126,7 +126,7 @@ public class HelperTest extends AbstractTest {
   }
 
   @Test
-  public void testSaveFileNamesFromContainer() {
+  void testSaveFileNamesFromContainer() {
     Container container = ContainerBuilder.aContainer().
         fromExistingFile("src/test/resources/testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc").build();
     String folder = testFolder.toString();
@@ -136,7 +136,7 @@ public class HelperTest extends AbstractTest {
   }
 
   @Test
-  public void testGetFilesFromString() {
+  void testGetFilesFromString() {
     Container container = ContainerBuilder.aContainer().
         fromExistingFile("src/test/resources/testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc").        build();
     String folder = testFolder.toString();
@@ -153,7 +153,7 @@ public class HelperTest extends AbstractTest {
   }
 
   @Test
-  public void testGetFilesFromContainer() {
+  void testGetFilesFromContainer() {
     String containerFile = "src/test/resources/testFiles/valid-containers/DigiDocService_spec_est.pdf-TM-j.bdoc";
     String folder = testFolder.toString();
     String helperFolder = "src/test/resources/testFiles/helper-files";
@@ -169,7 +169,7 @@ public class HelperTest extends AbstractTest {
   }
 
   @Test
-  public void testPDFContainer() {
+  void testPDFContainer() {
     assertTrue(Helper.isPdfFile("src/test/resources/testFiles/invalid-containers/EE_AS-P-BpLT-V-009.pdf"));
     assertFalse(Helper.isPdfFile("src/test/resources/testFiles/valid-containers/one_signature.bdoc"));
   }

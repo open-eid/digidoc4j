@@ -41,10 +41,10 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 
-public class TimestampedContainerValidationTest extends AbstractTest {
+class TimestampedContainerValidationTest extends AbstractTest {
 
   @Test
-  public void validate_WhenAsicsWithOneValidTimestamp_ValidationResultContainsInfoAboutOneValidTimestamp() {
+  void validate_WhenAsicsWithOneValidTimestamp_ValidationResultContainsInfoAboutOneValidTimestamp() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/testtimestamp.asics",
             Configuration.of(Configuration.Mode.TEST)
@@ -80,7 +80,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenAsicsWith3ValidTimestamps_ValidationResultContainsInfoAbout3ValidTimestamps() {
+  void validate_WhenAsicsWith3ValidTimestamps_ValidationResultContainsInfoAbout3ValidTimestamps() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/3xTST-text-data-file.asics",
             Configuration.of(Configuration.Mode.TEST)
@@ -146,7 +146,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenAsicsWith1ValidAnd2InvalidTimestamps_ValidationResultContainsErrors() {
+  void validate_WhenAsicsWith1ValidAnd2InvalidTimestamps_ValidationResultContainsErrors() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/invalid-containers/3xTST-text-data-file-hash-failure-since-2nd-tst.asics",
             Configuration.of(Configuration.Mode.TEST)
@@ -223,7 +223,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenAsicsWithOneExpiredTimestamp_ValidationResultIsValidAndContainsWarnings() {
+  void validate_WhenAsicsWithOneExpiredTimestamp_ValidationResultIsValidAndContainsWarnings() {
     Container container = ContainerOpener.open(
             "src/test/resources/prodFiles/invalid-containers/1xTST-text-data-file-expired-tst.asics",
             Configuration.of(Configuration.Mode.PROD)
@@ -269,7 +269,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenAsicsWithOneExpiredAndOneValidTimestamp_ValidationResultIsValidAndContainsWarnings() {
+  void validate_WhenAsicsWithOneExpiredAndOneValidTimestamp_ValidationResultIsValidAndContainsWarnings() {
     Container container = ContainerOpener.open(
             "src/test/resources/prodFiles/valid-containers/2xTST-text-data-file-expired-tst-and-valid-tst.asics",
             Configuration.of(Configuration.Mode.PROD)
@@ -330,7 +330,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenAsicsWithInvalidAndNonCoveringTimestamp_ValidationResultIsNotValid() {
+  void validate_WhenAsicsWithInvalidAndNonCoveringTimestamp_ValidationResultIsNotValid() {
     Container container = ContainerOpener.open(
             "src/test/resources/prodFiles/invalid-containers/2xTST-text-data-file-1st-tst-invalid-2nd-tst-no-coverage.asics",
             Configuration.of(Configuration.Mode.PROD)
@@ -397,7 +397,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenAsicsWithInvalidAndNonCoveringAndValidTimestamp_ValidationResultIsValidButContainsErrors() {
+  void validate_WhenAsicsWithInvalidAndNonCoveringAndValidTimestamp_ValidationResultIsValidButContainsErrors() {
     Container container = ContainerOpener.open(
             "src/test/resources/prodFiles/valid-containers/3xTST-text-data-file-1st-tst-invalid-2nd-tst-no-coverage-3rd-tst-valid.asics",
             Configuration.of(Configuration.Mode.PROD)
@@ -480,7 +480,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenAsicsWithSpecialCharactersInDataFileNamePercentEncodedInTimestampManifest_AllTimestampsAreValid() {
+  void validate_WhenAsicsWithSpecialCharactersInDataFileNamePercentEncodedInTimestampManifest_AllTimestampsAreValid() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/2xTST-datafile-with-special-characters-percentencoded-in-archive-manifest.asics",
             Configuration.of(Configuration.Mode.TEST)
@@ -539,7 +539,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenAsicsWithSpecialCharactersInDataFileNameUnencodedInTimestampManifest_AllTimestampsAreValid() {
+  void validate_WhenAsicsWithSpecialCharactersInDataFileNameUnencodedInTimestampManifest_AllTimestampsAreValid() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/2xTST-datafile-with-special-characters-unencoded-in-archive-manifest.asics",
             Configuration.of(Configuration.Mode.TEST)
@@ -598,7 +598,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenAsicsWithSpaceInDataFileNamePlusEncodedInTimestampManifest_TimestampWithManifestNotValid() {
+  void validate_WhenAsicsWithSpaceInDataFileNamePlusEncodedInTimestampManifest_TimestampWithManifestNotValid() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/invalid-containers/2xTST-datafile-with-space-plusencoded-in-archive-manifest.asics",
             Configuration.of(Configuration.Mode.TEST)
@@ -661,7 +661,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenAsicsWithPercent20InDataFileNameUnencodedInTimestampManifest_TimestampWithManifestNotValid() {
+  void validate_WhenAsicsWithPercent20InDataFileNameUnencodedInTimestampManifest_TimestampWithManifestNotValid() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/invalid-containers/2xTST-datafile-with-%20-unencoded-in-archive-manifest.asics",
             Configuration.of(Configuration.Mode.TEST)
@@ -724,7 +724,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenAsicsWithPercentInDataFileNameUnencodedInTimestampManifest_AllTimestampsAreValid() {
+  void validate_WhenAsicsWithPercentInDataFileNameUnencodedInTimestampManifest_AllTimestampsAreValid() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/2xTST-datafile-with-%-unencoded-in-archive-manifest.asics",
             Configuration.of(Configuration.Mode.TEST)
@@ -783,7 +783,7 @@ public class TimestampedContainerValidationTest extends AbstractTest {
   }
 
   @Test
-  public void validate_WhenAsicsWithPlusAndPercentInDataFileNameUnencodedInTimestampManifest_TimestampWithManifestNotValid() {
+  void validate_WhenAsicsWithPlusAndPercentInDataFileNameUnencodedInTimestampManifest_TimestampWithManifestNotValid() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/invalid-containers/2xTST-datafile-with-+%-unencoded-in-archive-manifest.asics",
             Configuration.of(Configuration.Mode.TEST)

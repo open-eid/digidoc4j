@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.impl.asic;
 
 import org.digidoc4j.AbstractTest;
@@ -9,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public abstract class AsicContainerParserZipBombingTest extends AbstractTest {
+abstract class AsicContainerParserZipBombingTest extends AbstractTest {
 
     protected static final String MULTIPLE_DATAFILE_CONTAINER_PATH = "src/test/resources/testFiles/valid-containers/compression-ratio-46.55-with-8-datafiles.asice";
     protected static final String SINGLE_DATAFILE_CONTAINER_PATH = "src/test/resources/testFiles/valid-containers/compression-ratio-51.91-with-1-datafile.asice";
@@ -22,56 +32,56 @@ public abstract class AsicContainerParserZipBombingTest extends AbstractTest {
     protected abstract AsicContainerParser createAsicContainerParserFromPath(String path, Configuration configuration);
 
     @Test
-    public void testZipBombingDetectedWithSingleDataFileWhenUnpackRatioExceedsAllowedRatio() {
+    void testZipBombingDetectedWithSingleDataFileWhenUnpackRatioExceedsAllowedRatio() {
         Configuration configuration = createTestConfigurationWithThresholdAndRatio(ONE_KILOBYTE_IN_BYTES, 51);
         AsicContainerParser asicContainerParser = createAsicContainerParserFromPath(SINGLE_DATAFILE_CONTAINER_PATH, configuration);
         assertReadThrowsZipBombingException(asicContainerParser);
     }
 
     @Test
-    public void testZipBombingNotDetectedWithSingleDataFileWhenUnpackRatioIsBelowAllowedRatio() {
+    void testZipBombingNotDetectedWithSingleDataFileWhenUnpackRatioIsBelowAllowedRatio() {
         Configuration configuration = createTestConfigurationWithThresholdAndRatio(ONE_KILOBYTE_IN_BYTES, 52);
         AsicContainerParser asicContainerParser = createAsicContainerParserFromPath(SINGLE_DATAFILE_CONTAINER_PATH, configuration);
         assertReadSucceeds(1, asicContainerParser);
     }
 
     @Test
-    public void testZipBombingNotDetectedWithSingleDataFileWhenUnpackRatioExceedsAllowedRatioButThresholdIsSlightlyAboveActualUnpackSize() {
+    void testZipBombingNotDetectedWithSingleDataFileWhenUnpackRatioExceedsAllowedRatioButThresholdIsSlightlyAboveActualUnpackSize() {
         Configuration configuration = createTestConfigurationWithThresholdAndRatio(SINGLE_DATAFILE_CONTAINER_UNPACKED_SIZE_IN_BYTES + 1, 51);
         AsicContainerParser asicContainerParser = createAsicContainerParserFromPath(SINGLE_DATAFILE_CONTAINER_PATH, configuration);
         assertReadSucceeds(1, asicContainerParser);
     }
 
     @Test
-    public void testZipBombingDetectedWithSingleDataFileWhenUnpackRatioExceedsAllowedRatioAndThresholdIsSlightlyBelowActualUnpackSize() {
+    void testZipBombingDetectedWithSingleDataFileWhenUnpackRatioExceedsAllowedRatioAndThresholdIsSlightlyBelowActualUnpackSize() {
         Configuration configuration = createTestConfigurationWithThresholdAndRatio(SINGLE_DATAFILE_CONTAINER_UNPACKED_SIZE_IN_BYTES - 1, 51);
         AsicContainerParser asicContainerParser = createAsicContainerParserFromPath(SINGLE_DATAFILE_CONTAINER_PATH, configuration);
         assertReadThrowsZipBombingException(asicContainerParser);
     }
 
     @Test
-    public void testZipBombingDetectedWithMultipleDataFilesWhenUnpackRatioExceedsAllowedRatio() {
+    void testZipBombingDetectedWithMultipleDataFilesWhenUnpackRatioExceedsAllowedRatio() {
         Configuration configuration = createTestConfigurationWithThresholdAndRatio(ONE_KILOBYTE_IN_BYTES, 46);
         AsicContainerParser asicContainerParser = createAsicContainerParserFromPath(MULTIPLE_DATAFILE_CONTAINER_PATH, configuration);
         assertReadThrowsZipBombingException(asicContainerParser);
     }
 
     @Test
-    public void testZipBombingNotDetectedWithMultipleDataFilesWhenUnpackRatioIsBelowAllowedRatio() {
+    void testZipBombingNotDetectedWithMultipleDataFilesWhenUnpackRatioIsBelowAllowedRatio() {
         Configuration configuration = createTestConfigurationWithThresholdAndRatio(ONE_KILOBYTE_IN_BYTES, 47);
         AsicContainerParser asicContainerParser = createAsicContainerParserFromPath(MULTIPLE_DATAFILE_CONTAINER_PATH, configuration);
         assertReadSucceeds(8, asicContainerParser);
     }
 
     @Test
-    public void testZipBombingNotDetectedWithMultipleDataFilesWhenUnpackRatioExceedsAllowedRatioButThresholdIsSlightlyAboveActualUnpackSize() {
+    void testZipBombingNotDetectedWithMultipleDataFilesWhenUnpackRatioExceedsAllowedRatioButThresholdIsSlightlyAboveActualUnpackSize() {
         Configuration configuration = createTestConfigurationWithThresholdAndRatio(MULTIPLE_DATAFILE_CONTAINER_UNPACKED_SIZE_IN_BYTES + 1, 46);
         AsicContainerParser asicContainerParser = createAsicContainerParserFromPath(MULTIPLE_DATAFILE_CONTAINER_PATH, configuration);
         assertReadSucceeds(8, asicContainerParser);
     }
 
     @Test
-    public void testZipBombingDetectedWithMultipleDataFilesWhenUnpackRatioExceedsAllowedRatioAndThresholdIsSlightlyBelowActualUnpackSize() {
+    void testZipBombingDetectedWithMultipleDataFilesWhenUnpackRatioExceedsAllowedRatioAndThresholdIsSlightlyBelowActualUnpackSize() {
         Configuration configuration = createTestConfigurationWithThresholdAndRatio(MULTIPLE_DATAFILE_CONTAINER_UNPACKED_SIZE_IN_BYTES - 1, 46);
         AsicContainerParser asicContainerParser = createAsicContainerParserFromPath(MULTIPLE_DATAFILE_CONTAINER_PATH, configuration);
         assertReadThrowsZipBombingException(asicContainerParser);

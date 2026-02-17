@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.impl.asic;
 
 import org.digidoc4j.Configuration;
@@ -6,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-public class AsicStreamContainerParserZipBombingTest extends AsicContainerParserZipBombingTest {
+class AsicStreamContainerParserZipBombingTest extends AsicContainerParserZipBombingTest {
 
     @Override
     protected AsicContainerParser createAsicContainerParserFromPath(String path, Configuration configuration) {
@@ -28,7 +38,7 @@ public class AsicStreamContainerParserZipBombingTest extends AsicContainerParser
      */
     @Test
     @Override
-    public void testZipBombingNotDetectedWithSingleDataFileWhenUnpackRatioIsBelowAllowedRatio() {
+    void testZipBombingNotDetectedWithSingleDataFileWhenUnpackRatioIsBelowAllowedRatio() {
         // The ratio balloons approximately up to 600 before the actual container size in known and the ratio stabilizes
         Configuration configuration = createTestConfigurationWithThresholdAndRatio(ONE_KILOBYTE_IN_BYTES, 600);
         AsicContainerParser asicContainerParser = createAsicContainerParserFromPath(SINGLE_DATAFILE_CONTAINER_PATH, configuration);
@@ -46,7 +56,7 @@ public class AsicStreamContainerParserZipBombingTest extends AsicContainerParser
      */
     @Test
     @Override
-    public void testZipBombingNotDetectedWithMultipleDataFilesWhenUnpackRatioIsBelowAllowedRatio() {
+    void testZipBombingNotDetectedWithMultipleDataFilesWhenUnpackRatioIsBelowAllowedRatio() {
         // The ratio balloons approximately up to 300 before the actual container size in known and the ratio stabilizes
         Configuration configuration = createTestConfigurationWithThresholdAndRatio(ONE_KILOBYTE_IN_BYTES, 300);
         AsicContainerParser asicContainerParser = createAsicContainerParserFromPath(MULTIPLE_DATAFILE_CONTAINER_PATH, configuration);

@@ -21,17 +21,17 @@ import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TokenAlgorithmSupportTest {
+class TokenAlgorithmSupportTest {
 
   @Test
-  public void getDefaultDigestAlgorithm_shouldReturnSha256() {
+  void getDefaultDigestAlgorithm_shouldReturnSha256() {
     PKCS12SignatureToken testSignatureToken = new PKCS12SignatureToken(TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD.toCharArray());
     DigestAlgorithm digestAlgorithm = TokenAlgorithmSupport.determineSignatureDigestAlgorithm(testSignatureToken.getCertificate());
     assertEquals(DigestAlgorithm.SHA256, digestAlgorithm);
   }
 
   @Test
-  public void oldEstonianIdCardCert_shouldReturnSha224() throws Exception {
+  void oldEstonianIdCardCert_shouldReturnSha224() throws Exception {
     String certString = FileUtils.readFileToString(new File("src/test/resources/testFiles/certs/esteid-pre2011-test-signing-certificate-37101010021.cer"), StandardCharsets.UTF_8);
     DigestAlgorithm digestAlgorithm = TokenAlgorithmSupport.determineSignatureDigestAlgorithm(TestSigningUtil.toX509Certificate(certString));
     assertEquals(DigestAlgorithm.SHA224, digestAlgorithm);

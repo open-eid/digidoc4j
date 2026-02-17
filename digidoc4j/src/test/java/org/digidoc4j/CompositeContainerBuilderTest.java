@@ -40,12 +40,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
-public class CompositeContainerBuilderTest {
+class CompositeContainerBuilderTest {
 
   private static final String CONTAINER_FILE_NAME = "container";
 
   @Test
-  public void fromContainer_WhenContainerIsNull_ThrowsException() {
+  void fromContainer_WhenContainerIsNull_ThrowsException() {
     NullPointerException caughtException = assertThrows(
             NullPointerException.class,
             () -> CompositeContainerBuilder.fromContainer(null, CONTAINER_FILE_NAME)
@@ -55,7 +55,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void fromContainer_WhenFileNameIsNull_ThrowsException() {
+  void fromContainer_WhenFileNameIsNull_ThrowsException() {
     Container container = mock(Container.class);
 
     NullPointerException caughtException = assertThrows(
@@ -68,12 +68,12 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void fromContainer_WhenFileNameIsEmpty_ThrowsException() {
+  void fromContainer_WhenFileNameIsEmpty_ThrowsException() {
     fromContainer_WhenFileNameIsInvalid_ThrowsException(StringUtils.EMPTY);
   }
 
   @Test
-  public void fromContainer_WhenFileNameIsBlank_ThrowsException() {
+  void fromContainer_WhenFileNameIsBlank_ThrowsException() {
     fromContainer_WhenFileNameIsInvalid_ThrowsException(StringUtils.SPACE);
   }
 
@@ -91,7 +91,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void fromContainer_WhenFileNameEndsWithFileSeparator_ThrowsException() {
+  void fromContainer_WhenFileNameEndsWithFileSeparator_ThrowsException() {
     Container container = mock(Container.class);
 
     IllegalArgumentException caughtException = assertThrows(
@@ -104,7 +104,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void fromContainer_WhenFileNameContainsNullCharacter_ThrowsException() {
+  void fromContainer_WhenFileNameContainsNullCharacter_ThrowsException() {
     Container container = mock(Container.class);
 
     IllegalArgumentException caughtException = assertThrows(
@@ -117,7 +117,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void fromContainerFile_WhenFilePathIsNull_ThrowsException() {
+  void fromContainerFile_WhenFilePathIsNull_ThrowsException() {
     NullPointerException caughtException = assertThrows(
             NullPointerException.class,
             () -> CompositeContainerBuilder.fromContainerFile(null)
@@ -127,12 +127,12 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void fromContainerFile_WhenFilePathIsEmpty_ThrowsException() {
+  void fromContainerFile_WhenFilePathIsEmpty_ThrowsException() {
     fromContainerFile_WhenFilePathIsInvalid_ThrowsException(StringUtils.EMPTY);
   }
 
   @Test
-  public void fromContainerFile_WhenFilePathIsBlank_ThrowsException() {
+  void fromContainerFile_WhenFilePathIsBlank_ThrowsException() {
     fromContainerFile_WhenFilePathIsInvalid_ThrowsException(StringUtils.SPACE);
   }
 
@@ -147,7 +147,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void fromContainerFile_WhenFilePathEndsWithFileSeparator_ThrowsException() {
+  void fromContainerFile_WhenFilePathEndsWithFileSeparator_ThrowsException() {
     IllegalArgumentException caughtException = assertThrows(
             IllegalArgumentException.class,
             () -> CompositeContainerBuilder.fromContainerFile("test" + File.separator)
@@ -157,7 +157,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void fromContainerFile_WhenFilePathContainsNullCharacter_ThrowsException() {
+  void fromContainerFile_WhenFilePathContainsNullCharacter_ThrowsException() {
     IllegalArgumentException caughtException = assertThrows(
             IllegalArgumentException.class,
             () -> CompositeContainerBuilder.fromContainerFile("test\0")
@@ -167,7 +167,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void fromContainerStream_WhenContainerIsNull_ThrowsException() {
+  void fromContainerStream_WhenContainerIsNull_ThrowsException() {
     NullPointerException caughtException = assertThrows(
             NullPointerException.class,
             () -> CompositeContainerBuilder.fromContainerStream(null, CONTAINER_FILE_NAME)
@@ -177,7 +177,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void fromContainerStream_WhenFileNameIsNull_ThrowsException() {
+  void fromContainerStream_WhenFileNameIsNull_ThrowsException() {
     InputStream inputStream = mock(InputStream.class);
 
     NullPointerException caughtException = assertThrows(
@@ -190,12 +190,12 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void fromContainerStream_WhenFileNameIsEmpty_ThrowsException() {
+  void fromContainerStream_WhenFileNameIsEmpty_ThrowsException() {
     fromContainerStream_WhenFileNameIsInvalid_ThrowsException(StringUtils.EMPTY);
   }
 
   @Test
-  public void fromContainerStream_WhenFileNameIsBlank_ThrowsException() {
+  void fromContainerStream_WhenFileNameIsBlank_ThrowsException() {
     fromContainerStream_WhenFileNameIsInvalid_ThrowsException(StringUtils.SPACE);
   }
 
@@ -213,7 +213,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void fromContainerStream_WhenFileNameEndsWithFileSeparator_ThrowsException() {
+  void fromContainerStream_WhenFileNameEndsWithFileSeparator_ThrowsException() {
     InputStream inputStream = mock(InputStream.class);
 
     IllegalArgumentException caughtException = assertThrows(
@@ -226,7 +226,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void fromContainerStream_WhenFileNameContainsNullCharacter_ThrowsException() {
+  void fromContainerStream_WhenFileNameContainsNullCharacter_ThrowsException() {
     InputStream inputStream = mock(InputStream.class);
 
     IllegalArgumentException caughtException = assertThrows(
@@ -239,7 +239,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void buildTimestamped_WhenSpecifiedFileIsNotContainer_ThrowsException() {
+  void buildTimestamped_WhenSpecifiedFileIsNotContainer_ThrowsException() {
     CompositeContainerBuilder builder = CompositeContainerBuilder
             .fromContainerFile("src/test/resources/testFiles/helper-files/test.txt")
             .withConfiguration(Configuration.of(Configuration.Mode.TEST));
@@ -254,7 +254,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void buildTimestamped_WhenSpecifiedStreamIsNotContainer_ThrowsException() {
+  void buildTimestamped_WhenSpecifiedStreamIsNotContainer_ThrowsException() {
     CompositeContainerBuilder builder = CompositeContainerBuilder
             .fromContainerStream(new ByteArrayInputStream(new byte[0]), CONTAINER_FILE_NAME)
             .withConfiguration(Configuration.of(Configuration.Mode.TEST));
@@ -269,7 +269,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void buildTimestamped_WhenSpecifiedContainerIsAsice_CreatesTimestampedCompositeContainer() {
+  void buildTimestamped_WhenSpecifiedContainerIsAsice_CreatesTimestampedCompositeContainer() {
     buildTimestamped_WhenSpecifiedContainerIsAllowedType_CreatesTimestampedCompositeContainer(
             "src/test/resources/testFiles/valid-containers/valid-asice-esteid2018.asice",
             Constant.ASICE_CONTAINER_TYPE,
@@ -278,7 +278,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void buildTimestamped_WhenSpecifiedFileIsAsice_CreatesTimestampedCompositeContainer() throws Exception {
+  void buildTimestamped_WhenSpecifiedFileIsAsice_CreatesTimestampedCompositeContainer() throws Exception {
     buildTimestamped_WhenSpecifiedFileIsAllowedContainerType_CreatesTimestampedCompositeContainer(
             "src/test/resources/testFiles/valid-containers/valid-asice-esteid2018.asice",
             Constant.ASICE_CONTAINER_TYPE,
@@ -287,7 +287,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void buildTimestamped_WhenSpecifiedStreamIsAsice_CreatesTimestampedCompositeContainer() throws Exception {
+  void buildTimestamped_WhenSpecifiedStreamIsAsice_CreatesTimestampedCompositeContainer() throws Exception {
     buildTimestamped_WhenSpecifiedStreamIsAllowedContainerType_CreatesTimestampedCompositeContainer(
             "src/test/resources/testFiles/valid-containers/valid-asice-esteid2018.asice",
             Constant.ASICE_CONTAINER_TYPE,
@@ -296,7 +296,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void buildTimestamped_WhenSpecifiedContainerIsSignedAsics_CreatesTimestampedCompositeContainer() {
+  void buildTimestamped_WhenSpecifiedContainerIsSignedAsics_CreatesTimestampedCompositeContainer() {
     buildTimestamped_WhenSpecifiedContainerIsAllowedType_CreatesTimestampedCompositeContainer(
             "src/test/resources/testFiles/valid-containers/valid-asics-esteid2018.asics",
             Constant.ASICS_CONTAINER_TYPE,
@@ -305,7 +305,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void buildTimestamped_WhenSpecifiedFileIsSignedAsics_CreatesTimestampedCompositeContainer() throws Exception {
+  void buildTimestamped_WhenSpecifiedFileIsSignedAsics_CreatesTimestampedCompositeContainer() throws Exception {
     buildTimestamped_WhenSpecifiedFileIsAllowedContainerType_CreatesTimestampedCompositeContainer(
             "src/test/resources/testFiles/valid-containers/valid-asics-esteid2018.asics",
             Constant.ASICS_CONTAINER_TYPE,
@@ -314,7 +314,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void buildTimestamped_WhenSpecifiedStreamIsSignedAsics_CreatesTimestampedCompositeContainer() throws Exception {
+  void buildTimestamped_WhenSpecifiedStreamIsSignedAsics_CreatesTimestampedCompositeContainer() throws Exception {
     buildTimestamped_WhenSpecifiedStreamIsAllowedContainerType_CreatesTimestampedCompositeContainer(
             "src/test/resources/testFiles/valid-containers/valid-asics-esteid2018.asics",
             Constant.ASICS_CONTAINER_TYPE,
@@ -323,7 +323,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void buildTimestamped_WhenSpecifiedContainerIsTimestampedAsics_CreatesTimestampedCompositeContainer() {
+  void buildTimestamped_WhenSpecifiedContainerIsTimestampedAsics_CreatesTimestampedCompositeContainer() {
     buildTimestamped_WhenSpecifiedContainerIsAllowedType_CreatesTimestampedCompositeContainer(
             "src/test/resources/testFiles/valid-containers/1xTST-text-data-file.asics",
             Constant.ASICS_CONTAINER_TYPE,
@@ -332,7 +332,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void buildTimestamped_WhenSpecifiedFileIsTimestampedAsics_CreatesTimestampedCompositeContainer() throws Exception {
+  void buildTimestamped_WhenSpecifiedFileIsTimestampedAsics_CreatesTimestampedCompositeContainer() throws Exception {
     buildTimestamped_WhenSpecifiedFileIsAllowedContainerType_CreatesTimestampedCompositeContainer(
             "src/test/resources/testFiles/valid-containers/1xTST-text-data-file.asics",
             Constant.ASICS_CONTAINER_TYPE,
@@ -341,7 +341,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void buildTimestamped_WhenSpecifiedStreamIsTimestampedAsics_CreatesTimestampedCompositeContainer() throws Exception {
+  void buildTimestamped_WhenSpecifiedStreamIsTimestampedAsics_CreatesTimestampedCompositeContainer() throws Exception {
     buildTimestamped_WhenSpecifiedStreamIsAllowedContainerType_CreatesTimestampedCompositeContainer(
             "src/test/resources/testFiles/valid-containers/1xTST-text-data-file.asics",
             Constant.ASICS_CONTAINER_TYPE,
@@ -350,7 +350,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void buildTimestamped_WhenSpecifiedContainerIsBdoc_CreatesTimestampedCompositeContainer() {
+  void buildTimestamped_WhenSpecifiedContainerIsBdoc_CreatesTimestampedCompositeContainer() {
     buildTimestamped_WhenSpecifiedContainerIsAllowedType_CreatesTimestampedCompositeContainer(
             "src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc",
             Constant.BDOC_CONTAINER_TYPE,
@@ -359,7 +359,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void buildTimestamped_WhenSpecifiedFileIsBdoc_CreatesTimestampedCompositeContainer() throws Exception {
+  void buildTimestamped_WhenSpecifiedFileIsBdoc_CreatesTimestampedCompositeContainer() throws Exception {
     buildTimestamped_WhenSpecifiedFileIsAllowedContainerType_CreatesTimestampedCompositeContainer(
             "src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc",
             Constant.BDOC_CONTAINER_TYPE,
@@ -368,7 +368,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void buildTimestamped_WhenSpecifiedStreamIsBdoc_CreatesTimestampedCompositeContainer() throws Exception {
+  void buildTimestamped_WhenSpecifiedStreamIsBdoc_CreatesTimestampedCompositeContainer() throws Exception {
     buildTimestamped_WhenSpecifiedStreamIsAllowedContainerType_CreatesTimestampedCompositeContainer(
             "src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc",
             Constant.BDOC_CONTAINER_TYPE,
@@ -377,7 +377,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void buildTimestamped_WhenSpecifiedContainerIsDdoc_CreatesTimestampedCompositeContainer() {
+  void buildTimestamped_WhenSpecifiedContainerIsDdoc_CreatesTimestampedCompositeContainer() {
     buildTimestamped_WhenSpecifiedContainerIsAllowedType_CreatesTimestampedCompositeContainer(
             "src/test/resources/testFiles/valid-containers/ddoc-valid.ddoc",
             Constant.DDOC_CONTAINER_TYPE,
@@ -386,7 +386,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void buildTimestamped_WhenSpecifiedFileIsDdoc_CreatesTimestampedCompositeContainer() throws Exception {
+  void buildTimestamped_WhenSpecifiedFileIsDdoc_CreatesTimestampedCompositeContainer() throws Exception {
     buildTimestamped_WhenSpecifiedFileIsAllowedContainerType_CreatesTimestampedCompositeContainer(
             "src/test/resources/testFiles/valid-containers/ddoc-valid.ddoc",
             Constant.DDOC_CONTAINER_TYPE,
@@ -395,7 +395,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void buildTimestamped_WhenSpecifiedStreamIsDdoc_CreatesTimestampedCompositeContainer() throws Exception {
+  void buildTimestamped_WhenSpecifiedStreamIsDdoc_CreatesTimestampedCompositeContainer() throws Exception {
     buildTimestamped_WhenSpecifiedStreamIsAllowedContainerType_CreatesTimestampedCompositeContainer(
             "src/test/resources/testFiles/valid-containers/ddoc-valid.ddoc",
             Constant.DDOC_CONTAINER_TYPE,
@@ -404,7 +404,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void buildTimestamped_WhenSpecifiedContainerIsPades_ThrowsPadesSerializationNotImplementedException() {
+  void buildTimestamped_WhenSpecifiedContainerIsPades_ThrowsPadesSerializationNotImplementedException() {
     Container nestedContainer = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/valid-pades-esteid2018.pdf",
             Configuration.of(Configuration.Mode.TEST)
@@ -421,7 +421,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void buildTimestamped_WhenSpecifiedFileIsPades_ThrowsPadesNestedContainerNotSupportedException() {
+  void buildTimestamped_WhenSpecifiedFileIsPades_ThrowsPadesNestedContainerNotSupportedException() {
     CompositeContainerBuilder builder = CompositeContainerBuilder
             .fromContainerFile("src/test/resources/testFiles/valid-containers/valid-pades-esteid2018.pdf")
             .withConfiguration(Configuration.of(Configuration.Mode.TEST));
@@ -437,7 +437,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void buildTimestamped_WhenSpecifiedStreamIsPades_ThrowsParsingException() {
+  void buildTimestamped_WhenSpecifiedStreamIsPades_ThrowsParsingException() {
     FileDocument nestedContainerFile = new FileDocument(
             "src/test/resources/testFiles/valid-containers/valid-pades-esteid2018.pdf"
     );
@@ -455,7 +455,7 @@ public class CompositeContainerBuilderTest {
   }
 
   @Test
-  public void buildTimestamped_WhenTimestampBuilderIsConfigured_ChangesReflectInFinalTimestamp() {
+  void buildTimestamped_WhenTimestampBuilderIsConfigured_ChangesReflectInFinalTimestamp() {
     Instant notBefore = Instant.now();
 
     CompositeContainer compositeContainer = CompositeContainerBuilder

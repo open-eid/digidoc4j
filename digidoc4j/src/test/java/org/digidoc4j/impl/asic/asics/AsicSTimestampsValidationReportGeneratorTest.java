@@ -39,7 +39,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
-public class AsicSTimestampsValidationReportGeneratorTest extends AbstractTest {
+class AsicSTimestampsValidationReportGeneratorTest extends AbstractTest {
 
   @Mock
   private AsicSContainer asicsContainer;
@@ -60,7 +60,7 @@ public class AsicSTimestampsValidationReportGeneratorTest extends AbstractTest {
   }
 
   @Test
-  public void openValidationReport_WhenTimestampTokenIsNotParsable_ThrowsIllegalTimestampException() {
+  void openValidationReport_WhenTimestampTokenIsNotParsable_ThrowsIllegalTimestampException() {
     CadesTimestamp unparsableCadesTimestamp = new CadesTimestamp(
             new InMemoryDocument("Not a timestamp token content".getBytes(StandardCharsets.UTF_8))
     );
@@ -80,7 +80,7 @@ public class AsicSTimestampsValidationReportGeneratorTest extends AbstractTest {
   }
 
   @Test
-  public void openValidationReport_WhenTimestampManifestIsNotParsable_ThrowsIllegalTimestampException() {
+  void openValidationReport_WhenTimestampManifestIsNotParsable_ThrowsIllegalTimestampException() {
     CadesTimestamp validCadesTimestamp = new CadesTimestamp(
             new FileDocument("src/test/resources/testFiles/tst/timestamp.tst")
     );

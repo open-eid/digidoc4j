@@ -39,7 +39,7 @@ public abstract class AsicXadesSignatureOpenerTest extends AbstractTest {
   protected abstract void assertSignatureType(Signature signature);
 
   @Test
-  public void openBesSignature() {
+  void openBesSignature() {
     Signature signature = signatureOpener().open(
             constructXadesSignatureWrapper(new FileDocument("src/test/resources/testFiles/xades/test-bes-signature.xml")));
     assertSignatureType(signature);
@@ -66,7 +66,7 @@ public abstract class AsicXadesSignatureOpenerTest extends AbstractTest {
   }
 
   @Test
-  public void openXadesSignature() {
+  void openXadesSignature() {
     Date date_2016_29_1_time_19_58_36 = new Date(1454090316000L);
     Date date_2016_29_1_time_19_58_37 = new Date(1454090317000L);
     Signature signature = signatureOpener().open(
@@ -88,7 +88,7 @@ public abstract class AsicXadesSignatureOpenerTest extends AbstractTest {
   }
 
   @Test
-  public void serializeBDocSignature() {
+  void serializeBDocSignature() {
     Signature signature = signatureOpener().open(
             constructXadesSignatureWrapper(new FileDocument("src/test/resources/testFiles/xades/test-bdoc-ts.xml")));
     assertSignatureType(signature);
@@ -99,7 +99,7 @@ public abstract class AsicXadesSignatureOpenerTest extends AbstractTest {
   }
 
   @Test
-  public void openXadesSignature_withoutXmlPreamble_shouldBeValid() throws Exception {
+  void openXadesSignature_withoutXmlPreamble_shouldBeValid() throws Exception {
     byte[] signatureBytes = FileUtils.readFileToByteArray(new File("src/test/resources/testFiles/xades/bdoc-tm-jdigidoc-mobile-id.xml"));
     Signature signature = signatureOpener().open(
             constructXadesSignatureWrapper(new InMemoryDocument(signatureBytes)));

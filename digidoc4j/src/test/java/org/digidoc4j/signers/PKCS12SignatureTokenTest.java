@@ -4,7 +4,7 @@
  * License (see LICENSE.LGPL).
  *
  * Note that the only valid version of the LGPL license as far as this
- * project is concerned is the original GNU Library General Public License
+ * project is concerned is the original GNU Library General  License
  * Version 2.1, February 1999
  */
 
@@ -27,10 +27,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class PKCS12SignatureTokenTest extends AbstractTest {
+ class PKCS12SignatureTokenTest extends AbstractTest {
 
   @Test
-  public void getCertificate() throws CertificateEncodingException {
+   void getCertificate() throws CertificateEncodingException {
     X509Cert x509Cert = new X509Cert(pkcs12SignatureToken.getCertificate());
     assertEquals("MIIGuDCCBKCgAwIBAgIQbsALi4xUxPdggr2EPjoVJjANBgkqhkiG9w0BAQsFADBr" +
             "MQswCQYDVQQGEwJFRTEiMCAGA1UECgwZQVMgU2VydGlmaXRzZWVyaW1pc2tlc2t1" +
@@ -72,14 +72,14 @@ public class PKCS12SignatureTokenTest extends AbstractTest {
   }
 
   @Test
-  public void sign() {                                //TODO know expected value
+   void sign() {                                //TODO know expected value
     byte[] expected = new byte[]{-127,-10,88,-97,-31,-28,99,55,-33,-83,10,-18,8,-83,-34,123,75,60,27,34,-41,3,62,-100,89,15,6,-38,82,-52,51,71,-14,-66,-92,88,-107,79,-22,125,3,-44,-11,112,110,60,-28,-77,54,-49,7,89,-66,-43,116,-67,83,-31,-34,119,101,-68,-44,105,-58,114,-2,-99,80,98,-21,-72,88,1,-103,-15,85,39,-50,-17,-63,-121,123,-121,-66,59,-27,-59,-6,-55,-32,-55,43,-126,43,-39,-33,2,-22,40,-18,-15,-83,26,-3,14,-29,-20,36,-17,-119,95,-63,99,111,109,25,-96,13,115,-113,75,48,61,-34,-75,86,18,76,-48,-96,-111,68,-58,-104,110,99,-19,125,34,14,3,82,-48,39,-4,35,-104,-43,-58,-35,-83,-18,38,-87,19,9,-74,114,-24,-33,69,76,105,125,78,108,-84,43,104,-95,124,38,-125,33,108,-122,-121,-104,113,98,17,-81,-91,-99,80,-123,58,6,108,-59,-41,-33,-39,98,125,112,-58,120,-32,-99,51,-29,-50,30,-22,94,11,113,-107,-119,-49,-52,83,-83,-101,-52,108,92,91,-78,17,-78,-42,71,2,-125,73,112,-72,79,51,2,-95,-88,54,-32,77,99,-76,60,-2,-90,100,50,101,-58,48,-30,-119,-76,-63,-21,-55,-112,76};
     byte[] actual = pkcs12SignatureToken.sign(DigestAlgorithm.SHA512, new byte[]{0x41});
     assertArrayEquals(expected, actual);
   }
 
   @Test
-  public void closeSignatureTokenWhenSigning() {
+   void closeSignatureTokenWhenSigning() {
     PKCS12SignatureToken pkcs12SignatureToken = new PKCS12SignatureToken(TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD.toCharArray());
     assertNotNull(pkcs12SignatureToken.sign(DigestAlgorithm.SHA512, new byte[]{0x41}));
     pkcs12SignatureToken.close();
@@ -93,7 +93,7 @@ public class PKCS12SignatureTokenTest extends AbstractTest {
   }
 
   @Test
-  public void closeSignatureTokenWhenAskingCertificate() {
+   void closeSignatureTokenWhenAskingCertificate() {
     PKCS12SignatureToken pkcs12SignatureToken = new PKCS12SignatureToken(TestSigningUtil.TEST_PKI_CONTAINER, TestSigningUtil.TEST_PKI_CONTAINER_PASSWORD.toCharArray());
     assertNotNull(pkcs12SignatureToken.getCertificate());
     pkcs12SignatureToken.close();

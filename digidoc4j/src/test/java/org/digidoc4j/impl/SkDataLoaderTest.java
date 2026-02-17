@@ -31,16 +31,16 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class SkDataLoaderTest extends AbstractTest {
+class SkDataLoaderTest extends AbstractTest {
 
   @Test
-  public void ocspDataLoader_withoutProxyConfiguration() {
+  void ocspDataLoader_withoutProxyConfiguration() {
     SkDataLoader dataLoader = new SkOCSPDataLoader(configuration);
     assertNull(dataLoader.getProxyConfig());
   }
 
   @Test
-  public void ocspDataLoader_withProxyConfiguration() {
+  void ocspDataLoader_withProxyConfiguration() {
     configuration.setHttpProxyHost("proxyHost");
     configuration.setHttpProxyPort(1345);
     SkDataLoader dataLoader = new SkOCSPDataLoader(configuration);
@@ -57,7 +57,7 @@ public class SkDataLoaderTest extends AbstractTest {
   }
 
   @Test
-  public void dataLoader_withPasswordProxyConfiguration() {
+  void dataLoader_withPasswordProxyConfiguration() {
     configuration.setHttpProxyHost("proxyHost");
     configuration.setHttpProxyPort(1345);
     configuration.setHttpProxyUser("proxyUser");
@@ -77,7 +77,7 @@ public class SkDataLoaderTest extends AbstractTest {
 
   @Test
   @Disabled("Requires access to the proxy server")
-  public void createSignAsicOverProxy() {
+  void createSignAsicOverProxy() {
     TslLoader.invalidateCache();
     configuration.setHttpProxyHost("cache.elion.ee");
     configuration.setHttpProxyPort(8080);
@@ -89,7 +89,7 @@ public class SkDataLoaderTest extends AbstractTest {
   }
 
   @Test
-  public void dataLoader_withoutSslConfiguration_shouldNotSetSslValues() {
+  void dataLoader_withoutSslConfiguration_shouldNotSetSslValues() {
     MockSkDataLoader dataLoader = new MockSkDataLoader(configuration);
     assertNull(dataLoader.getSslKeystore());
     assertNull(dataLoader.getSslKeystoreType());
@@ -104,7 +104,7 @@ public class SkDataLoaderTest extends AbstractTest {
   }
 
   @Test
-  public void dataLoader_withSslConfiguration_shouldSetSslValues() {
+  void dataLoader_withSslConfiguration_shouldSetSslValues() {
     configuration.setSslKeystorePath("classpath:testFiles/keystores/keystore.p12");
     configuration.setSslKeystoreType("PKCS12");
     configuration.setSslKeystorePassword("keystore-password");
@@ -125,7 +125,7 @@ public class SkDataLoaderTest extends AbstractTest {
   }
 
   @Test
-  public void dataLoader_withMinimalSslConfiguration_shouldNotSetNullValues() {
+  void dataLoader_withMinimalSslConfiguration_shouldNotSetNullValues() {
     configuration.setSslKeystorePath("classpath:testFiles/keystores/keystore.jks");
     configuration.setSslTruststorePath("classpath:testFiles/keystores/truststore.jks");
     MockSkDataLoader dataLoader = new MockSkDataLoader(configuration);

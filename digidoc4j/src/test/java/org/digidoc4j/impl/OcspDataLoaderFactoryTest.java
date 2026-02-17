@@ -23,26 +23,26 @@ import org.mockito.Mockito;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-public class OcspDataLoaderFactoryTest extends AbstractTest {
+class OcspDataLoaderFactoryTest extends AbstractTest {
 
   private static final String MOCK_USER_AGENT_VALUE = "mock-user-agent-value";
 
   @Test
-  public void testDefaultOcspDataLoaderCreatedWhenCustomDataLoaderNotConfigured() {
+  void testDefaultOcspDataLoaderCreatedWhenCustomDataLoaderNotConfigured() {
     DataLoader dataLoader = new OcspDataLoaderFactory(configuration).create();
     MatcherAssert.assertThat(dataLoader, Matchers.instanceOf(SkOCSPDataLoader.class));
     assertEquals(Constant.USER_AGENT_STRING, ((SkOCSPDataLoader) dataLoader).getUserAgent());
   }
 
   @Test
-  public void testDefaultOcspDataLoaderCreatedWhenCustomDataLoaderNotConfiguredAndCustomUserAgentSpecified() {
+  void testDefaultOcspDataLoaderCreatedWhenCustomDataLoaderNotConfiguredAndCustomUserAgentSpecified() {
     DataLoader dataLoader = new OcspDataLoaderFactory(configuration, MOCK_USER_AGENT_VALUE).create();
     MatcherAssert.assertThat(dataLoader, Matchers.instanceOf(SkOCSPDataLoader.class));
     assertEquals(MOCK_USER_AGENT_VALUE, ((SkOCSPDataLoader) dataLoader).getUserAgent());
   }
 
   @Test
-  public void testCustomDataLoaderCreatedWhenCustomDataLoaderConfigured() {
+  void testCustomDataLoaderCreatedWhenCustomDataLoaderConfigured() {
     DataLoader mockDataLoader = Mockito.mock(DataLoader.class);
     DataLoaderFactory mockDataLoaderFactory = Mockito.mock(DataLoaderFactory.class);
     Mockito.doReturn(mockDataLoader).when(mockDataLoaderFactory).create();

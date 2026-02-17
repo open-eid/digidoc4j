@@ -49,7 +49,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
-public class AsicCompositeContainerValidationResultTest extends AbstractTest {
+class AsicCompositeContainerValidationResultTest extends AbstractTest {
 
   private static final String TOKEN_ID = "test-token-ID";
 
@@ -61,7 +61,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   private AsicCompositeContainerValidationResult compositeValidationResult;
 
   @BeforeEach
-  public void setUpCompositeValidationResult() {
+  void setUpCompositeValidationResult() {
     // @InjectMocks does not work correctly with overlapping parameter types, create testable object manually
     compositeValidationResult = new AsicCompositeContainerValidationResult(
             nestingContainerValidationResult,
@@ -70,7 +70,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void isValid_WhenBothValidationResultsReturnFalse_ReturnsFalse() {
+  void isValid_WhenBothValidationResultsReturnFalse_ReturnsFalse() {
     doReturn(false).when(nestedContainerValidationResult).isValid();
 
     boolean result = compositeValidationResult.isValid();
@@ -81,7 +81,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void isValid_WhenOnlyNestedValidationResultReturnsTrue_ReturnsFalse() {
+  void isValid_WhenOnlyNestedValidationResultReturnsTrue_ReturnsFalse() {
     doReturn(false).when(nestingContainerValidationResult).isValid();
     doReturn(true).when(nestedContainerValidationResult).isValid();
 
@@ -94,7 +94,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void isValid_WhenBothValidationResultsReturnTrue_ReturnsTrue() {
+  void isValid_WhenBothValidationResultsReturnTrue_ReturnsTrue() {
     doReturn(true).when(nestingContainerValidationResult).isValid();
     doReturn(true).when(nestedContainerValidationResult).isValid();
 
@@ -107,7 +107,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void hasWarnings_WhenBothValidationResultsReturnFalse_ReturnsFalse() {
+  void hasWarnings_WhenBothValidationResultsReturnFalse_ReturnsFalse() {
     doReturn(false).when(nestingContainerValidationResult).hasWarnings();
     doReturn(false).when(nestedContainerValidationResult).hasWarnings();
 
@@ -120,7 +120,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void hasWarnings_WhenNestingValidationResultReturnsTrue_ReturnsTrue() {
+  void hasWarnings_WhenNestingValidationResultReturnsTrue_ReturnsTrue() {
     doReturn(true).when(nestingContainerValidationResult).hasWarnings();
     doReturn(false).when(nestedContainerValidationResult).hasWarnings();
 
@@ -133,7 +133,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void hasWarnings_WhenNestedValidationResultReturnsTrue_ReturnsTrue() {
+  void hasWarnings_WhenNestedValidationResultReturnsTrue_ReturnsTrue() {
     doReturn(true).when(nestedContainerValidationResult).hasWarnings();
 
     boolean result = compositeValidationResult.hasWarnings();
@@ -144,7 +144,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getErrors_WhenBothListsAreNull_ReturnsEmptyList() {
+  void getErrors_WhenBothListsAreNull_ReturnsEmptyList() {
     doReturn(null).when(nestingContainerValidationResult).getErrors();
     doReturn(null).when(nestedContainerValidationResult).getErrors();
 
@@ -157,7 +157,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getErrors_WhenBothListsAreEmpty_ReturnsEmptyList() {
+  void getErrors_WhenBothListsAreEmpty_ReturnsEmptyList() {
     doReturn(Collections.emptyList()).when(nestingContainerValidationResult).getErrors();
     doReturn(Collections.emptyList()).when(nestedContainerValidationResult).getErrors();
 
@@ -170,7 +170,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getErrors_WhenNestedValidationResultContainsException_ReturnsListContainingGivenException() {
+  void getErrors_WhenNestedValidationResultContainsException_ReturnsListContainingGivenException() {
     doReturn(Collections.emptyList()).when(nestingContainerValidationResult).getErrors();
     DigiDoc4JException digiDoc4JException = new DigiDoc4JException("Exception message");
     doReturn(Collections.singletonList(digiDoc4JException)).when(nestedContainerValidationResult).getErrors();
@@ -184,7 +184,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getErrors_WhenNestingValidationResultContainsException_ReturnsListContainingGivenException() {
+  void getErrors_WhenNestingValidationResultContainsException_ReturnsListContainingGivenException() {
     DigiDoc4JException digiDoc4JException = new DigiDoc4JException("Exception message");
     doReturn(Collections.singletonList(digiDoc4JException)).when(nestingContainerValidationResult).getErrors();
     doReturn(Collections.emptyList()).when(nestedContainerValidationResult).getErrors();
@@ -198,7 +198,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getErrors_WhenBothListsContainExceptions_ReturnsAggregatedListOfGivenExceptions() {
+  void getErrors_WhenBothListsContainExceptions_ReturnsAggregatedListOfGivenExceptions() {
     DigiDoc4JException digiDoc4JException1 = new DigiDoc4JException("Exception message 1");
     doReturn(Collections.singletonList(digiDoc4JException1)).when(nestingContainerValidationResult).getErrors();
     DigiDoc4JException digiDoc4JException2 = new DigiDoc4JException("Exception message 2");
@@ -213,7 +213,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getWarnings_WhenBothListsAreNull_ReturnsEmptyList() {
+  void getWarnings_WhenBothListsAreNull_ReturnsEmptyList() {
     doReturn(null).when(nestingContainerValidationResult).getWarnings();
     doReturn(null).when(nestedContainerValidationResult).getWarnings();
 
@@ -226,7 +226,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getWarnings_WhenBothListsAreEmpty_ReturnsEmptyList() {
+  void getWarnings_WhenBothListsAreEmpty_ReturnsEmptyList() {
     doReturn(Collections.emptyList()).when(nestingContainerValidationResult).getWarnings();
     doReturn(Collections.emptyList()).when(nestedContainerValidationResult).getWarnings();
 
@@ -239,7 +239,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getWarnings_WhenNestedValidationResultContainsException_ReturnsListContainingGivenException() {
+  void getWarnings_WhenNestedValidationResultContainsException_ReturnsListContainingGivenException() {
     doReturn(Collections.emptyList()).when(nestingContainerValidationResult).getWarnings();
     DigiDoc4JException digiDoc4JException = new DigiDoc4JException("Exception message");
     doReturn(Collections.singletonList(digiDoc4JException)).when(nestedContainerValidationResult).getWarnings();
@@ -253,7 +253,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getWarnings_WhenNestingValidationResultContainsException_ReturnsListContainingGivenException() {
+  void getWarnings_WhenNestingValidationResultContainsException_ReturnsListContainingGivenException() {
     DigiDoc4JException digiDoc4JException = new DigiDoc4JException("Exception message");
     doReturn(Collections.singletonList(digiDoc4JException)).when(nestingContainerValidationResult).getWarnings();
     doReturn(Collections.emptyList()).when(nestedContainerValidationResult).getWarnings();
@@ -267,7 +267,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getWarnings_WhenBothListsContainExceptions_ReturnsAggregatedListOfGivenExceptions() {
+  void getWarnings_WhenBothListsContainExceptions_ReturnsAggregatedListOfGivenExceptions() {
     DigiDoc4JException digiDoc4JException1 = new DigiDoc4JException("Exception message 1");
     doReturn(Collections.singletonList(digiDoc4JException1)).when(nestingContainerValidationResult).getWarnings();
     DigiDoc4JException digiDoc4JException2 = new DigiDoc4JException("Exception message 2");
@@ -282,7 +282,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getContainerErrors_WhenBothListsAreNull_ReturnsEmptyList() {
+  void getContainerErrors_WhenBothListsAreNull_ReturnsEmptyList() {
     doReturn(null).when(nestingContainerValidationResult).getContainerErrors();
     doReturn(null).when(nestedContainerValidationResult).getContainerErrors();
 
@@ -295,7 +295,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getContainerErrors_WhenBothListsAreEmpty_ReturnsEmptyList() {
+  void getContainerErrors_WhenBothListsAreEmpty_ReturnsEmptyList() {
     doReturn(Collections.emptyList()).when(nestingContainerValidationResult).getContainerErrors();
     doReturn(Collections.emptyList()).when(nestedContainerValidationResult).getContainerErrors();
 
@@ -308,7 +308,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getContainerErrors_WhenNestedValidationResultContainsException_ReturnsListContainingGivenException() {
+  void getContainerErrors_WhenNestedValidationResultContainsException_ReturnsListContainingGivenException() {
     doReturn(Collections.emptyList()).when(nestingContainerValidationResult).getContainerErrors();
     DigiDoc4JException digiDoc4JException = new DigiDoc4JException("Exception message");
     doReturn(Collections.singletonList(digiDoc4JException)).when(nestedContainerValidationResult).getContainerErrors();
@@ -322,7 +322,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getContainerErrors_WhenNestingValidationResultContainsException_ReturnsListContainingGivenException() {
+  void getContainerErrors_WhenNestingValidationResultContainsException_ReturnsListContainingGivenException() {
     DigiDoc4JException digiDoc4JException = new DigiDoc4JException("Exception message");
     doReturn(Collections.singletonList(digiDoc4JException)).when(nestingContainerValidationResult).getContainerErrors();
     doReturn(Collections.emptyList()).when(nestedContainerValidationResult).getContainerErrors();
@@ -336,7 +336,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getContainerErrors_WhenBothListsContainExceptions_ReturnsAggregatedListOfGivenExceptions() {
+  void getContainerErrors_WhenBothListsContainExceptions_ReturnsAggregatedListOfGivenExceptions() {
     DigiDoc4JException digiDoc4JException1 = new DigiDoc4JException("Exception message 1");
     doReturn(Collections.singletonList(digiDoc4JException1)).when(nestingContainerValidationResult).getContainerErrors();
     DigiDoc4JException digiDoc4JException2 = new DigiDoc4JException("Exception message 2");
@@ -351,7 +351,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getContainerWarnings_WhenBothListsAreNull_ReturnsEmptyList() {
+  void getContainerWarnings_WhenBothListsAreNull_ReturnsEmptyList() {
     doReturn(null).when(nestingContainerValidationResult).getContainerWarnings();
     doReturn(null).when(nestedContainerValidationResult).getContainerWarnings();
 
@@ -364,7 +364,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getContainerWarnings_WhenBothListsAreEmpty_ReturnsEmptyList() {
+  void getContainerWarnings_WhenBothListsAreEmpty_ReturnsEmptyList() {
     doReturn(Collections.emptyList()).when(nestingContainerValidationResult).getContainerWarnings();
     doReturn(Collections.emptyList()).when(nestedContainerValidationResult).getContainerWarnings();
 
@@ -377,7 +377,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getContainerWarnings_WhenNestedValidationResultContainsException_ReturnsListContainingGivenException() {
+  void getContainerWarnings_WhenNestedValidationResultContainsException_ReturnsListContainingGivenException() {
     doReturn(Collections.emptyList()).when(nestingContainerValidationResult).getContainerWarnings();
     DigiDoc4JException digiDoc4JException = new DigiDoc4JException("Exception message");
     doReturn(Collections.singletonList(digiDoc4JException)).when(nestedContainerValidationResult).getContainerWarnings();
@@ -391,7 +391,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getContainerWarnings_WhenNestingValidationResultContainsException_ReturnsListContainingGivenException() {
+  void getContainerWarnings_WhenNestingValidationResultContainsException_ReturnsListContainingGivenException() {
     DigiDoc4JException digiDoc4JException = new DigiDoc4JException("Exception message");
     doReturn(Collections.singletonList(digiDoc4JException)).when(nestingContainerValidationResult).getContainerWarnings();
     doReturn(Collections.emptyList()).when(nestedContainerValidationResult).getContainerWarnings();
@@ -405,7 +405,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getContainerWarnings_WhenBothListsContainExceptions_ReturnsAggregatedListOfGivenExceptions() {
+  void getContainerWarnings_WhenBothListsContainExceptions_ReturnsAggregatedListOfGivenExceptions() {
     DigiDoc4JException digiDoc4JException1 = new DigiDoc4JException("Exception message 1");
     doReturn(Collections.singletonList(digiDoc4JException1)).when(nestingContainerValidationResult).getContainerWarnings();
     DigiDoc4JException digiDoc4JException2 = new DigiDoc4JException("Exception message 2");
@@ -420,7 +420,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getSimpleReports_WhenBothListsAreNull_ReturnsEmptyList() {
+  void getSimpleReports_WhenBothListsAreNull_ReturnsEmptyList() {
     doReturn(null).when(nestingContainerValidationResult).getSimpleReports();
     doReturn(null).when(nestedContainerValidationResult).getSimpleReports();
 
@@ -433,7 +433,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getSimpleReports_WhenBothListsAreEmpty_ReturnsEmptyList() {
+  void getSimpleReports_WhenBothListsAreEmpty_ReturnsEmptyList() {
     doReturn(Collections.emptyList()).when(nestingContainerValidationResult).getSimpleReports();
     doReturn(Collections.emptyList()).when(nestedContainerValidationResult).getSimpleReports();
 
@@ -446,7 +446,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getSimpleReports_WhenNestedValidationResultContainsException_ReturnsListContainingGivenException() {
+  void getSimpleReports_WhenNestedValidationResultContainsException_ReturnsListContainingGivenException() {
     doReturn(Collections.emptyList()).when(nestingContainerValidationResult).getSimpleReports();
     SimpleReport simpleReport = mock(SimpleReport.class);
     doReturn(Collections.singletonList(simpleReport)).when(nestedContainerValidationResult).getSimpleReports();
@@ -460,7 +460,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getSimpleReports_WhenNestingValidationResultContainsException_ReturnsListContainingGivenException() {
+  void getSimpleReports_WhenNestingValidationResultContainsException_ReturnsListContainingGivenException() {
     SimpleReport simpleReport = mock(SimpleReport.class);
     doReturn(Collections.singletonList(simpleReport)).when(nestingContainerValidationResult).getSimpleReports();
     doReturn(Collections.emptyList()).when(nestedContainerValidationResult).getSimpleReports();
@@ -474,7 +474,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getSimpleReports_WhenBothListsContainExceptions_ReturnsAggregatedListOfGivenExceptions() {
+  void getSimpleReports_WhenBothListsContainExceptions_ReturnsAggregatedListOfGivenExceptions() {
     SimpleReport simpleReport1 = mock(SimpleReport.class);
     doReturn(Collections.singletonList(simpleReport1)).when(nestingContainerValidationResult).getSimpleReports();
     SimpleReport simpleReport2 = mock(SimpleReport.class);
@@ -489,7 +489,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getSignatureIdList_WhenBothListsAreNull_ReturnsEmptyList() {
+  void getSignatureIdList_WhenBothListsAreNull_ReturnsEmptyList() {
     doReturn(null).when(nestingContainerValidationResult).getSignatureIdList();
     doReturn(null).when(nestedContainerValidationResult).getSignatureIdList();
 
@@ -502,7 +502,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getSignatureIdList_WhenBothListsAreEmpty_ReturnsEmptyList() {
+  void getSignatureIdList_WhenBothListsAreEmpty_ReturnsEmptyList() {
     doReturn(Collections.emptyList()).when(nestingContainerValidationResult).getSignatureIdList();
     doReturn(Collections.emptyList()).when(nestedContainerValidationResult).getSignatureIdList();
 
@@ -515,7 +515,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getSignatureIdList_WhenNestedValidationResultContainsId_ReturnsListContainingGivenId() {
+  void getSignatureIdList_WhenNestedValidationResultContainsId_ReturnsListContainingGivenId() {
     doReturn(Collections.emptyList()).when(nestingContainerValidationResult).getSignatureIdList();
     doReturn(Collections.singletonList("id")).when(nestedContainerValidationResult).getSignatureIdList();
 
@@ -528,7 +528,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getSignatureIdList_WhenNestingValidationResultContainsId_ReturnsListContainingGivenId() {
+  void getSignatureIdList_WhenNestingValidationResultContainsId_ReturnsListContainingGivenId() {
     doReturn(Collections.singletonList("id")).when(nestingContainerValidationResult).getSignatureIdList();
     doReturn(Collections.emptyList()).when(nestedContainerValidationResult).getSignatureIdList();
 
@@ -541,7 +541,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getSignatureIdList_WhenBothListsContainIds_ReturnsAggregatedListOfGivenIds() {
+  void getSignatureIdList_WhenBothListsContainIds_ReturnsAggregatedListOfGivenIds() {
     doReturn(Collections.singletonList("id-1")).when(nestingContainerValidationResult).getSignatureIdList();
     doReturn(Collections.singletonList("id-2")).when(nestedContainerValidationResult).getSignatureIdList();
 
@@ -554,7 +554,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getTimestampIdList_WhenBothListsAreNull_ReturnsEmptyList() {
+  void getTimestampIdList_WhenBothListsAreNull_ReturnsEmptyList() {
     doReturn(null).when(nestingContainerValidationResult).getTimestampIdList();
     doReturn(null).when(nestedContainerValidationResult).getTimestampIdList();
 
@@ -567,7 +567,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getTimestampIdList_WhenBothListsAreEmpty_ReturnsEmptyList() {
+  void getTimestampIdList_WhenBothListsAreEmpty_ReturnsEmptyList() {
     doReturn(Collections.emptyList()).when(nestingContainerValidationResult).getTimestampIdList();
     doReturn(Collections.emptyList()).when(nestedContainerValidationResult).getTimestampIdList();
 
@@ -580,7 +580,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getTimestampIdList_WhenNestedValidationResultContainsId_ReturnsListContainingGivenId() {
+  void getTimestampIdList_WhenNestedValidationResultContainsId_ReturnsListContainingGivenId() {
     doReturn(Collections.emptyList()).when(nestingContainerValidationResult).getTimestampIdList();
     doReturn(Collections.singletonList("id")).when(nestedContainerValidationResult).getTimestampIdList();
 
@@ -593,7 +593,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getTimestampIdList_WhenNestingValidationResultContainsId_ReturnsListContainingGivenId() {
+  void getTimestampIdList_WhenNestingValidationResultContainsId_ReturnsListContainingGivenId() {
     doReturn(Collections.singletonList("id")).when(nestingContainerValidationResult).getTimestampIdList();
     doReturn(Collections.emptyList()).when(nestedContainerValidationResult).getTimestampIdList();
 
@@ -606,7 +606,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getTimestampIdList_WhenBothListsContainIds_ReturnsAggregatedListOfGivenIds() {
+  void getTimestampIdList_WhenBothListsContainIds_ReturnsAggregatedListOfGivenIds() {
     doReturn(Collections.singletonList("id-1")).when(nestingContainerValidationResult).getTimestampIdList();
     doReturn(Collections.singletonList("id-2")).when(nestedContainerValidationResult).getTimestampIdList();
 
@@ -619,7 +619,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getSignatureReports_WhenBothListsAreNull_ReturnsEmptyList() {
+  void getSignatureReports_WhenBothListsAreNull_ReturnsEmptyList() {
     doReturn(null).when(nestingContainerValidationResult).getSignatureReports();
     doReturn(null).when(nestedContainerValidationResult).getSignatureReports();
 
@@ -632,7 +632,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getSignatureReports_WhenBothListsAreEmpty_ReturnsEmptyList() {
+  void getSignatureReports_WhenBothListsAreEmpty_ReturnsEmptyList() {
     doReturn(Collections.emptyList()).when(nestingContainerValidationResult).getSignatureReports();
     doReturn(Collections.emptyList()).when(nestedContainerValidationResult).getSignatureReports();
 
@@ -645,7 +645,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getSignatureReports_WhenNestedValidationResultContainsException_ReturnsListContainingGivenException() {
+  void getSignatureReports_WhenNestedValidationResultContainsException_ReturnsListContainingGivenException() {
     doReturn(Collections.emptyList()).when(nestingContainerValidationResult).getSignatureReports();
     SignatureValidationReport signatureValidationReport = mock(SignatureValidationReport.class);
     doReturn(Collections.singletonList(signatureValidationReport)).when(nestedContainerValidationResult).getSignatureReports();
@@ -659,7 +659,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getSignatureReports_WhenNestingValidationResultContainsException_ReturnsListContainingGivenException() {
+  void getSignatureReports_WhenNestingValidationResultContainsException_ReturnsListContainingGivenException() {
     SignatureValidationReport signatureValidationReport = mock(SignatureValidationReport.class);
     doReturn(Collections.singletonList(signatureValidationReport)).when(nestingContainerValidationResult).getSignatureReports();
     doReturn(Collections.emptyList()).when(nestedContainerValidationResult).getSignatureReports();
@@ -673,7 +673,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getSignatureReports_WhenBothListsContainExceptions_ReturnsAggregatedListOfGivenExceptions() {
+  void getSignatureReports_WhenBothListsContainExceptions_ReturnsAggregatedListOfGivenExceptions() {
     SignatureValidationReport signatureValidationReport1 = mock(SignatureValidationReport.class);
     doReturn(Collections.singletonList(signatureValidationReport1)).when(nestingContainerValidationResult).getSignatureReports();
     SignatureValidationReport signatureValidationReport2 = mock(SignatureValidationReport.class);
@@ -688,7 +688,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getTimestampReports_WhenBothListsAreNull_ReturnsEmptyList() {
+  void getTimestampReports_WhenBothListsAreNull_ReturnsEmptyList() {
     doReturn(null).when(nestingContainerValidationResult).getTimestampReports();
     doReturn(null).when(nestedContainerValidationResult).getTimestampReports();
 
@@ -701,7 +701,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getTimestampReports_WhenBothListsAreEmpty_ReturnsEmptyList() {
+  void getTimestampReports_WhenBothListsAreEmpty_ReturnsEmptyList() {
     doReturn(Collections.emptyList()).when(nestingContainerValidationResult).getTimestampReports();
     doReturn(Collections.emptyList()).when(nestedContainerValidationResult).getTimestampReports();
 
@@ -714,7 +714,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getTimestampReports_WhenNestedValidationResultContainsException_ReturnsListContainingGivenException() {
+  void getTimestampReports_WhenNestedValidationResultContainsException_ReturnsListContainingGivenException() {
     doReturn(Collections.emptyList()).when(nestingContainerValidationResult).getTimestampReports();
     TimestampValidationReport timestampValidationReport = mock(TimestampValidationReport.class);
     doReturn(Collections.singletonList(timestampValidationReport)).when(nestedContainerValidationResult).getTimestampReports();
@@ -728,7 +728,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getTimestampReports_WhenNestingValidationResultContainsException_ReturnsListContainingGivenException() {
+  void getTimestampReports_WhenNestingValidationResultContainsException_ReturnsListContainingGivenException() {
     TimestampValidationReport timestampValidationReport = mock(TimestampValidationReport.class);
     doReturn(Collections.singletonList(timestampValidationReport)).when(nestingContainerValidationResult).getTimestampReports();
     doReturn(Collections.emptyList()).when(nestedContainerValidationResult).getTimestampReports();
@@ -742,7 +742,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getTimestampReports_WhenBothListsContainExceptions_ReturnsAggregatedListOfGivenExceptions() {
+  void getTimestampReports_WhenBothListsContainExceptions_ReturnsAggregatedListOfGivenExceptions() {
     TimestampValidationReport timestampValidationReport1 = mock(TimestampValidationReport.class);
     doReturn(Collections.singletonList(timestampValidationReport1)).when(nestingContainerValidationResult).getTimestampReports();
     TimestampValidationReport timestampValidationReport2 = mock(TimestampValidationReport.class);
@@ -757,7 +757,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getIndication_WhenBothValidationResultsReturnNull_ReturnsNull() {
+  void getIndication_WhenBothValidationResultsReturnNull_ReturnsNull() {
     doReturn(null).when(nestingContainerValidationResult).getIndication(TOKEN_ID);
     doReturn(null).when(nestedContainerValidationResult).getIndication(TOKEN_ID);
 
@@ -770,7 +770,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getIndication_WhenNestingValidationResultReturnsIndication_ReturnsGivenIndication() {
+  void getIndication_WhenNestingValidationResultReturnsIndication_ReturnsGivenIndication() {
     doReturn(Indication.INDETERMINATE).when(nestingContainerValidationResult).getIndication(TOKEN_ID);
     doReturn(null).when(nestedContainerValidationResult).getIndication(TOKEN_ID);
 
@@ -783,7 +783,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getIndication_WhenNestedValidationResultReturnsIndication_ReturnsGivenIndication() {
+  void getIndication_WhenNestedValidationResultReturnsIndication_ReturnsGivenIndication() {
     doReturn(Indication.NO_SIGNATURE_FOUND).when(nestedContainerValidationResult).getIndication(TOKEN_ID);
 
     Indication result = compositeValidationResult.getIndication(TOKEN_ID);
@@ -794,7 +794,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getSubIndication_WhenBothValidationResultsReturnNull_ReturnsNull() {
+  void getSubIndication_WhenBothValidationResultsReturnNull_ReturnsNull() {
     doReturn(null).when(nestingContainerValidationResult).getSubIndication(TOKEN_ID);
     doReturn(null).when(nestedContainerValidationResult).getSubIndication(TOKEN_ID);
 
@@ -807,7 +807,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getSubIndication_WhenNestingValidationResultReturnsSubIndication_ReturnsGivenSubIndication() {
+  void getSubIndication_WhenNestingValidationResultReturnsSubIndication_ReturnsGivenSubIndication() {
     doReturn(SubIndication.HASH_FAILURE).when(nestingContainerValidationResult).getSubIndication(TOKEN_ID);
     doReturn(null).when(nestedContainerValidationResult).getSubIndication(TOKEN_ID);
 
@@ -820,7 +820,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getSubIndication_WhenNestedValidationResultReturnsSubIndication_ReturnsGivenSubIndication() {
+  void getSubIndication_WhenNestedValidationResultReturnsSubIndication_ReturnsGivenSubIndication() {
     doReturn(SubIndication.NOT_YET_VALID).when(nestedContainerValidationResult).getSubIndication(TOKEN_ID);
 
     SubIndication result = compositeValidationResult.getSubIndication(TOKEN_ID);
@@ -831,7 +831,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getValidationResult_WhenBothValidationResultsReturnNull_ReturnsNull() {
+  void getValidationResult_WhenBothValidationResultsReturnNull_ReturnsNull() {
     doReturn(null).when(nestingContainerValidationResult).getValidationResult(TOKEN_ID);
     doReturn(null).when(nestedContainerValidationResult).getValidationResult(TOKEN_ID);
 
@@ -844,7 +844,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getValidationResult_WhenNestingValidationResultReturnsResult_ReturnsGivenResult() {
+  void getValidationResult_WhenNestingValidationResultReturnsResult_ReturnsGivenResult() {
     ValidationResult tokenValidationResult = mock(ValidationResult.class);
     doReturn(tokenValidationResult).when(nestingContainerValidationResult).getValidationResult(TOKEN_ID);
     doReturn(null).when(nestedContainerValidationResult).getValidationResult(TOKEN_ID);
@@ -859,7 +859,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getValidationResult_WhenNestedValidationResultReturnsResult_ReturnsGivenResult() {
+  void getValidationResult_WhenNestedValidationResultReturnsResult_ReturnsGivenResult() {
     ValidationResult tokenValidationResult = mock(ValidationResult.class);
     doReturn(tokenValidationResult).when(nestedContainerValidationResult).getValidationResult(TOKEN_ID);
 
@@ -872,7 +872,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getSignatureQualification_WhenBothValidationResultsReturnNull_ReturnsNull() {
+  void getSignatureQualification_WhenBothValidationResultsReturnNull_ReturnsNull() {
     doReturn(null).when(nestingContainerValidationResult).getSignatureQualification(TOKEN_ID);
     doReturn(null).when(nestedContainerValidationResult).getSignatureQualification(TOKEN_ID);
 
@@ -885,7 +885,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getSignatureQualification_WhenNestingValidationResultReturnsQualification_ReturnsGivenQualification() {
+  void getSignatureQualification_WhenNestingValidationResultReturnsQualification_ReturnsGivenQualification() {
     doReturn(SignatureQualification.ADESIG).when(nestingContainerValidationResult).getSignatureQualification(TOKEN_ID);
     doReturn(null).when(nestedContainerValidationResult).getSignatureQualification(TOKEN_ID);
 
@@ -898,7 +898,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getSignatureQualification_WhenNestedValidationResultReturnsQualification_ReturnsGivenQualification() {
+  void getSignatureQualification_WhenNestedValidationResultReturnsQualification_ReturnsGivenQualification() {
     doReturn(SignatureQualification.ADESEAL).when(nestedContainerValidationResult).getSignatureQualification(TOKEN_ID);
 
     SignatureQualification result = compositeValidationResult.getSignatureQualification(TOKEN_ID);
@@ -909,7 +909,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getTimestampQualification_WhenBothValidationResultsReturnNull_ReturnsNull() {
+  void getTimestampQualification_WhenBothValidationResultsReturnNull_ReturnsNull() {
     doReturn(null).when(nestingContainerValidationResult).getTimestampQualification(TOKEN_ID);
     doReturn(null).when(nestedContainerValidationResult).getTimestampQualification(TOKEN_ID);
 
@@ -922,7 +922,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getTimestampQualification_WhenNestingValidationResultReturnsQualification_ReturnsGivenQualification() {
+  void getTimestampQualification_WhenNestingValidationResultReturnsQualification_ReturnsGivenQualification() {
     doReturn(TimestampQualification.TSA).when(nestingContainerValidationResult).getTimestampQualification(TOKEN_ID);
     doReturn(null).when(nestedContainerValidationResult).getTimestampQualification(TOKEN_ID);
 
@@ -935,7 +935,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void getTimestampQualification_WhenNestedValidationResultReturnsQualification_ReturnsGivenQualification() {
+  void getTimestampQualification_WhenNestedValidationResultReturnsQualification_ReturnsGivenQualification() {
     doReturn(TimestampQualification.QTSA).when(nestedContainerValidationResult).getTimestampQualification(TOKEN_ID);
 
     TimestampQualification result = compositeValidationResult.getTimestampQualification(TOKEN_ID);
@@ -946,7 +946,7 @@ public class AsicCompositeContainerValidationResultTest extends AbstractTest {
   }
 
   @Test
-  public void saveXmlReports_WhenValidPathIsGiven_RequestIsDelegatedToBothValidationResults() throws Exception {
+  void saveXmlReports_WhenValidPathIsGiven_RequestIsDelegatedToBothValidationResults() throws Exception {
     AsicCompositeContainerValidationResult compositeValidationResultSpy = spy(compositeValidationResult);
     doReturn("Mock report string").when(compositeValidationResultSpy).getReport();
     Path path = createDirectoryInTestFolderAndReturnPath("outputFolder");

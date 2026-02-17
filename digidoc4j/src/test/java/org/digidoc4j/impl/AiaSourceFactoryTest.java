@@ -24,17 +24,17 @@ import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-public class AiaSourceFactoryTest extends AbstractTest {
+class AiaSourceFactoryTest extends AbstractTest {
 
   @Test
-  public void testDefaultAiaSourceCreatedWhenNoCustomDataLoaderFactoryConfigured() {
+  void testDefaultAiaSourceCreatedWhenNoCustomDataLoaderFactoryConfigured() {
     AIASource aiaSource = new AiaSourceFactory(configuration).create();
     MatcherAssert.assertThat(aiaSource, Matchers.instanceOf(DefaultAIASource.class));
     // It is currently not possible to access the data loader wrapped inside the DefaultAIASource
   }
 
   @Test
-  public void testCustomAiaSourceCreatedWhenCustomAiaSourceFactoryConfigured() {
+  void testCustomAiaSourceCreatedWhenCustomAiaSourceFactoryConfigured() {
     AIASource mockAiaSource = Mockito.mock(AIASource.class);
     AIASourceFactory mockAiaSourceFactory = Mockito.mock(AIASourceFactory.class);
     Mockito.doReturn(mockAiaSource).when(mockAiaSourceFactory).create();
@@ -48,7 +48,7 @@ public class AiaSourceFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void testCustomAiaSourceCreatedWhenCustomAiaSourceFactoryAndCustomAiaDataLoaderFactoryConfigured() {
+  void testCustomAiaSourceCreatedWhenCustomAiaSourceFactoryAndCustomAiaDataLoaderFactoryConfigured() {
     AIASource mockAiaSource = Mockito.mock(AIASource.class);
     AIASourceFactory mockAiaSourceFactory = Mockito.mock(AIASourceFactory.class);
     Mockito.doReturn(mockAiaSource).when(mockAiaSourceFactory).create();
@@ -64,7 +64,7 @@ public class AiaSourceFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void testCustomAiaSourceCreatedWhenCustomAiaDataLoaderFactoryConfiguredAndNoCustomAiaSourceFactoryConfigured() {
+  void testCustomAiaSourceCreatedWhenCustomAiaDataLoaderFactoryConfiguredAndNoCustomAiaSourceFactoryConfigured() {
     DataLoader mockDataLoader = Mockito.mock(DataLoader.class);
     DataLoaderFactory mockDataLoaderFactory = Mockito.mock(DataLoaderFactory.class);
     Mockito.doReturn(mockDataLoader).when(mockDataLoaderFactory).create();

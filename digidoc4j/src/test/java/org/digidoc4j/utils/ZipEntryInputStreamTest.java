@@ -34,13 +34,13 @@ class ZipEntryInputStreamTest {
   private ZipEntryInputStream zipEntryInputStream;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     zipEntryInputStream = new ZipEntryInputStream(zipInputStream, null);
     Mockito.verifyNoInteractions(zipInputStream);
   }
 
   @Test
-  public void availableShouldDelegateToZipInputStreamAvailable() throws IOException {
+  void availableShouldDelegateToZipInputStreamAvailable() throws IOException {
     Mockito.doReturn(7).when(zipInputStream).available();
 
     int result = zipEntryInputStream.available();
@@ -51,7 +51,7 @@ class ZipEntryInputStreamTest {
   }
 
   @Test
-  public void availableShouldPassOnExceptionThrownByZipInputStreamAvailable() throws IOException {
+  void availableShouldPassOnExceptionThrownByZipInputStreamAvailable() throws IOException {
     IOException ioException = new IOException("Some ZipInputStream exception");
     Mockito.doThrow(ioException).when(zipInputStream).available();
 
@@ -66,7 +66,7 @@ class ZipEntryInputStreamTest {
   }
 
   @Test
-  public void closeShouldDelegateToZipInputStreamCloseEntry() throws IOException {
+  void closeShouldDelegateToZipInputStreamCloseEntry() throws IOException {
     zipEntryInputStream.close();
 
     Mockito.verify(zipInputStream, Mockito.times(1)).closeEntry();
@@ -74,7 +74,7 @@ class ZipEntryInputStreamTest {
   }
 
   @Test
-  public void closeShouldPassOnExceptionThrownByZipInputStreamAvailable() throws IOException {
+  void closeShouldPassOnExceptionThrownByZipInputStreamAvailable() throws IOException {
     IOException ioException = new IOException("Some ZipInputStream exception");
     Mockito.doThrow(ioException).when(zipInputStream).closeEntry();
 
@@ -89,7 +89,7 @@ class ZipEntryInputStreamTest {
   }
 
   @Test
-  public void markShouldDelegateToZipInputStreamMark() {
+  void markShouldDelegateToZipInputStreamMark() {
     zipEntryInputStream.mark(7);
 
     Mockito.verify(zipInputStream, Mockito.times(1)).mark(7);
@@ -97,7 +97,7 @@ class ZipEntryInputStreamTest {
   }
 
   @Test
-  public void markSupportedShouldDelegateToZipInputStreamMarkSupported() {
+  void markSupportedShouldDelegateToZipInputStreamMarkSupported() {
     Mockito.doReturn(true).when(zipInputStream).markSupported();
 
     boolean result = zipEntryInputStream.markSupported();
@@ -108,7 +108,7 @@ class ZipEntryInputStreamTest {
   }
 
   @Test
-  public void readShouldDelegateToZipInputStreamRead() throws IOException {
+  void readShouldDelegateToZipInputStreamRead() throws IOException {
     Mockito.doReturn(7).when(zipInputStream).read();
 
     int result = zipEntryInputStream.read();
@@ -119,7 +119,7 @@ class ZipEntryInputStreamTest {
   }
 
   @Test
-  public void readShouldPassOnExceptionThrownByZipInputStreamRead() throws IOException {
+  void readShouldPassOnExceptionThrownByZipInputStreamRead() throws IOException {
     IOException ioException = new IOException("Some ZipInputStream exception");
     Mockito.doThrow(ioException).when(zipInputStream).read();
 
@@ -134,7 +134,7 @@ class ZipEntryInputStreamTest {
   }
 
   @Test
-  public void readWithArrayShouldDelegateToZipInputStreamReadWithArray() throws IOException {
+  void readWithArrayShouldDelegateToZipInputStreamReadWithArray() throws IOException {
     Mockito.doReturn(7).when(zipInputStream).read(Mockito.any(byte[].class));
     byte[] arrayOfBytes = new byte[32];
 
@@ -146,7 +146,7 @@ class ZipEntryInputStreamTest {
   }
 
   @Test
-  public void readWithArrayShouldPassOnExceptionThrownByZipInputStreamReadWithArray() throws IOException {
+  void readWithArrayShouldPassOnExceptionThrownByZipInputStreamReadWithArray() throws IOException {
     IOException ioException = new IOException("Some ZipInputStream exception");
     Mockito.doThrow(ioException).when(zipInputStream).read(Mockito.any(byte[].class));
     byte[] arrayOfBytes = new byte[32];
@@ -162,7 +162,7 @@ class ZipEntryInputStreamTest {
   }
 
   @Test
-  public void readWithArrayAndBoundsShouldDelegateToZipInputStreamReadWithArrayAndBounds() throws IOException {
+  void readWithArrayAndBoundsShouldDelegateToZipInputStreamReadWithArrayAndBounds() throws IOException {
     Mockito.doReturn(7).when(zipInputStream).read(Mockito.any(byte[].class), Mockito.anyInt(), Mockito.anyInt());
     byte[] arrayOfBytes = new byte[32];
 
@@ -174,7 +174,7 @@ class ZipEntryInputStreamTest {
   }
 
   @Test
-  public void readWithArrayAndBoundsShouldPassOnExceptionThrownByZipInputStreamReadWithArrayAndBounds() throws IOException {
+  void readWithArrayAndBoundsShouldPassOnExceptionThrownByZipInputStreamReadWithArrayAndBounds() throws IOException {
     IOException ioException = new IOException("Some ZipInputStream exception");
     Mockito.doThrow(ioException).when(zipInputStream).read(Mockito.any(byte[].class), Mockito.anyInt(), Mockito.anyInt());
     byte[] arrayOfBytes = new byte[32];
@@ -190,7 +190,7 @@ class ZipEntryInputStreamTest {
   }
 
   @Test
-  public void resetShouldDelegateToZipInputStreamReset() throws IOException {
+  void resetShouldDelegateToZipInputStreamReset() throws IOException {
     zipEntryInputStream.reset();
 
     Mockito.verify(zipInputStream, Mockito.times(1)).reset();
@@ -198,7 +198,7 @@ class ZipEntryInputStreamTest {
   }
 
   @Test
-  public void resetShouldPassOnExceptionThrownByZipInputStreamReset() throws IOException {
+  void resetShouldPassOnExceptionThrownByZipInputStreamReset() throws IOException {
     IOException ioException = new IOException("Some ZipInputStream exception");
     Mockito.doThrow(ioException).when(zipInputStream).reset();
 
@@ -213,7 +213,7 @@ class ZipEntryInputStreamTest {
   }
 
   @Test
-  public void skipShouldDelegateToZipInputStreamSkip() throws IOException {
+  void skipShouldDelegateToZipInputStreamSkip() throws IOException {
     Mockito.doReturn(9L).when(zipInputStream).skip(Mockito.anyLong());
 
     long result = zipEntryInputStream.skip(13L);
@@ -224,7 +224,7 @@ class ZipEntryInputStreamTest {
   }
 
   @Test
-  public void skipShouldPassOnExceptionThrownByZipInputStreamSkip() throws IOException {
+  void skipShouldPassOnExceptionThrownByZipInputStreamSkip() throws IOException {
     IOException ioException = new IOException("Some ZipInputStream exception");
     Mockito.doThrow(ioException).when(zipInputStream).skip(13L);
 

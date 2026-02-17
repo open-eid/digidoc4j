@@ -32,7 +32,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class AsicSTimestampedContainerValidationResultTest {
+class AsicSTimestampedContainerValidationResultTest {
 
   private static final String TEST_TOKEN_ID1 = "token-id-1";
   private static final String TEST_TOKEN_ID2 = "token-id-2";
@@ -42,7 +42,7 @@ public class AsicSTimestampedContainerValidationResultTest {
   private AsicSTimestampedContainerValidationResult validationResult;
 
   @Test
-  public void isValid_WhenResultContainsNoErrors_ReturnsTrueAndNoInteractionsWithTimestamps() {
+  void isValid_WhenResultContainsNoErrors_ReturnsTrueAndNoInteractionsWithTimestamps() {
     validationResult.setErrors(Collections.emptyList());
 
     boolean result = validationResult.isValid();
@@ -53,7 +53,7 @@ public class AsicSTimestampedContainerValidationResultTest {
   }
 
   @Test
-  public void isValid_WhenResultContainsErrorsButNoTimestamps_ReturnsFalse() {
+  void isValid_WhenResultContainsErrorsButNoTimestamps_ReturnsFalse() {
     DigiDoc4JException digiDoc4JException = new DigiDoc4JException("Some error message");
     validationResult.setErrors(Collections.singletonList(digiDoc4JException));
     doReturn(Collections.emptyList()).when(validationResult).getTimestampIdList();
@@ -66,7 +66,7 @@ public class AsicSTimestampedContainerValidationResultTest {
   }
 
   @Test
-  public void isValid_WhenResultContainsErrorsAndOneValidTimestampWithoutErrors_ReturnsFalse() {
+  void isValid_WhenResultContainsErrorsAndOneValidTimestampWithoutErrors_ReturnsFalse() {
     DigiDoc4JException digiDoc4JException = new DigiDoc4JException("Some error message");
     validationResult.setErrors(Collections.singletonList(digiDoc4JException));
     doReturn(Collections.singletonList(TEST_TOKEN_ID1)).when(validationResult).getTimestampIdList();
@@ -81,7 +81,7 @@ public class AsicSTimestampedContainerValidationResultTest {
   }
 
   @Test
-  public void isValid_WhenResultContainsErrorsAndOneValidTimestampWithErrors_ReturnsFalse() {
+  void isValid_WhenResultContainsErrorsAndOneValidTimestampWithErrors_ReturnsFalse() {
     DigiDoc4JException digiDoc4JException = new DigiDoc4JException("Some error message");
     validationResult.setErrors(Collections.singletonList(digiDoc4JException));
     doReturn(Collections.singletonList(TEST_TOKEN_ID1)).when(validationResult).getTimestampIdList();
@@ -96,7 +96,7 @@ public class AsicSTimestampedContainerValidationResultTest {
   }
 
   @Test
-  public void isValid_WhenResultContainsErrorsAndOneInvalidTimestampWithErrors_ReturnsFalse() {
+  void isValid_WhenResultContainsErrorsAndOneInvalidTimestampWithErrors_ReturnsFalse() {
     DigiDoc4JException digiDoc4JException = new DigiDoc4JException("Some error message");
     validationResult.setErrors(Collections.singletonList(digiDoc4JException));
     doReturn(Collections.singletonList(TEST_TOKEN_ID1)).when(validationResult).getTimestampIdList();
@@ -111,7 +111,7 @@ public class AsicSTimestampedContainerValidationResultTest {
   }
 
   @Test
-  public void isValid_WhenResultContainsErrorsAndOneValidTimestampAndOneInvalidTimestampWithMatchingErrors_ReturnsTrue() {
+  void isValid_WhenResultContainsErrorsAndOneValidTimestampAndOneInvalidTimestampWithMatchingErrors_ReturnsTrue() {
     DigiDoc4JException digiDoc4JException = new DigiDoc4JException("Some error message");
     validationResult.setErrors(Collections.singletonList(digiDoc4JException));
     doReturn(Arrays.asList(TEST_TOKEN_ID1, TEST_TOKEN_ID2)).when(validationResult).getTimestampIdList();
@@ -128,7 +128,7 @@ public class AsicSTimestampedContainerValidationResultTest {
   }
 
   @Test
-  public void isValid_WhenResultContainsErrorsAndMultipleValidTimestampsAndOneInvalidTimestampWithMatchingErrors_ReturnsTrue() {
+  void isValid_WhenResultContainsErrorsAndMultipleValidTimestampsAndOneInvalidTimestampWithMatchingErrors_ReturnsTrue() {
     DigiDoc4JException digiDoc4JException = new DigiDoc4JException("Some error message");
     validationResult.setErrors(Collections.singletonList(digiDoc4JException));
     doReturn(Arrays.asList(TEST_TOKEN_ID1, TEST_TOKEN_ID2, TEST_TOKEN_ID3)).when(validationResult).getTimestampIdList();
@@ -147,7 +147,7 @@ public class AsicSTimestampedContainerValidationResultTest {
   }
 
   @Test
-  public void isValid_WhenResultContainsErrorsAndOneValidTimestampAndMultipleInvalidTimestampsWithMatchingErrors_ReturnsTrue() {
+  void isValid_WhenResultContainsErrorsAndOneValidTimestampAndMultipleInvalidTimestampsWithMatchingErrors_ReturnsTrue() {
     DigiDoc4JException digiDoc4JException1 = new DigiDoc4JException("Some error message 1");
     DigiDoc4JException digiDoc4JException2 = new DigiDoc4JException("Some error message 2");
     validationResult.setErrors(Arrays.asList(digiDoc4JException1, digiDoc4JException2));
@@ -167,7 +167,7 @@ public class AsicSTimestampedContainerValidationResultTest {
   }
 
   @Test
-  public void isValid_WhenResultContainsErrorsAndOneValidTimestampAndOneInvalidTimestampWithoutAllErrorsMatching_ReturnsFalse() {
+  void isValid_WhenResultContainsErrorsAndOneValidTimestampAndOneInvalidTimestampWithoutAllErrorsMatching_ReturnsFalse() {
     DigiDoc4JException digiDoc4JException1 = new DigiDoc4JException("Some error message 1");
     DigiDoc4JException digiDoc4JException2 = new DigiDoc4JException("Some error message 2");
     validationResult.setErrors(Arrays.asList(digiDoc4JException1, digiDoc4JException2));

@@ -27,10 +27,10 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class SignatureFinalizerBuilderTest {
+class SignatureFinalizerBuilderTest {
 
   @Test
-  public void aFinalizer_WhenBDOCContainerIsProvided_ReturnsAsicESignatureFinalizer() {
+  void aFinalizer_WhenBDOCContainerIsProvided_ReturnsAsicESignatureFinalizer() {
     Container container = ContainerBuilder.aContainer(BDOC).build();
     SignatureParameters signatureParameters = new SignatureParameters();
 
@@ -40,7 +40,7 @@ public class SignatureFinalizerBuilderTest {
   }
 
   @Test
-  public void aFinalizer_WhenASICEContainerIsProvided_ReturnsAsicESignatureFinalizer() {
+  void aFinalizer_WhenASICEContainerIsProvided_ReturnsAsicESignatureFinalizer() {
     Container container = ContainerBuilder.aContainer(ASICE).build();
     SignatureParameters signatureParameters = new SignatureParameters();
 
@@ -50,7 +50,7 @@ public class SignatureFinalizerBuilderTest {
   }
 
   @Test
-  public void aFinalizer_WhenASICSContainerIsProvided_ThrowsNotSupportedException() {
+  void aFinalizer_WhenASICSContainerIsProvided_ThrowsNotSupportedException() {
     Container container = ContainerBuilder.aContainer(ASICS).build();
     SignatureParameters signatureParameters = new SignatureParameters();
 
@@ -63,7 +63,7 @@ public class SignatureFinalizerBuilderTest {
   }
 
   @Test
-  public void aFinalizer_WhenDDOCContainerIsProvided_ThrowsNotSupportedException() {
+  void aFinalizer_WhenDDOCContainerIsProvided_ThrowsNotSupportedException() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     SignatureParameters signatureParameters = new SignatureParameters();
 
@@ -76,7 +76,7 @@ public class SignatureFinalizerBuilderTest {
   }
 
   @Test
-  public void aFinalizer_WhenDataFilesAreProvidedAndContainerTypeIsBDOC_ReturnsAsicESignatureFinalizer() {
+  void aFinalizer_WhenDataFilesAreProvidedAndContainerTypeIsBDOC_ReturnsAsicESignatureFinalizer() {
     List<DataFile> dataFiles = new ArrayList<>();
     SignatureParameters signatureParameters = new SignatureParameters();
     Configuration configuration = Configuration.getInstance();
@@ -88,7 +88,7 @@ public class SignatureFinalizerBuilderTest {
   }
 
   @Test
-  public void aFinalizer_WhenDataFilesAreProvidedAndContainerTypeIsASICE_ReturnsAsicESignatureFinalizer() {
+  void aFinalizer_WhenDataFilesAreProvidedAndContainerTypeIsASICE_ReturnsAsicESignatureFinalizer() {
     List<DataFile> dataFiles = new ArrayList<>();
     SignatureParameters signatureParameters = new SignatureParameters();
     Configuration configuration = Configuration.getInstance();
@@ -100,7 +100,7 @@ public class SignatureFinalizerBuilderTest {
   }
 
   @Test
-  public void aFinalizer_WhenDataFilesAreProvidedAndContainerTypeIsASICS_ThrowsNotSupportedException() {
+  void aFinalizer_WhenDataFilesAreProvidedAndContainerTypeIsASICS_ThrowsNotSupportedException() {
     List<DataFile> dataFiles = new ArrayList<>();
     SignatureParameters signatureParameters = new SignatureParameters();
     Configuration configuration = Configuration.getInstance();
@@ -114,7 +114,7 @@ public class SignatureFinalizerBuilderTest {
   }
 
   @Test
-  public void aFinalizer_WhenDataFilesAreProvidedAndContainerTypeIsDDOC_ReturnsAsicESignatureFinalizer() {
+  void aFinalizer_WhenDataFilesAreProvidedAndContainerTypeIsDDOC_ReturnsAsicESignatureFinalizer() {
     List<DataFile> dataFiles = new ArrayList<>();
     SignatureParameters signatureParameters = new SignatureParameters();
     Configuration configuration = Configuration.getInstance();

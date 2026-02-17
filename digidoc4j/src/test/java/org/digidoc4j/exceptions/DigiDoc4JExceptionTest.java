@@ -14,16 +14,16 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DigiDoc4JExceptionTest {
+class DigiDoc4JExceptionTest {
 
   @Test
-  public void toStringWithNoErrorCode() throws Exception {
+  void toStringWithNoErrorCode() throws Exception {
     DigiDoc4JException error = new DigiDoc4JException("Error");
     assertEquals("Error", error.toString());
   }
 
   @Test
-  public void toStringWithErrorCode() throws Exception {
+  void toStringWithErrorCode() throws Exception {
     DigiDoc4JException error = new DigiDoc4JException(5, "Error");
     assertEquals("ERROR: 5 - Error", error.toString());
   }

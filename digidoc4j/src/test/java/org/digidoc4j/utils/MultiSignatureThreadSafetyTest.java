@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.utils;
 
 import java.io.ByteArrayInputStream;
@@ -15,10 +25,10 @@ import org.junit.jupiter.api.Test;
  * the problem would often manifest when signing 2 signatures in a row with a specific set of certificates.
  * Now that the cause is fixed, this test may need to be simplified or deleted.
  */
-public class MultiSignatureThreadSafetyTest extends AbstractTest {
+class MultiSignatureThreadSafetyTest extends AbstractTest {
 
   @Test
-  public void signingTwiceDoesNotCauseAThreadingProblemWithSkOnlineOCSPSource() {
+  void signingTwiceDoesNotCauseAThreadingProblemWithSkOnlineOCSPSource() {
     for (int i = 0; i < 2; i++) {
       sign();
     }

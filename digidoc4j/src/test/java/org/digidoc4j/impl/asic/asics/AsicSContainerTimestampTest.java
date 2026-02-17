@@ -14,7 +14,7 @@ import org.digidoc4j.impl.asic.cades.AsicArchiveManifest;
 import org.digidoc4j.impl.asic.cades.AsicContainerTimestampTest;
 import org.digidoc4j.impl.asic.cades.CadesTimestamp;
 
-public class AsicSContainerTimestampTest extends AsicContainerTimestampTest<AsicSContainerTimestamp> {
+class AsicSContainerTimestampTest extends AsicContainerTimestampTest<AsicSContainerTimestamp> {
 
   @Override
   protected AsicSContainerTimestamp createDefaultAsicContainerTimestampWith(CadesTimestamp cadesTimestamp) {

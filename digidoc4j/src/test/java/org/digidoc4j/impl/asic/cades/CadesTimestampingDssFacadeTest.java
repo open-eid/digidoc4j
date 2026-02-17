@@ -47,10 +47,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-public class CadesTimestampingDssFacadeTest extends AbstractCadesDssFacadeTest<CadesTimestampingDssFacade> {
+class CadesTimestampingDssFacadeTest extends AbstractCadesDssFacadeTest<CadesTimestampingDssFacade> {
 
   @Test
-  public void timestampContent_WhenNoExistingTimestampsSpecifiedAndUsingEccTimestampWithSha256TimestampDigestAlgorithm_ReturnsTimestampWithExpectedParameters() {
+  void timestampContent_WhenNoExistingTimestampsSpecifiedAndUsingEccTimestampWithSha256TimestampDigestAlgorithm_ReturnsTimestampWithExpectedParameters() {
     timestampContent_WhenNoExistingTimestampsSpecified_ReturnsTimestampWithExpectedParametersAndWithoutManifest(
             DigestAlgorithm.SHA256,
             TestConstants.DEMO_TSA_ECC_URL,
@@ -59,7 +59,7 @@ public class CadesTimestampingDssFacadeTest extends AbstractCadesDssFacadeTest<C
   }
 
   @Test
-  public void timestampContent_WhenNoExistingTimestampsSpecifiedAndUsingRsaTimestampWithSha256TimestampDigestAlgorithm_ReturnsTimestampWithExpectedParameters() {
+  void timestampContent_WhenNoExistingTimestampsSpecifiedAndUsingRsaTimestampWithSha256TimestampDigestAlgorithm_ReturnsTimestampWithExpectedParameters() {
     timestampContent_WhenNoExistingTimestampsSpecified_ReturnsTimestampWithExpectedParametersAndWithoutManifest(
             DigestAlgorithm.SHA256,
             TestConstants.DEMO_TSA_RSA_URL,
@@ -68,7 +68,7 @@ public class CadesTimestampingDssFacadeTest extends AbstractCadesDssFacadeTest<C
   }
 
   @Test
-  public void timestampContent_WhenNoExistingTimestampsSpecifiedAndUsingEccTimestampWithSha384TimestampDigestAlgorithm_ReturnsTimestampWithExpectedParameters() {
+  void timestampContent_WhenNoExistingTimestampsSpecifiedAndUsingEccTimestampWithSha384TimestampDigestAlgorithm_ReturnsTimestampWithExpectedParameters() {
     timestampContent_WhenNoExistingTimestampsSpecified_ReturnsTimestampWithExpectedParametersAndWithoutManifest(
             DigestAlgorithm.SHA384,
             TestConstants.DEMO_TSA_ECC_URL,
@@ -77,7 +77,7 @@ public class CadesTimestampingDssFacadeTest extends AbstractCadesDssFacadeTest<C
   }
 
   @Test
-  public void timestampContent_WhenNoExistingTimestampsSpecifiedAndUsingRsaTimestampWithSha384TimestampDigestAlgorithm_ReturnsTimestampWithExpectedParameters() {
+  void timestampContent_WhenNoExistingTimestampsSpecifiedAndUsingRsaTimestampWithSha384TimestampDigestAlgorithm_ReturnsTimestampWithExpectedParameters() {
     timestampContent_WhenNoExistingTimestampsSpecified_ReturnsTimestampWithExpectedParametersAndWithoutManifest(
             DigestAlgorithm.SHA384,
             TestConstants.DEMO_TSA_RSA_URL,
@@ -86,7 +86,7 @@ public class CadesTimestampingDssFacadeTest extends AbstractCadesDssFacadeTest<C
   }
 
   @Test
-  public void timestampContent_WhenNoExistingTimestampsSpecifiedAndUsingEccTimestampWithSha512TimestampDigestAlgorithm_ReturnsTimestampWithExpectedParameters() {
+  void timestampContent_WhenNoExistingTimestampsSpecifiedAndUsingEccTimestampWithSha512TimestampDigestAlgorithm_ReturnsTimestampWithExpectedParameters() {
     timestampContent_WhenNoExistingTimestampsSpecified_ReturnsTimestampWithExpectedParametersAndWithoutManifest(
             DigestAlgorithm.SHA512,
             TestConstants.DEMO_TSA_ECC_URL,
@@ -95,7 +95,7 @@ public class CadesTimestampingDssFacadeTest extends AbstractCadesDssFacadeTest<C
   }
 
   @Test
-  public void timestampContent_WhenNoExistingTimestampsSpecifiedAndUsingRsaTimestampWithSha512TimestampDigestAlgorithm_ReturnsTimestampWithExpectedParameters() {
+  void timestampContent_WhenNoExistingTimestampsSpecifiedAndUsingRsaTimestampWithSha512TimestampDigestAlgorithm_ReturnsTimestampWithExpectedParameters() {
     timestampContent_WhenNoExistingTimestampsSpecified_ReturnsTimestampWithExpectedParametersAndWithoutManifest(
             DigestAlgorithm.SHA512,
             TestConstants.DEMO_TSA_RSA_URL,
@@ -141,7 +141,7 @@ public class CadesTimestampingDssFacadeTest extends AbstractCadesDssFacadeTest<C
   }
 
   @Test
-  public void timestampContent_WhenTwoExistingTimestampsSpecifiedAndUsingEccTimestampWithSha256ReferenceDigestAlgorithm_ReturnsTimestampWithExpectedParametersAndManifest() {
+  void timestampContent_WhenTwoExistingTimestampsSpecifiedAndUsingEccTimestampWithSha256ReferenceDigestAlgorithm_ReturnsTimestampWithExpectedParametersAndManifest() {
     timestampContent_WhenTwoExistingTimestampsSpecified_ReturnsTimestampWithExpectedParametersAndManifest(
             DigestAlgorithm.SHA256,
             TestConstants.DEMO_TSA_ECC_URL,
@@ -150,7 +150,7 @@ public class CadesTimestampingDssFacadeTest extends AbstractCadesDssFacadeTest<C
   }
 
   @Test
-  public void timestampContent_WhenTwoExistingTimestampsSpecifiedAndUsingRsaTimestampWithSha256ReferenceDigestAlgorithm_ReturnsTimestampWithExpectedParametersAndManifest() {
+  void timestampContent_WhenTwoExistingTimestampsSpecifiedAndUsingRsaTimestampWithSha256ReferenceDigestAlgorithm_ReturnsTimestampWithExpectedParametersAndManifest() {
     timestampContent_WhenTwoExistingTimestampsSpecified_ReturnsTimestampWithExpectedParametersAndManifest(
             DigestAlgorithm.SHA256,
             TestConstants.DEMO_TSA_RSA_URL,
@@ -159,7 +159,7 @@ public class CadesTimestampingDssFacadeTest extends AbstractCadesDssFacadeTest<C
   }
 
   @Test
-  public void timestampContent_WhenTwoExistingTimestampsSpecifiedAndUsingEccTimestampWithSha384ReferenceDigestAlgorithm_ReturnsTimestampWithExpectedParametersAndManifest() {
+  void timestampContent_WhenTwoExistingTimestampsSpecifiedAndUsingEccTimestampWithSha384ReferenceDigestAlgorithm_ReturnsTimestampWithExpectedParametersAndManifest() {
     timestampContent_WhenTwoExistingTimestampsSpecified_ReturnsTimestampWithExpectedParametersAndManifest(
             DigestAlgorithm.SHA384,
             TestConstants.DEMO_TSA_ECC_URL,
@@ -168,7 +168,7 @@ public class CadesTimestampingDssFacadeTest extends AbstractCadesDssFacadeTest<C
   }
 
   @Test
-  public void timestampContent_WhenTwoExistingTimestampsSpecifiedAndUsingRsaTimestampWithSha384ReferenceDigestAlgorithm_ReturnsTimestampWithExpectedParametersAndManifest() {
+  void timestampContent_WhenTwoExistingTimestampsSpecifiedAndUsingRsaTimestampWithSha384ReferenceDigestAlgorithm_ReturnsTimestampWithExpectedParametersAndManifest() {
     timestampContent_WhenTwoExistingTimestampsSpecified_ReturnsTimestampWithExpectedParametersAndManifest(
             DigestAlgorithm.SHA384,
             TestConstants.DEMO_TSA_RSA_URL,
@@ -177,7 +177,7 @@ public class CadesTimestampingDssFacadeTest extends AbstractCadesDssFacadeTest<C
   }
 
   @Test
-  public void timestampContent_WhenTwoExistingTimestampsSpecifiedAndUsingEccTimestampWithSha512ReferenceDigestAlgorithm_ReturnsTimestampWithExpectedParametersAndManifest() {
+  void timestampContent_WhenTwoExistingTimestampsSpecifiedAndUsingEccTimestampWithSha512ReferenceDigestAlgorithm_ReturnsTimestampWithExpectedParametersAndManifest() {
     timestampContent_WhenTwoExistingTimestampsSpecified_ReturnsTimestampWithExpectedParametersAndManifest(
             DigestAlgorithm.SHA512,
             TestConstants.DEMO_TSA_ECC_URL,
@@ -186,7 +186,7 @@ public class CadesTimestampingDssFacadeTest extends AbstractCadesDssFacadeTest<C
   }
 
   @Test
-  public void timestampContent_WhenTwoExistingTimestampsSpecifiedAndUsingRsaTimestampWithSha512ReferenceDigestAlgorithm_ReturnsTimestampWithExpectedParametersAndManifest() {
+  void timestampContent_WhenTwoExistingTimestampsSpecifiedAndUsingRsaTimestampWithSha512ReferenceDigestAlgorithm_ReturnsTimestampWithExpectedParametersAndManifest() {
     timestampContent_WhenTwoExistingTimestampsSpecified_ReturnsTimestampWithExpectedParametersAndManifest(
             DigestAlgorithm.SHA512,
             TestConstants.DEMO_TSA_RSA_URL,

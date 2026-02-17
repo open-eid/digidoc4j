@@ -19,15 +19,15 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class TimestampBuilderInstantiationTest extends AbstractTest {
+class TimestampBuilderInstantiationTest extends AbstractTest {
 
   @Test
-  public void aTimestamp_WhenNewContainerTypeIsAsice_ThrowsException() {
+  void aTimestamp_WhenNewContainerTypeIsAsice_ThrowsException() {
     aTimestamp_WhenNewContainerIsOfUnsupportedType_ThrowsException(Container.DocumentType.ASICE);
   }
 
   @Test
-  public void aTimestamp_WhenNewContainerTypeIsBdoc_ThrowsException() {
+  void aTimestamp_WhenNewContainerTypeIsBdoc_ThrowsException() {
     aTimestamp_WhenNewContainerIsOfUnsupportedType_ThrowsException(Container.DocumentType.BDOC);
   }
 
@@ -44,7 +44,7 @@ public class TimestampBuilderInstantiationTest extends AbstractTest {
   }
 
   @Test
-  public void aTimestamp_WhenNewContainerTypeIsAsics_ReturnsAsicsContainerTimestampBuilder() {
+  void aTimestamp_WhenNewContainerTypeIsAsics_ReturnsAsicsContainerTimestampBuilder() {
     Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).build();
 
     TimestampBuilder result = TimestampBuilder.aTimestamp(container);
@@ -53,7 +53,7 @@ public class TimestampBuilderInstantiationTest extends AbstractTest {
   }
 
   @Test
-  public void aTimestamp_WhenExistingContainerTypeIsAsice_ThrowsException() {
+  void aTimestamp_WhenExistingContainerTypeIsAsice_ThrowsException() {
     aTimestamp_WhenExistingContainerIsOfUnsupportedType_ThrowsException(
             "src/test/resources/testFiles/valid-containers/valid-asice-esteid2018.asice",
             Constant.ASICE_CONTAINER_TYPE
@@ -61,7 +61,7 @@ public class TimestampBuilderInstantiationTest extends AbstractTest {
   }
 
   @Test
-  public void aTimestamp_WhenExistingContainerTypeIsBdoc_ThrowsException() {
+  void aTimestamp_WhenExistingContainerTypeIsBdoc_ThrowsException() {
     aTimestamp_WhenExistingContainerIsOfUnsupportedType_ThrowsException(
             "src/test/resources/testFiles/valid-containers/valid-bdoc-tm-newer.bdoc",
             Constant.BDOC_CONTAINER_TYPE
@@ -69,7 +69,7 @@ public class TimestampBuilderInstantiationTest extends AbstractTest {
   }
 
   @Test
-  public void aTimestamp_WhenExistingContainerTypeIsDdoc_ThrowsException() {
+  void aTimestamp_WhenExistingContainerTypeIsDdoc_ThrowsException() {
     aTimestamp_WhenExistingContainerIsOfUnsupportedType_ThrowsException(
             "src/test/resources/testFiles/valid-containers/ddoc-valid.ddoc",
             Constant.DDOC_CONTAINER_TYPE
@@ -77,7 +77,7 @@ public class TimestampBuilderInstantiationTest extends AbstractTest {
   }
 
   @Test
-  public void aTimestamp_WhenExistingContainerTypeIsPades_ThrowsException() {
+  void aTimestamp_WhenExistingContainerTypeIsPades_ThrowsException() {
     aTimestamp_WhenExistingContainerIsOfUnsupportedType_ThrowsException(
             "src/test/resources/testFiles/valid-containers/valid-pades-esteid2018.pdf",
             Constant.PADES_CONTAINER_TYPE
@@ -97,7 +97,7 @@ public class TimestampBuilderInstantiationTest extends AbstractTest {
   }
 
   @Test
-  public void aTimestamp_WhenExistingContainerTypeIsAsics_ReturnsAsicsContainerTimestampBuilder() {
+  void aTimestamp_WhenExistingContainerTypeIsAsics_ReturnsAsicsContainerTimestampBuilder() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/valid-asics-esteid2018.asics",
             configuration

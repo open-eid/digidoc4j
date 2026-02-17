@@ -15,20 +15,20 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-public class ManifestEntryTest {
+class ManifestEntryTest {
 
   @Test
-  public void manifestEntryEquals() {
+  void manifestEntryEquals() {
     assertEquals(new ManifestEntry("fail.txt", "text/plain"), new ManifestEntry("fail.txt", "text/plain"));
   }
 
   @Test
-  public void manifestEntryEqualsWhenMimeTypeIsWrong() {
+  void manifestEntryEqualsWhenMimeTypeIsWrong() {
     assertNotEquals(new ManifestEntry("fail.txt", "text/plain"), new ManifestEntry("fail.txt", "text/xml"));
   }
 
   @Test
-  public void manifestEntryEqualsWhenFileNameIsWrong() {
+  void manifestEntryEqualsWhenFileNameIsWrong() {
     assertNotEquals(new ManifestEntry("fail.txt", "text/plain"), new ManifestEntry("fail1.txt", "text/plain"));
   }
 

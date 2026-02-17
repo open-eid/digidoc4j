@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class TslIntegrityTest extends AbstractTest {
+class TslIntegrityTest extends AbstractTest {
 
     private Configuration configuration;
 
@@ -36,7 +36,7 @@ public class TslIntegrityTest extends AbstractTest {
     private int initialEntitiesCountInTslPool;
 
     @BeforeEach
-    public void setUpCentralConfiguration() {
+    void setUpCentralConfiguration() {
         configuration = Configuration.of(Configuration.Mode.TEST);
         configuration.getTSL().refresh();
 
@@ -47,7 +47,7 @@ public class TslIntegrityTest extends AbstractTest {
     }
 
     @Test
-    public void centralTslShouldNotChangeAfterSignatureCreationNorValidation() {
+    void centralTslShouldNotChangeAfterSignatureCreationNorValidation() {
         Signature signature = DetachedXadesSignatureBuilder.withConfiguration(configuration)
                 .withSignatureToken(pkcs12SignatureToken)
                 .withDataFile(createDefaultDataFile())
@@ -60,7 +60,7 @@ public class TslIntegrityTest extends AbstractTest {
     }
 
     @Test
-    public void centralTslShouldNotChangeAfterSigningOrValidatingContainer() {
+    void centralTslShouldNotChangeAfterSigningOrValidatingContainer() {
         Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICE)
                 .withDataFile(createDefaultDataFile())
                 .withConfiguration(configuration)

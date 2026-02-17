@@ -17,7 +17,7 @@ import org.digidoc4j.impl.asic.xades.AsicXadesSignatureOpenerTest;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 
-public class AsicSSignatureOpenerTest extends AsicXadesSignatureOpenerTest {
+class AsicSSignatureOpenerTest extends AsicXadesSignatureOpenerTest {
 
   @Override
   protected AsicXadesSignatureOpener signatureOpener() {

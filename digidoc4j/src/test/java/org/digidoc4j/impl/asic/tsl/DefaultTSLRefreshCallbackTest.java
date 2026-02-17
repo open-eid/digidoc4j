@@ -50,7 +50,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
-public class DefaultTSLRefreshCallbackTest extends AbstractTest {
+class DefaultTSLRefreshCallbackTest extends AbstractTest {
 
   private static final String LOTL_URL_1 = "http://lotl.host.first";
 
@@ -70,12 +70,12 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   private DefaultTSLRefreshCallback tslRefreshCallback;
 
   @Test
-  public void testSummaryWithNullLOTLInfos() {
+  void testSummaryWithNullLOTLInfos() {
     testSummaryWithNoLOTLInfos(null);
   }
 
   @Test
-  public void testSummaryWithEmptyLOTLInfos() {
+  void testSummaryWithEmptyLOTLInfos() {
     testSummaryWithNoLOTLInfos(Collections.emptyList());
   }
 
@@ -95,7 +95,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithNoDownloadInfo() {
+  void testSingleLOTLInfoWithNoDownloadInfo() {
     TslDownloadException caughtException = testSingleLOTLInfoThrowingDownloadException(null);
     assertEquals(
             String.format("No download info found for <%s> LoTL: %s", TERRITORY_1, LOTL_URL_1),
@@ -105,7 +105,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithDownloadError() {
+  void testSingleLOTLInfoWithDownloadError() {
     TslDownloadException caughtException = testSingleLOTLInfoThrowingDownloadException(
             withErrorState(new DownloadCacheDTO(), "Exception message")
     );
@@ -119,7 +119,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithDownloadRefreshNeeded() {
+  void testSingleLOTLInfoWithDownloadRefreshNeeded() {
     TslDownloadException caughtException = testSingleLOTLInfoThrowingDownloadException(
             withState(new DownloadCacheDTO(), CacheStateEnum.REFRESH_NEEDED)
     );
@@ -131,7 +131,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithUnexpectedDownloadStatus() {
+  void testSingleLOTLInfoWithUnexpectedDownloadStatus() {
     for (CacheStateEnum cacheState : unexpectedCacheStates()) {
       TslDownloadException caughtException = testSingleLOTLInfoThrowingDownloadException(
               withState(new DownloadCacheDTO(), cacheState)
@@ -161,7 +161,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithNoParsingInfo() {
+  void testSingleLOTLInfoWithNoParsingInfo() {
     TslParsingException caughtException = testSingleLOTLInfoThrowingParsingException(null);
     assertEquals(
             String.format("No parsing info found for LoTL: %s", LOTL_URL_1),
@@ -171,7 +171,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithParsingError() {
+  void testSingleLOTLInfoWithParsingError() {
     TslParsingException caughtException = testSingleLOTLInfoThrowingParsingException(
             withErrorState(new ParsingCacheDTO(), "Exception message")
     );
@@ -185,7 +185,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithParsingRefreshNeeded() {
+  void testSingleLOTLInfoWithParsingRefreshNeeded() {
     TslParsingException caughtException = testSingleLOTLInfoThrowingParsingException(
             withState(new ParsingCacheDTO(), CacheStateEnum.REFRESH_NEEDED)
     );
@@ -197,7 +197,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithUnexpectedParsingStatus() {
+  void testSingleLOTLInfoWithUnexpectedParsingStatus() {
     for (CacheStateEnum cacheState : unexpectedCacheStates()) {
       TslParsingException caughtException = testSingleLOTLInfoThrowingParsingException(
               withState(new ParsingCacheDTO(), cacheState)
@@ -227,7 +227,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithNoValidationInfo() {
+  void testSingleLOTLInfoWithNoValidationInfo() {
     TslValidationException caughtException = testSingleLOTLInfoThrowingValidationException(null);
     assertEquals(
             String.format("No validation info found for <%s> LoTL: %s", TERRITORY_1, LOTL_URL_1),
@@ -237,7 +237,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithValidationError() {
+  void testSingleLOTLInfoWithValidationError() {
     TslValidationException caughtException = testSingleLOTLInfoThrowingValidationException(
             withErrorState(new ValidationCacheDTO(), "Exception message")
     );
@@ -251,7 +251,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithValidationNotTotalPassed() {
+  void testSingleLOTLInfoWithValidationNotTotalPassed() {
     for (Indication indication : nonValidIndications()) {
       TslValidationException caughtException = testSingleLOTLInfoThrowingValidationException(
               withSynchronizedState(new ValidationCacheDTO(), indication)
@@ -271,7 +271,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithValidationRefreshNeeded() {
+  void testSingleLOTLInfoWithValidationRefreshNeeded() {
     TslValidationException caughtException = testSingleLOTLInfoThrowingValidationException(
             withState(new ValidationCacheDTO(), CacheStateEnum.REFRESH_NEEDED)
     );
@@ -283,7 +283,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithUnexpectedValidationStatus() {
+  void testSingleLOTLInfoWithUnexpectedValidationStatus() {
     for (CacheStateEnum cacheState : unexpectedCacheStates()) {
       TslValidationException caughtException = testSingleLOTLInfoThrowingValidationException(
               withState(new ValidationCacheDTO(), cacheState)
@@ -313,7 +313,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithDownloadErrorAndParsingRefreshNeededAndValidationRefreshNeeded() {
+  void testSingleLOTLInfoWithDownloadErrorAndParsingRefreshNeededAndValidationRefreshNeeded() {
     LOTLInfo lotlInfo = new LOTLInfo(
             withErrorState(new DownloadCacheDTO(), "Exception message"),
             withState(new ParsingCacheDTO(), CacheStateEnum.REFRESH_NEEDED),
@@ -346,7 +346,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithParsingErrorAndValidationRefreshNeeded() {
+  void testSingleLOTLInfoWithParsingErrorAndValidationRefreshNeeded() {
     LOTLInfo lotlInfo = new LOTLInfo(
             withState(new DownloadCacheDTO(), CacheStateEnum.SYNCHRONIZED),
             withErrorState(new ParsingCacheDTO(), "Exception message"),
@@ -379,7 +379,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithSingleTLInfoWithNoDownloadInfo() {
+  void testSingleLOTLInfoWithSingleTLInfoWithNoDownloadInfo() {
     TslDownloadException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingDownloadException(null);
     assertEquals(
             String.format("No download info found for <%s> TL: %s", TERRITORY_2, TL_URL_1),
@@ -389,7 +389,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithSingleTLInfoWithDownloadError() {
+  void testSingleLOTLInfoWithSingleTLInfoWithDownloadError() {
     TslDownloadException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingDownloadException(
             withErrorState(new DownloadCacheDTO(), "Exception message")
     );
@@ -403,7 +403,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithSingleTLInfoWithDownloadRefreshNeeded() {
+  void testSingleLOTLInfoWithSingleTLInfoWithDownloadRefreshNeeded() {
     TslDownloadException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingDownloadException(
             withState(new DownloadCacheDTO(), CacheStateEnum.REFRESH_NEEDED)
     );
@@ -415,7 +415,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithSingleTLInfoWithUnexpectedDownloadStatus() {
+  void testSingleLOTLInfoWithSingleTLInfoWithUnexpectedDownloadStatus() {
     for (CacheStateEnum cacheState : unexpectedCacheStates()) {
       TslDownloadException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingDownloadException(
               withState(new DownloadCacheDTO(), cacheState)
@@ -450,7 +450,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithSingleTLInfoWithNoParsingInfo() {
+  void testSingleLOTLInfoWithSingleTLInfoWithNoParsingInfo() {
     TslParsingException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingParsingException(null);
     assertEquals(
             String.format("No parsing info found for TL: %s", TL_URL_1),
@@ -460,7 +460,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithSingleTLInfoWithParsingError() {
+  void testSingleLOTLInfoWithSingleTLInfoWithParsingError() {
     TslParsingException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingParsingException(
             withErrorState(new ParsingCacheDTO(), "Exception message")
     );
@@ -474,7 +474,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithSingleTLInfoWithParsingRefreshNeeded() {
+  void testSingleLOTLInfoWithSingleTLInfoWithParsingRefreshNeeded() {
     TslParsingException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingParsingException(
             withState(new ParsingCacheDTO(), CacheStateEnum.REFRESH_NEEDED)
     );
@@ -486,7 +486,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithSingleTLInfoInfoWithUnexpectedParsingStatus() {
+  void testSingleLOTLInfoWithSingleTLInfoInfoWithUnexpectedParsingStatus() {
     for (CacheStateEnum cacheState : unexpectedCacheStates()) {
       TslParsingException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingParsingException(
               withState(new ParsingCacheDTO(), cacheState)
@@ -521,7 +521,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithSingleTLInfoWithNoValidationInfo() {
+  void testSingleLOTLInfoWithSingleTLInfoWithNoValidationInfo() {
     TslValidationException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingValidationException(null);
     assertEquals(
             String.format("No validation info found for <%s> TL: %s", TERRITORY_2, TL_URL_1),
@@ -531,7 +531,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithSingleTLInfoWithValidationError() {
+  void testSingleLOTLInfoWithSingleTLInfoWithValidationError() {
     TslValidationException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingValidationException(
             withErrorState(new ValidationCacheDTO(), "Exception message")
     );
@@ -545,7 +545,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithSingleTLInfoWithValidationNotTotalPassed() {
+  void testSingleLOTLInfoWithSingleTLInfoWithValidationNotTotalPassed() {
     for (Indication indication : nonValidIndications()) {
       TslValidationException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingValidationException(
               withSynchronizedState(new ValidationCacheDTO(), indication)
@@ -565,7 +565,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithSingleTLInfoWithValidationRefreshNeeded() {
+  void testSingleLOTLInfoWithSingleTLInfoWithValidationRefreshNeeded() {
     TslValidationException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingValidationException(
             withState(new ValidationCacheDTO(), CacheStateEnum.REFRESH_NEEDED)
     );
@@ -577,7 +577,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithSingleTLInfoWithUnexpectedValidationStatus() {
+  void testSingleLOTLInfoWithSingleTLInfoWithUnexpectedValidationStatus() {
     for (CacheStateEnum cacheState : unexpectedCacheStates()) {
       TslValidationException caughtException = testSingleLOTLInfoWithSingleTLInfoThrowingValidationException(
               withState(new ValidationCacheDTO(), cacheState)
@@ -612,7 +612,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithSingleTLInfoWithDownloadErrorAndParsingRefreshNeededAndValidationRefreshNeeded() {
+  void testSingleLOTLInfoWithSingleTLInfoWithDownloadErrorAndParsingRefreshNeededAndValidationRefreshNeeded() {
     TLInfo tlInfo = new TLInfo(
             withErrorState(new DownloadCacheDTO(), "Exception message"),
             withState(new ParsingCacheDTO(), CacheStateEnum.REFRESH_NEEDED),
@@ -651,7 +651,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithSingleTLInfoWithParsingErrorAndValidationRefreshNeeded() {
+  void testSingleLOTLInfoWithSingleTLInfoWithParsingErrorAndValidationRefreshNeeded() {
     TLInfo tlInfo = new TLInfo(
             withState(new DownloadCacheDTO(), CacheStateEnum.SYNCHRONIZED),
             withErrorState(new ParsingCacheDTO(), "Exception message"),
@@ -688,7 +688,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithMultipleTLInfosAllFail() {
+  void testSingleLOTLInfoWithMultipleTLInfosAllFail() {
     TslRefreshException caughtException = testSingleLOTLInfoWithAllTLInfosThrowingException(Arrays.asList(
             new TLInfo(
                     withErrorState(new DownloadCacheDTO(), "Exception message 1"),
@@ -779,7 +779,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithRequiredTLInfoWithNoDownloadInfo() {
+  void testSingleLOTLInfoWithRequiredTLInfoWithNoDownloadInfo() {
     TslDownloadException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingDownloadException(null);
     assertEquals(
             String.format("No download info found for <%s> TL: %s", TERRITORY_3, TL_URL_2),
@@ -789,7 +789,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithRequiredTLInfoWithDownloadError() {
+  void testSingleLOTLInfoWithRequiredTLInfoWithDownloadError() {
     TslDownloadException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingDownloadException(
             withErrorState(new DownloadCacheDTO(), "Exception message")
     );
@@ -803,7 +803,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithRequiredTLInfoWithDownloadRefreshNeeded() {
+  void testSingleLOTLInfoWithRequiredTLInfoWithDownloadRefreshNeeded() {
     TslDownloadException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingDownloadException(
             withState(new DownloadCacheDTO(), CacheStateEnum.REFRESH_NEEDED)
     );
@@ -815,7 +815,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithRequiredTLInfoWithUnexpectedDownloadStatus() {
+  void testSingleLOTLInfoWithRequiredTLInfoWithUnexpectedDownloadStatus() {
     for (CacheStateEnum cacheState : unexpectedCacheStates()) {
       TslDownloadException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingDownloadException(
               withState(new DownloadCacheDTO(), cacheState)
@@ -849,7 +849,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithRequiredTLInfoWithNoParsingInfo() {
+  void testSingleLOTLInfoWithRequiredTLInfoWithNoParsingInfo() {
     TslParsingException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingParsingException(null);
     assertEquals(
             String.format("No parsing info found for TL: %s", TL_URL_2),
@@ -859,7 +859,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithRequiredTLInfoWithParsingError() {
+  void testSingleLOTLInfoWithRequiredTLInfoWithParsingError() {
     TslParsingException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingParsingException(
             withErrorState(new ParsingCacheDTO(), "Exception message")
     );
@@ -873,7 +873,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithRequiredTLInfoWithParsingRefreshNeeded() {
+  void testSingleLOTLInfoWithRequiredTLInfoWithParsingRefreshNeeded() {
     TslParsingException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingParsingException(
             withState(new ParsingCacheDTO(), CacheStateEnum.REFRESH_NEEDED)
     );
@@ -885,7 +885,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithRequiredTLInfoInfoWithUnexpectedParsingStatus() {
+  void testSingleLOTLInfoWithRequiredTLInfoInfoWithUnexpectedParsingStatus() {
     for (CacheStateEnum cacheState : unexpectedCacheStates()) {
       TslParsingException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingParsingException(
               withState(new ParsingCacheDTO(), cacheState)
@@ -919,7 +919,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithRequiredTLInfoWithNoValidationInfo() {
+  void testSingleLOTLInfoWithRequiredTLInfoWithNoValidationInfo() {
     TslValidationException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingValidationException(null);
     assertEquals(
             String.format("No validation info found for <%s> TL: %s", TERRITORY_3, TL_URL_2),
@@ -929,7 +929,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithRequiredTLInfoWithValidationError() {
+  void testSingleLOTLInfoWithRequiredTLInfoWithValidationError() {
     TslValidationException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingValidationException(
             withErrorState(new ValidationCacheDTO(), "Exception message")
     );
@@ -943,7 +943,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithRequiredTLInfoWithValidationNotTotalPassed() {
+  void testSingleLOTLInfoWithRequiredTLInfoWithValidationNotTotalPassed() {
     for (Indication indication : nonValidIndications()) {
       TslValidationException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingValidationException(
               withSynchronizedState(new ValidationCacheDTO(), indication)
@@ -963,7 +963,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithRequiredTLInfoWithValidationRefreshNeeded() {
+  void testSingleLOTLInfoWithRequiredTLInfoWithValidationRefreshNeeded() {
     TslValidationException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingValidationException(
             withState(new ValidationCacheDTO(), CacheStateEnum.REFRESH_NEEDED)
     );
@@ -975,7 +975,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithRequiredTLInfoWithUnexpectedValidationStatus() {
+  void testSingleLOTLInfoWithRequiredTLInfoWithUnexpectedValidationStatus() {
     for (CacheStateEnum cacheState : unexpectedCacheStates()) {
       TslValidationException caughtException = testSingleLOTLInfoWithRequiredTLInfoThrowingValidationException(
               withState(new ValidationCacheDTO(), cacheState)
@@ -1009,7 +1009,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithRequiredTLInfoWithDownloadErrorAndParsingRefreshNeededAndValidationRefreshNeeded() {
+  void testSingleLOTLInfoWithRequiredTLInfoWithDownloadErrorAndParsingRefreshNeededAndValidationRefreshNeeded() {
     TLInfo tlInfo = new TLInfo(
             withErrorState(new DownloadCacheDTO(), "Exception message"),
             withState(new ParsingCacheDTO(), CacheStateEnum.REFRESH_NEEDED),
@@ -1047,7 +1047,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithRequiredTLInfoWithParsingErrorAndValidationRefreshNeeded() {
+  void testSingleLOTLInfoWithRequiredTLInfoWithParsingErrorAndValidationRefreshNeeded() {
     TLInfo tlInfo = new TLInfo(
             withState(new DownloadCacheDTO(), CacheStateEnum.SYNCHRONIZED),
             withErrorState(new ParsingCacheDTO(), "Exception message"),
@@ -1102,7 +1102,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithSingleTLInfoSucceeds() {
+  void testSingleLOTLInfoWithSingleTLInfoSucceeds() {
     LOTLInfo lotlInfo = createValidLOTLInfo(TERRITORY_1, LOTL_URL_1);
     lotlInfo.setTlInfos(Collections.singletonList(
             createValidTLInfo(TERRITORY_2, TL_URL_1)
@@ -1115,7 +1115,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithMultipleTLInfosSucceeds() {
+  void testSingleLOTLInfoWithMultipleTLInfosSucceeds() {
     LOTLInfo lotlInfo = createValidLOTLInfo(TERRITORY_1, LOTL_URL_1);
     lotlInfo.setTlInfos(Arrays.asList(
             createValidTLInfo(TERRITORY_2, TL_URL_1),
@@ -1129,7 +1129,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testSingleLOTLInfoWithMultipleTLInfosAtLeastOneSucceeds() {
+  void testSingleLOTLInfoWithMultipleTLInfosAtLeastOneSucceeds() {
     LOTLInfo lotlInfo = createValidLOTLInfo(TERRITORY_1, LOTL_URL_1);
     lotlInfo.setTlInfos(Arrays.asList(
             createValidTLInfo(TERRITORY_2, TL_URL_1),
@@ -1148,7 +1148,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testMatchingRequiredTerritoriesWithoutTrustedTerritoriesSucceeds() {
+  void testMatchingRequiredTerritoriesWithoutTrustedTerritoriesSucceeds() {
     Mockito.doReturn(Arrays.asList(TERRITORY_2, TERRITORY_3)).when(configuration).getRequiredTerritories();
     LOTLInfo lotlInfo = createValidLOTLInfo(TERRITORY_1, LOTL_URL_1);
     lotlInfo.setTlInfos(Arrays.asList(
@@ -1164,7 +1164,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testOnlyTLInfosWithMatchingRequiredTerritoriesSucceeds() {
+  void testOnlyTLInfosWithMatchingRequiredTerritoriesSucceeds() {
     Mockito.doReturn(Collections.singletonList(TERRITORY_2)).when(configuration).getRequiredTerritories();
     LOTLInfo lotlInfo = createValidLOTLInfo(TERRITORY_1, LOTL_URL_1);
     lotlInfo.setTlInfos(Arrays.asList(
@@ -1185,7 +1185,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testMatchingRequiredTerritoriesAndMatchingTrustedTerritoriesSucceeds() {
+  void testMatchingRequiredTerritoriesAndMatchingTrustedTerritoriesSucceeds() {
     Mockito.doReturn(Arrays.asList(TERRITORY_2, TERRITORY_3)).when(configuration).getRequiredTerritories();
     Mockito.doReturn(Arrays.asList(TERRITORY_2, TERRITORY_3)).when(configuration).getTrustedTerritories();
     LOTLInfo lotlInfo = createValidLOTLInfo(TERRITORY_1, LOTL_URL_1);
@@ -1202,7 +1202,7 @@ public class DefaultTSLRefreshCallbackTest extends AbstractTest {
   }
 
   @Test
-  public void testNonMatchingRequiredTerritoriesAndMatchingTrustedTerritoriesSucceeds() {
+  void testNonMatchingRequiredTerritoriesAndMatchingTrustedTerritoriesSucceeds() {
     Mockito.doReturn(Collections.singletonList("NO")).when(configuration).getRequiredTerritories();
     Mockito.doReturn(Arrays.asList(TERRITORY_2, TERRITORY_3)).when(configuration).getTrustedTerritories();
     LOTLInfo lotlInfo = createValidLOTLInfo(TERRITORY_1, LOTL_URL_1);

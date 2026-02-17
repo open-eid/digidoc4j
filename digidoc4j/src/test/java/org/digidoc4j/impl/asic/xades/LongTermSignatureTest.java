@@ -30,13 +30,13 @@ import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class LongTermSignatureTest extends AbstractTest {
+class LongTermSignatureTest extends AbstractTest {
 
     @TempDir
     Path tmpDir;
 
     @Test
-    public void getProfile_returnsLT() throws IOException {
+    void getProfile_returnsLT() throws IOException {
         LongTermSignature longTermSignature = createTimestampSignature();
 
         SignatureProfile profile = longTermSignature.getProfile();
@@ -45,7 +45,7 @@ public class LongTermSignatureTest extends AbstractTest {
     }
 
     @Test
-    public void getTimeStampTokenCertificate_certificateExists_ReturnsCertificate() throws IOException {
+    void getTimeStampTokenCertificate_certificateExists_ReturnsCertificate() throws IOException {
         LongTermSignature longTermSignature = createTimestampSignature();
 
         X509Cert timeStampTokenCertificate = longTermSignature.getTimeStampTokenCertificate();
@@ -54,7 +54,7 @@ public class LongTermSignatureTest extends AbstractTest {
     }
 
     @Test
-    public void getTimeStampCreationTime_timeStampInfoExists_creationTimeIsRecent() throws IOException {
+    void getTimeStampCreationTime_timeStampInfoExists_creationTimeIsRecent() throws IOException {
         Instant startTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
         LongTermSignature longTermSignature = createTimestampSignature();
 

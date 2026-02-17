@@ -35,12 +35,12 @@ import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class XadesSigningDssFacadeTest extends AbstractTest {
+class XadesSigningDssFacadeTest extends AbstractTest {
 
   private XadesSigningDssFacade facade;
 
   @Test
-  public void getDataToSign() throws Exception {
+  void getDataToSign() throws Exception {
     facade = new XadesSigningDssFacade();
     byte[] dataToSign = getDataToSign(facade);
     assertNotNull(dataToSign);
@@ -48,18 +48,18 @@ public class XadesSigningDssFacadeTest extends AbstractTest {
   }
 
   @Test
-  public void signDocumentTest() throws Exception {
+  void signDocumentTest() throws Exception {
     TestAssert.assertDSSDocumentIsSigned(sign(facade, DigestAlgorithm.SHA256));
   }
 
   @Test
-  public void signDocumentWithSha512() throws Exception {
+  void signDocumentWithSha512() throws Exception {
     facade.setSignatureDigestAlgorithm(DigestAlgorithm.SHA512);
     TestAssert.assertDSSDocumentIsSigned(sign(facade, DigestAlgorithm.SHA512));
   }
 
   @Test
-  public void signDocumentWithECC() throws Exception {
+  void signDocumentWithECC() throws Exception {
     X509Certificate signingCert = pkcs12EccSignatureToken.getCertificate();
     facade.setEncryptionAlgorithm(EncryptionAlgorithm.ECDSA);
     facade.setSigningCertificate(signingCert);
@@ -70,7 +70,7 @@ public class XadesSigningDssFacadeTest extends AbstractTest {
   }
 
   @Test
-  public void signWithSignerInformation() throws Exception {
+  void signWithSignerInformation() throws Exception {
     SignerLocation signerLocation = new SignerLocation();
     signerLocation.setCountry("Val Verde");
     signerLocation.setPostalCode("1776");
@@ -81,7 +81,7 @@ public class XadesSigningDssFacadeTest extends AbstractTest {
   }
 
   @Test
-  public void signWithSignaturePolicy() throws IOException {
+  void signWithSignaturePolicy() throws IOException {
     Policy signaturePolicy = new Policy();
     signaturePolicy.setId("urn:oid:1.3.6.1.4.1.10015.1000.3.2.1");
     signaturePolicy.setDigestValue(decodeBase64("3Tl1oILSvOAWomdI9VeWV6IA/32eSXRUri9kPEz1IVs="));
@@ -92,19 +92,19 @@ public class XadesSigningDssFacadeTest extends AbstractTest {
   }
 
   @Test
-  public void signWithBesSignatureProfile() throws Exception {
+  void signWithBesSignatureProfile() throws Exception {
     facade.setSignatureLevel(XAdES_BASELINE_B);
     TestAssert.assertDSSDocumentIsSigned(sign(facade, DigestAlgorithm.SHA256));
   }
 
   @Test
-  public void setSignatureId() throws Exception {
+  void setSignatureId() throws Exception {
     facade.setSignatureId("Signature-0");
     TestAssert.assertDSSDocumentIsSigned(sign(facade, DigestAlgorithm.SHA256));
   }
 
   @Test
-  public void extendBesSignature_toTimestampSignature() throws Exception {
+  void extendBesSignature_toTimestampSignature() throws Exception {
     facade.setSignatureLevel(XAdES_BASELINE_B);
     DSSDocument signedDocument = sign(facade, DigestAlgorithm.SHA256);
     XadesSigningDssFacade extendingFacade = createSigningFacade();

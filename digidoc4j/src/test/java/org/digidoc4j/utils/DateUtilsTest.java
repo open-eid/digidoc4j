@@ -19,114 +19,114 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class DateUtilsTest {
+class DateUtilsTest {
 
   @Test
-  public void testIsAlmostNowComparedToNow() {
+  void testIsAlmostNowComparedToNow() {
     assertTrue(DateUtils.isAlmostNow(new Date()));
   }
 
   @Test
-  public void testIsAlmostNowComparedToOneSecondsBeforeNow() {
+  void testIsAlmostNowComparedToOneSecondsBeforeNow() {
     Date nowMinusOneSecond = org.apache.commons.lang3.time.DateUtils.addSeconds(new Date(), -1);
     assertTrue(DateUtils.isAlmostNow(nowMinusOneSecond));
   }
 
   @Test
-  public void testIsAlmostNowComparedToOneSecondsAfterNow() {
+  void testIsAlmostNowComparedToOneSecondsAfterNow() {
     Date nowPlusOneSecond = org.apache.commons.lang3.time.DateUtils.addSeconds(new Date(), 1);
     assertTrue(DateUtils.isAlmostNow(nowPlusOneSecond));
   }
 
   @Test
-  public void testIsAlmostNowComparedToOneMInuteBeforeNow() {
+  void testIsAlmostNowComparedToOneMInuteBeforeNow() {
     assertFalse(DateUtils.isAlmostNow(org.apache.commons.lang3.time.DateUtils.addSeconds(new Date(), -61)));
   }
 
   @Test
-  public void testIsAlmostNowComparedToOneMinuteAfterNow() {
+  void testIsAlmostNowComparedToOneMinuteAfterNow() {
     assertFalse(DateUtils.isAlmostNow(org.apache.commons.lang3.time.DateUtils.addSeconds(new Date(), 61)));
   }
 
   @Test
-  public void testRangeNotIn10Min() {
+  void testRangeNotIn10Min() {
     int range10min = 10;
     Date date100MinInFuture = org.apache.commons.lang3.time.DateUtils.addMinutes(new Date(), 100);
     assertFalse(DateUtils.isInRangeMinutes(new Date(), date100MinInFuture, range10min));
   }
 
   @Test
-  public void testRangeNotIn10MinSwitched() {
+  void testRangeNotIn10MinSwitched() {
     int range10min = 10;
     Date date100MinInFuture = org.apache.commons.lang3.time.DateUtils.addMinutes(new Date(), 100);
     assertFalse(DateUtils.isInRangeMinutes(date100MinInFuture, new Date(), range10min));
   }
 
   @Test
-  public void testRangeIn10Min() {
+  void testRangeIn10Min() {
     int range10min = 10;
     Date date5MinInFuture = org.apache.commons.lang3.time.DateUtils.addMinutes(new Date(), 5);
     assertTrue(DateUtils.isInRangeMinutes(new Date(), date5MinInFuture, range10min));
   }
 
   @Test
-  public void testRangeIn10MinWithFuture() {
+  void testRangeIn10MinWithFuture() {
     int range10min = 10;
     Date date5MinInFuture = org.apache.commons.lang3.time.DateUtils.addMinutes(new Date(), 5);
     assertTrue(DateUtils.isInRangeMinutes(date5MinInFuture, new Date(), range10min));
   }
 
   @Test
-  public void testRangeIn10MinWithPast() {
+  void testRangeIn10MinWithPast() {
     int range10min = 10;
     Date date5MinInPast = org.apache.commons.lang3.time.DateUtils.addMinutes(new Date(), -5);
     assertTrue(DateUtils.isInRangeMinutes(date5MinInPast, new Date(), range10min));
   }
 
   @Test
-  public void testRangeIn5MinWithPastSwitched() {
+  void testRangeIn5MinWithPastSwitched() {
     int range10min = 10;
     Date date5MinInPast = org.apache.commons.lang3.time.DateUtils.addMinutes(new Date(), -5);
     assertTrue(DateUtils.isInRangeMinutes(new Date(), date5MinInPast, range10min));
   }
 
   @Test
-  public void testDatesWithSecondPrecisionAreEqual() {
+  void testDatesWithSecondPrecisionAreEqual() {
     Instant instant = Instant.ofEpochSecond(123_456_789L);
     assertEquals(0L, instant.getNano());
     assertEquals(0, DateUtils.compareAtSamePrecision(Date.from(instant), Date.from(instant)));
   }
 
   @Test
-  public void testDatesWithMillisecondPrecisionAreEqual() {
+  void testDatesWithMillisecondPrecisionAreEqual() {
     Instant instant = Instant.ofEpochMilli(123_456_789_123L);
     assertEquals(123_000_000L, instant.getNano());
     assertEquals(0, DateUtils.compareAtSamePrecision(Date.from(instant), Date.from(instant)));
   }
 
   @Test
-  public void testDatesWithSecondPrecisionAreNotEqual() {
+  void testDatesWithSecondPrecisionAreNotEqual() {
     Instant instant1 = Instant.ofEpochSecond(123_001L);
     Instant instant2 = Instant.ofEpochSecond(123_002L);
     assertTrue(DateUtils.compareAtSamePrecision(Date.from(instant1), Date.from(instant2)) < 0);
   }
 
   @Test
-  public void testDatesWithMillisecondPrecisionAreNotEqualIfSecondsDiffer() {
+  void testDatesWithMillisecondPrecisionAreNotEqualIfSecondsDiffer() {
     Instant instant1 = Instant.ofEpochMilli(123_001_999L);
     Instant instant2 = Instant.ofEpochMilli(123_002_999L);
     assertTrue(DateUtils.compareAtSamePrecision(Date.from(instant1), Date.from(instant2)) < 0);
   }
 
   @Test
-  public void testDatesWithMillisecondPrecisionAreNotEqualIfMillisecondsDiffer() {
+  void testDatesWithMillisecondPrecisionAreNotEqualIfMillisecondsDiffer() {
     Instant instant1 = Instant.ofEpochMilli(123_000_002L);
     Instant instant2 = Instant.ofEpochMilli(123_000_001L);
     assertTrue(DateUtils.compareAtSamePrecision(Date.from(instant1), Date.from(instant2)) > 0);
   }
 
   @Test
-  public void testDatesWithSecondAndMillisecondPrecisionAreEqualIfEverythingUpToSecondPrecisionIsEqual() {
+  void testDatesWithSecondAndMillisecondPrecisionAreEqualIfEverythingUpToSecondPrecisionIsEqual() {
     Instant instant1 = Instant.ofEpochSecond(123_456_789L);
     Instant instant2 = Instant.ofEpochSecond(123_456_789L, 999_999_999L);
     assertEquals(0, DateUtils.compareAtSamePrecision(Date.from(instant1), Date.from(instant2)));

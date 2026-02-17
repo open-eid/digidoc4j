@@ -32,10 +32,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-public class DssDocumentWrapperTest {
+class DssDocumentWrapperTest {
 
   @Test
-  public void createInstance_WhenDocumentIsNull_ThrowsNullPointerException() {
+  void createInstance_WhenDocumentIsNull_ThrowsNullPointerException() {
     NullPointerException caughtException = assertThrows(
             NullPointerException.class,
             () -> new DssDocumentWrapper(null)
@@ -45,7 +45,7 @@ public class DssDocumentWrapperTest {
   }
 
   @Test
-  public void createInstance_WhenDocumentIsNotNull_DocumentNameAndMimeTypeAreQueried() {
+  void createInstance_WhenDocumentIsNotNull_DocumentNameAndMimeTypeAreQueried() {
     DSSDocument dssDocument = mock(DSSDocument.class);
 
     new DssDocumentWrapper(dssDocument);
@@ -56,7 +56,7 @@ public class DssDocumentWrapperTest {
   }
 
   @Test
-  public void getWrapperDocument_WrappedDocumentIsReturnedWithoutAnyAdditionalInteractions() {
+  void getWrapperDocument_WrappedDocumentIsReturnedWithoutAnyAdditionalInteractions() {
     DSSDocument dssDocument = mock(DSSDocument.class);
     DssDocumentWrapper documentWrapper = new DssDocumentWrapper(dssDocument);
 
@@ -69,7 +69,7 @@ public class DssDocumentWrapperTest {
   }
 
   @Test
-  public void getDigest_MethodCallIsDelegatedToWrappedDocumentWithoutAnyAdditionalInteractions() {
+  void getDigest_MethodCallIsDelegatedToWrappedDocumentWithoutAnyAdditionalInteractions() {
     DSSDocument dssDocument = mock(DSSDocument.class);
     DigestAlgorithm digestAlgorithm = DigestAlgorithm.WHIRLPOOL;
     Digest digest = mock(Digest.class);
@@ -87,7 +87,7 @@ public class DssDocumentWrapperTest {
   }
 
   @Test
-  public void getDigestValue_MethodCallIsDelegatedToWrappedDocumentWithoutAnyAdditionalInteractions() {
+  void getDigestValue_MethodCallIsDelegatedToWrappedDocumentWithoutAnyAdditionalInteractions() {
     DSSDocument dssDocument = mock(DSSDocument.class);
     DigestAlgorithm digestAlgorithm = DigestAlgorithm.WHIRLPOOL;
     doReturn("digest".getBytes(StandardCharsets.UTF_8)).when(dssDocument).getDigestValue(digestAlgorithm);
@@ -104,7 +104,7 @@ public class DssDocumentWrapperTest {
 
   @Test
   @SuppressWarnings("resource")
-  public void openStream_MethodCallIsDelegatedToWrappedDocumentWithoutAnyAdditionalInteractions() {
+  void openStream_MethodCallIsDelegatedToWrappedDocumentWithoutAnyAdditionalInteractions() {
     DSSDocument dssDocument = mock(DSSDocument.class);
     InputStream documentStream = mock(InputStream.class);
     doReturn(documentStream).when(dssDocument).openStream();
@@ -121,7 +121,7 @@ public class DssDocumentWrapperTest {
   }
 
   @Test
-  public void save_MethodCallIsDelegatedToWrappedDocumentWithoutAnyAdditionalInteractions() throws Exception {
+  void save_MethodCallIsDelegatedToWrappedDocumentWithoutAnyAdditionalInteractions() throws Exception {
     DSSDocument dssDocument = mock(DSSDocument.class);
     DssDocumentWrapper documentWrapper = new DssDocumentWrapper(dssDocument);
 
@@ -134,7 +134,7 @@ public class DssDocumentWrapperTest {
   }
 
   @Test
-  public void writeTo_MethodCallIsDelegatedToWrappedDocumentWithoutAnyAdditionalInteractions() throws Exception {
+  void writeTo_MethodCallIsDelegatedToWrappedDocumentWithoutAnyAdditionalInteractions() throws Exception {
     DSSDocument dssDocument = mock(DSSDocument.class);
     DssDocumentWrapper documentWrapper = new DssDocumentWrapper(dssDocument);
     OutputStream outputStream = mock(OutputStream.class);
@@ -149,7 +149,7 @@ public class DssDocumentWrapperTest {
   }
 
   @Test
-  public void getName_WhenWrappedDocumentHasSpecifiedName_ReturnsExpectedName() {
+  void getName_WhenWrappedDocumentHasSpecifiedName_ReturnsExpectedName() {
     DSSDocument dssDocument = mock(DSSDocument.class);
     doReturn("some-specific-name.extension").when(dssDocument).getName();
     DssDocumentWrapper documentWrapper = new DssDocumentWrapper(dssDocument);
@@ -163,7 +163,7 @@ public class DssDocumentWrapperTest {
   }
 
   @Test
-  public void setName_WrapperRegistersNameChangeButNameIsNotChangedInTheOriginalWrappedDocument() {
+  void setName_WrapperRegistersNameChangeButNameIsNotChangedInTheOriginalWrappedDocument() {
     DSSDocument dssDocument = mock(DSSDocument.class);
     doReturn("old-name").when(dssDocument).getName();
     DssDocumentWrapper documentWrapper = new DssDocumentWrapper(dssDocument);
@@ -177,7 +177,7 @@ public class DssDocumentWrapperTest {
   }
 
   @Test
-  public void isNameUpdated_WhenSetNameHasNotBeenCalled_ReturnsFalse() {
+  void isNameUpdated_WhenSetNameHasNotBeenCalled_ReturnsFalse() {
     DSSDocument dssDocument = mock(DSSDocument.class);
     doReturn("original-name").when(dssDocument).getName();
     DssDocumentWrapper documentWrapper = new DssDocumentWrapper(dssDocument);
@@ -191,7 +191,7 @@ public class DssDocumentWrapperTest {
   }
 
   @Test
-  public void isNameUpdated_WhenSetNameHasBeenCalledWithTheSameName_ReturnsFalse() {
+  void isNameUpdated_WhenSetNameHasBeenCalledWithTheSameName_ReturnsFalse() {
     DSSDocument dssDocument = mock(DSSDocument.class);
     doReturn("original-name").when(dssDocument).getName();
     DssDocumentWrapper documentWrapper = new DssDocumentWrapper(dssDocument);
@@ -206,7 +206,7 @@ public class DssDocumentWrapperTest {
   }
 
   @Test
-  public void isNameUpdated_WhenSetNameHasBeenCalledWithDifferentName_ReturnsTrue() {
+  void isNameUpdated_WhenSetNameHasBeenCalledWithDifferentName_ReturnsTrue() {
     DSSDocument dssDocument = mock(DSSDocument.class);
     doReturn("old-name").when(dssDocument).getName();
     DssDocumentWrapper documentWrapper = new DssDocumentWrapper(dssDocument);
@@ -221,7 +221,7 @@ public class DssDocumentWrapperTest {
   }
 
   @Test
-  public void getMimeType_WhenWrappedDocumentHasSpecifiedMimeType_ReturnsExpectedMimeType() {
+  void getMimeType_WhenWrappedDocumentHasSpecifiedMimeType_ReturnsExpectedMimeType() {
     DSSDocument dssDocument = mock(DSSDocument.class);
     MimeType documentMimeType = mock(MimeType.class);
     doReturn(documentMimeType).when(dssDocument).getMimeType();
@@ -236,7 +236,7 @@ public class DssDocumentWrapperTest {
   }
 
   @Test
-  public void setMimeType_WrapperRegistersMimeTypeChangeButMimeTypeIsNotChangedInTheOriginalWrappedDocument() {
+  void setMimeType_WrapperRegistersMimeTypeChangeButMimeTypeIsNotChangedInTheOriginalWrappedDocument() {
     DSSDocument dssDocument = mock(DSSDocument.class);
     MimeType oldMimeType = mock(MimeType.class);
     doReturn(oldMimeType).when(dssDocument).getMimeType();
@@ -253,7 +253,7 @@ public class DssDocumentWrapperTest {
   }
 
   @Test
-  public void isMimeTypeUpdated_WhenSetMimeTypeHasNotBeenCalled_ReturnsFalse() {
+  void isMimeTypeUpdated_WhenSetMimeTypeHasNotBeenCalled_ReturnsFalse() {
     DSSDocument dssDocument = mock(DSSDocument.class);
     MimeType originalMimeType = mock(MimeType.class);
     doReturn(originalMimeType).when(dssDocument).getMimeType();
@@ -269,7 +269,7 @@ public class DssDocumentWrapperTest {
   }
 
   @Test
-  public void isMimeTypeUpdated_WhenSetMimeTypeHasBeenCalledWithTheSameMimeType_ReturnsFalse() {
+  void isMimeTypeUpdated_WhenSetMimeTypeHasBeenCalledWithTheSameMimeType_ReturnsFalse() {
     DSSDocument dssDocument = mock(DSSDocument.class);
     MimeType originalMimeType = mock(MimeType.class);
     doReturn(originalMimeType).when(dssDocument).getMimeType();
@@ -286,7 +286,7 @@ public class DssDocumentWrapperTest {
   }
 
   @Test
-  public void isMimeTypeUpdated_WhenSetMimeTypeHasBeenCalledWithDifferentMimeType_ReturnsTrue() {
+  void isMimeTypeUpdated_WhenSetMimeTypeHasBeenCalledWithDifferentMimeType_ReturnsTrue() {
     DSSDocument dssDocument = mock(DSSDocument.class);
     MimeType oldMimeType = mock(MimeType.class);
     doReturn(oldMimeType).when(dssDocument).getMimeType();

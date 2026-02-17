@@ -37,12 +37,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ManifestValidatorTest {
+class ManifestValidatorTest {
 
   private final Configuration configuration = new Configuration(Configuration.Mode.TEST);
 
   @Test
-  public void validateEntries() {
+  void validateEntries() {
     Map<String, ManifestEntry> entriesFromManifest = new HashMap<String, ManifestEntry>() {{
       put("1", new ManifestEntry("1", "a"));
       put("2", new ManifestEntry("2", "b"));
@@ -55,7 +55,7 @@ public class ManifestValidatorTest {
   }
 
   @Test
-  public void validateEntriesUnOrdered() {
+  void validateEntriesUnOrdered() {
     Map<String, ManifestEntry> entriesFromManifest = new HashMap<String, ManifestEntry>() {{
       put("1", new ManifestEntry("1", "a"));
       put("2", new ManifestEntry("2", "b"));
@@ -69,7 +69,7 @@ public class ManifestValidatorTest {
   }
 
   @Test
-  public void validateEntriesNotEqual() {
+  void validateEntriesNotEqual() {
     Map<String, ManifestEntry> entriesFromManifest = new HashMap<String, ManifestEntry>() {{
       put("1", new ManifestEntry("1", "a"));
       put("2", new ManifestEntry("2", "b"));
@@ -88,7 +88,7 @@ public class ManifestValidatorTest {
   }
 
   @Test
-  public void validateEntriesNotEqualValueSwapped() {
+  void validateEntriesNotEqualValueSwapped() {
     Map<String, ManifestEntry> entriesFromManifest = new HashMap<String, ManifestEntry>() {{
       put("1", new ManifestEntry("1", "a"));
       put("2", new ManifestEntry("2", "b"));
@@ -112,7 +112,7 @@ public class ManifestValidatorTest {
   }
 
   @Test
-  public void validateEntriesMissingEntryInSignature() {
+  void validateEntriesMissingEntryInSignature() {
     Map<String, ManifestEntry> entriesFromManifest = new HashMap<String, ManifestEntry>() {{
       put("1", new ManifestEntry("1", "a"));
       put("2", new ManifestEntry("2", "b"));
@@ -131,7 +131,7 @@ public class ManifestValidatorTest {
   }
 
   @Test
-  public void validateEntriesMissingEntryInManifest() {
+  void validateEntriesMissingEntryInManifest() {
     Map<String, ManifestEntry> entriesFromManifest = new HashMap<String, ManifestEntry>() {{
       put("1", new ManifestEntry("1", "a"));
       put("3", new ManifestEntry("3", "c"));
@@ -151,7 +151,7 @@ public class ManifestValidatorTest {
   }
 
   @Test
-  public void validateHealthyContainer() {
+  void validateHealthyContainer() {
     ManifestParser manifestParser = this.createManifest(dataFile("test.txt", "text/plain"));
     List<DSSDocument> detachedContents = Collections.singletonList(detachedContent("test.txt", "text/plain"));
     List<Signature> signatures = this.openSignature("src/test/resources/testFiles/xades/test-bdoc-ts.xml", detachedContents);
@@ -160,7 +160,7 @@ public class ManifestValidatorTest {
   }
 
   @Test
-  public void container_withDifferentDataFileName_shouldBeInvalid() {
+  void container_withDifferentDataFileName_shouldBeInvalid() {
     ManifestParser manifestParser = this.createManifest(dataFile("test.txt", "text/plain"));
     List<DSSDocument> detachedContents = Arrays.asList(detachedContent("other.txt", "text/plain"), detachedContent("test.txt", "text/plain"));
     List<Signature> signatures = this.openSignature("src/test/resources/testFiles/xades/test-bdoc-ts.xml", detachedContents);
@@ -174,7 +174,7 @@ public class ManifestValidatorTest {
 
 
   @Test
-  public void container_withSpecialDataFileCharacters_shouldBeValid() {
+  void container_withSpecialDataFileCharacters_shouldBeValid() {
     ManifestParser manifestParser = this.createManifest(dataFile("dds_JÜRIÖÖ € žŠ päev.txt", "application/octet-stream"));
     List<DSSDocument> detachedContents = Collections.singletonList(detachedContent("dds_JÜRIÖÖ € žŠ päev.txt", "application/octet-stream"));
     List<Signature> signatures = this.openSignature("src/test/resources/testFiles/xades/test-bdoc-specia-chars-data-file.xml", detachedContents);

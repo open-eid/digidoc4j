@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class DataFileTest extends AbstractTest {
+class DataFileTest extends AbstractTest {
 
   private static final String TEST_FILE_NAME = "test.txt";
   private static final String TEST_FILE_MIMETYPE = "text/plain";
@@ -37,55 +37,55 @@ public class DataFileTest extends AbstractTest {
   private static final String EMPTY_FILE_PATH = "src/test/resources/testFiles/helper-files/empty.txt";
 
   @Test
-  public void testGetFileSize() {
+  void testGetFileSize() {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
     assertEquals(15, dataFile.getFileSize());
   }
 
   @Test
-  public void testIsFileEmpty() {
+  void testIsFileEmpty() {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
     assertFalse(dataFile.isFileEmpty());
   }
 
   @Test
-  public void testIsFileEmptyForEmptyFile() {
+  void testIsFileEmptyForEmptyFile() {
     DataFile dataFile = new DataFile(EMPTY_FILE_PATH, TEST_FILE_MIMETYPE);
     assertTrue(dataFile.isFileEmpty());
   }
 
   @Test
-  public void testGetFileSizeForInMemoryDocument() {
+  void testGetFileSizeForInMemoryDocument() {
     DataFile dataFile = new DataFile(new byte[]{1, 2}, TEST_FILE_NAME, TEST_FILE_MIMETYPE);
     assertEquals(2, dataFile.getFileSize());
   }
 
   @Test
-  public void testIsFileEmptyForInMemoryDocument() {
+  void testIsFileEmptyForInMemoryDocument() {
     DataFile dataFile = new DataFile(new byte[]{1, 2}, TEST_FILE_NAME, TEST_FILE_MIMETYPE);
     assertFalse(dataFile.isFileEmpty());
   }
 
   @Test
-  public void testIsFileEmptyForEmptyInMemoryDocument() {
+  void testIsFileEmptyForEmptyInMemoryDocument() {
     DataFile dataFile = new DataFile(new byte[0], TEST_FILE_NAME, TEST_FILE_MIMETYPE);
     assertTrue(dataFile.isFileEmpty());
   }
 
   @Test
-  public void testGetMediaType() {
+  void testGetMediaType() {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
     assertEquals(TEST_FILE_MIMETYPE, dataFile.getMediaType());
   }
 
   @Test
-  public void testGetFileName() {
+  void testGetFileName() {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
     assertEquals(TEST_FILE_NAME, dataFile.getName());
   }
 
   @Test
-  public void testCalculateDigest() {
+  void testCalculateDigest() {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
     assertArrayEquals(
             Base64.decodeBase64("RqDqtqi3rTsWj07rrWc5kATAZIw7T1XHP/NPLCF05RU="),
@@ -94,7 +94,7 @@ public class DataFileTest extends AbstractTest {
   }
 
   @Test
-  public void testCalculateDigestWithEnumTypeSHA1() {
+  void testCalculateDigestWithEnumTypeSHA1() {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
     assertArrayEquals(
             Base64.decodeBase64("OQj17m9Rt2vPXYrry+v/KHpf98Q="),
@@ -103,7 +103,7 @@ public class DataFileTest extends AbstractTest {
   }
 
   @Test
-  public void testCalculateDigestWithEnumTypeSHA224() {
+  void testCalculateDigestWithEnumTypeSHA224() {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
     assertArrayEquals(
             Base64.decodeBase64("w/fpCafC/Rcn3uKW2ExwxyzTW42KAhfU8eljcQ=="),
@@ -112,7 +112,7 @@ public class DataFileTest extends AbstractTest {
   }
 
   @Test
-  public void testCalculateDigestWithEnumTypeSHA256() {
+  void testCalculateDigestWithEnumTypeSHA256() {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
     assertArrayEquals(
             Base64.decodeBase64("RqDqtqi3rTsWj07rrWc5kATAZIw7T1XHP/NPLCF05RU="),
@@ -121,7 +121,7 @@ public class DataFileTest extends AbstractTest {
   }
 
   @Test
-  public void testCalculateDigestWithEnumTypeSHA384() {
+  void testCalculateDigestWithEnumTypeSHA384() {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
     assertArrayEquals(
             Base64.decodeBase64("i6PjAerb6Wuzt21+fISlv2SngAxfFfh+ZxrZDhdtwv0x8t8zXAPrtW/mi5aqpFig"),
@@ -130,7 +130,7 @@ public class DataFileTest extends AbstractTest {
   }
 
   @Test
-  public void testCalculateDigestWithEnumTypeSHA512() {
+  void testCalculateDigestWithEnumTypeSHA512() {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
     assertArrayEquals(
             Base64.decodeBase64("ucUB3sbDkP0cjlo+T0PSLMfICMQm9P6pHq+byFo7Ytw0cG9uiA1QoAPQihQKDsBoInbgFpFZftPvghS3AgsM+A=="),
@@ -139,7 +139,7 @@ public class DataFileTest extends AbstractTest {
   }
 
   @Test
-  public void testSaveToFile() throws IOException {
+  void testSaveToFile() throws IOException {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
     String file = getFileBy("txt");
     dataFile.saveAs(file);
@@ -150,7 +150,7 @@ public class DataFileTest extends AbstractTest {
   }
 
   @Test
-  public void testSaveToOutputStream() throws IOException {
+  void testSaveToOutputStream() throws IOException {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, TEST_FILE_MIMETYPE);
     try (ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
       dataFile.saveAs(stream);
@@ -160,19 +160,19 @@ public class DataFileTest extends AbstractTest {
   }
 
   @Test
-  public void incorrectMimeType() {
+  void incorrectMimeType() {
     DataFile dataFile = new DataFile(TEST_FILE_PATH, "incorrect");
     assertNotNull(dataFile.getMediaType());
   }
 
   @Test
-  public void incorrectMimeTypeByteArrayConstructor() {
+  void incorrectMimeTypeByteArrayConstructor() {
     DataFile dataFile = new DataFile(new byte[]{0x041}, TEST_FILE_PATH, "incorrect");
     assertNotNull(dataFile.getMediaType());
   }
 
   @Test
-  public void testThrowsFileNotFoundExceptionIfFileDoesNotExists() {
+  void testThrowsFileNotFoundExceptionIfFileDoesNotExists() {
     assertThrows(
             DigiDoc4JException.class,
             () ->  new DataFile("NOT_EXISTS.TXT", TEST_FILE_MIMETYPE)
@@ -180,7 +180,7 @@ public class DataFileTest extends AbstractTest {
   }
 
   @Test
-  public void testThrowsExceptionOnUnknownError() {
+  void testThrowsExceptionOnUnknownError() {
     assertThrows(
             InvalidDataFileException.class,
             () -> new DataFile(null, "none/none")
@@ -188,25 +188,25 @@ public class DataFileTest extends AbstractTest {
   }
 
   @Test
-  public void testInMemoryDocumentRetrievesFileName() {
+  void testInMemoryDocumentRetrievesFileName() {
     DataFile dataFile = new DataFile(new byte[]{0x041}, "suura.txt", "text/plain");
     assertEquals("suura.txt", dataFile.getName());
   }
 
   @Test
-  public void testInMemoryDocumentFileNameEscaping() {
+  void testInMemoryDocumentFileNameEscaping() {
     testFileNameEscaping(fileName -> new DataFile(new byte[]{0x041}, fileName, "text/plain"));
   }
 
   @Test
-  public void testGetBytes() throws Exception {
+  void testGetBytes() throws Exception {
     DataFile dataFile = new DataFile(new byte[]{0x041}, "suura.txt", "text/plain");
     assertArrayEquals(new byte[]{0x041}, dataFile.getBytes());
   }
 
   @Test
   @Disabled("DD4J-1377")
-  public void createDocumentFromStream() throws Exception {
+  void createDocumentFromStream() throws Exception {
     String file = getFileBy("txt");
     try (ByteArrayInputStream stream = new ByteArrayInputStream("tere tere tipajalga".getBytes())) {
       DataFile dataFile = new DataFile(stream, "test.txt", "text/plain");
@@ -217,7 +217,7 @@ public class DataFileTest extends AbstractTest {
   }
 
   @Test
-  public void createDocumentFromInoutStreamThrowsException() throws IOException {
+  void createDocumentFromInoutStreamThrowsException() throws IOException {
     try (ByteArrayInputStream stream = new ByteArrayInputStream("test".getBytes())) {
       DataFile dataFile = new DataFile(stream, "test.txt", "unknown");
       assertNotNull(dataFile.getMediaType());
@@ -226,7 +226,7 @@ public class DataFileTest extends AbstractTest {
   }
 
   @Test
-  public void testGetFileNameForStreamedFile() throws Exception {
+  void testGetFileNameForStreamedFile() throws Exception {
     try (ByteArrayInputStream stream = new ByteArrayInputStream("tere tere tipajalga".getBytes())) {
       DataFile dataFile = new DataFile(stream, "test.txt", "text/plain");
       assertEquals("test.txt", dataFile.getName());
@@ -234,7 +234,7 @@ public class DataFileTest extends AbstractTest {
   }
 
   @Test
-  public void testFileNameEscapingForStreamedFile() {
+  void testFileNameEscapingForStreamedFile() {
     testFileNameEscaping(fileName -> {
       try (ByteArrayInputStream stream = new ByteArrayInputStream("tere tere tipajalga".getBytes())) {
         return new DataFile(stream, fileName, "text/plain");
@@ -245,7 +245,7 @@ public class DataFileTest extends AbstractTest {
   }
 
   @Test
-  public void calculateSizeForStreamedFile() throws Exception {
+  void calculateSizeForStreamedFile() throws Exception {
     try (ByteArrayInputStream stream = new ByteArrayInputStream("tere tere tipajalga".getBytes())) {
       DataFile dataFile = new DataFile(stream, "test.txt", "text/plain");
       assertEquals(19, dataFile.getFileSize());

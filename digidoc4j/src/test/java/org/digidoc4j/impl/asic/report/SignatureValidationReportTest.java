@@ -34,10 +34,10 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-public class SignatureValidationReportTest extends TokenValidationReportTest {
+class SignatureValidationReportTest extends TokenValidationReportTest {
 
   @Test
-  public void create_WhenXmlSignatureParametersArePresent_SignatureValidationReportWithMatchingParametersIsCreated() {
+  void create_WhenXmlSignatureParametersArePresent_SignatureValidationReportWithMatchingParametersIsCreated() {
     XmlSignature signature = new XmlSignature();
     Date today = new Date();
     signature.setSigningTime(today);
@@ -116,7 +116,7 @@ public class SignatureValidationReportTest extends TokenValidationReportTest {
   }
 
   @Test
-  public void create_WhenXmlSignatureParametersNotPresent_SignatureValidationReportWithMissingParametersIsCreated() {
+  void create_WhenXmlSignatureParametersNotPresent_SignatureValidationReportWithMissingParametersIsCreated() {
     XmlSignature signature = new XmlSignature();
 
     SignatureValidationReport report = SignatureValidationReport.create(signature);

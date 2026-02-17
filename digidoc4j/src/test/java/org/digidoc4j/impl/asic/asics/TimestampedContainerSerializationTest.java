@@ -48,10 +48,10 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-public class TimestampedContainerSerializationTest extends AbstractTest {
+class TimestampedContainerSerializationTest extends AbstractTest {
 
   @Test
-  public void save_WhenAsicsWithSingleTimestampIsSerialized_ResultingZipContainerContainsExpectedEntries() {
+  void save_WhenAsicsWithSingleTimestampIsSerialized_ResultingZipContainerContainsExpectedEntries() {
     serialize_WhenAsicsWithSingleTimestampIsSerialized_ResultingZipContainerContainsExpectedEntries(container -> {
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
@@ -62,7 +62,7 @@ public class TimestampedContainerSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void saveAsFile_WhenAsicsWithSingleTimestampIsSerialized_ResultingZipContainerContainsExpectedEntries() {
+  void saveAsFile_WhenAsicsWithSingleTimestampIsSerialized_ResultingZipContainerContainsExpectedEntries() {
     serialize_WhenAsicsWithSingleTimestampIsSerialized_ResultingZipContainerContainsExpectedEntries(container -> {
       File file = createTemporaryFileByExtension("asics");
 
@@ -73,7 +73,7 @@ public class TimestampedContainerSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void saveAsStream_WhenAsicsWithSingleTimestampIsSerialized_ResultingZipContainerContainsExpectedEntries() {
+  void saveAsStream_WhenAsicsWithSingleTimestampIsSerialized_ResultingZipContainerContainsExpectedEntries() {
     serialize_WhenAsicsWithSingleTimestampIsSerialized_ResultingZipContainerContainsExpectedEntries(container -> {
       try (InputStream inputStream = container.saveAsStream()) {
         return TestZipUtil.readEntries(inputStream);
@@ -105,7 +105,7 @@ public class TimestampedContainerSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void save_WhenAsicsWithMultipleTimestampsIsSerialized_ResultingZipContainerContainsExpectedEntries() {
+  void save_WhenAsicsWithMultipleTimestampsIsSerialized_ResultingZipContainerContainsExpectedEntries() {
     serialize_WhenAsicsWithMultipleTimestampsIsSerialized_ResultingZipContainerContainsExpectedEntries(container -> {
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
@@ -116,7 +116,7 @@ public class TimestampedContainerSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void saveAsFile_WhenAsicsWithMultipleTimestampsIsSerialized_ResultingZipContainerContainsExpectedEntries() {
+  void saveAsFile_WhenAsicsWithMultipleTimestampsIsSerialized_ResultingZipContainerContainsExpectedEntries() {
     serialize_WhenAsicsWithMultipleTimestampsIsSerialized_ResultingZipContainerContainsExpectedEntries(container -> {
       File file = createTemporaryFileByExtension("asics");
 
@@ -127,7 +127,7 @@ public class TimestampedContainerSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void saveAsStream_WhenAsicsWithMultipleTimestampsIsSerialized_ResultingZipContainerContainsExpectedEntries() {
+  void saveAsStream_WhenAsicsWithMultipleTimestampsIsSerialized_ResultingZipContainerContainsExpectedEntries() {
     serialize_WhenAsicsWithMultipleTimestampsIsSerialized_ResultingZipContainerContainsExpectedEntries(container -> {
       try (InputStream inputStream = container.saveAsStream()) {
         return TestZipUtil.readEntries(inputStream);
@@ -167,7 +167,7 @@ public class TimestampedContainerSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void save_WhenSerializedAsicsWithTimestampsIsParsed_ResultingContainerContainsExpectedEntries() {
+  void save_WhenSerializedAsicsWithTimestampsIsParsed_ResultingContainerContainsExpectedEntries() {
     serialize_WhenSerializedAsicsWithTimestampsIsParsed_ResultingContainerContainsExpectedEntries(container -> {
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
@@ -178,7 +178,7 @@ public class TimestampedContainerSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void saveAsFile_WhenSerializedAsicsWithTimestampsIsParsed_ResultingContainerContainsExpectedEntries() {
+  void saveAsFile_WhenSerializedAsicsWithTimestampsIsParsed_ResultingContainerContainsExpectedEntries() {
     serialize_WhenSerializedAsicsWithTimestampsIsParsed_ResultingContainerContainsExpectedEntries(container -> {
       File file = createTemporaryFileByExtension("asics");
 
@@ -189,7 +189,7 @@ public class TimestampedContainerSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void saveAsStream_WhenSerializedAsicsWithTimestampsIsParsed_ResultingContainerContainsExpectedEntries() {
+  void saveAsStream_WhenSerializedAsicsWithTimestampsIsParsed_ResultingContainerContainsExpectedEntries() {
     serialize_WhenSerializedAsicsWithTimestampsIsParsed_ResultingContainerContainsExpectedEntries(container -> {
       try (InputStream inputStream = container.saveAsStream()) {
         return ContainerOpener.open(inputStream, configuration);

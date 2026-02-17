@@ -27,10 +27,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class CommonOCSPSourceTest extends AbstractTest {
+class CommonOCSPSourceTest extends AbstractTest {
 
   @Test
-  public void gettingOCSPNonce() {
+  void gettingOCSPNonce() {
     CommonOCSPSource source = new CommonOCSPSource(configuration);
     Extension nonce = source.createNonce(null);
     assertFalse(nonce.isCritical());
@@ -39,7 +39,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void gettingOCSPNonceShouldReturnNull_inCaseOfOlderAiaOcsp() {
+  void gettingOCSPNonceShouldReturnNull_inCaseOfOlderAiaOcsp() {
     configuration.setPreferAiaOcsp(true);
     CommonOCSPSource source = new CommonOCSPSource(configuration);
     source.setDataLoader(new OcspDataLoaderFactory(configuration).create());
@@ -50,7 +50,7 @@ public class CommonOCSPSourceTest extends AbstractTest {
   }
 
   @Test
-  public void gettingOCSPNonceShouldReturnNull_whenNonceUsageIsTurnedOffInConfiguration() {
+  void gettingOCSPNonceShouldReturnNull_whenNonceUsageIsTurnedOffInConfiguration() {
     configuration.setUseOcspNonce(false);
     CommonOCSPSource source = new CommonOCSPSource(configuration);
     Extension nonce = source.createNonce(null);

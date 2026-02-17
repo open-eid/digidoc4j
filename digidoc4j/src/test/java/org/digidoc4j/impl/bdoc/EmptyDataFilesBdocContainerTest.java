@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class EmptyDataFilesBdocContainerTest extends EmptyDataFilesContainerTest {
+class EmptyDataFilesBdocContainerTest extends EmptyDataFilesContainerTest {
 
   @Override
   protected void before() {
@@ -39,7 +39,7 @@ public class EmptyDataFilesBdocContainerTest extends EmptyDataFilesContainerTest
   }
 
   @Test
-  public void testValidateSignedContainerWithEmptyDataFiles() {
+  void testValidateSignedContainerWithEmptyDataFiles() {
     Container container = loadSignedContainerWithEmptyDataFiles();
 
     ContainerValidationResult validationResult = container.validate();
@@ -58,7 +58,7 @@ public class EmptyDataFilesBdocContainerTest extends EmptyDataFilesContainerTest
   }
 
   @Test
-  public void testInvokeSigningForSignedContainerWithEmptyDataFiles() {
+  void testInvokeSigningForSignedContainerWithEmptyDataFiles() {
     Container container = loadSignedContainerWithEmptyDataFiles();
 
     InvalidDataFileException caughtException = assertThrows(
@@ -73,7 +73,7 @@ public class EmptyDataFilesBdocContainerTest extends EmptyDataFilesContainerTest
   }
 
   @Test
-  public void testBuildDataToSignForSignedContainerWithEmptyDataFiles() {
+  void testBuildDataToSignForSignedContainerWithEmptyDataFiles() {
     Container container = loadSignedContainerWithEmptyDataFiles();
 
     InvalidDataFileException caughtException = assertThrows(

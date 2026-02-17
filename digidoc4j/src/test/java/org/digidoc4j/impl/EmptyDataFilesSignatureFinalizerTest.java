@@ -28,7 +28,7 @@ public abstract class EmptyDataFilesSignatureFinalizerTest extends AbstractTest 
     protected abstract SignatureFinalizer createSignatureFinalizerWithDataFiles(List<DataFile> dataFiles);
 
     @Test
-    public void testCreateSignatureFinalizerWithSingleEmptyDataFile() {
+    void testCreateSignatureFinalizerWithSingleEmptyDataFile() {
         List<DataFile> dataFiles = Collections.singletonList(
                 new DataFile(new byte[0], "empty-file.txt", "text/plain")
         );
@@ -43,7 +43,7 @@ public abstract class EmptyDataFilesSignatureFinalizerTest extends AbstractTest 
     }
 
     @Test
-    public void testCreateSignatureFinalizerWithMultipleEmptyDataFiles() {
+    void testCreateSignatureFinalizerWithMultipleEmptyDataFiles() {
         List<DataFile> dataFiles = Arrays.asList(
                 new DataFile(new byte[1], "data-file-1.txt", "text/plain"),
                 new DataFile(new byte[0], "empty-file-2.txt", "text/plain"),

@@ -14,11 +14,11 @@ import org.digidoc4j.test.TestAssert;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-public class LibraryInteroperabilityTest extends AbstractTest {
+class LibraryInteroperabilityTest extends AbstractTest {
 
   @Test
   @Disabled("DD4J-672")
-  public void verifySignatureWithDigiDoc4j_BC_unsafe_integer_by_default() {
+  void verifySignatureWithDigiDoc4j_BC_unsafe_integer_by_default() {
     Container container = ContainerBuilder.aContainer().
         fromExistingFile("src/test/resources/prodFiles/valid-containers/InvestorToomas.bdoc").
         withConfiguration(Configuration.of(Configuration.Mode.PROD)).build();

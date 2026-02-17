@@ -27,10 +27,10 @@ import org.mockito.Mockito;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-public class OCSPSourceBuilderTest extends AbstractTest {
+class OCSPSourceBuilderTest extends AbstractTest {
 
   @Test
-  public void buildTimestampOCSPSource_whenProfileIsNotSet() {
+  void buildTimestampOCSPSource_whenProfileIsNotSet() {
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withConfiguration(
             configuration).build();
     assertEquals(CommonOCSPSource.class, source.getClass());
@@ -38,7 +38,7 @@ public class OCSPSourceBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void buildTimestampOCSPSource() {
+  void buildTimestampOCSPSource() {
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withSignatureProfile(
             SignatureProfile.LT).withConfiguration(configuration).build();
     assertEquals(CommonOCSPSource.class, source.getClass());
@@ -46,7 +46,7 @@ public class OCSPSourceBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void buildTimemarkOCSPSource() {
+  void buildTimemarkOCSPSource() {
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withSignatureProfile(
             SignatureProfile.LT_TM).withSignatureValue(new byte[]{1, 2, 3}).withConfiguration(configuration).build();
     assertEquals(BDocTMOcspSource.class, source.getClass());
@@ -54,7 +54,7 @@ public class OCSPSourceBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void buildDefaultOCSPSource_customDataLoader() {
+  void buildDefaultOCSPSource_customDataLoader() {
     DataLoader mockDataLoader = createMockDataLoader();
     configuration.setOcspDataLoaderFactory(createMockOcspDataLoaderFactory(mockDataLoader));
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.defaultOCSPSource().withConfiguration(configuration).build();
@@ -62,7 +62,7 @@ public class OCSPSourceBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void buildTimemarkOCSPSource_customDataLoader() {
+  void buildTimemarkOCSPSource_customDataLoader() {
     DataLoader mockDataLoader = createMockDataLoader();
     configuration.setOcspDataLoaderFactory(createMockOcspDataLoaderFactory(mockDataLoader));
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withConfiguration(configuration)
@@ -71,7 +71,7 @@ public class OCSPSourceBuilderTest extends AbstractTest {
   }
 
   @Test
-  public void buildTimestampOCSPSource_customDataLoader() {
+  void buildTimestampOCSPSource_customDataLoader() {
     DataLoader mockDataLoader = createMockDataLoader();
     configuration.setOcspDataLoaderFactory(createMockOcspDataLoaderFactory(mockDataLoader));
     SKOnlineOCSPSource source = (SKOnlineOCSPSource) OCSPSourceBuilder.anOcspSource().withConfiguration(configuration)

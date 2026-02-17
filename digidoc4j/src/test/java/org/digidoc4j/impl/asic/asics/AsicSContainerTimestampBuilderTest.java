@@ -51,10 +51,10 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
-public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTimestampBuilderTest {
+class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTimestampBuilderTest {
 
   @Test
-  public void createInstance_WhenContainerIsAsicsContainer_Succeeds() {
+  void createInstance_WhenContainerIsAsicsContainer_Succeeds() {
     Container container = mock(AsicSContainer.class);
 
     AsicSContainerTimestampBuilder result = new AsicSContainerTimestampBuilder(container);
@@ -64,32 +64,32 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void createInstance_WhenContainerIsGenericContainerType_ThrowsException() {
+  void createInstance_WhenContainerIsGenericContainerType_ThrowsException() {
     createInstance_WhenContainerIsNotAsicsContainer_ThrowsException(Container.class);
   }
 
   @Test
-  public void createInstance_WhenContainerIsGenericCompositeContainerType_ThrowsException() {
+  void createInstance_WhenContainerIsGenericCompositeContainerType_ThrowsException() {
     createInstance_WhenContainerIsNotAsicsContainer_ThrowsException(CompositeContainer.class);
   }
 
   @Test
-  public void createInstance_WhenContainerIsGenericAsicContainerType_ThrowsException() {
+  void createInstance_WhenContainerIsGenericAsicContainerType_ThrowsException() {
     createInstance_WhenContainerIsNotAsicsContainer_ThrowsException(AsicContainer.class);
   }
 
   @Test
-  public void createInstance_WhenContainerIsAsiceContainerType_ThrowsException() {
+  void createInstance_WhenContainerIsAsiceContainerType_ThrowsException() {
     createInstance_WhenContainerIsNotAsicsContainer_ThrowsException(AsicEContainer.class);
   }
 
   @Test
-  public void createInstance_WhenContainerIsBdocContainerType_ThrowsException() {
+  void createInstance_WhenContainerIsBdocContainerType_ThrowsException() {
     createInstance_WhenContainerIsNotAsicsContainer_ThrowsException(BDocContainer.class);
   }
 
   @Test
-  public void createInstance_WhenContainerIsDdocContainerType_ThrowsException() {
+  void createInstance_WhenContainerIsDdocContainerType_ThrowsException() {
     createInstance_WhenContainerIsNotAsicsContainer_ThrowsException(DDocContainer.class);
   }
 
@@ -107,7 +107,7 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void invokeTimestamping_WhenContainerHasSignatures_ThrowsIllegalContainerContentException() {
+  void invokeTimestamping_WhenContainerHasSignatures_ThrowsIllegalContainerContentException() {
     Container container = ContainerOpener.open(
             "src/test/resources/testFiles/valid-containers/valid-asics-esteid2018.asics",
             Configuration.of(Configuration.Mode.TEST)
@@ -126,7 +126,7 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void invokeTimestamping_WhenContainerHasMoreThanOneDataFile_ThrowsIllegalContainerContentException() {
+  void invokeTimestamping_WhenContainerHasMoreThanOneDataFile_ThrowsIllegalContainerContentException() {
     Container container = mock(AsicSContainer.class);
     doReturn(Constant.ASICS_CONTAINER_TYPE).when(container).getType();
     doReturn(Arrays.asList(
@@ -147,7 +147,7 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void invokeTimestamping_WhenContainerIsNotPreviouslyTimestamped_ReturnsValidTimestampWithoutManifest() {
+  void invokeTimestamping_WhenContainerIsNotPreviouslyTimestamped_ReturnsValidTimestampWithoutManifest() {
     TimestampBuilder timestampBuilder = TimestampBuilder
             .aTimestamp(getDefaultContainerForTimestamping(Configuration.of(Configuration.Mode.TEST)));
     Instant notBefore = Instant.now();
@@ -167,7 +167,7 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void invokeTimestamping_WhenContainerIsPreviouslyTimestamped_ReturnsValidTimestampWithManifest() {
+  void invokeTimestamping_WhenContainerIsPreviouslyTimestamped_ReturnsValidTimestampWithManifest() {
     Container container = getDefaultContainerForTimestamping(Configuration.of(Configuration.Mode.TEST));
     container.addTimestamp(TimestampBuilder.aTimestamp(container).invokeTimestamping());
     TimestampBuilder timestampBuilder = TimestampBuilder.aTimestamp(container);
@@ -195,21 +195,21 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid1stTimestampWithSha256() {
+  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid1stTimestampWithSha256() {
     invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid1stTimestampWithExpectedParameters(
             DigestAlgorithm.SHA256
     );
   }
 
   @Test
-  public void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid1stTimestampWithSha384() {
+  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid1stTimestampWithSha384() {
     invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid1stTimestampWithExpectedParameters(
             DigestAlgorithm.SHA384
     );
   }
 
   @Test
-  public void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid1stTimestampWithSha512() {
+  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid1stTimestampWithSha512() {
     invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid1stTimestampWithExpectedParameters(
             DigestAlgorithm.SHA512
     );
@@ -241,7 +241,7 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithBothSha256() {
+  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithBothSha256() {
     invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithExpectedParameters(
             DigestAlgorithm.SHA256,
             DigestAlgorithm.SHA256
@@ -249,7 +249,7 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithTstSha256AndRefSha384() {
+  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithTstSha256AndRefSha384() {
     invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithExpectedParameters(
             DigestAlgorithm.SHA256,
             DigestAlgorithm.SHA384
@@ -257,7 +257,7 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithTstSha256AndRefSha512() {
+  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithTstSha256AndRefSha512() {
     invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithExpectedParameters(
             DigestAlgorithm.SHA256,
             DigestAlgorithm.SHA512
@@ -265,7 +265,7 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithTstSha384AndRefSha256() {
+  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithTstSha384AndRefSha256() {
     invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithExpectedParameters(
             DigestAlgorithm.SHA384,
             DigestAlgorithm.SHA256
@@ -273,7 +273,7 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithBothSha384() {
+  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithBothSha384() {
     invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithExpectedParameters(
             DigestAlgorithm.SHA384,
             DigestAlgorithm.SHA384
@@ -281,7 +281,7 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithTstSha384AndRefSha512() {
+  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithTstSha384AndRefSha512() {
     invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithExpectedParameters(
             DigestAlgorithm.SHA384,
             DigestAlgorithm.SHA512
@@ -289,7 +289,7 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithTstSha512AndRefSha256() {
+  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithTstSha512AndRefSha256() {
     invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithExpectedParameters(
             DigestAlgorithm.SHA512,
             DigestAlgorithm.SHA256
@@ -297,7 +297,7 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithTstSha512AndRefSha384() {
+  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithTstSha512AndRefSha384() {
     invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithExpectedParameters(
             DigestAlgorithm.SHA512,
             DigestAlgorithm.SHA384
@@ -305,7 +305,7 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithBothSha512() {
+  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithBothSha512() {
     invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithExpectedParameters(
             DigestAlgorithm.SHA512,
             DigestAlgorithm.SHA512
@@ -348,21 +348,21 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid1stTimestampWithSha256() {
+  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid1stTimestampWithSha256() {
     invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid1stTimestampWithExpectedParameters(
             DigestAlgorithm.SHA256
     );
   }
 
   @Test
-  public void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid1stTimestampWithSha384() {
+  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid1stTimestampWithSha384() {
     invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid1stTimestampWithExpectedParameters(
             DigestAlgorithm.SHA384
     );
   }
 
   @Test
-  public void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid1stTimestampWithSha512() {
+  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid1stTimestampWithSha512() {
     invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid1stTimestampWithExpectedParameters(
             DigestAlgorithm.SHA512
     );
@@ -394,7 +394,7 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithBothSha256() {
+  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithBothSha256() {
     invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithExpectedParameters(
             DigestAlgorithm.SHA256,
             DigestAlgorithm.SHA256
@@ -402,7 +402,7 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithTstSha256AndRefSha384() {
+  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithTstSha256AndRefSha384() {
     invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithExpectedParameters(
             DigestAlgorithm.SHA256,
             DigestAlgorithm.SHA384
@@ -410,7 +410,7 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithTstSha256AndRefSha512() {
+  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithTstSha256AndRefSha512() {
     invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithExpectedParameters(
             DigestAlgorithm.SHA256,
             DigestAlgorithm.SHA512
@@ -418,7 +418,7 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithTstSha384AndRefSha256() {
+  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithTstSha384AndRefSha256() {
     invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithExpectedParameters(
             DigestAlgorithm.SHA384,
             DigestAlgorithm.SHA256
@@ -426,7 +426,7 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithBothSha384() {
+  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithBothSha384() {
     invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithExpectedParameters(
             DigestAlgorithm.SHA384,
             DigestAlgorithm.SHA384
@@ -434,7 +434,7 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithTstSha384AndRefSha512() {
+  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithTstSha384AndRefSha512() {
     invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithExpectedParameters(
             DigestAlgorithm.SHA384,
             DigestAlgorithm.SHA512
@@ -442,7 +442,7 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithTstSha512AndRefSha256() {
+  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithTstSha512AndRefSha256() {
     invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithExpectedParameters(
             DigestAlgorithm.SHA512,
             DigestAlgorithm.SHA256
@@ -450,7 +450,7 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithTstSha512AndRefSha384() {
+  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithTstSha512AndRefSha384() {
     invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithExpectedParameters(
             DigestAlgorithm.SHA512,
             DigestAlgorithm.SHA384
@@ -458,7 +458,7 @@ public class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTim
   }
 
   @Test
-  public void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithBothSha512() {
+  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithBothSha512() {
     invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithExpectedParameters(
             DigestAlgorithm.SHA512,
             DigestAlgorithm.SHA512

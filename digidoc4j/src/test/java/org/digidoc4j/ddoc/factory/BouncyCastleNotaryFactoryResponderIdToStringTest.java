@@ -39,22 +39,22 @@ import static org.hamcrest.Matchers.nullValue;
  * {@code ddoc4j} module, caused by the update to Bouncy Castle version 1.76 (jdk18on) from the previously used version
  * of 1.70 (jdk15on).
  */
-public class BouncyCastleNotaryFactoryResponderIdToStringTest {
+class BouncyCastleNotaryFactoryResponderIdToStringTest {
 
   @BeforeAll
-  public static void setUpStatic() {
+  static void setUpStatic() {
     Security.addProvider(new BouncyCastleProvider());
   }
 
   @Test
-  public void responderIDtoString_WhenBasicOcspRespIsNull_ReturnsNull() {
+  void responderIDtoString_WhenBasicOcspRespIsNull_ReturnsNull() {
     String result = BouncyCastleNotaryFactory.responderIDtoString(null);
 
     assertThat(result, nullValue());
   }
 
   @Test
-  public void responderIDtoString_WhenBasicOcspRespResponderIdIsByNameEsteidSkOcspResponder_ReturnsIdStringByName() {
+  void responderIDtoString_WhenBasicOcspRespResponderIdIsByNameEsteidSkOcspResponder_ReturnsIdStringByName() {
     BasicOCSPResp basicOcspResp = loadBasicOcspResp(
             "MIIBsAoBAKCCAakwggGlBgkrBgEFBQcwAQEEggGWMIIBkjCB/KFsMGoxCzAJBgNV" +
                     "BAYTAkVFMQ8wDQYDVQQKEwZFU1RFSUQxDTALBgNVBAsTBE9DU1AxITAfBgNVBAMT" +
@@ -76,7 +76,7 @@ public class BouncyCastleNotaryFactoryResponderIdToStringTest {
   }
 
   @Test
-  public void responderIDtoString_WhenBasicOcspRespResponderIdIsByNameKlass3SkOcspResponder_ReturnsIdStringByName() {
+  void responderIDtoString_WhenBasicOcspRespResponderIdIsByNameKlass3SkOcspResponder_ReturnsIdStringByName() {
     BasicOCSPResp basicOcspResp = loadBasicOcspResp(
             "MIIBxAoBAKCCAb0wggG5BgkrBgEFBQcwAQEEggGqMIIBpjCCAQ+hfzB9MQswCQYD" +
                     "VQQGEwJFRTEiMCAGA1UEChMZQVMgU2VydGlmaXRzZWVyaW1pc2tlc2t1czENMAsG" +
@@ -98,7 +98,7 @@ public class BouncyCastleNotaryFactoryResponderIdToStringTest {
   }
 
   @Test
-  public void responderIDtoString_WhenBasicOcspRespResponderIdIsByNameCustomSubjectDn_ReturnsIdStringByName() {
+  void responderIDtoString_WhenBasicOcspRespResponderIdIsByNameCustomSubjectDn_ReturnsIdStringByName() {
     String customSubjectDn = "CN=CUSTOM,O=TEST,C=EE";
     BasicOCSPResp basicOcspResp = buildBasicOcspResp(new RespID(new X500Name(customSubjectDn)));
 
@@ -110,7 +110,7 @@ public class BouncyCastleNotaryFactoryResponderIdToStringTest {
   }
 
   @Test
-  public void responderIDtoString_WhenBasicOcspRespResponderIdIsByKeyCustomKeyHash_ReturnsIdStringByKey() {
+  void responderIDtoString_WhenBasicOcspRespResponderIdIsByKeyCustomKeyHash_ReturnsIdStringByKey() {
     ASN1OctetString customKeyHashOctets = new DEROctetString(new byte[]{
             0x01, 0x23, 0x45, 0x67, (byte) 0x89, (byte) 0xab, (byte) 0xcd, (byte) 0xef
     });

@@ -41,12 +41,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-public class ReportedMessagesExtractorTest {
+class ReportedMessagesExtractorTest {
 
   private static final String TOKEN_UNIQUE_ID = "tokenUniqueId";
 
   @Test
-  public void construct_WhenSimpleReportIsNull_ThrowsNullPointerException() {
+  void construct_WhenSimpleReportIsNull_ThrowsNullPointerException() {
     assertThrows(
             NullPointerException.class,
             () -> new ReportedMessagesExtractor((SimpleReport) null)
@@ -54,7 +54,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void construct_WhenSimpleReportInReportsIsNull_ThrowsNullPointerException() {
+  void construct_WhenSimpleReportInReportsIsNull_ThrowsNullPointerException() {
     Reports reports = mock(Reports.class);
     doReturn(null).when(reports).getSimpleReport();
 
@@ -65,7 +65,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void extractReportedTokenErrors_WhenErrorListsAreNull_EmptyListIsReturned() {
+  void extractReportedTokenErrors_WhenErrorListsAreNull_EmptyListIsReturned() {
     SimpleReport simpleReport = mock(SimpleReport.class);
     ReportedMessagesExtractor extractor = new ReportedMessagesExtractor(simpleReport);
     doReturn(null).when(simpleReport).getAdESValidationErrors(TOKEN_UNIQUE_ID);
@@ -80,7 +80,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void extractReportedTokenErrors_WhenOnlyAdesErrorExists_ReturnsGivenAdesError() {
+  void extractReportedTokenErrors_WhenOnlyAdesErrorExists_ReturnsGivenAdesError() {
     SimpleReport simpleReport = mock(SimpleReport.class);
     ReportedMessagesExtractor extractor = new ReportedMessagesExtractor(simpleReport);
     Message dssMessage = new Message("KEY", "VALUE");
@@ -97,7 +97,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void extractReportedTokenErrors_WhenOnlyQualificationErrorExists_ReturnsGivenQualificationError() {
+  void extractReportedTokenErrors_WhenOnlyQualificationErrorExists_ReturnsGivenQualificationError() {
     SimpleReport simpleReport = mock(SimpleReport.class);
     ReportedMessagesExtractor extractor = new ReportedMessagesExtractor(simpleReport);
     doReturn(Collections.emptyList()).when(simpleReport).getAdESValidationErrors(TOKEN_UNIQUE_ID);
@@ -114,7 +114,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void extractReportedTokenErrors_WhenBothAdesAndQualificationErrorsExist_ReturnsGivenErrors() {
+  void extractReportedTokenErrors_WhenBothAdesAndQualificationErrorsExist_ReturnsGivenErrors() {
     SimpleReport simpleReport = mock(SimpleReport.class);
     ReportedMessagesExtractor extractor = new ReportedMessagesExtractor(simpleReport);
     Message dssMessage1 = new Message("KEY1", "VALUE1");
@@ -135,7 +135,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void extractReportedTokenWarnings_WhenWarningListsAreNull_EmptyListIsReturned() {
+  void extractReportedTokenWarnings_WhenWarningListsAreNull_EmptyListIsReturned() {
     SimpleReport simpleReport = mock(SimpleReport.class);
     ReportedMessagesExtractor extractor = new ReportedMessagesExtractor(simpleReport);
     doReturn(null).when(simpleReport).getAdESValidationWarnings(TOKEN_UNIQUE_ID);
@@ -150,7 +150,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void extractReportedTokenWarnings_WhenOnlyAdesWarningExists_ReturnsGivenAdesWarning() {
+  void extractReportedTokenWarnings_WhenOnlyAdesWarningExists_ReturnsGivenAdesWarning() {
     SimpleReport simpleReport = mock(SimpleReport.class);
     ReportedMessagesExtractor extractor = new ReportedMessagesExtractor(simpleReport);
     Message dssMessage = new Message("KEY", "VALUE");
@@ -167,7 +167,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void extractReportedTokenWarnings_WhenOnlyQualificationWarningExists_ReturnsGivenQualificationWarning() {
+  void extractReportedTokenWarnings_WhenOnlyQualificationWarningExists_ReturnsGivenQualificationWarning() {
     SimpleReport simpleReport = mock(SimpleReport.class);
     ReportedMessagesExtractor extractor = new ReportedMessagesExtractor(simpleReport);
     doReturn(Collections.emptyList()).when(simpleReport).getAdESValidationWarnings(TOKEN_UNIQUE_ID);
@@ -184,7 +184,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void extractReportedTokenWarnings_WhenBothAdesAndQualificationWarningsExist_ReturnsGivenWarnings() {
+  void extractReportedTokenWarnings_WhenBothAdesAndQualificationWarningsExist_ReturnsGivenWarnings() {
     SimpleReport simpleReport = mock(SimpleReport.class);
     ReportedMessagesExtractor extractor = new ReportedMessagesExtractor(simpleReport);
     Message dssMessage1 = new Message("KEY1", "VALUE1");
@@ -205,7 +205,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void extractReportedSignatureTimestampErrors_WhenSignatureTimestampsIsEmptyList_ReturnsEmptyList() {
+  void extractReportedSignatureTimestampErrors_WhenSignatureTimestampsIsEmptyList_ReturnsEmptyList() {
     SimpleReport simpleReport = mock(SimpleReport.class);
     ReportedMessagesExtractor extractor = new ReportedMessagesExtractor(simpleReport);
     doReturn(Collections.emptyList()).when(simpleReport).getSignatureTimestamps(TOKEN_UNIQUE_ID);
@@ -218,7 +218,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void extractReportedSignatureTimestampErrors_WhenSignatureTimestampDetailsAreNull_ReturnsEmptyList() {
+  void extractReportedSignatureTimestampErrors_WhenSignatureTimestampDetailsAreNull_ReturnsEmptyList() {
     SimpleReport simpleReport = mock(SimpleReport.class);
     ReportedMessagesExtractor extractor = new ReportedMessagesExtractor(simpleReport);
     XmlTimestamp xmlTimestamp = mock(XmlTimestamp.class);
@@ -234,7 +234,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void extractReportedSignatureTimestampErrors_WhenSignatureTimestampHasAdesError_ReturnsGivenError() {
+  void extractReportedSignatureTimestampErrors_WhenSignatureTimestampHasAdesError_ReturnsGivenError() {
     SimpleReport simpleReport = mock(SimpleReport.class);
     ReportedMessagesExtractor extractor = new ReportedMessagesExtractor(simpleReport);
     XmlTimestamp xmlTimestamp = mock(XmlTimestamp.class);
@@ -252,7 +252,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void extractReportedSignatureTimestampErrors_WhenSignatureTimestampHasQualificationError_ReturnsGivenError() {
+  void extractReportedSignatureTimestampErrors_WhenSignatureTimestampHasQualificationError_ReturnsGivenError() {
     SimpleReport simpleReport = mock(SimpleReport.class);
     ReportedMessagesExtractor extractor = new ReportedMessagesExtractor(simpleReport);
     XmlTimestamp xmlTimestamp = mock(XmlTimestamp.class);
@@ -270,7 +270,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void extractReportedSignatureTimestampErrors_WhenSignatureTimestampHasBothErrors_ReturnsGivenErrors() {
+  void extractReportedSignatureTimestampErrors_WhenSignatureTimestampHasBothErrors_ReturnsGivenErrors() {
     SimpleReport simpleReport = mock(SimpleReport.class);
     ReportedMessagesExtractor extractor = new ReportedMessagesExtractor(simpleReport);
     XmlTimestamp xmlTimestamp = mock(XmlTimestamp.class);
@@ -292,7 +292,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void extractReportedSignatureTimestampWarnings_WhenSignatureTimestampsIsEmptyList_ReturnsEmptyList() {
+  void extractReportedSignatureTimestampWarnings_WhenSignatureTimestampsIsEmptyList_ReturnsEmptyList() {
     SimpleReport simpleReport = mock(SimpleReport.class);
     ReportedMessagesExtractor extractor = new ReportedMessagesExtractor(simpleReport);
     doReturn(Collections.emptyList()).when(simpleReport).getSignatureTimestamps(TOKEN_UNIQUE_ID);
@@ -305,7 +305,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void extractReportedSignatureTimestampWarnings_WhenSignatureTimestampDetailsAreNull_ReturnsEmptyList() {
+  void extractReportedSignatureTimestampWarnings_WhenSignatureTimestampDetailsAreNull_ReturnsEmptyList() {
     SimpleReport simpleReport = mock(SimpleReport.class);
     ReportedMessagesExtractor extractor = new ReportedMessagesExtractor(simpleReport);
     XmlTimestamp xmlTimestamp = mock(XmlTimestamp.class);
@@ -321,7 +321,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void extractReportedSignatureTimestampWarning_WhenSignatureTimestampHasAdesWarning_ReturnsGivenWarning() {
+  void extractReportedSignatureTimestampWarning_WhenSignatureTimestampHasAdesWarning_ReturnsGivenWarning() {
     SimpleReport simpleReport = mock(SimpleReport.class);
     ReportedMessagesExtractor extractor = new ReportedMessagesExtractor(simpleReport);
     XmlTimestamp xmlTimestamp = mock(XmlTimestamp.class);
@@ -339,7 +339,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void extractReportedSignatureTimestampWarnings_WhenSignatureTimestampHasQualificationWarning_ReturnsGivenWarning() {
+  void extractReportedSignatureTimestampWarnings_WhenSignatureTimestampHasQualificationWarning_ReturnsGivenWarning() {
     SimpleReport simpleReport = mock(SimpleReport.class);
     ReportedMessagesExtractor extractor = new ReportedMessagesExtractor(simpleReport);
     XmlTimestamp xmlTimestamp = mock(XmlTimestamp.class);
@@ -357,7 +357,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void extractReportedSignatureTimestampWarnings_WhenSignatureTimestampHasBothWarnings_ReturnsGivenWarnings() {
+  void extractReportedSignatureTimestampWarnings_WhenSignatureTimestampHasBothWarnings_ReturnsGivenWarnings() {
     SimpleReport simpleReport = mock(SimpleReport.class);
     ReportedMessagesExtractor extractor = new ReportedMessagesExtractor(simpleReport);
     XmlTimestamp xmlTimestamp = mock(XmlTimestamp.class);
@@ -379,14 +379,14 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void collectErrorsAsExceptions_WhenInputIsEmpty_ReturnsEmptyList() {
+  void collectErrorsAsExceptions_WhenInputIsEmpty_ReturnsEmptyList() {
     List<DigiDoc4JException> result = ReportedMessagesExtractor.collectErrorsAsExceptions();
 
     assertThat(result, empty());
   }
 
   @Test
-  public void collectErrorsAsExceptions_WhenInputIsEmptyLists_ReturnsEmptyList() {
+  void collectErrorsAsExceptions_WhenInputIsEmptyLists_ReturnsEmptyList() {
     List<DigiDoc4JException> result = ReportedMessagesExtractor.collectErrorsAsExceptions(
             Collections.emptyList(),
             Collections.emptyList()
@@ -396,7 +396,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void collectErrorsAsExceptions_WhenInputContainsMessages_ReturnsListOfCorrespondingExceptions() {
+  void collectErrorsAsExceptions_WhenInputContainsMessages_ReturnsListOfCorrespondingExceptions() {
     List<DigiDoc4JException> result = ReportedMessagesExtractor.collectErrorsAsExceptions(Arrays.asList(
             new ReportedMessagesExtractor.Message("KEY1", "VALUE1", "ID1"),
             new ReportedMessagesExtractor.Message("KEY2", "VALUE2", "ID2")
@@ -412,7 +412,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void collectErrorsAsExceptions_WhenInputContainsMessagesInSeparateLists_ReturnsListOfCorrespondingExceptions() {
+  void collectErrorsAsExceptions_WhenInputContainsMessagesInSeparateLists_ReturnsListOfCorrespondingExceptions() {
     List<DigiDoc4JException> result = ReportedMessagesExtractor.collectErrorsAsExceptions(
             Collections.singletonList(new ReportedMessagesExtractor.Message("KEY1", "VALUE1", "ID1")),
             Collections.singletonList(new ReportedMessagesExtractor.Message("KEY2", "VALUE2", "ID2"))
@@ -428,7 +428,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void collectErrorsAsExceptions_WhenInputContainsCertificateRevocationMessage_ReturnsCertificateRevocationException() {
+  void collectErrorsAsExceptions_WhenInputContainsCertificateRevocationMessage_ReturnsCertificateRevocationException() {
     Stream.of(MessageTag.BBB_XCV_ISCR_ANS, MessageTag.PSV_IPSVC_ANS).forEach(messageTag -> {
       List<DigiDoc4JException> result = ReportedMessagesExtractor.collectErrorsAsExceptions(Collections.singletonList(
               new ReportedMessagesExtractor.Message(messageTag.getId(), "Whatever message value", "ID")
@@ -442,7 +442,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void collectErrorsAsExceptions_WhenInputContainsNonCertificateRevocationMessage_ReturnsBaseException() {
+  void collectErrorsAsExceptions_WhenInputContainsNonCertificateRevocationMessage_ReturnsBaseException() {
     final Set<MessageTag> exclusions = new HashSet<>(Arrays.asList(MessageTag.BBB_XCV_ISCR_ANS, MessageTag.PSV_IPSVC_ANS));
     Stream.of(MessageTag.values()).filter(mt -> !exclusions.contains(mt)).forEach(messageTag -> {
       List<DigiDoc4JException> result = ReportedMessagesExtractor.collectErrorsAsExceptions(Collections.singletonList(
@@ -457,14 +457,14 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void collectWarningsAsExceptions_WhenInputIsEmpty_ReturnsEmptyList() {
+  void collectWarningsAsExceptions_WhenInputIsEmpty_ReturnsEmptyList() {
     List<DigiDoc4JException> result = ReportedMessagesExtractor.collectWarningsAsExceptions();
 
     assertThat(result, empty());
   }
 
   @Test
-  public void collectWarningsAsExceptions_WhenInputIsEmptyLists_ReturnsEmptyList() {
+  void collectWarningsAsExceptions_WhenInputIsEmptyLists_ReturnsEmptyList() {
     List<DigiDoc4JException> result = ReportedMessagesExtractor.collectWarningsAsExceptions(
             Collections.emptyList(),
             Collections.emptyList()
@@ -474,7 +474,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void collectWarningsAsExceptions_WhenInputContainsMessages_ReturnsListOfCorrespondingExceptions() {
+  void collectWarningsAsExceptions_WhenInputContainsMessages_ReturnsListOfCorrespondingExceptions() {
     List<DigiDoc4JException> result = ReportedMessagesExtractor.collectWarningsAsExceptions(Arrays.asList(
             new ReportedMessagesExtractor.Message("KEY1", "VALUE1", "ID1"),
             new ReportedMessagesExtractor.Message("KEY2", "VALUE2", "ID2")
@@ -490,7 +490,7 @@ public class ReportedMessagesExtractorTest {
   }
 
   @Test
-  public void collectWarningsAsExceptions_WhenInputContainsMessagesInSeparateLists_ReturnsListOfCorrespondingExceptions() {
+  void collectWarningsAsExceptions_WhenInputContainsMessagesInSeparateLists_ReturnsListOfCorrespondingExceptions() {
     List<DigiDoc4JException> result = ReportedMessagesExtractor.collectWarningsAsExceptions(
             Collections.singletonList(new ReportedMessagesExtractor.Message("KEY1", "VALUE1", "ID1")),
             Collections.singletonList(new ReportedMessagesExtractor.Message("KEY2", "VALUE2", "ID2"))

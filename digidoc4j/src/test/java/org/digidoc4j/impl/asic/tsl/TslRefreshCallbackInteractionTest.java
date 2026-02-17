@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
-public class TslRefreshCallbackInteractionTest extends AbstractTest {
+class TslRefreshCallbackInteractionTest extends AbstractTest {
 
   @Mock
   private TSLRefreshCallback tslRefreshCallback;
@@ -42,7 +42,7 @@ public class TslRefreshCallbackInteractionTest extends AbstractTest {
   }
 
   @Test
-  public void testCallbackReturnsTrueOnManualRefresh() {
+  void testCallbackReturnsTrueOnManualRefresh() {
     mockEnsureTSLState(true);
     configuration.getTSL().refresh();
     configuration.getTSL().refresh();
@@ -51,7 +51,7 @@ public class TslRefreshCallbackInteractionTest extends AbstractTest {
   }
 
   @Test
-  public void testCallbackReturnsFalseOnManualRefresh() {
+  void testCallbackReturnsFalseOnManualRefresh() {
     mockEnsureTSLState(false);
     configuration.getTSL().refresh();
 
@@ -62,7 +62,7 @@ public class TslRefreshCallbackInteractionTest extends AbstractTest {
   }
 
   @Test
-  public void testCallbackThrowsExceptionOnManualRefresh() {
+  void testCallbackThrowsExceptionOnManualRefresh() {
     TslRefreshException exceptionToThrow = new TslRefreshException("Exception message");
     mockEnsureTSLState(exceptionToThrow);
 
@@ -79,7 +79,7 @@ public class TslRefreshCallbackInteractionTest extends AbstractTest {
   }
 
   @Test
-  public void testCallbackReturnsTrueOnOpeningAndValidatingContainer() {
+  void testCallbackReturnsTrueOnOpeningAndValidatingContainer() {
     mockEnsureTSLState(true);
 
     Container container = ContainerOpener.open(ASICE_WITH_TS_SIG);
@@ -90,7 +90,7 @@ public class TslRefreshCallbackInteractionTest extends AbstractTest {
   }
 
   @Test
-  public void testCallbackReturnsFalseOnOpeningAndValidatingContainer() {
+  void testCallbackReturnsFalseOnOpeningAndValidatingContainer() {
     mockEnsureTSLState(false);
 
     Container container = ContainerOpener.open(ASICE_WITH_TS_SIG);
@@ -102,7 +102,7 @@ public class TslRefreshCallbackInteractionTest extends AbstractTest {
   }
 
   @Test
-  public void testCallbackThrowsExceptionOnOpeningContainer() {
+  void testCallbackThrowsExceptionOnOpeningContainer() {
     TslRefreshException exceptionToThrow = new TslRefreshException("Exception message");
     mockEnsureTSLState(exceptionToThrow);
 
@@ -116,7 +116,7 @@ public class TslRefreshCallbackInteractionTest extends AbstractTest {
   }
 
   @Test
-  public void testCallbackThrowsExceptionOnValidatingContainer() {
+  void testCallbackThrowsExceptionOnValidatingContainer() {
     mockEnsureTSLState(false);
     Container container = ContainerOpener.open(ASICE_WITH_TS_SIG);
     Mockito.reset(tslRefreshCallback);
@@ -134,7 +134,7 @@ public class TslRefreshCallbackInteractionTest extends AbstractTest {
   }
 
   @Test
-  public void testCallbackReturnsTrueOnCreatingAndSigningContainer() {
+  void testCallbackReturnsTrueOnCreatingAndSigningContainer() {
     mockEnsureTSLState(true);
 
     Container container = createContainerBy(Container.DocumentType.ASICE,
@@ -146,7 +146,7 @@ public class TslRefreshCallbackInteractionTest extends AbstractTest {
   }
 
   @Test
-  public void testCallbackReturnsFalseOnCreatingAndSigningContainer() {
+  void testCallbackReturnsFalseOnCreatingAndSigningContainer() {
     mockEnsureTSLState(false);
 
     Container container = createContainerBy(Container.DocumentType.ASICE,
@@ -159,7 +159,7 @@ public class TslRefreshCallbackInteractionTest extends AbstractTest {
   }
 
   @Test
-  public void testCallbackThrowsExceptionOnSigningContainer() {
+  void testCallbackThrowsExceptionOnSigningContainer() {
     TslRefreshException exceptionToThrow = new TslRefreshException("Exception message");
     mockEnsureTSLState(exceptionToThrow);
 

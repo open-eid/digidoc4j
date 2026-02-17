@@ -43,14 +43,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 // These tests might take long and are not necessary to be run in every build.
 // They fit more into performance tests category, so at the moment they will be run with them.
 @Disabled
-public class DataToSignSerializationTest extends AbstractTest {
+class DataToSignSerializationTest extends AbstractTest {
 
   private static final List<Integer> FILE_SIZES_IN_KILOBYTES = Arrays.asList(1, 100, 10000);
   private static final int DATA_TO_SIGN_DIGEST_EXPECTED_CEILING_SIZE = 1000;
   private static final int SIGNATURE_SIZE = 256;
 
   @Test
-  public void finalizeSignature_emptyBDOCContainer_dataFilesFromPath() {
+  void finalizeSignature_emptyBDOCContainer_dataFilesFromPath() {
     for (int fileSize : FILE_SIZES_IN_KILOBYTES) {
       Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC).build();
       container.addDataFile("src/test/resources/testFiles/helper-files/sized-files/" + fileSize + "KB.txt", "text/plain");
@@ -62,7 +62,7 @@ public class DataToSignSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void finalizeSignature_emptyASICEContainer_dataFilesFromPath() {
+  void finalizeSignature_emptyASICEContainer_dataFilesFromPath() {
     for (int fileSize : FILE_SIZES_IN_KILOBYTES) {
       Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICE).build();
       container.addDataFile("src/test/resources/testFiles/helper-files/sized-files/" + fileSize + "KB.txt", "text/plain");
@@ -74,7 +74,7 @@ public class DataToSignSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void finalizeSignature_emptyASICSContainer_dataFilesFromPath() {
+  void finalizeSignature_emptyASICSContainer_dataFilesFromPath() {
     for (int fileSize : FILE_SIZES_IN_KILOBYTES) {
       Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).build();
       container.addDataFile("src/test/resources/testFiles/helper-files/sized-files/" + fileSize + "KB.txt", "text/plain");
@@ -86,7 +86,7 @@ public class DataToSignSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void finalizeSignature_emptyBDOCContainer_dataFilesAsStreams() throws FileNotFoundException {
+  void finalizeSignature_emptyBDOCContainer_dataFilesAsStreams() throws FileNotFoundException {
     for (int fileSize : FILE_SIZES_IN_KILOBYTES) {
       Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC).build();
       String fileName = fileSize + "KB.txt";
@@ -99,7 +99,7 @@ public class DataToSignSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void finalizeSignature_emptyASICEContainer_dataFilesAsStreams() throws FileNotFoundException {
+  void finalizeSignature_emptyASICEContainer_dataFilesAsStreams() throws FileNotFoundException {
     for (int fileSize : FILE_SIZES_IN_KILOBYTES) {
       Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICE).build();
       String fileName = fileSize + "KB.txt";
@@ -112,7 +112,7 @@ public class DataToSignSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void finalizeSignature_emptyASICSContainer_dataFilesAsStreams() throws FileNotFoundException {
+  void finalizeSignature_emptyASICSContainer_dataFilesAsStreams() throws FileNotFoundException {
     for (int fileSize : FILE_SIZES_IN_KILOBYTES) {
       Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).build();
       String fileName = fileSize + "KB.txt";
@@ -125,7 +125,7 @@ public class DataToSignSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void finalizeSignature_emptyBDOCContainer_multipleDataFilesFromStream() throws FileNotFoundException {
+  void finalizeSignature_emptyBDOCContainer_multipleDataFilesFromStream() throws FileNotFoundException {
     int dataFile1Size = 100;
     int dataFile2Size = 10000;
     String dataFile1Name = dataFile1Size + "KB.txt";
@@ -140,7 +140,7 @@ public class DataToSignSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void finalizeSignature_notEmptyContainerFromPath() {
+  void finalizeSignature_notEmptyContainerFromPath() {
     List<Container> containers = Arrays.asList(
             ContainerBuilder.aContainer().fromExistingFile("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc").build(),
             ContainerBuilder.aContainer().fromExistingFile("src/test/resources/testFiles/valid-containers/bdoc-tm-1000-signatures.bdoc").build(),
@@ -158,7 +158,7 @@ public class DataToSignSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void finalizeSignature_notEmptyContainerFromStream() throws FileNotFoundException {
+  void finalizeSignature_notEmptyContainerFromStream() throws FileNotFoundException {
     List<Container> containers = Arrays.asList(
             ContainerBuilder.aContainer().fromStream(new FileInputStream("src/test/resources/testFiles/valid-containers/valid-bdoc-tm.bdoc")).build(),
             ContainerBuilder.aContainer().fromStream(new FileInputStream("src/test/resources/testFiles/valid-containers/bdoc-tm-1000-signatures.bdoc")).build(),
@@ -176,7 +176,7 @@ public class DataToSignSerializationTest extends AbstractTest {
   }
 
   @Test
-  public void finalizeDetachedTimestampSignature_dataFileFromStream() throws FileNotFoundException {
+  void finalizeDetachedTimestampSignature_dataFileFromStream() throws FileNotFoundException {
     for (int fileSize : FILE_SIZES_IN_KILOBYTES) {
       String fileName = fileSize + "KB.txt";
       DataFile dataFile = new DataFile(new FileInputStream("src/test/resources/testFiles/helper-files/sized-files/" + fileName), fileName, "text/plain");

@@ -25,10 +25,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 @ExtendWith(MockitoExtension.class)
-public class SigningOcspSourceFactoryTest extends AbstractTest {
+class SigningOcspSourceFactoryTest extends AbstractTest {
 
   @Test
-  public void testCreateReturnsResultProvidedByFactoryFromConfigurationIfSet() {
+  void testCreateReturnsResultProvidedByFactoryFromConfigurationIfSet() {
     OCSPSource mockOCSPSource = Mockito.mock(OCSPSource.class);
     OCSPSourceFactory mockSigningOcspSourceFactory = Mockito.mock(OCSPSourceFactory.class);
     Mockito.doReturn(mockOCSPSource).when(mockSigningOcspSourceFactory).create();
@@ -42,7 +42,7 @@ public class SigningOcspSourceFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void testCreateReturnsNullProvidedByFactoryFromConfigurationIfExplicitlyConfigured() {
+  void testCreateReturnsNullProvidedByFactoryFromConfigurationIfExplicitlyConfigured() {
     OCSPSourceFactory mockSigningOcspSourceFactory = Mockito.mock(OCSPSourceFactory.class);
     Mockito.doReturn(null).when(mockSigningOcspSourceFactory).create();
 
@@ -55,7 +55,7 @@ public class SigningOcspSourceFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void testCreateReturnsDefaultImplIfFactoryUnsetInConfiguration() {
+  void testCreateReturnsDefaultImplIfFactoryUnsetInConfiguration() {
     OCSPSource ocspSource = new SigningOcspSourceFactory(configuration).create();
 
     assertNotNull(ocspSource);

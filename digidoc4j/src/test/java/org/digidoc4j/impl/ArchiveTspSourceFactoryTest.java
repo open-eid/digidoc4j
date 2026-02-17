@@ -37,24 +37,24 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-public class ArchiveTspSourceFactoryTest extends AbstractTest {
+class ArchiveTspSourceFactoryTest extends AbstractTest {
 
   private static final String SERVICE_URL = "http://host/path";
 
   @Test
-  public void create_WhenCustomSourceFactoryIsConfiguredAndNoPreferredLanguage_ReturnsCustomTspSource() {
+  void create_WhenCustomSourceFactoryIsConfiguredAndNoPreferredLanguage_ReturnsCustomTspSource() {
     create_WhenCustomSourceFactoryIsConfigured_ReturnsCustomTspSource(ArchiveTspSourceFactory::new);
   }
 
   @Test
-  public void create_WhenCustomSourceFactoryIsConfiguredAndServiceUrlOverrideIsNull_ReturnsCustomTspSource() {
+  void create_WhenCustomSourceFactoryIsConfiguredAndServiceUrlOverrideIsNull_ReturnsCustomTspSource() {
     create_WhenCustomSourceFactoryIsConfigured_ReturnsCustomTspSource(
             configuration -> new ArchiveTspSourceFactory(configuration, null)
     );
   }
 
   @Test
-  public void create_WhenCustomSourceFactoryIsConfiguredAndServiceUrlOverrideIsPresent_ReturnsCustomTspSource() {
+  void create_WhenCustomSourceFactoryIsConfiguredAndServiceUrlOverrideIsPresent_ReturnsCustomTspSource() {
     create_WhenCustomSourceFactoryIsConfigured_ReturnsCustomTspSource(
             configuration -> new ArchiveTspSourceFactory(configuration, SERVICE_URL)
     );
@@ -81,7 +81,7 @@ public class ArchiveTspSourceFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void create_WhenNoSourceFactoryConfiguredAndServiceUrlOverrideNotSetAndDefaultTestConfigurationUsed_ReturnsOnlineTspSourceWithDefaultUrl() throws Exception {
+  void create_WhenNoSourceFactoryConfiguredAndServiceUrlOverrideNotSetAndDefaultTestConfigurationUsed_ReturnsOnlineTspSourceWithDefaultUrl() throws Exception {
     create_WhenNoSourceFactoryConfiguredAndServiceUrlOverrideNotSet_ReturnsOnlineTspSourceThatUsesExpectedServiceUrl(
             Configuration.of(Configuration.Mode.TEST),
             Constant.Test.TSP_SOURCE
@@ -89,7 +89,7 @@ public class ArchiveTspSourceFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void create_WhenNoSourceFactoryConfiguredAndServiceUrlOverrideNotSetAndDefaultProdConfigurationUsed_ReturnsOnlineTspSourceWithDefaultUrl() throws Exception {
+  void create_WhenNoSourceFactoryConfiguredAndServiceUrlOverrideNotSetAndDefaultProdConfigurationUsed_ReturnsOnlineTspSourceWithDefaultUrl() throws Exception {
     create_WhenNoSourceFactoryConfiguredAndServiceUrlOverrideNotSet_ReturnsOnlineTspSourceThatUsesExpectedServiceUrl(
             Configuration.of(Configuration.Mode.PROD),
             Constant.Production.TSP_SOURCE
@@ -97,7 +97,7 @@ public class ArchiveTspSourceFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void create_WhenNoSourceFactoryConfiguredAndServiceUrlOverrideNotSetAndTestConfigurationWithArchiveTspUrlUsed_ReturnsOnlineTspSourceWithDefaultUrl() throws Exception {
+  void create_WhenNoSourceFactoryConfiguredAndServiceUrlOverrideNotSetAndTestConfigurationWithArchiveTspUrlUsed_ReturnsOnlineTspSourceWithDefaultUrl() throws Exception {
     Configuration configuration = Configuration.of(Configuration.Mode.TEST);
     configuration.setTspSourceForArchiveTimestamps(SERVICE_URL);
     create_WhenNoSourceFactoryConfiguredAndServiceUrlOverrideNotSet_ReturnsOnlineTspSourceThatUsesExpectedServiceUrl(
@@ -107,7 +107,7 @@ public class ArchiveTspSourceFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void create_WhenNoSourceFactoryConfiguredAndServiceUrlOverrideNotSetAndProdConfigurationWithArchiveTspUrlUsed_ReturnsOnlineTspSourceWithDefaultUrl() throws Exception {
+  void create_WhenNoSourceFactoryConfiguredAndServiceUrlOverrideNotSetAndProdConfigurationWithArchiveTspUrlUsed_ReturnsOnlineTspSourceWithDefaultUrl() throws Exception {
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
     configuration.setTspSourceForArchiveTimestamps(SERVICE_URL);
     create_WhenNoSourceFactoryConfiguredAndServiceUrlOverrideNotSet_ReturnsOnlineTspSourceThatUsesExpectedServiceUrl(
@@ -134,21 +134,21 @@ public class ArchiveTspSourceFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void create_WhenNoSourceFactoryConfiguredAndServiceUrlOverrideIsSetAndDefaultTestConfigurationUsed_ReturnsOnlineTspSourceWithOverriddenUrl() throws Exception {
+  void create_WhenNoSourceFactoryConfiguredAndServiceUrlOverrideIsSetAndDefaultTestConfigurationUsed_ReturnsOnlineTspSourceWithOverriddenUrl() throws Exception {
     create_WhenNoSourceFactoryConfiguredAndServiceUrlOverrideIsSet_ReturnsOnlineTspSourceThatUsesOverriddenServiceUrl(
             Configuration.of(Configuration.Mode.TEST)
     );
   }
 
   @Test
-  public void create_WhenNoSourceFactoryConfiguredAndServiceUrlOverrideIsSetAndDefaultProdConfigurationUsed_ReturnsOnlineTspSourceWithOverriddenUrl() throws Exception {
+  void create_WhenNoSourceFactoryConfiguredAndServiceUrlOverrideIsSetAndDefaultProdConfigurationUsed_ReturnsOnlineTspSourceWithOverriddenUrl() throws Exception {
     create_WhenNoSourceFactoryConfiguredAndServiceUrlOverrideIsSet_ReturnsOnlineTspSourceThatUsesOverriddenServiceUrl(
             Configuration.of(Configuration.Mode.PROD)
     );
   }
 
   @Test
-  public void create_WhenNoSourceFactoryConfiguredAndServiceUrlOverrideIsSetAndTestConfigurationWithArchiveTspUrlUsed_ReturnsOnlineTspSourceWithOverriddenUrl() throws Exception {
+  void create_WhenNoSourceFactoryConfiguredAndServiceUrlOverrideIsSetAndTestConfigurationWithArchiveTspUrlUsed_ReturnsOnlineTspSourceWithOverriddenUrl() throws Exception {
     Configuration configuration = Configuration.of(Configuration.Mode.TEST);
     configuration.setTspSourceForArchiveTimestamps("http://archive.tsp/path");
     create_WhenNoSourceFactoryConfiguredAndServiceUrlOverrideIsSet_ReturnsOnlineTspSourceThatUsesOverriddenServiceUrl(
@@ -157,7 +157,7 @@ public class ArchiveTspSourceFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void create_WhenNoSourceFactoryConfiguredAndServiceUrlOverrideIsSetAndProdConfigurationWithArchiveTspUrlUsed_ReturnsOnlineTspSourceWithOverriddenUrl() throws Exception {
+  void create_WhenNoSourceFactoryConfiguredAndServiceUrlOverrideIsSetAndProdConfigurationWithArchiveTspUrlUsed_ReturnsOnlineTspSourceWithOverriddenUrl() throws Exception {
     Configuration configuration = Configuration.of(Configuration.Mode.PROD);
     configuration.setTspSourceForArchiveTimestamps("http://archive.tsp/path");
     create_WhenNoSourceFactoryConfiguredAndServiceUrlOverrideIsSet_ReturnsOnlineTspSourceThatUsesOverriddenServiceUrl(

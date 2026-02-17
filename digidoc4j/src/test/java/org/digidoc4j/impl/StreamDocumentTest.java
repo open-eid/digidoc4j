@@ -50,14 +50,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class StreamDocumentTest extends AbstractTest {
+class StreamDocumentTest extends AbstractTest {
 
   private static final Logger logger = LoggerFactory.getLogger(StreamDocumentTest.class);
   private static Path readOnlyPath;
   private StreamDocument document;
 
   @BeforeAll
-  public static void beforeClass(@TempDir Path tempDir) throws IOException {
+   static void beforeClass(@TempDir Path tempDir) throws IOException {
     readOnlyPath = tempDir.resolve("readOnly");
     Files.createDirectories(readOnlyPath);
 
@@ -85,7 +85,7 @@ public class StreamDocumentTest extends AbstractTest {
   }
 
   /*@AfterClass
-  public static void resetTemporaryRODir() throws IOException {
+   static void resetTemporaryRODir() throws IOException {
     if (System.getProperty("os.name").startsWith("Windows")) {
       File file = new File(roDir);
       Runtime.getRuntime().exec("icacls " + file.getAbsolutePath() + " /remove:d Everyone /T /Q");
@@ -108,33 +108,33 @@ public class StreamDocumentTest extends AbstractTest {
   }*/
 
   @Test
-  public void openStream() throws Exception {
+   void openStream() throws Exception {
     assertEquals(65, document.openStream().read());
   }
 
   @Test
-  public void getName() throws Exception {
+   void getName() throws Exception {
     assertEquals("suur_a.txt", document.getName());
   }
 
   @Test
-  public void getAbsolutePath() {
+   void getAbsolutePath() {
     assertTrue(document.temporaryFile.getAbsolutePath().matches(".*digidoc4j.*.\\.tmp"), document.temporaryFile.getAbsolutePath());
   }
 
   @Test
-  public void getMimeType() {
+   void getMimeType() {
     assertEquals("text/plain", document.getMimeType().getMimeTypeString());
   }
 
   @Test
-  public void setMimeType() {
+   void setMimeType() {
     document.setMimeType(MimeTypeEnum.XML);
     assertEquals("text/xml", document.getMimeType().getMimeTypeString());
   }
 
   @Test
-  public void save() throws Exception {
+   void save() throws Exception {
     document.save("streamDocumentSaveTest.txt");
     assertTrue(Files.exists(Paths.get("streamDocumentSaveTest.txt")));
     FileReader fileReader = new FileReader("streamDocumentSaveTest.txt");
@@ -145,7 +145,7 @@ public class StreamDocumentTest extends AbstractTest {
   }
 
   @Test
-  public void createDocumentFromStreamedDataFile() throws Exception {
+   void createDocumentFromStreamedDataFile() throws Exception {
     String file = getFileBy("txt");
     try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(new byte[]{0x041})) {
       DataFile dataFile = new DataFile(byteArrayInputStream, file, "text/plain");
@@ -160,7 +160,7 @@ public class StreamDocumentTest extends AbstractTest {
   }
 
   @Test
-  public void documentManualDeletion() {
+   void documentManualDeletion() {
     File dir = new File(System.getProperty("java.io.tmpdir"));
     FilenameFilter filenameFilter = (dir1, name) -> name.toLowerCase().startsWith("digidoc4j")
         && name.toLowerCase().endsWith(".tmp");
@@ -173,7 +173,7 @@ public class StreamDocumentTest extends AbstractTest {
   }
 
   @Test
-  public void getDigest_WhenAlgorithmIsSha256_ReturnsSha256DigestWithExpectedBase64Value() {
+   void getDigest_WhenAlgorithmIsSha256_ReturnsSha256DigestWithExpectedBase64Value() {
     Digest result = document.getDigest(DigestAlgorithm.SHA256);
 
     assertThat(result, notNullValue());
@@ -185,7 +185,7 @@ public class StreamDocumentTest extends AbstractTest {
     NB! If this test fails then ensure that directory testFiles/tmp/readonly is read-only!
    */
   @Test
-  public void saveWhenNoAccessRights() {
+   void saveWhenNoAccessRights() {
     File tmp = StreamDocumentTest.readOnlyPath.toFile();
     String dataFileName = tmp.getAbsolutePath() + File.separator + "no_access.txt";
 
@@ -198,7 +198,7 @@ public class StreamDocumentTest extends AbstractTest {
 
   @Test
   @Disabled("DD4J-1377")
-  public void constructorThrowsException() throws Exception {
+   void constructorThrowsException() throws Exception {
     InputStream stream = new InputStream() {
 
       @Override
@@ -216,17 +216,17 @@ public class StreamDocumentTest extends AbstractTest {
   }
 
   @Test
-  public void testGetBytesThrowsException() {
+   void testGetBytesThrowsException() {
     assertThrows(DSSException.class, () -> new MockStreamDocument().openStream());
   }
 
   @Test
-  public void testOpenStreamThrowsException() {
+   void testOpenStreamThrowsException() {
     assertThrows(DSSException.class, () -> new MockStreamDocument().openStream());
   }
 
   @Test
-  public void testGetDigestThrowsException() {
+   void testGetDigestThrowsException() {
     assertThrows(DSSException.class, () -> new MockStreamDocument().getDigest(DigestAlgorithm.SHA1));
   }
 

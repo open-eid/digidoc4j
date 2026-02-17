@@ -23,10 +23,10 @@ import org.mockito.Mockito;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-public class AiaDataLoaderFactoryTest extends AbstractTest {
+class AiaDataLoaderFactoryTest extends AbstractTest {
 
   @Test
-  public void testDefaultAiaDataLoaderCreatedWhenNoCustomDataLoaderFactoryConfigured() {
+  void testDefaultAiaDataLoaderCreatedWhenNoCustomDataLoaderFactoryConfigured() {
     configuration.setConnectionTimeout(2345);
     configuration.setSocketTimeout(1234);
 
@@ -40,7 +40,7 @@ public class AiaDataLoaderFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void testDefaultAiaDataLoaderCreatedWhenNoCustomDataLoaderFactoryConfiguredAndCustomUserAgentSpecified() {
+  void testDefaultAiaDataLoaderCreatedWhenNoCustomDataLoaderFactoryConfiguredAndCustomUserAgentSpecified() {
     configuration.setConnectionTimeout(2345);
     configuration.setSocketTimeout(1234);
 
@@ -54,7 +54,7 @@ public class AiaDataLoaderFactoryTest extends AbstractTest {
   }
 
   @Test
-  public void testCustomDataLoaderCreatedWhenCustomDataLoaderConfigured() {
+  void testCustomDataLoaderCreatedWhenCustomDataLoaderConfigured() {
     DataLoader mockDataLoader = Mockito.mock(DataLoader.class);
     DataLoaderFactory mockDataLoaderFactory = Mockito.mock(DataLoaderFactory.class);
     Mockito.doReturn(mockDataLoader).when(mockDataLoaderFactory).create();

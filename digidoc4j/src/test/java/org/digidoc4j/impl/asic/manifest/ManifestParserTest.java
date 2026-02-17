@@ -23,10 +23,10 @@ import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.containsInRelativeOrder;
 import static org.hamcrest.Matchers.hasEntry;
 
-public class ManifestParserTest {
+class ManifestParserTest {
 
   @Test
-  public void getManifestFileItems_WhenManifestIsValid_ReturnsMapOfAllItems() {
+  void getManifestFileItems_WhenManifestIsValid_ReturnsMapOfAllItems() {
     FileDocument manifestFile = new FileDocument("src/test/resources/testFiles/manifest/valid-manifest.xml");
     ManifestParser parser = new ManifestParser(manifestFile);
 
@@ -40,7 +40,7 @@ public class ManifestParserTest {
   }
 
   @Test
-  public void getManifestFileItems_WhenManifestNamespaceIsInvalid_ReturnsMapOfAllItems() {
+  void getManifestFileItems_WhenManifestNamespaceIsInvalid_ReturnsMapOfAllItems() {
     FileDocument manifestFile = new FileDocument("src/test/resources/testFiles/manifest/manifest-with-different-namespace.xml");
     ManifestParser parser = new ManifestParser(manifestFile);
 
@@ -52,7 +52,7 @@ public class ManifestParserTest {
   }
 
   @Test
-  public void getManifestFileItems_WhenMultipleEntriesAreInLexicalOrder_ReturnsMapOfAllItemsRetainingTheirOrder() {
+  void getManifestFileItems_WhenMultipleEntriesAreInLexicalOrder_ReturnsMapOfAllItemsRetainingTheirOrder() {
     AsicManifest asicManifest = new AsicManifest();
     asicManifest.addFileEntries(Arrays.asList(
             new DataFile(new byte[0], "a.txt", "text/plain"),
@@ -73,7 +73,7 @@ public class ManifestParserTest {
   }
 
   @Test
-  public void getManifestFileItems_WhenMultipleEntriesAreInNonLexicalOrder_ReturnsMapOfAllItemsRetainingTheirOrder() {
+  void getManifestFileItems_WhenMultipleEntriesAreInNonLexicalOrder_ReturnsMapOfAllItemsRetainingTheirOrder() {
     AsicManifest asicManifest = new AsicManifest();
     asicManifest.addFileEntries(Arrays.asList(
             new DataFile(new byte[0], "c.txt", "text/plain"),

@@ -4,7 +4,7 @@
  * License (see LICENSE.LGPL).
  *
  * Note that the only valid version of the LGPL license as far as this
- * project is concerned is the original GNU Library General Public License
+ * project is concerned is the original GNU Library General License
  * Version 2.1, February 1999
  */
 
@@ -25,12 +25,12 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class UncompressedAsicEntryTest {
+class UncompressedAsicEntryTest {
 
   private static final String MOCK_ENTRY_NAME = "entry-name";
 
   @Test
-  public void entryCreatesZipEntryWithValidMetadataIfProvidedInOriginal() {
+  void entryCreatesZipEntryWithValidMetadataIfProvidedInOriginal() {
     ZipEntry originalZipEntry = new ZipEntry(MOCK_ENTRY_NAME);
     originalZipEntry.setSize(123L);
     originalZipEntry.setCrc(2345L);
@@ -42,7 +42,7 @@ public class UncompressedAsicEntryTest {
   }
 
   @Test
-  public void entryFailsToCreateZipEntryIfSizeIsMissing() {
+  void entryFailsToCreateZipEntryIfSizeIsMissing() {
     ZipEntry originalZipEntry = new ZipEntry(MOCK_ENTRY_NAME);
     originalZipEntry.setCrc(2345L);
 
@@ -51,7 +51,7 @@ public class UncompressedAsicEntryTest {
   }
 
   @Test
-  public void entryFailsToCreateZipEntryIfCrcIsMissing() {
+  void entryFailsToCreateZipEntryIfCrcIsMissing() {
     ZipEntry originalZipEntry = new ZipEntry(MOCK_ENTRY_NAME);
     originalZipEntry.setSize(123L);
 
@@ -60,7 +60,7 @@ public class UncompressedAsicEntryTest {
   }
 
   @Test
-  public void updatingMetadataDoesNotFetchContentBytesNorOverrideMetadataIfPresent() {
+  void updatingMetadataDoesNotFetchContentBytesNorOverrideMetadataIfPresent() {
     Supplier<byte[]> supplierMock = (Supplier<byte[]>) Mockito.mock(Supplier.class);
     ZipEntry originalZipEntry = new ZipEntry(MOCK_ENTRY_NAME);
     originalZipEntry.setSize(3L);
@@ -75,7 +75,7 @@ public class UncompressedAsicEntryTest {
   }
 
   @Test
-  public void updatingMetadataFetchesContentBytesAndOverridesMetadataIfSizeIsMissing() {
+  void updatingMetadataFetchesContentBytesAndOverridesMetadataIfSizeIsMissing() {
     ZipEntry originalZipEntry = new ZipEntry(MOCK_ENTRY_NAME);
     originalZipEntry.setCrc(2345L);
 
@@ -87,7 +87,7 @@ public class UncompressedAsicEntryTest {
   }
 
   @Test
-  public void updatingMetadataFetchesContentBytesAndOverridesMetadataIfCrcIsMissing() {
+  void updatingMetadataFetchesContentBytesAndOverridesMetadataIfCrcIsMissing() {
     ZipEntry originalZipEntry = new ZipEntry(MOCK_ENTRY_NAME);
     originalZipEntry.setSize(123L);
 
@@ -99,7 +99,7 @@ public class UncompressedAsicEntryTest {
   }
 
   @Test
-  public void updatingMetadataFetchesContentBytesAndOverridesMetadataIfSizeAndCrcIsMissing() {
+  void updatingMetadataFetchesContentBytesAndOverridesMetadataIfSizeAndCrcIsMissing() {
     ZipEntry originalZipEntry = new ZipEntry(MOCK_ENTRY_NAME);
 
     UncompressedAsicEntry asicEntry = new UncompressedAsicEntry(originalZipEntry);
@@ -110,7 +110,7 @@ public class UncompressedAsicEntryTest {
   }
 
   @Test
-  public void zipEntryCreatedByValidEntryIsSerializable() throws Exception {
+  void zipEntryCreatedByValidEntryIsSerializable() throws Exception {
     final byte[] contentBytes = new byte[] {1, 2, 3, 4};
     ByteArrayOutputStream bout = new ByteArrayOutputStream();
 

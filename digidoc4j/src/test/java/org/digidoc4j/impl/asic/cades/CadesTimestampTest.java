@@ -35,10 +35,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
-public class CadesTimestampTest {
+class CadesTimestampTest {
 
   @Test
-  public void createInstance_WhenWrappedDocumentIsMock_DocumentIsWrappedWithoutParsingIt() {
+  void createInstance_WhenWrappedDocumentIsMock_DocumentIsWrappedWithoutParsingIt() {
     DSSDocument timestampDocument = mock(DSSDocument.class);
     CadesTimestamp cadesTimestamp = new CadesTimestamp(timestampDocument);
 
@@ -49,7 +49,7 @@ public class CadesTimestampTest {
   }
 
   @Test
-  public void getCertificate_WhenDocumentIsNotParsable_ThrowsException() {
+  void getCertificate_WhenDocumentIsNotParsable_ThrowsException() {
     DSSDocument timestampDocument = new InMemoryDocument("Not timestamp!".getBytes(StandardCharsets.UTF_8));
     CadesTimestamp cadesTimestamp = new CadesTimestamp(timestampDocument);
 
@@ -62,7 +62,7 @@ public class CadesTimestampTest {
   }
 
   @Test
-  public void getCertificate_WhenDocumentIsExistingLoadedTimestamp_ReturnsCertificateWithExpectedFields() {
+  void getCertificate_WhenDocumentIsExistingLoadedTimestamp_ReturnsCertificateWithExpectedFields() {
     DSSDocument timestampDocument = new FileDocument("src/test/resources/testFiles/tst/timestamp.tst");
     CadesTimestamp cadesTimestamp = new CadesTimestamp(timestampDocument);
 
@@ -75,7 +75,7 @@ public class CadesTimestampTest {
   }
 
   @Test
-  public void getCreationTime_WhenDocumentIsNotParsable_ThrowsException() {
+  void getCreationTime_WhenDocumentIsNotParsable_ThrowsException() {
     DSSDocument timestampDocument = new InMemoryDocument("Not timestamp!".getBytes(StandardCharsets.UTF_8));
     CadesTimestamp cadesTimestamp = new CadesTimestamp(timestampDocument);
 
@@ -88,7 +88,7 @@ public class CadesTimestampTest {
   }
 
   @Test
-  public void getCreationTime_WhenDocumentIsExistingLoadedTimestamp_ReturnsExpectedCreationTime() {
+  void getCreationTime_WhenDocumentIsExistingLoadedTimestamp_ReturnsExpectedCreationTime() {
     DSSDocument timestampDocument = new FileDocument("src/test/resources/testFiles/tst/timestamp.tst");
     CadesTimestamp cadesTimestamp = new CadesTimestamp(timestampDocument);
 
@@ -98,7 +98,7 @@ public class CadesTimestampTest {
   }
 
   @Test
-  public void getTimeStampToken_WhenDocumentIsNotParsable_ThrowsException() {
+  void getTimeStampToken_WhenDocumentIsNotParsable_ThrowsException() {
     DSSDocument timestampDocument = new InMemoryDocument("Not timestamp!".getBytes(StandardCharsets.UTF_8));
     CadesTimestamp cadesTimestamp = new CadesTimestamp(timestampDocument);
 
@@ -111,7 +111,7 @@ public class CadesTimestampTest {
   }
 
   @Test
-  public void getTimeStampToken_WhenDocumentIsExistingLoadedTimestamp_ReturnsTimeStampTokenWithExpectedFeatures() {
+  void getTimeStampToken_WhenDocumentIsExistingLoadedTimestamp_ReturnsTimeStampTokenWithExpectedFeatures() {
     DSSDocument timestampDocument = new FileDocument("src/test/resources/testFiles/tst/timestamp.tst");
     CadesTimestamp cadesTimestamp = new CadesTimestamp(timestampDocument);
 

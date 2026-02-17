@@ -22,10 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class FileNameTest extends AbstractTest {
+class FileNameTest extends AbstractTest {
 
   @Test
-  public void createContainerWithSpecialCharactersInFileName() throws Exception {
+  void createContainerWithSpecialCharactersInFileName() throws Exception {
     try (FileInputStream stream = new FileInputStream("src/test/resources/testFiles/special-char-files/dds_acrobat.pdf")) {
       ContainerBuilder containerBuilder = ContainerBuilder.aContainer();
 
@@ -37,7 +37,7 @@ public class FileNameTest extends AbstractTest {
   }
 
   @Test
-  public void createContainer() throws Exception {
+  void createContainer() throws Exception {
     File folder = createTempDirectoryInTestFolderAndReturnFile();
     try (FileInputStream stream = new FileInputStream("src/test/resources/testFiles/special-char-files/dds_acrobat.pdf")) {
       Container container = ContainerBuilder.aContainer().withDataFile(stream, "cgi.pdf", MimeTypeEnum.PDF.getMimeTypeString())
@@ -49,169 +49,169 @@ public class FileNameTest extends AbstractTest {
   }
 
   @Test
-  public void validateSpecialialCharacters() {
+  void validateSpecialialCharacters() {
     String fileName = "test.txt";
     assertFalse(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersLessThanEnd() {
+  void validateSpecialCharactersLessThanEnd() {
     String fileName = "test<.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersLessThanStart() {
+  void validateSpecialCharactersLessThanStart() {
     String fileName = "<test.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersLessThanMidle() {
+  void validateSpecialCharactersLessThanMidle() {
     String fileName = "te<st.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersGreaterThanEnd() {
+  void validateSpecialCharactersGreaterThanEnd() {
     String fileName = "test>.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersGreaterThanStart() {
+  void validateSpecialCharactersGreaterThanStart() {
     String fileName = ">test.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersGreaterThanMidle() {
+  void validateSpecialCharactersGreaterThanMidle() {
     String fileName = "te>st.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharacterColonEnd() {
+  void validateSpecialCharacterColonEnd() {
     String fileName = "test:.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersColonStart() {
+  void validateSpecialCharactersColonStart() {
     String fileName = ":test.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersColonMidle() {
+  void validateSpecialCharactersColonMidle() {
     String fileName = "te:st.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersDoubleQuoteEnd() {
+  void validateSpecialCharactersDoubleQuoteEnd() {
     String fileName = "test\".txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersDoubleQuoteStart() {
+  void validateSpecialCharactersDoubleQuoteStart() {
     String fileName = "\"test.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersDoubleQuoteMidle() {
+  void validateSpecialCharactersDoubleQuoteMidle() {
     String fileName = "te\"st.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersfForwardSlashEnd() {
+  void validateSpecialCharactersfForwardSlashEnd() {
     String fileName = "test/.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersForwardSlashStart() {
+  void validateSpecialCharactersForwardSlashStart() {
     String fileName = "/test.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersForwardSlashMidle() {
+  void validateSpecialCharactersForwardSlashMidle() {
     String fileName = "te/st.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersBackslashEnd() {
+  void validateSpecialCharactersBackslashEnd() {
     String fileName = "test\\.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersBackslashStart() {
+  void validateSpecialCharactersBackslashStart() {
     String fileName = "\\test.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersBackslashMidle() {
+  void validateSpecialCharactersBackslashMidle() {
     String fileName = "te\\st.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersPipeEnd() {
+  void validateSpecialCharactersPipeEnd() {
     String fileName = "test|.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersPipeStart() {
+  void validateSpecialCharactersPipeStart() {
     String fileName = "|test.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersPipeMidle() {
+  void validateSpecialCharactersPipeMidle() {
     String fileName = "te|st.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersQuestionMarkEnd() {
+  void validateSpecialCharactersQuestionMarkEnd() {
     String fileName = "test?.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersQuestionMarkStart() {
+  void validateSpecialCharactersQuestionMarkStart() {
     String fileName = "?test.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersQuestionMarkMidle() {
+  void validateSpecialCharactersQuestionMarkMidle() {
     String fileName = "te?st.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersAsteriskEnd() {
+  void validateSpecialCharactersAsteriskEnd() {
     String fileName = "test*.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersAsteriskStart() {
+  void validateSpecialCharactersAsteriskStart() {
     String fileName = "*test.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }
 
   @Test
-  public void validateSpecialCharactersAsteriskMidle() {
+  void validateSpecialCharactersAsteriskMidle() {
     String fileName = "te*st.txt";
     assertTrue(Helper.hasSpecialCharacters(fileName));
   }

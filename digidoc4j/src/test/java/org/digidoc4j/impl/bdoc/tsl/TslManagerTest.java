@@ -24,25 +24,25 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class TslManagerTest extends AbstractTest {
+class TslManagerTest extends AbstractTest {
 
   private TslManager tslManager;
 
   @Test
-  public void getNewTsl() {
+  void getNewTsl() {
     TSLCertificateSource tsl = tslManager.getTsl();
     assertNotNull(tsl);
   }
 
   @Test
-  public void getCachedTsl() {
+  void getCachedTsl() {
     TSLCertificateSource tsl = tslManager.getTsl();
     TSLCertificateSource newTsl = tslManager.getTsl();
     assertSame(tsl, newTsl);
   }
 
   @Test
-  public void getLazilyInitializedTsl() {
+  void getLazilyInitializedTsl() {
     TSLCertificateSource tsl = tslManager.getTsl();
     assertInstanceOf(LazyTslCertificateSource.class, tsl);
     assertNull(((LazyTslCertificateSource) tsl).getLastCacheReloadingTime());
@@ -51,7 +51,7 @@ public class TslManagerTest extends AbstractTest {
   }
 
   @Test
-  public void getTslwithCacheExpirationTime() {
+  void getTslwithCacheExpirationTime() {
     configuration.setTslCacheExpirationTime(1337);
     LazyTslCertificateSource tsl = (LazyTslCertificateSource) tslManager.getTsl();
     assertNotNull(tsl.getCacheExpirationTime());

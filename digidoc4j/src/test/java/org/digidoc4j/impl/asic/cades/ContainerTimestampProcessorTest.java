@@ -47,17 +47,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-public class ContainerTimestampProcessorTest {
+class ContainerTimestampProcessorTest {
 
   private ContainerTimestampProcessor timestampProcessor;
 
   @BeforeEach
-  public void setUpProcessor() {
+  void setUpProcessor() {
     timestampProcessor = new ContainerTimestampProcessor();
   }
 
   @Test
-  public void addTimestamp_WhenTimestampTokenFileNameIsEmpty_ExceptionIsThrown() {
+  void addTimestamp_WhenTimestampTokenFileNameIsEmpty_ExceptionIsThrown() {
     CadesTimestamp cadesTimestamp = createTimestampWithName(StringUtils.EMPTY);
 
     TechnicalException caughtException = assertThrows(
@@ -70,7 +70,7 @@ public class ContainerTimestampProcessorTest {
   }
 
   @Test
-  public void addTimestamp_WhenTimestampHasDuplicateName_ExceptionIsThrown() {
+  void addTimestamp_WhenTimestampHasDuplicateName_ExceptionIsThrown() {
     CadesTimestamp cadesTimestamp1 = createTimestampWithName("same-name");
     timestampProcessor.addTimestamp(cadesTimestamp1);
     CadesTimestamp cadesTimestamp2 = createTimestampWithName("same-name");
@@ -87,7 +87,7 @@ public class ContainerTimestampProcessorTest {
   }
 
   @Test
-  public void addTimestamp_WhenMultipleTimestampsAreAdded_AllTimestampsPresentInProcessorInOrder() {
+  void addTimestamp_WhenMultipleTimestampsAreAdded_AllTimestampsPresentInProcessorInOrder() {
     CadesTimestamp cadesTimestamp1 = createTimestampWithName("name-1");
     CadesTimestamp cadesTimestamp2 = createTimestampWithName("name-2");
     CadesTimestamp cadesTimestamp3 = createTimestampWithName("name-3");
@@ -107,7 +107,7 @@ public class ContainerTimestampProcessorTest {
   }
 
   @Test
-  public void addManifest_WhenManifestFileNameIsEmpty_ExceptionIsThrown() {
+  void addManifest_WhenManifestFileNameIsEmpty_ExceptionIsThrown() {
     AsicArchiveManifest archiveManifest = createManifestWithName(StringUtils.EMPTY);
     Function<String, CadesTimestamp> timestampResolver = createTimestampResolverMock();
 
@@ -122,7 +122,7 @@ public class ContainerTimestampProcessorTest {
   }
 
   @Test
-  public void addManifest_WhenManifestHasDuplicateName_ExceptionIsThrown() {
+  void addManifest_WhenManifestHasDuplicateName_ExceptionIsThrown() {
     CadesTimestamp cadesTimestamp = createTimestampWithName("timestamp-name");
     timestampProcessor.addTimestamp(cadesTimestamp);
     AsicArchiveManifest archiveManifest1 = createManifestMockWithTimestampReferenceName(
@@ -144,7 +144,7 @@ public class ContainerTimestampProcessorTest {
   }
 
   @Test
-  public void addManifest_WhenManifestTimestampReferenceIsMissing_ThrowsException() {
+  void addManifest_WhenManifestTimestampReferenceIsMissing_ThrowsException() {
     AsicArchiveManifest archiveManifest = createManifestMockWithTimestampReferenceName(
             "manifest-name", null);
     Function<String, CadesTimestamp> timestampResolver = createTimestampResolverMock();
@@ -162,7 +162,7 @@ public class ContainerTimestampProcessorTest {
   }
 
   @Test
-  public void addManifest_WhenTimestampIsPresentInProcessor_ManifestIsAssociatedWithTimestamp() {
+  void addManifest_WhenTimestampIsPresentInProcessor_ManifestIsAssociatedWithTimestamp() {
     CadesTimestamp cadesTimestamp = createTimestampWithName("timestamp-name");
     timestampProcessor.addTimestamp(cadesTimestamp);
     AsicArchiveManifest archiveManifest = createManifestMockWithTimestampReferenceName(
@@ -182,7 +182,7 @@ public class ContainerTimestampProcessorTest {
   }
 
   @Test
-  public void addManifest_WhenTimestampIsNotPresentInProcessor_TimestampIsQueriedAndManifestIsAssociatedWithIt() {
+  void addManifest_WhenTimestampIsNotPresentInProcessor_TimestampIsQueriedAndManifestIsAssociatedWithIt() {
     CadesTimestamp cadesTimestamp = createTimestampWithName("timestamp-name");
     AsicArchiveManifest archiveManifest = createManifestMockWithTimestampReferenceName(
             "manifest-name", "timestamp-name");
@@ -201,7 +201,7 @@ public class ContainerTimestampProcessorTest {
   }
 
   @Test
-  public void addManifest_WhenTimestampIsNotPresentAndIsNotReturnedByResolver_ThrowsException() {
+  void addManifest_WhenTimestampIsNotPresentAndIsNotReturnedByResolver_ThrowsException() {
     AsicArchiveManifest archiveManifest = createManifestMockWithTimestampReferenceName(
             "manifest-name", "timestamp-name");
     Function<String, CadesTimestamp> timestampResolver = createTimestampResolverMock(null);
@@ -220,7 +220,7 @@ public class ContainerTimestampProcessorTest {
   }
 
   @Test
-  public void addManifest_WhenTimestampIsAlreadyAssociatedWithManifest_ThrowsException() {
+  void addManifest_WhenTimestampIsAlreadyAssociatedWithManifest_ThrowsException() {
     CadesTimestamp cadesTimestamp = createTimestampWithName("timestamp-name");
     timestampProcessor.addTimestamp(cadesTimestamp);
     AsicArchiveManifest archiveManifest1 = createManifestMockWithTimestampReferenceName(
@@ -249,7 +249,7 @@ public class ContainerTimestampProcessorTest {
   }
 
   @Test
-  public void addManifest_WhenTimestampReferenceHasNoMimeType_TimestampMimeTypeIsUnchanged() {
+  void addManifest_WhenTimestampReferenceHasNoMimeType_TimestampMimeTypeIsUnchanged() {
     DSSDocument timestampDocument = mock(DSSDocument.class);
     doReturn("timestamp-name").when(timestampDocument).getName();
     CadesTimestamp cadesTimestamp = new CadesTimestamp(timestampDocument);
@@ -270,7 +270,7 @@ public class ContainerTimestampProcessorTest {
   }
 
   @Test
-  public void addManifest_WhenTimestampReferenceHasBlankMimeType_TimestampMimeTypeIsUnchanged() {
+  void addManifest_WhenTimestampReferenceHasBlankMimeType_TimestampMimeTypeIsUnchanged() {
     DSSDocument timestampDocument = mock(DSSDocument.class);
     doReturn("timestamp-name").when(timestampDocument).getName();
     CadesTimestamp cadesTimestamp = new CadesTimestamp(timestampDocument);
@@ -291,7 +291,7 @@ public class ContainerTimestampProcessorTest {
   }
 
   @Test
-  public void addManifest_WhenTimestampReferenceHasNonBlankMimeType_TimestampMimeTypeIsUpdated() {
+  void addManifest_WhenTimestampReferenceHasNonBlankMimeType_TimestampMimeTypeIsUpdated() {
     DSSDocument timestampDocument = mock(DSSDocument.class);
     doReturn("timestamp-name").when(timestampDocument).getName();
     CadesTimestamp cadesTimestamp = new CadesTimestamp(timestampDocument);
@@ -316,7 +316,7 @@ public class ContainerTimestampProcessorTest {
   }
 
   @Test
-  public void resolveReferenceMimeTypes_WhenNoTimestampsArePresent_NoInteractionsAndReturnsFalse() {
+  void resolveReferenceMimeTypes_WhenNoTimestampsArePresent_NoInteractionsAndReturnsFalse() {
     BiConsumer<String, MimeType> referenceMimeTypeListener = createReferenceMimeTypeListenerMock();
 
     boolean result = timestampProcessor.resolveReferenceMimeTypes(referenceMimeTypeListener);
@@ -327,7 +327,7 @@ public class ContainerTimestampProcessorTest {
   }
 
   @Test
-  public void resolveReferenceMimeTypes_WhenTimestampWithoutManifestIsPresent_NoInteractionsAndReturnsFalse() {
+  void resolveReferenceMimeTypes_WhenTimestampWithoutManifestIsPresent_NoInteractionsAndReturnsFalse() {
     DSSDocument timestampDocument = mock(DSSDocument.class);
     doReturn("timestamp-name").when(timestampDocument).getName();
     timestampProcessor.addTimestamp(new CadesTimestamp(timestampDocument));
@@ -343,7 +343,7 @@ public class ContainerTimestampProcessorTest {
   }
 
   @Test
-  public void resolveReferenceMimeTypes_WhenReferencedObjectNotInProcessor_CallbackIsCalledAndReturnsTrue() {
+  void resolveReferenceMimeTypes_WhenReferencedObjectNotInProcessor_CallbackIsCalledAndReturnsTrue() {
     DSSDocument timestampDocument = mock(DSSDocument.class);
     doReturn("timestamp-name").when(timestampDocument).getName();
     timestampProcessor.addTimestamp(new CadesTimestamp(timestampDocument));
@@ -369,7 +369,7 @@ public class ContainerTimestampProcessorTest {
   }
 
   @Test
-  public void resolveReferenceMimeTypes_WhenReferencedObjectsInProcessor_MimeTypesUpdatedAndReturnsTrue() {
+  void resolveReferenceMimeTypes_WhenReferencedObjectsInProcessor_MimeTypesUpdatedAndReturnsTrue() {
     DSSDocument timestampDocument1 = mock(DSSDocument.class);
     doReturn("timestamp-1-name").when(timestampDocument1).getName();
     timestampProcessor.addTimestamp(new CadesTimestamp(timestampDocument1));
@@ -409,14 +409,14 @@ public class ContainerTimestampProcessorTest {
   }
 
   @Test
-  public void getTimestampsInSortedOrder_WhenNoTimestampsArePresent_ReturnsEmptyList() {
+  void getTimestampsInSortedOrder_WhenNoTimestampsArePresent_ReturnsEmptyList() {
     List<ContainerTimestampWrapper> result = timestampProcessor.getTimestampsInSortedOrder();
 
     assertThat(result, empty());
   }
 
   @Test
-  public void getTimestampsInSortedOrder_WhenTimestampWithoutManifestIsPresent_ReturnsSingleElementList() {
+  void getTimestampsInSortedOrder_WhenTimestampWithoutManifestIsPresent_ReturnsSingleElementList() {
     CadesTimestamp cadesTimestamp = createTimestampWithName("timestamp-name");
     timestampProcessor.addTimestamp(cadesTimestamp);
 
@@ -429,7 +429,7 @@ public class ContainerTimestampProcessorTest {
   }
 
   @Test
-  public void getTimestampsInSortedOrder_WhenTimestampWithManifestIsPresent_ReturnsSingleElementList() {
+  void getTimestampsInSortedOrder_WhenTimestampWithManifestIsPresent_ReturnsSingleElementList() {
     CadesTimestamp cadesTimestamp = createTimestampWithName("timestamp-name");
     timestampProcessor.addTimestamp(cadesTimestamp);
     AsicArchiveManifest archiveManifest = new AsicArchiveManifest(new InMemoryDocument(
@@ -449,7 +449,7 @@ public class ContainerTimestampProcessorTest {
   }
 
   @Test
-  public void getTimestampsInSortedOrder_WhenMultipleTimestampsWithManifestsPresent_ReturnsListInSortedOrder() {
+  void getTimestampsInSortedOrder_WhenMultipleTimestampsWithManifestsPresent_ReturnsListInSortedOrder() {
     CadesTimestamp firstCadesTimestamp = createTimestampWithName("first-timestamp-name");
     CadesTimestamp secondCadesTimestamp = createTimestampWithName("second-timestamp-name");
     AsicArchiveManifest secondTimestampManifest = new AsicArchiveManifest(new InMemoryDocument(

@@ -18,7 +18,7 @@ import org.digidoc4j.impl.asic.asice.AsicESignatureFinalizer;
 
 import java.util.List;
 
-public class EmptyDataFilesAsicESignatureFinalizerTest extends EmptyDataFilesSignatureFinalizerTest {
+class EmptyDataFilesAsicESignatureFinalizerTest extends EmptyDataFilesSignatureFinalizerTest {
 
     @Override
     protected SignatureFinalizer createSignatureFinalizerWithDataFiles(List<DataFile> dataFiles) {

@@ -1,3 +1,13 @@
+/* DigiDoc4J library
+ *
+ * This software is released under either the GNU Library General Public
+ * License (see LICENSE.LGPL).
+ *
+ * Note that the only valid version of the LGPL license as far as this
+ * project is concerned is the original GNU Library General Public License
+ * Version 2.1, February 1999
+ */
+
 package org.digidoc4j.utils;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -15,33 +25,33 @@ import java.security.spec.ECGenParameterSpec;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DigestUtilsTest {
+class DigestUtilsTest {
 
     @BeforeAll
-    public static void setUpStatic() {
+    static void setUpStatic() {
         Security.addProvider(new BouncyCastleProvider());
     }
 
     @Test
-    public void ecKeySize224_returnsSha512() throws GeneralSecurityException {
+    void ecKeySize224_returnsSha512() throws GeneralSecurityException {
         KeyPair keyPair = generateEcKeyPair("secp224r1");
         assertEquals(DigestAlgorithm.SHA512, DigestUtils.getRecommendedSignatureDigestAlgorithm((ECPublicKey) keyPair.getPublic()));
     }
 
     @Test
-    public void ecKeySize256_returnsSha256() throws GeneralSecurityException {
+    void ecKeySize256_returnsSha256() throws GeneralSecurityException {
         KeyPair keyPair = generateEcKeyPair("secp256r1");
         assertEquals(DigestAlgorithm.SHA256, DigestUtils.getRecommendedSignatureDigestAlgorithm((ECPublicKey) keyPair.getPublic()));
     }
 
     @Test
-    public void ecKeySize384_returnsSha384() throws GeneralSecurityException {
+    void ecKeySize384_returnsSha384() throws GeneralSecurityException {
         KeyPair keyPair = generateEcKeyPair("secp384r1");
         assertEquals(DigestAlgorithm.SHA384, DigestUtils.getRecommendedSignatureDigestAlgorithm((ECPublicKey) keyPair.getPublic()));
     }
 
     @Test
-    public void ecKeySize521_returnsSha512() throws GeneralSecurityException {
+    void ecKeySize521_returnsSha512() throws GeneralSecurityException {
         KeyPair keyPair = generateEcKeyPair("secp521r1");
         assertEquals(DigestAlgorithm.SHA512, DigestUtils.getRecommendedSignatureDigestAlgorithm((ECPublicKey) keyPair.getPublic()));
     }

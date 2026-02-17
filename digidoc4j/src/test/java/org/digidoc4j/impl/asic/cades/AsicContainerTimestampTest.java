@@ -37,7 +37,7 @@ public abstract class AsicContainerTimestampTest<T extends AsicContainerTimestam
   protected abstract T createDefaultAsicContainerTimestampWith(CadesTimestamp cadesTimestamp, AsicArchiveManifest archiveManifest);
 
   @Test
-  public void createInstance_WhenCadesTimestampIsNull_ThrowsNullPointerException() {
+  void createInstance_WhenCadesTimestampIsNull_ThrowsNullPointerException() {
     assertThrows(
             NullPointerException.class,
             () -> createDefaultAsicContainerTimestampWith(null)
@@ -45,7 +45,7 @@ public abstract class AsicContainerTimestampTest<T extends AsicContainerTimestam
   }
 
   @Test
-  public void getCadesTimestamp_WhenCadesTimestampHasBeenProvidedOnCreation_ReturnsSameInstance() {
+  void getCadesTimestamp_WhenCadesTimestampHasBeenProvidedOnCreation_ReturnsSameInstance() {
     CadesTimestamp cadesTimestamp = mock(CadesTimestamp.class);
     T asicContainerTimestamp = createDefaultAsicContainerTimestampWith(cadesTimestamp);
 
@@ -56,7 +56,7 @@ public abstract class AsicContainerTimestampTest<T extends AsicContainerTimestam
   }
 
   @Test
-  public void getArchiveManifest_WhenManifestHasNotBeenProvidedOnCreation_ReturnsNull() {
+  void getArchiveManifest_WhenManifestHasNotBeenProvidedOnCreation_ReturnsNull() {
     CadesTimestamp cadesTimestamp = mock(CadesTimestamp.class);
     T asicContainerTimestamp = createDefaultAsicContainerTimestampWith(cadesTimestamp);
 
@@ -67,7 +67,7 @@ public abstract class AsicContainerTimestampTest<T extends AsicContainerTimestam
   }
 
   @Test
-  public void getArchiveManifest_WhenManifestHasBeenSetToNullOnCreation_ReturnsNull() {
+  void getArchiveManifest_WhenManifestHasBeenSetToNullOnCreation_ReturnsNull() {
     CadesTimestamp cadesTimestamp = mock(CadesTimestamp.class);
     T asicContainerTimestamp = createDefaultAsicContainerTimestampWith(cadesTimestamp, null);
 
@@ -78,7 +78,7 @@ public abstract class AsicContainerTimestampTest<T extends AsicContainerTimestam
   }
 
   @Test
-  public void getArchiveManifest_WhenManifestHasBeenProvidedOnCreation_ReturnsSameInstance() {
+  void getArchiveManifest_WhenManifestHasBeenProvidedOnCreation_ReturnsSameInstance() {
     CadesTimestamp cadesTimestamp = mock(CadesTimestamp.class);
     AsicArchiveManifest asicArchiveManifest = mock(AsicArchiveManifest.class);
     T asicContainerTimestamp = createDefaultAsicContainerTimestampWith(cadesTimestamp, asicArchiveManifest);
@@ -90,7 +90,7 @@ public abstract class AsicContainerTimestampTest<T extends AsicContainerTimestam
   }
 
   @Test
-  public void getCertificate_WhenCadesTimestampWrappedIntoAsicContainerTimestamp_RequestIsDelegatedToWrappedCadesTimestamp() {
+  void getCertificate_WhenCadesTimestampWrappedIntoAsicContainerTimestamp_RequestIsDelegatedToWrappedCadesTimestamp() {
     CadesTimestamp cadesTimestamp = mock(CadesTimestamp.class);
     X509Cert x509Cert = mock(X509Cert.class);
     doReturn(x509Cert).when(cadesTimestamp).getCertificate();
@@ -105,7 +105,7 @@ public abstract class AsicContainerTimestampTest<T extends AsicContainerTimestam
   }
 
   @Test
-  public void getCreationTime_WhenCadesTimestampWrappedIntoAsicContainerTimestamp_RequestIsDelegatedToWrappedCadesTimestamp() {
+  void getCreationTime_WhenCadesTimestampWrappedIntoAsicContainerTimestamp_RequestIsDelegatedToWrappedCadesTimestamp() {
     CadesTimestamp cadesTimestamp = mock(CadesTimestamp.class);
     Date creationTime = mock(Date.class);
     doReturn(creationTime).when(cadesTimestamp).getCreationTime();
@@ -120,7 +120,7 @@ public abstract class AsicContainerTimestampTest<T extends AsicContainerTimestam
   }
 
   @Test
-  public void getTimeStampToken_WhenCadesTimestampWrappedIntoAsicContainerTimestamp_RequestIsDelegatedToWrappedCadesTimestamp() {
+  void getTimeStampToken_WhenCadesTimestampWrappedIntoAsicContainerTimestamp_RequestIsDelegatedToWrappedCadesTimestamp() {
     CadesTimestamp cadesTimestamp = mock(CadesTimestamp.class);
     TimeStampToken timeStampToken = mock(TimeStampToken.class);
     doReturn(timeStampToken).when(cadesTimestamp).getTimeStampToken();
@@ -135,27 +135,27 @@ public abstract class AsicContainerTimestampTest<T extends AsicContainerTimestam
   }
 
   @Test
-  public void getDigestAlgorithm_WhenDigestAlgorithmIsSha1_ReturnsDigestAlgorithm() {
+  void getDigestAlgorithm_WhenDigestAlgorithmIsSha1_ReturnsDigestAlgorithm() {
     getDigestAlgorithm_WhenDigestAlgorithmIsSupported_ReturnsDigestAlgorithm(DigestAlgorithm.SHA1);
   }
 
   @Test
-  public void getDigestAlgorithm_WhenDigestAlgorithmIsSha224_ReturnsDigestAlgorithm() {
+  void getDigestAlgorithm_WhenDigestAlgorithmIsSha224_ReturnsDigestAlgorithm() {
     getDigestAlgorithm_WhenDigestAlgorithmIsSupported_ReturnsDigestAlgorithm(DigestAlgorithm.SHA224);
   }
 
   @Test
-  public void getDigestAlgorithm_WhenDigestAlgorithmIsSha256_ReturnsDigestAlgorithm() {
+  void getDigestAlgorithm_WhenDigestAlgorithmIsSha256_ReturnsDigestAlgorithm() {
     getDigestAlgorithm_WhenDigestAlgorithmIsSupported_ReturnsDigestAlgorithm(DigestAlgorithm.SHA256);
   }
 
   @Test
-  public void getDigestAlgorithm_WhenDigestAlgorithmIsSha384_ReturnsDigestAlgorithm() {
+  void getDigestAlgorithm_WhenDigestAlgorithmIsSha384_ReturnsDigestAlgorithm() {
     getDigestAlgorithm_WhenDigestAlgorithmIsSupported_ReturnsDigestAlgorithm(DigestAlgorithm.SHA384);
   }
 
   @Test
-  public void getDigestAlgorithm_WhenDigestAlgorithmIsSha512_ReturnsDigestAlgorithm() {
+  void getDigestAlgorithm_WhenDigestAlgorithmIsSha512_ReturnsDigestAlgorithm() {
     getDigestAlgorithm_WhenDigestAlgorithmIsSupported_ReturnsDigestAlgorithm(DigestAlgorithm.SHA512);
   }
 
@@ -180,43 +180,43 @@ public abstract class AsicContainerTimestampTest<T extends AsicContainerTimestam
   }
 
   @Test
-  public void getDigestAlgorithm_WhenDigestAlgorithmIsMd2_ThrowsIllegalStateException() {
+  void getDigestAlgorithm_WhenDigestAlgorithmIsMd2_ThrowsIllegalStateException() {
     getDigestAlgorithm_WhenDigestAlgorithmIsNotSupported_ThrowsIllegalStateException(
             eu.europa.esig.dss.enumerations.DigestAlgorithm.MD2);
   }
 
   @Test
-  public void getDigestAlgorithm_WhenDigestAlgorithmIsMd5_ThrowsIllegalStateException() {
+  void getDigestAlgorithm_WhenDigestAlgorithmIsMd5_ThrowsIllegalStateException() {
     getDigestAlgorithm_WhenDigestAlgorithmIsNotSupported_ThrowsIllegalStateException(
             eu.europa.esig.dss.enumerations.DigestAlgorithm.MD5);
   }
 
   @Test
-  public void getDigestAlgorithm_WhenDigestAlgorithmIsRipeMd160_ThrowsIllegalStateException() {
+  void getDigestAlgorithm_WhenDigestAlgorithmIsRipeMd160_ThrowsIllegalStateException() {
     getDigestAlgorithm_WhenDigestAlgorithmIsNotSupported_ThrowsIllegalStateException(
             eu.europa.esig.dss.enumerations.DigestAlgorithm.RIPEMD160);
   }
 
   @Test
-  public void getDigestAlgorithm_WhenDigestAlgorithmIsShake128_ThrowsIllegalStateException() {
+  void getDigestAlgorithm_WhenDigestAlgorithmIsShake128_ThrowsIllegalStateException() {
     getDigestAlgorithm_WhenDigestAlgorithmIsNotSupported_ThrowsIllegalStateException(
             eu.europa.esig.dss.enumerations.DigestAlgorithm.SHAKE128);
   }
 
   @Test
-  public void getDigestAlgorithm_WhenDigestAlgorithmIsShake256_ThrowsIllegalStateException() {
+  void getDigestAlgorithm_WhenDigestAlgorithmIsShake256_ThrowsIllegalStateException() {
     getDigestAlgorithm_WhenDigestAlgorithmIsNotSupported_ThrowsIllegalStateException(
             eu.europa.esig.dss.enumerations.DigestAlgorithm.SHAKE256);
   }
 
   @Test
-  public void getDigestAlgorithm_WhenDigestAlgorithmIsShake256_512_ThrowsIllegalStateException() {
+  void getDigestAlgorithm_WhenDigestAlgorithmIsShake256_512_ThrowsIllegalStateException() {
     getDigestAlgorithm_WhenDigestAlgorithmIsNotSupported_ThrowsIllegalStateException(
             eu.europa.esig.dss.enumerations.DigestAlgorithm.SHAKE256_512);
   }
 
   @Test
-  public void getDigestAlgorithm_WhenDigestAlgorithmIsWhirlpool_ThrowsIllegalStateException() {
+  void getDigestAlgorithm_WhenDigestAlgorithmIsWhirlpool_ThrowsIllegalStateException() {
     getDigestAlgorithm_WhenDigestAlgorithmIsNotSupported_ThrowsIllegalStateException(
             eu.europa.esig.dss.enumerations.DigestAlgorithm.WHIRLPOOL);
   }
@@ -249,7 +249,7 @@ public abstract class AsicContainerTimestampTest<T extends AsicContainerTimestam
   }
 
   @Test
-  public void getUniqueId_WhenExistingTimestampTokenIsLoaded_ReturnsExpectedIdString() {
+  void getUniqueId_WhenExistingTimestampTokenIsLoaded_ReturnsExpectedIdString() {
     CadesTimestamp cadesTimestamp = new CadesTimestamp(new FileDocument("src/test/resources/testFiles/tst/timestamp.tst"));
     T asicContainerTimestamp = createDefaultAsicContainerTimestampWith(cadesTimestamp);
 

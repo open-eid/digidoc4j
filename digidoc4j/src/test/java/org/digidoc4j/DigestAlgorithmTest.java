@@ -23,10 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class DigestAlgorithmTest {
+class DigestAlgorithmTest {
 
   @Test
-  public void testGetDigestAlgorithmUriFromDssDigestAlgorithmSucceeds() {
+  void testGetDigestAlgorithmUriFromDssDigestAlgorithmSucceeds() {
     Stream.of(eu.europa.esig.dss.enumerations.DigestAlgorithm.values())
             .filter(dssDigestAlgorithm -> Objects.nonNull(dssDigestAlgorithm.getUri()))
             .forEach(dssDigestAlgorithm -> {
@@ -38,7 +38,7 @@ public class DigestAlgorithmTest {
   }
 
   @Test
-  public void testGetDigestAlgorithmUriFromDssDigestAlgorithmFailsWhenNoUriSpecified() {
+  void testGetDigestAlgorithmUriFromDssDigestAlgorithmFailsWhenNoUriSpecified() {
     Stream.of(eu.europa.esig.dss.enumerations.DigestAlgorithm.values())
             .filter(dssDigestAlgorithm -> Objects.isNull(dssDigestAlgorithm.getUri()))
             .forEach(dssDigestAlgorithm -> {
@@ -55,7 +55,7 @@ public class DigestAlgorithmTest {
   }
 
   @Test
-  public void findByOid_WhenOidStringMatchesExistingAlgorithm_ReturnsExpectedDigestAlgorithm() {
+  void findByOid_WhenOidStringMatchesExistingAlgorithm_ReturnsExpectedDigestAlgorithm() {
     Stream.of(DigestAlgorithm.values())
             .forEach(digestAlgorithm -> {
               String oid = digestAlgorithm.getDssDigestAlgorithm().getOid();
@@ -67,7 +67,7 @@ public class DigestAlgorithmTest {
   }
 
     @Test
-    public void findByOid_WhenOidStringDoesNotMatchAlgorithm_ReturnsNull() {
+    void findByOid_WhenOidStringDoesNotMatchAlgorithm_ReturnsNull() {
       DigestAlgorithm result = DigestAlgorithm.findByOid("Non.Existent.OID");
 
       assertNull(result);

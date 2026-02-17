@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class SkTimestampDataLoaderTest extends AbstractTest {
+class SkTimestampDataLoaderTest extends AbstractTest {
 
   private static final String MOCK_PROXY_URL = "http://localhost:";
 
@@ -50,19 +50,19 @@ public class SkTimestampDataLoaderTest extends AbstractTest {
                   .build();
 
   @Test
-  public void getServiceType() {
+  void getServiceType() {
     SkTimestampDataLoader dataLoader = new SkTimestampDataLoader(Configuration.of(TEST));
     assertSame(ServiceType.TSP, dataLoader.getServiceType());
   }
 
   @Test
-  public void getContentType() {
+  void getContentType() {
     SkTimestampDataLoader dataLoader = new SkTimestampDataLoader(Configuration.of(TEST));
     assertEquals(SkTimestampDataLoader.TIMESTAMP_QUERY_CONTENT_TYPE, dataLoader.getContentType());
   }
 
   @Test
-  public void successfulResponseFromTSPService() {
+  void successfulResponseFromTSPService() {
     wireMockServer.stubFor(post("/").withHeader("User-Agent", equalTo(USER_AGENT_STRING))
             .willReturn(WireMock.aResponse().withStatus(200).withBody(new byte[] {0, 1, 2, 3})));
     ServiceAccessListener listener = Mockito.mock(ServiceAccessListener.class);
@@ -83,7 +83,7 @@ public class SkTimestampDataLoaderTest extends AbstractTest {
   }
 
   @Test
-  public void accessDeniedToTSPService() {
+  void accessDeniedToTSPService() {
     wireMockServer.stubFor(post("/").withHeader("User-Agent", equalTo(USER_AGENT_STRING))
             .willReturn(WireMock.aResponse().withStatus(403)));
     ServiceAccessListener listener = Mockito.mock(ServiceAccessListener.class);
@@ -107,7 +107,7 @@ public class SkTimestampDataLoaderTest extends AbstractTest {
   }
 
   @Test
-  public void connectionToTSPServiceTimedOut() {
+  void connectionToTSPServiceTimedOut() {
     wireMockServer.stubFor(post("/").withHeader("User-Agent", equalTo(USER_AGENT_STRING))
             .willReturn(WireMock.aResponse().withFixedDelay(200)));
     ServiceAccessListener listener = Mockito.mock(ServiceAccessListener.class);
@@ -132,7 +132,7 @@ public class SkTimestampDataLoaderTest extends AbstractTest {
   }
 
   @Test
-  public void getTimestampViaSpy() throws Exception {
+  void getTimestampViaSpy() throws Exception {
     Configuration configuration = Configuration.of(TEST);
     wireMockServer.stubFor(post("/").willReturn(WireMock.aResponse().proxiedFrom(configuration.getTspSource())));
     byte[] tsRequest = new byte[]{48, 57, 2, 1, 1, 48, 49, 48, 13, 6, 9, 96, -122, 72, 1, 101, 3, 4, 2, 1, 5, 0, 4, 32, 2, 91, 64, 111, 35, -23, -19, -46, 57, -80, -63, -80, -74, 100, 72, 97, -47, -17, -35, -62, 102, 52, 116, 73, -10, -120, 115, 62, 2, 87, -29, -21, 1, 1, -1};
