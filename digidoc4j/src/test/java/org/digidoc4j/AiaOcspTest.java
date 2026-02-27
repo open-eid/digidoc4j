@@ -17,6 +17,9 @@ import org.junit.Test;
 import java.io.File;
 
 import static org.digidoc4j.test.TestAssert.assertContainerIsValid;
+import static org.digidoc4j.test.TestConstants.DEMO_SK_ESTEID2015_OCSP_CN;
+import static org.digidoc4j.test.TestConstants.DEMO_SK_ESTEID2018_OCSP_CN;
+import static org.digidoc4j.test.TestConstants.TEST_ESTEID2018_OCSP_CN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.matchesRegex;
 import static org.junit.Assert.assertEquals;
@@ -39,7 +42,7 @@ public class AiaOcspTest extends AbstractTest {
         assertContainerIsValid(container);
         assertThat(
                 container.getSignatures().get(0).getOCSPCertificate().getSubjectName(X509Cert.SubjectName.CN),
-                matchesRegex("TEST of ESTEID2018 OCSP RESPONDER 202[3-9][0-1][0-9]")
+                matchesRegex(TEST_ESTEID2018_OCSP_CN)
         );
     }
 
@@ -54,7 +57,7 @@ public class AiaOcspTest extends AbstractTest {
                 .build();
         this.createSignatureBy(container, pkcs12SignatureToken);
         assertTrue(container.validate().isValid());
-        assertEquals("C=EE, O=SK ID Solutions AS, OU=OCSP, CN=DEMO of ESTEID-SK 2015 AIA OCSP RESPONDER 2018", container.getSignatures().get(0).getOCSPCertificate().getSubjectName());
+        assertEquals(DEMO_SK_ESTEID2015_OCSP_CN, container.getSignatures().get(0).getOCSPCertificate().getSubjectName(X509Cert.SubjectName.CN));
     }
 
     @Test
@@ -68,7 +71,7 @@ public class AiaOcspTest extends AbstractTest {
                 .build();
         this.createSignatureBy(container, pkcs12EccSignatureToken);
         assertTrue(container.validate().isValid());
-        assertEquals("C=EE, O=SK ID Solutions AS, OU=OCSP, CN=DEMO of ESTEID-SK 2015 AIA OCSP RESPONDER 2018", container.getSignatures().get(0).getOCSPCertificate().getSubjectName());
+        assertEquals(DEMO_SK_ESTEID2015_OCSP_CN, container.getSignatures().get(0).getOCSPCertificate().getSubjectName(X509Cert.SubjectName.CN));
     }
 
     @Test
@@ -84,7 +87,7 @@ public class AiaOcspTest extends AbstractTest {
         ContainerValidationResult validationResult = container.validate();
         TestAssert.assertContainerIsValid(validationResult);
         assertHasNoWarnings(validationResult);
-        assertEquals("C=EE, O=SK ID Solutions AS, OU=OCSP, CN=DEMO of ESTEID-SK 2018 AIA OCSP RESPONDER 2018", container.getSignatures().get(0).getOCSPCertificate().getSubjectName());
+        assertEquals(DEMO_SK_ESTEID2018_OCSP_CN, container.getSignatures().get(0).getOCSPCertificate().getSubjectName(X509Cert.SubjectName.CN));
     }
 
     @Test
@@ -101,7 +104,7 @@ public class AiaOcspTest extends AbstractTest {
                 .build();
         this.createSignatureBy(container, pkcs12SignatureToken);
         assertTrue(container.validate().isValid());
-        assertEquals("C=EE, O=SK ID Solutions AS, OU=OCSP, CN=DEMO of ESTEID-SK 2015 AIA OCSP RESPONDER 2018", container.getSignatures().get(0).getOCSPCertificate().getSubjectName());
+        assertEquals(DEMO_SK_ESTEID2015_OCSP_CN, container.getSignatures().get(0).getOCSPCertificate().getSubjectName(X509Cert.SubjectName.CN));
     }
 
     @Test

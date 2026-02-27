@@ -809,7 +809,7 @@ public class DigiDoc4JTest extends AbstractTest {
 
   @Test
   public void createAndValidateDetachedXades() {
-    String xadesSignaturePath = "singatures0.xml";
+    String xadesSignaturePath = "signatures0.xml";
 
     String[] parameters = new String[]{"-xades",
         "-digFile", "test.txt", "n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg", "text/plain",

@@ -97,7 +97,10 @@ public class DetachedXadesSignatureExecutor {
   private Signature openSignature() {
     try {
       String[] values = context.getCommandLine().getOptionValues(ExecutionOption.XADES_INPUT_PATH.getName());
-      byte[] xadesSignature = IOUtils.toByteArray(new FileInputStream(values[0]));
+      byte[] xadesSignature;
+      try (FileInputStream inputStream = new FileInputStream(values[0])) {
+        xadesSignature = IOUtils.toByteArray(inputStream);
+      }
       DetachedXadesSignatureBuilder signatureBuilder = DetachedXadesSignatureBuilder
           .withConfiguration(new Configuration());
       for (DigestDataFile digestDataFile : context.getDigestDataFiles()) {

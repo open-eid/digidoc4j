@@ -55,6 +55,18 @@ public final class TestConstants {
   public static final String DEMO_TSA_RSA_CN = DEMO_SK_TSA_2025R_CN;
   public static final String DEMO_TSA_CN = DEMO_TSA_ECC_CN;
 
+  // CN of specific OCSP responders
+  public static final String DEMO_SK_ESTEID2015_OCSP_2018_CN = "DEMO of ESTEID-SK 2015 AIA OCSP RESPONDER 2018";
+  public static final String DEMO_SK_ESTEID2015_OCSP_2026_CN = "DEMO of ESTEID-SK 2015 OCSP RESPONDER 2026";
+  public static final String DEMO_SK_ESTEID2018_OCSP_2018_CN = "DEMO of ESTEID-SK 2018 AIA OCSP RESPONDER 2018";
+  public static final String DEMO_SK_ESTEID2018_OCSP_2026_CN = "DEMO of ESTEID2018 OCSP RESPONDER 2026";
+  public static final String TEST_ESTEID2018_OCSP_2026_03_CN = "TEST of ESTEID2018 OCSP RESPONDER 202603";
+
+  // CN of currently active OCSP responders
+  public static final String DEMO_SK_ESTEID2015_OCSP_CN = DEMO_SK_ESTEID2015_OCSP_2026_CN;
+  public static final String DEMO_SK_ESTEID2018_OCSP_CN = DEMO_SK_ESTEID2018_OCSP_2026_CN;
+  public static final String TEST_ESTEID2018_OCSP_CN = TEST_ESTEID2018_OCSP_2026_03_CN;
+
   private TestConstants() {
   }
 
