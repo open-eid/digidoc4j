@@ -199,13 +199,12 @@ class DataFileTest extends AbstractTest {
   }
 
   @Test
-  void testGetBytes() throws Exception {
+  void testGetBytes() {
     DataFile dataFile = new DataFile(new byte[]{0x041}, "suura.txt", "text/plain");
     assertArrayEquals(new byte[]{0x041}, dataFile.getBytes());
   }
 
   @Test
-  @Disabled("DD4J-1377")
   void createDocumentFromStream() throws Exception {
     String file = getFileBy("txt");
     try (ByteArrayInputStream stream = new ByteArrayInputStream("tere tere tipajalga".getBytes())) {

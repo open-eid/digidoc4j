@@ -19,22 +19,18 @@ import org.digidoc4j.DigestDataFile;
 import org.digidoc4j.ddoc.DigiDocException;
 import org.digidoc4j.ddoc.SignedDoc;
 import org.digidoc4j.ddoc.utils.ConfigManager;
-import org.digidoc4j.exceptions.ConfigurationException;
 import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.test.MockConfigManagerInitializer;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 
@@ -47,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class DDocFacadeTest extends AbstractTest {
 
   @Test
-  void testSaveThrowsException() throws Exception {
+  void testSaveThrowsException() {
     DDocFacade facade = openDDocFacade("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     assertThrows(
             DigiDoc4JException.class,
@@ -154,7 +150,7 @@ class DDocFacadeTest extends AbstractTest {
 
   @Test
   void openFromStreamThrowsException() throws IOException {
-    FileInputStream stream = new FileInputStream(new File("src/test/resources/testFiles/helper-files/test.txt"));
+    FileInputStream stream = new FileInputStream("src/test/resources/testFiles/helper-files/test.txt");
     stream.close();
     assertThrows(
             DigiDoc4JException.class,
@@ -165,7 +161,7 @@ class DDocFacadeTest extends AbstractTest {
   @Test
   void ddocStreamOpener() throws IOException {
     try (FileInputStream stream = new FileInputStream(
-            new File("src/test/resources/testFiles/valid-containers/ddoc_wo_x509IssueName_xmlns.ddoc"))) {
+            "src/test/resources/testFiles/valid-containers/ddoc_wo_x509IssueName_xmlns.ddoc")) {
       DDocContainer container = new DDocOpener().open(stream);
       assertTrue(container.validate().isValid());
     }
@@ -219,19 +215,6 @@ class DDocFacadeTest extends AbstractTest {
     openDDocFacade("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     assertTrue(ConfigManagerInitializer.isConfigManagerInitialized());
     assertEquals(1, MockConfigManagerInitializer.configManagerCallCount);
-  }
-
-  @Test
-  @Disabled("DD4J-1377")
-  void openingDDoc_withoutCAConfiguration_shouldThrowException() {
-    configuration = new Configuration(Configuration.Mode.TEST);
-    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_no_ca.yaml");
-    ConfigManagerInitializer.forceInitConfigManager(configuration);
-
-    assertThrows(
-            ConfigurationException.class,
-            () -> openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc"))
-    );
   }
 
   @Test

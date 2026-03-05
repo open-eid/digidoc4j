@@ -19,6 +19,7 @@ import org.digidoc4j.exceptions.DigiDoc4JException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.OCSPRequestFailedException;
 import org.digidoc4j.exceptions.RemovingDataFileException;
+import org.digidoc4j.exceptions.SignatureNotFoundException;
 import org.digidoc4j.impl.CommonOCSPSource;
 import org.digidoc4j.impl.OcspDataLoaderFactory;
 import org.digidoc4j.impl.SKOnlineOCSPSource;
@@ -429,9 +430,8 @@ class ContainerTest extends AbstractTest {
   }
 
   @Test
-  @Disabled("DD4J-1377")
-  void testAddFileFromStreamToDDoc() throws IOException {
-    Container container = createEmptyContainerBy(Container.DocumentType.DDOC);
+  void addDataFile_WhenUsingDdoc_ThrowsNotSupportedException() throws IOException {
+    Container container = openContainerBy(Paths.get("src/test/resources/testFiles/valid-containers/ddoc-valid.ddoc"));
     try (ByteArrayInputStream is = new ByteArrayInputStream(new byte[]{0x42})) {
       assertThrows(
               NotSupportedException.class,
@@ -500,17 +500,26 @@ class ContainerTest extends AbstractTest {
   }
 
   @Test
-  @Disabled("DD4J-1377")
-  void testRemovingNotExistingSignatureThrowsException() {
-      Container container = createEmptyContainerBy(Container.DocumentType.DDOC);
+  void removeSignature_WhenSignatureDoesNotExist_ThrowsSignatureNotFoundException() {
+      Container container = openContainerBy(Paths.get("src/test/resources/testFiles/valid-containers/valid-asice.asice"));
       Signature signature = SignatureBuilder
-              .aSignature(container).withSignatureProfile(SignatureProfile.LT_TM).
+              .aSignature(container).withSignatureProfile(SignatureProfile.LT).
               withSignatureToken(pkcs12SignatureToken)
               .invokeSigning();
 
       assertThrows(
-              DigiDoc4JException.class,
+              SignatureNotFoundException.class,
               () -> container.removeSignature(signature));
+  }
+
+  @Test
+  void removeSignature_WhenUsingDdoc_ThrowsNotSupportedException() {
+    Container container = openContainerBy(Paths.get("src/test/resources/testFiles/valid-containers/ddoc-valid.ddoc"));
+    Signature signature = container.getSignatures().get(0);
+
+    assertThrows(
+            NotSupportedException.class,
+            () -> container.removeSignature(signature));
   }
 
   @Test

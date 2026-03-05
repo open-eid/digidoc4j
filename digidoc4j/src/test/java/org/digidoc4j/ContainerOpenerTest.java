@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -210,12 +209,11 @@ class ContainerOpenerTest extends AbstractTest {
   }
 
   @Test
-  @Disabled("DD4J-1377") //throws technical exception
   void containerOpener_streamWithZipBomb_fileCachedInMemory() {
     configuration.setMaxFileSizeCachedInMemoryInMB(1);
 
-    FileNotFoundException exception = assertThrows(
-            FileNotFoundException.class,
+    TechnicalException exception = assertThrows(
+            TechnicalException.class,
             () -> ContainerOpener.open(new FileInputStream("src/test/resources/testFiles/invalid-containers/zip-bomb-package-zip-1gb.bdoc"), configuration)
     );
 

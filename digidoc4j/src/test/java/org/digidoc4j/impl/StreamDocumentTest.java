@@ -197,8 +197,7 @@ class StreamDocumentTest extends AbstractTest {
   }
 
   @Test
-  @Disabled("DD4J-1377")
-   void constructorThrowsException() throws Exception {
+  void constructorThrowsException() {
     InputStream stream = new InputStream() {
 
       @Override
@@ -207,11 +206,10 @@ class StreamDocumentTest extends AbstractTest {
       }
 
     };
-    document = new StreamDocument(stream, "suur_a.txt", MimeTypeEnum.TEXT);
-    stream.close();
+
     assertThrows(
-            FileNotFoundException.class,
-            () -> document.openStream()
+            DSSException.class,
+            () -> new StreamDocument(stream, "suur_a.txt", MimeTypeEnum.TEXT)
     );
   }
 

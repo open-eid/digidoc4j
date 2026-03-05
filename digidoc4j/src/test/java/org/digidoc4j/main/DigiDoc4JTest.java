@@ -32,12 +32,13 @@ import org.digidoc4j.test.util.TestCommonUtil;
 import org.digidoc4j.test.util.TestSigningUtil;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 
 import static org.digidoc4j.main.DigiDoc4J.isWarning;
 import static org.digidoc4j.main.TestDigiDoc4JUtil.invokeDigiDoc4jAndReturnExitStatus;
@@ -1030,16 +1031,20 @@ class DigiDoc4JTest extends AbstractTest {
     assertThat(result.getStdOut(), containsString("Unknown signature profile ABRAKADABRA"));
   }
 
-  @Test
-  @Disabled("DD4J-1377") //ddoc, pdf not working
-  void extendSignatureProfile_NonAsice_Failure() {
-    for (String extension : Arrays.asList("bdoc", "asics", "ddoc", "pdf")) {
-      String fileName = getFileBy(extension);
-      InvocationResult result = invokeDigiDoc4jAndReturnInvocationResult("-in", fileName, "-profile", "LTA");
+  @ParameterizedTest
+  @CsvSource({
+          "asics, Extension of signature(s) is applicable for ASiC-E containers only",
+          "bdoc, Extension of signature(s) is applicable for ASiC-E containers only",
+          "ddoc, Not supported: Creating new container is not supported anymore for DDoc!",
+          "pdf, Not implemented yet"
+  })
+  void extendSignatureProfile_WhenUsingNonAsiceExtension_ContainsSpecificExceptionMessage(String extension, String exceptionMessage) {
+    String fileName = getFileBy(extension);
 
-      assertThat(result.getExitStatus(), is(1));
-      assertThat(result.getStdOut(), containsString("Extension of signature(s) is applicable for ASiC-E containers only"));
-    }
+    InvocationResult result = invokeDigiDoc4jAndReturnInvocationResult("-in", fileName, "-profile", "LTA");
+
+    assertThat(result.getExitStatus(), is(1));
+    assertThat(result.getStdOut(), containsString(exceptionMessage));
   }
 
   private String createContainerWithUtilAndGetFileName(String signatureProfile) {

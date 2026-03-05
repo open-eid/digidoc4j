@@ -300,8 +300,8 @@ public class DataFile implements Serializable {
    * @return data as bytes
    */
   public byte[] getBytes() {
-    try {
-      return IOUtils.toByteArray(document.openStream());
+    try (InputStream inputStream = document.openStream()) {
+      return IOUtils.toByteArray(inputStream);
     } catch (IOException e) {
       throw new TechnicalException("Error reading document bytes: " + e.getMessage(), e);
     }
