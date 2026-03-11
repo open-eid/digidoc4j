@@ -61,9 +61,11 @@ public class ContainerBuilderTest extends AbstractTest {
     assertTrue(container.getSignatures().isEmpty());
   }
 
-  @Test(expected = NotSupportedException.class)
-  public void buildEmptyDDocContainer() throws Exception {
-    ContainerBuilder.aContainer(DDOC).build();
+  @Test
+  public void buildEmptyDDocContainer() {
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer(DDOC);
+
+    assertThrows(NotSupportedException.class, containerBuilder::build);
   }
 
   @Test
@@ -139,9 +141,14 @@ public class ContainerBuilderTest extends AbstractTest {
     assertEquals("Cannot add second file in case of ASiCS container", caughtException.getMessage());
   }
 
-  @Test(expected = InvalidDataFileException.class)
-  public void buildContainer_withNullFilePath_shouldThrowException() throws Exception {
-    ContainerBuilder.aContainer().withDataFile((String) null, "text/plain").build();
+  @Test
+  public void buildContainer_withNullFilePath_shouldThrowException() {
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer();
+
+    assertThrows(
+            InvalidDataFileException.class,
+            () -> containerBuilder.withDataFile((String) null, "text/plain")
+    );
   }
 
   @Test
@@ -169,15 +176,24 @@ public class ContainerBuilderTest extends AbstractTest {
     assertEquals(expectedMessage, exception.getMessage());
   }
 
-  @Test(expected = InvalidDataFileException.class)
-  public void buildContainer_withStreamDocAndNullFileName_shouldThrowException() throws Exception {
-    ContainerBuilder.aContainer().withDataFile(new ByteArrayInputStream(new byte[]{1, 2, 3}), null, "text/plain").
-        build();
+  @Test
+  public void buildContainer_withStreamDocAndNullFileName_shouldThrowException() {
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer();
+
+    assertThrows(
+            InvalidDataFileException.class,
+            () -> containerBuilder.withDataFile(new ByteArrayInputStream(new byte[]{1, 2, 3}), null, "text/plain")
+    );
   }
 
-  @Test(expected = InvalidDataFileException.class)
-  public void buildContainer_withNullMimeType_shouldThrowException() throws Exception {
-    ContainerBuilder.aContainer().withDataFile("testFile.txt", null).build();
+  @Test
+  public void buildContainer_withNullMimeType_shouldThrowException() {
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer();
+
+    assertThrows(
+            InvalidDataFileException.class,
+            () -> containerBuilder.withDataFile("testFile.txt", null)
+    );
   }
 
   @Test
@@ -721,18 +737,22 @@ public class ContainerBuilderTest extends AbstractTest {
 
   @Test
   public void containerBuilder_streamWithZipBomb() throws FileNotFoundException {
-    this.expectedException.expect(TechnicalException.class);
-    this.expectedException.expectMessage("Zip Bomb detected in the ZIP container. Validation is interrupted.");
-    ContainerBuilder.aContainer().
-        fromStream(new FileInputStream("src/test/resources/testFiles/invalid-containers/zip-bomb-package-zip-1gb.bdoc")).build();
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer()
+            .fromStream(new FileInputStream("src/test/resources/testFiles/invalid-containers/zip-bomb-package-zip-1gb.bdoc"));
+
+    TechnicalException exception = assertThrows(TechnicalException.class, containerBuilder::build);
+
+    assertThat(exception.getMessage(), equalTo("Zip Bomb detected in the ZIP container. Validation is interrupted."));
   }
 
   @Test
   public void containerBuilder_fileWithZipBomb() {
-    this.expectedException.expect(TechnicalException.class);
-    this.expectedException.expectMessage("Zip Bomb detected in the ZIP container. Validation is interrupted.");
-    ContainerBuilder.aContainer().
-        fromExistingFile("src/test/resources/testFiles/invalid-containers/zip-bomb-package-zip-1gb.bdoc").build();
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer()
+            .fromExistingFile("src/test/resources/testFiles/invalid-containers/zip-bomb-package-zip-1gb.bdoc");
+
+    TechnicalException exception = assertThrows(TechnicalException.class, containerBuilder::build);
+
+    assertThat(exception.getMessage(), equalTo("Zip Bomb detected in the ZIP container. Validation is interrupted."));
   }
 
   @Test

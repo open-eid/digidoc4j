@@ -36,10 +36,11 @@ public class PadesValidationTest extends AbstractTest {
   @Rule
   public final SystemOutRule stdOut = new SystemOutRule().enableLog();
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test
   public void invalidPDFProvided_shouldThrowException() {
-    Container container = new PadesContainer(this.configuration, "src/test/resources/prodFiles/valid-containers/valid_prod_bdoc_eid.bdoc");
-    SignatureValidationResult result = container.validate();
+    Container container = new PadesContainer(configuration, "src/test/resources/prodFiles/valid-containers/valid_prod_bdoc_eid.bdoc");
+
+    assertThrows(DigiDoc4JException.class, container::validate);
   }
 
   @Test

@@ -46,11 +46,14 @@ import java.util.zip.ZipInputStream;
 import static org.digidoc4j.test.TestAssert.assertContainerIsInvalid;
 import static org.digidoc4j.test.TestAssert.assertContainerIsValid;
 import static org.digidoc4j.test.TestAssert.assertContainsExactSetOfErrors;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -125,9 +128,12 @@ public class ContainerTest extends AbstractTest {
     assertInstanceOf(BDocContainer.class, createEmptyContainerBy(Container.DocumentType.BDOC));
   }
 
-  @Test(expected = NotSupportedException.class)
+  @Test
   public void createEmptyDDocContainer_throwsException() {
-    this.createEmptyContainerBy(Container.DocumentType.DDOC);
+    assertThrows(
+            NotSupportedException.class,
+            () -> createEmptyContainerBy(Container.DocumentType.DDOC)
+    );
   }
 
   @Test
@@ -180,21 +186,29 @@ public class ContainerTest extends AbstractTest {
     }
   }
 
-  @Test(expected = DataFileNotFoundException.class)
+  @Test
   public void wrongObjectBasedDataFileRemovalFromNonEmptyContainer_shouldThrowDataFileNotFoundException() {
     Container container = createEmptyContainerBy(Container.DocumentType.BDOC);
     container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
     assertSame(1, container.getDataFiles().size());
     DataFile differentDataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "some_different_file_name.txt", "text/plain");
-    container.removeDataFile(differentDataFile);
+
+    assertThrows(
+            DataFileNotFoundException.class,
+            () -> container.removeDataFile(differentDataFile)
+    );
   }
 
-  @Test(expected = DataFileNotFoundException.class)
+  @Test
   public void objectBasedDataFileRemovalFromEmptyContainer_shouldThrowDataFileNotFoundException() {
     Container container = createEmptyContainerBy(Container.DocumentType.BDOC);
     assertSame(0, container.getDataFiles().size());
     DataFile dataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "some_different_file_name.txt", "text/plain");
-    container.removeDataFile(dataFile);
+
+    assertThrows(
+            DataFileNotFoundException.class,
+            () -> container.removeDataFile(dataFile)
+    );
   }
 
   @Test
@@ -214,11 +228,15 @@ public class ContainerTest extends AbstractTest {
     assertSame(0, container.getDataFiles().size());
   }
 
-  @Test(expected = RemovingDataFileException.class)
+  @Test
   public void objectBasedDataFileRemovalFromSignedContainer_shouldThrowRemovingDataFileException() {
-    container.removeDataFile(container.getDataFiles().get(0));
     Container container = openContainerBy(Paths.get(ASICE_WITH_TS_SIG));
     assertSame(1, container.getDataFiles().size());
+
+    assertThrows(
+            RemovingDataFileException.class,
+            () -> container.removeDataFile(container.getDataFiles().get(0))
+    );
   }
 
   @Test
@@ -231,27 +249,42 @@ public class ContainerTest extends AbstractTest {
     assertTrue(Helper.isZipFile(new File(file)));
   }
 
-  @Test(expected = NotSupportedException.class)
+  @Test
   public void createEmptyDDoc_throwsException() {
-    ContainerBuilder.aContainer(Container.DocumentType.DDOC).build();
+    assertThrows(
+            NotSupportedException.class,
+            () -> ContainerBuilder.aContainer(Container.DocumentType.DDOC).build()
+    );
   }
 
-  @Test(expected = NotSupportedException.class)
+  @Test
   public void DDocRemovingDataFile_throwsException() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    container.removeDataFile(container.getDataFiles().get(0));
+
+    assertThrows(
+            NotSupportedException.class,
+            () -> container.removeDataFile(container.getDataFiles().get(0))
+    );
   }
 
-  @Test(expected = NotSupportedException.class)
+  @Test
   public void DDocAddDataFile_throwsException() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
+
+    assertThrows(
+            NotSupportedException.class,
+            () -> container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain")
+    );
   }
 
-  @Test(expected = NotSupportedException.class)
+  @Test
   public void DDocExtendSignatureProfile_throwsException() {
     Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    container.extendSignatureProfile(SignatureProfile.LT_TM);
+
+    assertThrows(
+            NotSupportedException.class,
+            () -> container.extendSignatureProfile(SignatureProfile.LT_TM)
+    );
   }
 
   @Test
@@ -270,13 +303,16 @@ public class ContainerTest extends AbstractTest {
 
   @Test
   public void addingDataFileToAlreadySignedContainer_shouldThrowDigiDoc4JException() {
-    expectedException.expect(DigiDoc4JException.class);
-    expectedException.expectMessage("Datafiles cannot be added to an already signed container");
-
-    Container container = this.openContainerBy(Paths.get(ASICE_WITH_TS_SIG));
-    Assert.assertSame(1, container.getDataFiles().size());
+    Container container = openContainerBy(Paths.get(ASICE_WITH_TS_SIG));
+    assertSame(1, container.getDataFiles().size());
     DataFile newDataFile = new DataFile("something".getBytes(StandardCharsets.UTF_8), "new_data_file.txt", "text/plain");
-    container.addDataFile(newDataFile);
+
+    DigiDoc4JException exception = assertThrows(
+            DigiDoc4JException.class,
+            () -> container.addDataFile(newDataFile)
+    );
+
+    assertThat(exception.getMessage(), containsString("Datafiles cannot be added to an already signed container"));
   }
 
   @Test
@@ -289,9 +325,12 @@ public class ContainerTest extends AbstractTest {
     assertEquals(1, container.getDataFiles().size());
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test
   public void testOpenInvalidFileReturnsError() {
-    ContainerOpener.open("src/test/resources/testFiles/helper-files/test.txt");
+    assertThrows(
+            DigiDoc4JException.class,
+            () -> ContainerOpener.open("src/test/resources/testFiles/helper-files/test.txt")
+    );
   }
 
   @Test
@@ -354,38 +393,49 @@ public class ContainerTest extends AbstractTest {
     assertTrue(validate.getReport().contains("X509SerialNumber has none or invalid namespace:"));
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test
   public void testOpenNotExistingFileThrowsException() {
-    ContainerOpener.open("noFile.ddoc");
+    assertThrows(
+            DigiDoc4JException.class,
+            () -> ContainerOpener.open("noFile.ddoc")
+    );
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test
   public void testOpenEmptyFileThrowsException() {
-    ContainerOpener.open("src/test/resources/testFiles/invalid-containers/emptyFile.ddoc");
+    assertThrows(
+            DigiDoc4JException.class,
+            () -> ContainerOpener.open("src/test/resources/testFiles/invalid-containers/emptyFile.ddoc")
+    );
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test
   public void testFileTooShortToVerifyIfItIsZipFileThrowsException() {
-    ContainerOpener.open("src/test/resources/testFiles/invalid-containers/tooShortToVerifyIfIsZip.ddoc");
+    assertThrows(
+            DigiDoc4JException.class,
+            () -> ContainerOpener.open("src/test/resources/testFiles/invalid-containers/tooShortToVerifyIfIsZip.ddoc")
+    );
   }
 
-  @Test(expected = DigiDoc4JException.class)
-  public void testOpenFromStreamTooShortToVerifyIfIsZip() {
+  @Test
+  public void testOpenFromStreamTooShortToVerifyIfIsZip() throws IOException {
     try (FileInputStream stream = new FileInputStream(
-        "src/test/resources/testFiles/invalid-containers/tooShortToVerifyIfIsZip.ddoc")) {
-      ContainerOpener.open(stream, true);
-    } catch (DigiDoc4JException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+            "src/test/resources/testFiles/invalid-containers/tooShortToVerifyIfIsZip.ddoc")) {
+      assertThrows(
+              DigiDoc4JException.class,
+              () -> ContainerOpener.open(stream, true)
+      );
     }
   }
 
-  @Test(expected = NotSupportedException.class)
+  @Test
   public void testAddFileFromStreamToDDoc() throws IOException {
-    Container container = this.createEmptyContainerBy(Container.DocumentType.DDOC);
+    Container container = createEmptyContainerBy(Container.DocumentType.DDOC);
     try (ByteArrayInputStream is = new ByteArrayInputStream(new byte[]{0x42})) {
-      container.addDataFile(is, "testFromStream.txt", "text/plain");
+      assertThrows(
+              NotSupportedException.class,
+              () -> container.addDataFile(is, "testFromStream.txt", "text/plain")
+      );
     }
   }
 
@@ -448,12 +498,17 @@ public class ContainerTest extends AbstractTest {
     assertNotNull(container.getSignatures().get(0).getOCSPCertificate());
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test
   public void testRemovingNotExistingSignatureThrowsException() {
-    Container container = this.createEmptyContainerBy(Container.DocumentType.DDOC);
-    Signature signature = SignatureBuilder.aSignature(container).withSignatureProfile(SignatureProfile.LT_TM).
-            withSignatureToken(pkcs12SignatureToken).invokeSigning();
-    container.removeSignature(signature);
+      Container container = createEmptyContainerBy(Container.DocumentType.DDOC);
+      Signature signature = SignatureBuilder
+              .aSignature(container).withSignatureProfile(SignatureProfile.LT_TM).
+              withSignatureToken(pkcs12SignatureToken)
+              .invokeSigning();
+
+      assertThrows(
+              DigiDoc4JException.class,
+              () -> container.removeSignature(signature));
   }
 
   @Test
@@ -475,7 +530,6 @@ public class ContainerTest extends AbstractTest {
 
   @Test
   public void testSetConfigurationForBDoc() {
-    expectedException.expect(OCSPRequestFailedException.class);
     configuration = new Configuration(Configuration.Mode.TEST);
     configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
     configuration.setLotlLocation("pole");
@@ -483,7 +537,11 @@ public class ContainerTest extends AbstractTest {
             .aContainer(Container.DocumentType.BDOC)
             .withConfiguration(configuration)
             .withDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain").build();
-    createSignatureBy(container, pkcs12SignatureToken);
+
+    assertThrows(
+            OCSPRequestFailedException.class,
+            () -> createSignatureBy(container, pkcs12SignatureToken)
+    );
   }
 
   @Test

@@ -30,9 +30,9 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -41,46 +41,60 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AsicSContainerTest extends AbstractTest {
 
-  @Test(expected = DigiDoc4JException.class)
-  public void testAddSignatureToAsicSContainer() throws IOException {
-    this.createSignatureBy(this.createNonEmptyContainer(Container.DocumentType.ASICS, 1), this.pkcs12SignatureToken);
+  @Test
+  public void testAddSignatureToAsicSContainer() throws Exception {
+    Container container = createNonEmptyContainer(Container.DocumentType.ASICS, 1);
+
+    assertThrows(
+            DigiDoc4JException.class,
+            () -> createSignatureBy(container, pkcs12SignatureToken)
+    );
   }
 
-  @Test(expected = DigiDoc4JException.class)
-  public void testBuildAsicSContainerWithTwoDataFiles() throws IOException {
-    this.createNonEmptyContainer(Container.DocumentType.ASICS, 2);
+  @Test
+  public void testBuildAsicSContainerWithTwoDataFiles(){
+    assertThrows(
+            DigiDoc4JException.class,
+            () -> createNonEmptyContainer(Container.DocumentType.ASICS, 2)
+    );
   }
 
   @Test
   public void testAddingDatafileToContainerWithExistingDatafile() throws IOException {
-    Container container = this.createNonEmptyContainer(Container.DocumentType.ASICS, 1);
-    DigiDoc4JException exception = assertThrows(DigiDoc4JException.class,
+    Container container = createNonEmptyContainer(Container.DocumentType.ASICS, 1);
+
+    DigiDoc4JException exception = assertThrows(
+            DigiDoc4JException.class,
             () -> container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain"));
+
     assertThat(exception.getMessage(), equalTo("Datafile already exists. ASiC-S container can only contain 1 datafile."));
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test
   public void testExistingAsicSContainerFromPath() {
-    Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS)
-        .fromExistingFile("src/test/resources/testFiles/valid-containers/testasics.asics").build();
-    //cannot add second file to existing container
-    container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
+    ContainerBuilder containerBuilder = ContainerBuilder.aContainer(Container.DocumentType.ASICS)
+        .fromExistingFile("src/test/resources/testFiles/valid-containers/testasics.asics");
+
+    assertThrows(DigiDoc4JException.class, containerBuilder::build);
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test
   public void testExistingAsicSContainerFromZIPPath() {
-    Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).
-        fromExistingFile("src/test/resources/testFiles/valid-containers/testasics.zip").build();
-    //cannot add second file to existing container
-    container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
+    ContainerBuilder containerBuilder = ContainerBuilder
+            .aContainer(Container.DocumentType.ASICS)
+            .fromExistingFile("src/test/resources/testFiles/valid-containers/testasics.zip");
+
+    assertThrows(DigiDoc4JException.class, containerBuilder::build);
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test
   public void testExistingAsicSContainerFromStream() throws IOException {
     try (InputStream stream = new FileInputStream(new File("src/test/resources/testFiles/valid-containers/testasics.asics"))) {
-      Container container = ContainerBuilder.aContainer(Container.DocumentType.ASICS).fromStream(stream).build();
-      //cannot add second file to existing container
-      container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
+      ContainerBuilder containerBuilder = ContainerBuilder
+              .aContainer(Container.DocumentType.ASICS)
+              .fromStream(stream);
+
+      assertThrows(DigiDoc4JException.class, containerBuilder::build);
     }
   }
 

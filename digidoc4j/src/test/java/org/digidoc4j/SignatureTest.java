@@ -151,10 +151,14 @@ public class SignatureTest extends AbstractTest {
   }
 
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test
   public void testGetNonceWithNonceParseErrorForDDOC() {
-    Container container = ContainerOpener.open("src/test/resources/testFiles/invalid-containers/ddoc_with_corrupted_ocsp_response.ddoc");
-    container.getSignatures().get(0).getOCSPNonce();
+    Signature signature = ContainerOpener
+            .open("src/test/resources/testFiles/invalid-containers/ddoc_with_corrupted_ocsp_response.ddoc")
+            .getSignatures()
+            .get(0);
+
+    assertThrows(DigiDoc4JException.class, signature::getOCSPNonce);
   }
 
   @Test
@@ -303,10 +307,14 @@ public class SignatureTest extends AbstractTest {
     assertEquals(SignatureLevel.XAdES_BASELINE_T, validationResult.getReports().get(0).getSignatureFormat());
   }
 
-  @Test(expected = NotYetImplementedException.class)
-  public void testGetTimeStampTokenCertificateForDDoc() {
-    Container container = ContainerOpener.open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    container.getSignatures().get(0).getTimeStampTokenCertificate();
+  @Test
+ public void testGetTimeStampTokenCertificateForDDoc() {
+    Signature signature = ContainerOpener
+            .open("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc")
+            .getSignatures()
+            .get(0);
+
+    assertThrows(NotYetImplementedException.class, signature::getTimeStampTokenCertificate);
   }
 
   @Test

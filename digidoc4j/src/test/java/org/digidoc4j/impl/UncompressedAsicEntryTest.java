@@ -41,22 +41,22 @@ public class UncompressedAsicEntryTest {
     assertZipEntry(derivedZipEntry, 123L, 2345L);
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void entryFailsToCreateZipEntryIfSizeIsMissing() {
     ZipEntry originalZipEntry = new ZipEntry(MOCK_ENTRY_NAME);
     originalZipEntry.setCrc(2345L);
 
     AsicEntry asicEntry = new UncompressedAsicEntry(originalZipEntry);
-    asicEntry.getZipEntry();
+    assertThrows(IllegalStateException.class, asicEntry::getZipEntry);
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void entryFailsToCreateZipEntryIfCrcIsMissing() {
     ZipEntry originalZipEntry = new ZipEntry(MOCK_ENTRY_NAME);
     originalZipEntry.setSize(123L);
 
     AsicEntry asicEntry = new UncompressedAsicEntry(originalZipEntry);
-    asicEntry.getZipEntry();
+    assertThrows(IllegalStateException.class, asicEntry::getZipEntry);
   }
 
   @Test

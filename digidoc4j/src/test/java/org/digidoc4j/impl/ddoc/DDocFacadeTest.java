@@ -46,10 +46,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DDocFacadeTest extends AbstractTest {
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test
   public void testSaveThrowsException() throws Exception {
     DDocFacade facade = openDDocFacade("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
-    facade.save("/not/existing/path/testSaveThrowsException.ddoc");
+    assertThrows(
+            DigiDoc4JException.class,
+            () -> facade.save("/not/existing/path/testSaveThrowsException.ddoc")
+    );
   }
 
   @Test
@@ -110,14 +113,20 @@ public class DDocFacadeTest extends AbstractTest {
     assertEquals("test.txt", dataFiles.get(0).getName());
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test
   public void emptyContainerThrowsException() {
-    openDDocFacade("src/test/resources/testFiles/valid-containers/empty_container_no_signature.ddoc");
+    assertThrows(
+            DigiDoc4JException.class, 
+            () -> openDDocFacade("src/test/resources/testFiles/valid-containers/empty_container_no_signature.ddoc")
+    );
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test
   public void containerWithFileNameThrowsException() throws Exception {
-    this.openDDocFacade("file_not_exists");
+    assertThrows(
+            DigiDoc4JException.class,
+            () -> openDDocFacade("file_not_exists")
+    );
   }
 
   @Test
@@ -129,22 +138,28 @@ public class DDocFacadeTest extends AbstractTest {
     }
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test
   public void savesToStreamThrowsException() throws Exception {
     SignedDoc ddoc = Mockito.mock(SignedDoc.class);
     DigiDocException testException = new DigiDocException(100, "testException", new Throwable("test Exception"));
     Mockito.doThrow(testException).when(ddoc).writeToStream(ArgumentMatchers.any(OutputStream.class));
     DDocFacade facade = new DDocFacade(ddoc);
     try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-      facade.save(out);
+      assertThrows(
+              DigiDoc4JException.class,
+              () -> facade.save(out)
+      );
     }
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test
   public void openFromStreamThrowsException() throws IOException {
     FileInputStream stream = new FileInputStream(new File("src/test/resources/testFiles/helper-files/test.txt"));
     stream.close();
-    new DDocOpener().open(stream);
+    assertThrows(
+            DigiDoc4JException.class,
+            () -> new DDocOpener().open(stream)
+    );
   }
 
   @Test
@@ -180,11 +195,14 @@ public class DDocFacadeTest extends AbstractTest {
     assertEquals("1.3", facade.getVersion());
   }
 
-  @Test(expected = NotSupportedException.class)
+  @Test
   public void addingDataFileThrowsException() {
     DDocFacade facade = openDDocFacade("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc");
     Container container = new DDocContainer(facade);
-    container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain");
+    assertThrows(
+            NotSupportedException.class,
+            () -> container.addDataFile("src/test/resources/testFiles/helper-files/test.txt", "text/plain")
+    );
   }
 
   @Test
@@ -203,12 +221,16 @@ public class DDocFacadeTest extends AbstractTest {
     assertEquals(1, MockConfigManagerInitializer.configManagerCallCount);
   }
 
-  @Test(expected = ConfigurationException.class)
+  @Test
   public void openingDDoc_withoutCAConfiguration_shouldThrowException() throws Exception {
-    this.configuration = new Configuration(Configuration.Mode.TEST);
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_no_ca.yaml");
-    ConfigManagerInitializer.forceInitConfigManager(this.configuration);
-    this.openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc"));
+    configuration = new Configuration(Configuration.Mode.TEST);
+    configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_no_ca.yaml");
+    ConfigManagerInitializer.forceInitConfigManager(configuration);
+
+    assertThrows(
+            ConfigurationException.class,
+            () -> openContainerByConfiguration(Paths.get("src/test/resources/testFiles/valid-containers/ddoc_for_testing.ddoc"))
+    );
   }
 
   @Test

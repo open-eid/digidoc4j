@@ -28,10 +28,10 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ContainerZipTest extends AbstractTest {
 
@@ -199,23 +199,32 @@ public class ContainerZipTest extends AbstractTest {
 
   @Test
   public void loadingBdocWithTwoMimeTypesShouldFail() {
-    expectedException.expect(DigiDoc4JException.class);
-    expectedException.expectMessage("Multiple mimetype files disallowed");
-    openContainerBy(Paths.get("src/test/resources/testFiles/degenerate-containers/2-mimetypes.bdoc"));
+    DigiDoc4JException exception = assertThrows(
+            DigiDoc4JException.class,
+            () -> openContainerBy(Paths.get("src/test/resources/testFiles/degenerate-containers/2-mimetypes.bdoc"))
+    );
+
+    assertThat(exception.getMessage(), containsString("Multiple mimetype files disallowed"));
   }
 
   @Test
   public void loadingAsiceWithTwoMimeTypesShouldFail() {
-    expectedException.expect(DigiDoc4JException.class);
-    expectedException.expectMessage("Multiple mimetype files disallowed");
-    openContainerBy(Paths.get("src/test/resources/testFiles/degenerate-containers/2-mimetypes.asice"));
+    DigiDoc4JException exception = assertThrows(DigiDoc4JException.class,
+            () -> openContainerBy(Paths.get("src/test/resources/testFiles/degenerate-containers/2-mimetypes.asice"))
+    );
+
+    assertThat(exception.getMessage(), equalTo("Multiple mimetype files disallowed"));
   }
 
   @Test
   public void loadingAsicsWithTwoMimeTypesShouldFail() {
-    expectedException.expect(DigiDoc4JException.class);
-    expectedException.expectMessage("Multiple mimetype files disallowed");
-    openContainerBy(Paths.get("src/test/resources/testFiles/degenerate-containers/2-mimetypes.asics"));
+    DigiDoc4JException exception = assertThrows(
+            DigiDoc4JException.class,
+            () -> openContainerBy(Paths.get("src/test/resources/testFiles/degenerate-containers/2-mimetypes.asics"))
+    );
+
+    assertThat(exception.getMessage(), equalTo("Multiple mimetype files disallowed"));
+
   }
 
   private File createTestUnsignedBdocFile() throws Exception {

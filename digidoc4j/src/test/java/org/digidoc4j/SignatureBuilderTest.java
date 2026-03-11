@@ -1404,15 +1404,18 @@ public class SignatureBuilderTest extends AbstractTest {
     configuration.setPreferAiaOcsp(false);
     configuration.setOcspSource("http://invalid.ocsp.url");
 
-    expectedException.expect(ServiceUnreachableException.class);
-    expectedException.expectMessage("Failed to connect to OCSP service <" + configuration.getOcspSource() + ">");
-
     Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC).withConfiguration(configuration).build();
     container.addDataFile(new ByteArrayInputStream("something".getBytes(StandardCharsets.UTF_8)), "file name", "text/plain");
 
-    SignatureBuilder.aSignature(container)
-          .withSignatureToken(pkcs12SignatureToken)
-          .invokeSigning();
+    SignatureBuilder signatureBuilder = SignatureBuilder
+            .aSignature(container)
+            .withSignatureToken(pkcs12SignatureToken);
+
+    ServiceUnreachableException exception = assertThrows(
+            ServiceUnreachableException.class,
+            signatureBuilder::invokeSigning
+    );
+    assertThat(exception.getMessage(), equalTo("Failed to connect to OCSP service <" + configuration.getOcspSource() + ">. Service is down or URL is invalid."));
   }
 
   @Test
@@ -1421,16 +1424,20 @@ public class SignatureBuilderTest extends AbstractTest {
     configuration.setPreferAiaOcsp(false);
     configuration.setOcspSource("http://invalid.ocsp.url");
 
-    expectedException.expect(ServiceUnreachableException.class);
-    expectedException.expectMessage("Failed to connect to OCSP service <" + configuration.getOcspSource() + ">");
-
     Container container = ContainerBuilder.aContainer(Container.DocumentType.BDOC).withConfiguration(configuration).build();
     container.addDataFile(new ByteArrayInputStream("something".getBytes(StandardCharsets.UTF_8)), "file name", "text/plain");
 
     DataToSign dataToSign = SignatureBuilder.aSignature(container)
           .withSigningCertificate(pkcs12SignatureToken.getCertificate())
           .buildDataToSign();
-    dataToSign.finalize(pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+
+    byte[] signedBytes = pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign());
+
+    ServiceUnreachableException exception = assertThrows(
+            ServiceUnreachableException.class,
+            () -> dataToSign.finalize(signedBytes)
+    );
+    assertThat(exception.getMessage(), equalTo("Failed to connect to OCSP service <" + configuration.getOcspSource() + ">. Service is down or URL is invalid."));
   }
 
   private Signature signContainerWithSignature(Container container, SignatureProfile signatureProfile) {

@@ -311,39 +311,48 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
 
   @Test
   public void getOCSPToken_ocspCertificateExpired() throws Exception {
-    this.expectedException.expect(CertificateValidationException.class);
-    this.expectedException.expectMessage("OCSP response certificate <C-E83A008AF341579A76367AF41CDD371F7F35E949220FC4621A3F2596A73D1D05> is expired or not yet valid");
-
     X509Certificate subjectCertificate = openX509Certificate(Paths.get("src/test/resources/testFiles/certs/SK-OCSP-RESPONDER-2011_test.cer"));
     Configuration configuration = Configuration.of(Configuration.Mode.TEST);
     SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) new SigningOcspSourceFactory(configuration).create();
 
-    Date producedAt = this.dateFormat.parse("08.09.2024");
-    ocspSource.verifyValidityDate(new CertificateToken(subjectCertificate), producedAt);
+    Date producedAt = dateFormat.parse("08.09.2024");
+    
+    CertificateValidationException exception = assertThrows(
+            CertificateValidationException.class,
+            () -> ocspSource.verifyValidityDate(new CertificateToken(subjectCertificate), producedAt)
+    );
+
+    assertThat(exception.getMessage(), equalTo("OCSP response certificate <C-E83A008AF341579A76367AF41CDD371F7F35E949220FC4621A3F2596A73D1D05> is expired or not yet valid"));
   }
 
   @Test
   public void getOCSPToken_ocspCertificateNotYetValid() throws Exception {
-    this.expectedException.expect(CertificateValidationException.class);
-    this.expectedException.expectMessage("OCSP response certificate <C-E83A008AF341579A76367AF41CDD371F7F35E949220FC4621A3F2596A73D1D05> is expired or not yet valid");
-
     X509Certificate subjectCertificate = openX509Certificate(Paths.get("src/test/resources/testFiles/certs/SK-OCSP-RESPONDER-2011_test.cer"));
     Configuration configuration = Configuration.of(Configuration.Mode.TEST);
     SKOnlineOCSPSource ocspSource = (SKOnlineOCSPSource) new SigningOcspSourceFactory(configuration).create();
 
-    Date producedAt = this.dateFormat.parse("06.03.2011");
-    ocspSource.verifyValidityDate(new CertificateToken(subjectCertificate), producedAt);
+    Date producedAt = dateFormat.parse("06.03.2011");
+
+    CertificateValidationException exception = assertThrows(
+            CertificateValidationException.class,
+            () -> ocspSource.verifyValidityDate(new CertificateToken(subjectCertificate), producedAt)
+    );
+
+    assertThat(exception.getMessage(), equalTo("OCSP response certificate <C-E83A008AF341579A76367AF41CDD371F7F35E949220FC4621A3F2596A73D1D05> is expired or not yet valid"));
   }
 
   @Test
   public void getOCSPToken_anyDSSExceptionRethrownAsTechnicalException() {
-    expectedException.expectMessage("OCSP request failed");
-    expectedException.expect(TechnicalException.class);
-
     when(dataLoader.post(anyString(), any(byte[].class))).thenThrow(DSSException.class);
     SKOnlineOCSPSource ocspSource = constructOCSPSource();
     ocspSource.setDataLoader(dataLoader);
-    ocspSource.getRevocationToken(new CertificateToken(TestSigningUtil.SIGN_CERT), new CertificateToken(this.issuerCert));
+
+    TechnicalException exception = assertThrows(
+            TechnicalException.class,
+            () -> ocspSource.getRevocationToken(new CertificateToken(TestSigningUtil.SIGN_CERT), new CertificateToken(issuerCert))
+    );
+
+    assertThat(exception.getMessage(), equalTo("OCSP request failed"));
   }
 
   @Test
@@ -359,11 +368,15 @@ public class SKOnlineOCSPSourceTest extends AbstractTest {
 
   @Test
   public void dataLoaderMissing() {
-    expectedException.expectMessage("Data loader is null");
-    expectedException.expect(TechnicalException.class);
     SKOnlineOCSPSource ocspSource = constructOCSPSource();
     ocspSource.setDataLoader(null);
-    ocspSource.getRevocationToken(new CertificateToken(TestSigningUtil.SIGN_CERT), new CertificateToken(this.issuerCert));
+
+    TechnicalException exception = assertThrows(
+            TechnicalException.class, 
+            () -> ocspSource.getRevocationToken(new CertificateToken(TestSigningUtil.SIGN_CERT), new CertificateToken(issuerCert))
+    );
+
+    assertThat(exception.getMessage(), equalTo("Data loader is null"));
   }
 
   /*

@@ -27,6 +27,7 @@ import java.util.zip.ZipOutputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HelperTest extends AbstractTest {
@@ -82,7 +83,7 @@ public class HelperTest extends AbstractTest {
     assertEquals("B", Helper.extractSignature(createZIPFile(), 1));
   }
 
-  @Test(expected = IOException.class)
+  @Test
   public void extractSignatureThrowsErrorWhenSignatureIsNotFound() throws Exception {
     String file = getFileBy("zip");
     try (
@@ -93,17 +94,26 @@ public class HelperTest extends AbstractTest {
       zipStream.write(0x42);
       zipStream.closeEntry();
     }
-    Helper.extractSignature(file, 0);
+    
+    assertThrows(
+            IOException.class,
+            () -> Helper.extractSignature(file, 0)
+    );
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test
   public void deserializeThrowsException() {
-    Helper.deserializer((File) null);
+    assertThrows(
+            DigiDoc4JException.class,
+            () -> Helper.deserializer((File) null)
+    );
   }
 
-  @Test(expected = DigiDoc4JException.class)
-  public void serializeThrowsException() {
-    Helper.serialize(ContainerBuilder.aContainer().build(), (File) null);
+  @Test
+  void serializeThrowsException() {
+    Container container =  ContainerBuilder.aContainer().build();
+
+    assertThrows(DigiDoc4JException.class, () -> Helper.serialize(container, (File) null));
   }
 
   @Test

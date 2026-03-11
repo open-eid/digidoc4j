@@ -231,13 +231,17 @@ public class ConfigurationTest extends AbstractTest {
     }
   }
 
-  @Test(expected = TslRefreshException.class)
+  @Test
   public void lotlLoadingWithNoLotlSslCertificateInTruststoreUsingDefaultTslCallback() {
     configuration.setSslTruststorePath("classpath:testFiles/truststores/empty-truststore.p12");
     configuration.setSslTruststorePassword("digidoc4j-password");
     configuration.setSslTruststoreType("PKCS12");
     evictTSLCache();
-    configuration.getTSL().refresh();
+
+    assertThrows(
+            TslRefreshException.class,
+            () -> configuration.getTSL().refresh()
+    );
   }
 
   @Test
@@ -577,10 +581,15 @@ public class ConfigurationTest extends AbstractTest {
   @Test
   public void maxDataFileCachedNotAllowedValueFromFile() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_max_datafile_cached_invalid.yaml";
-    this.expectedException.expect(ConfigurationException.class);
-    this.expectedException.expectMessage("Configuration parameter DIGIDOC_MAX_DATAFILE_CACHED should be greater or equal " +
-        "-1 but the actual value is: -2.");
-    this.configuration.loadConfiguration(fileName);
+    String excpectedErrorMessage = "Configuration parameter DIGIDOC_MAX_DATAFILE_CACHED should be greater or equal " +
+            "-1 but the actual value is: -2.";
+
+    ConfigurationException exception = assertThrows(
+            ConfigurationException.class,
+            () -> configuration.loadConfiguration(fileName)
+    );
+
+    assertThat(exception.getMessage(), containsString(excpectedErrorMessage));
   }
 
   @Test
@@ -637,9 +646,12 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void settingNonExistingConfigurationFileThrowsError() {
-    this.expectedException.expect(ConfigurationException.class);
-    this.expectedException.expectMessage("File src/test/resources/testFiles/not_exists.yaml not found in classpath.");
-    this.configuration.loadConfiguration("src/test/resources/testFiles/not_exists.yaml");
+    ConfigurationException exception = assertThrows(
+            ConfigurationException.class,
+            () -> configuration.loadConfiguration("src/test/resources/testFiles/not_exists.yaml")
+    );
+
+    assertThat(exception.getMessage(), equalTo("File src/test/resources/testFiles/not_exists.yaml not found in classpath."));
   }
 
   @Test
@@ -663,74 +675,112 @@ public class ConfigurationTest extends AbstractTest {
   @Test
   public void digidocMaxDataFileCachedParameterIsNotANumber() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_invalid_max_data_file_cached.yaml";
-    this.expectedException.expect(ConfigurationException.class);
-    this.expectedException.expectMessage("Configuration parameter DIGIDOC_MAX_DATAFILE_CACHED" +
-        " should have an integer value but the actual value is: 8192MB.");
-    this.configuration.loadConfiguration(fileName);
+    String expectedErrorMessage = "Configuration parameter DIGIDOC_MAX_DATAFILE_CACHED" +
+        " should have an integer value but the actual value is: 8192MB.";
+
+    ConfigurationException exception = assertThrows(
+            ConfigurationException.class,
+            () -> configuration.loadConfiguration(fileName)
+    );
+
+    assertThat(exception.getMessage(), containsString(expectedErrorMessage));
   }
 
   @Test
   public void digidocSignOcspRequestIsNotABoolean() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_invalid_sign_ocsp_request.yaml";
-    this.expectedException.expect(ConfigurationException.class);
-    this.expectedException.expectMessage("Configuration parameter SIGN_OCSP_REQUESTS should be set to true or false" +
-        " but the actual value is: NonBooleanValue.");
-    this.configuration.loadConfiguration(fileName);
+    String expectedErrorMessage = "Configuration parameter SIGN_OCSP_REQUESTS should be set to true or false" +
+        " but the actual value is: NonBooleanValue.";
+
+    ConfigurationException exception = assertThrows(
+            ConfigurationException.class,
+            () -> configuration.loadConfiguration(fileName)
+    );
+
+    assertThat(exception.getMessage(), containsString(expectedErrorMessage));
   }
 
   @Test
   public void digidocKeyUsageCheckIsNotABoolean() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_invalid_key_usage.yaml";
-    this.expectedException.expect(ConfigurationException.class);
-    this.expectedException.expectMessage("Configuration parameter KEY_USAGE_CHECK should be set to true or false" +
-        " but the actual value is: NonBooleanValue.");
-    this.configuration.loadConfiguration(fileName);
+    String expectedErrorMessage = "Configuration parameter KEY_USAGE_CHECK should be set to true or false" +
+            " but the actual value is: NonBooleanValue.";
+
+    ConfigurationException exception = assertThrows(
+            ConfigurationException.class,
+            () -> configuration.loadConfiguration(fileName)
+    );
+
+    assertThat(exception.getMessage(), containsString(expectedErrorMessage));
   }
 
   @Test
   public void digidocUseLocalTslIsNotABoolean() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_invalid_use_local_tsl.yaml";
-    this.expectedException.expect(ConfigurationException.class);
-    this.expectedException.expectMessage("Configuration parameter DIGIDOC_USE_LOCAL_TSL should be set to true or false" +
-        " but the actual value is: NonBooleanValue.");
-    this.configuration.loadConfiguration(fileName);
+    String expectedErrorMessage = "Configuration parameter DIGIDOC_USE_LOCAL_TSL should be set to true or false" + 
+            " but the actual value is: NonBooleanValue.";
+
+    ConfigurationException exception = assertThrows(
+            ConfigurationException.class,
+            () -> configuration.loadConfiguration(fileName)
+    );
+
+    assertThat(exception.getMessage(), containsString(expectedErrorMessage));
   }
 
   @Test
   public void digidocDataFileHashcodeModeIsNotABoolean() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_invalid_datafile_hashcode_mode.yaml";
-    this.expectedException.expect(ConfigurationException.class);
-    this.expectedException.expectMessage("Configuration parameter DATAFILE_HASHCODE_MODE should be set to true or false" +
-        " but the actual value is: NonBooleanValue.");
-    this.configuration.loadConfiguration(fileName);
+    String expectedErrorMessage = "Configuration parameter DATAFILE_HASHCODE_MODE should be set to true or false" +
+        " but the actual value is: NonBooleanValue.";
+
+    ConfigurationException exception = assertThrows(
+            ConfigurationException.class,
+            () -> configuration.loadConfiguration(fileName)
+    );
+
+    assertThat(exception.getMessage(), containsString(expectedErrorMessage));
   }
 
   @Test
   public void missingOCSPSEntryThrowsException() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_ocsps_no_entry.yaml";
-    this.expectedException.expect(ConfigurationException.class);
-    this.expectedException.expectMessage("No OCSPS entry found or OCSPS entry is empty. Configuration from: " + fileName);
-    this.configuration.loadConfiguration(fileName);
-    this.configuration.getDDoc4JConfiguration();
+    configuration.loadConfiguration(fileName);
+
+    ConfigurationException exception = assertThrows(
+            ConfigurationException.class,
+            () -> configuration.getDDoc4JConfiguration()
+    );
+
+    assertThat(exception.getMessage(), containsString("No OCSPS entry found or OCSPS entry is empty. Configuration from: " + fileName));
   }
 
   @Test
   public void emptyOCSPSEntryThrowsException() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_ocsps_empty.yaml";
-    this.expectedException.expect(ConfigurationException.class);
-    this.expectedException.expectMessage("No OCSPS entry found or OCSPS entry is empty. Configuration from: " + fileName);
-    this.configuration.loadConfiguration(fileName);
-    this.configuration.getDDoc4JConfiguration();
+    configuration.loadConfiguration(fileName);
+
+    ConfigurationException exception = assertThrows(
+            ConfigurationException.class,
+            () -> configuration.getDDoc4JConfiguration()
+    );
+
+    assertThat(exception.getMessage(), containsString("No OCSPS entry found or OCSPS entry is empty. Configuration from: " + fileName));
   }
 
   @Test
   public void OCSPWithoutCaCnValueThrowsException() {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_ocsps_no_ca_cn.yaml";
-    this.expectedException.expect(ConfigurationException.class);
-    this.expectedException.expectMessage("Configuration from " + fileName + " contains error(s):\n" +
-        "OCSPS list entry 2 does not have an entry for CA_CN or the entry is empty\n");
-    this.configuration.loadConfiguration(fileName);
-    this.configuration.getDDoc4JConfiguration();
+    String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
+        "OCSPS list entry 2 does not have an entry for CA_CN or the entry is empty\n";
+    configuration.loadConfiguration(fileName);
+
+    ConfigurationException exception = assertThrows(
+            ConfigurationException.class,
+            () -> configuration.getDDoc4JConfiguration()
+    );
+
+    assertThat(exception.getMessage(), equalTo(expectedErrorMessage));
   }
 
   @Test
@@ -741,10 +791,14 @@ public class ConfigurationTest extends AbstractTest {
         "OCSPS list entry 4 does not have an entry for CA_CERT or the entry is empty\n" +
         "OCSPS list entry 5 does not have an entry for CN or the entry is empty\n" +
         "OCSPS list entry 8 does not have an entry for URL or the entry is empty\n";
-    this.expectedException.expect(ConfigurationException.class);
-    this.expectedException.expectMessage(expectedErrorMessage);
-    this.configuration.loadConfiguration(fileName);
-    this.configuration.getDDoc4JConfiguration();
+    configuration.loadConfiguration(fileName);
+
+    ConfigurationException exception = assertThrows(
+            ConfigurationException.class,
+            () -> configuration.getDDoc4JConfiguration()
+    );
+
+    assertThat(exception.getMessage(), equalTo(expectedErrorMessage));
   }
 
   @Test
@@ -755,10 +809,14 @@ public class ConfigurationTest extends AbstractTest {
         "OCSPS list entry 4 does not have an entry for URL or the entry is empty\n" +
         "OCSPS list entry 5 does not have an entry for CA_CERT or the entry is empty\n" +
         "OCSPS list entry 8 does not have an entry for CA_CN or the entry is empty\n";
-    this.expectedException.expect(ConfigurationException.class);
-    this.expectedException.expectMessage(expectedErrorMessage);
-    this.configuration.loadConfiguration(fileName);
-    this.configuration.getDDoc4JConfiguration();
+    configuration.loadConfiguration(fileName);
+
+    ConfigurationException exception = assertThrows(
+            ConfigurationException.class,
+            () -> configuration.getDDoc4JConfiguration()
+    );
+
+    assertThat(exception.getMessage(), equalTo(expectedErrorMessage));
   }
 
   @Test
@@ -766,10 +824,14 @@ public class ConfigurationTest extends AbstractTest {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_ocsps_missing_certs_entry.yaml";
     String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "OCSPS list entry 3 does not have an entry for CERTS or the entry is empty\n";
-    this.expectedException.expect(ConfigurationException.class);
-    this.expectedException.expectMessage(expectedErrorMessage);
-    this.configuration.loadConfiguration(fileName);
-    this.configuration.getDDoc4JConfiguration();
+    configuration.loadConfiguration(fileName);
+
+    ConfigurationException exception = assertThrows(
+            ConfigurationException.class,
+            () -> configuration.getDDoc4JConfiguration()
+    );
+
+    assertThat(exception.getMessage(), equalTo(expectedErrorMessage));
   }
 
   @Test
@@ -777,30 +839,40 @@ public class ConfigurationTest extends AbstractTest {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_ocsps_empty_certs_entry.yaml";
     String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "OCSPS list entry 2 does not have an entry for CERTS or the entry is empty\n";
-    this.expectedException.expect(ConfigurationException.class);
-    this.expectedException.expectMessage(expectedErrorMessage);
-    this.configuration.loadConfiguration(fileName);
-    this.configuration.getDDoc4JConfiguration();
+    configuration.loadConfiguration(fileName);
+
+    ConfigurationException exception = assertThrows(
+            ConfigurationException.class,
+            () -> configuration.getDDoc4JConfiguration()
+    );
+
+    assertThat(exception.getMessage(), equalTo(expectedErrorMessage));
   }
 
   @Test
   public void configurationFileIsNotYamlFormatThrowsException() {
     String fileName = "src/test/resources/testFiles/helper-files/test.txt";
     String expectedErrorMessage = "Configuration from " + fileName + " is not correctly formatted";
-    this.expectedException.expect(ConfigurationException.class);
-    this.expectedException.expectMessage(expectedErrorMessage);
-    this.configuration.loadConfiguration(fileName);
+    ConfigurationException exception = assertThrows(
+            ConfigurationException.class,
+            () -> configuration.loadConfiguration(fileName)
+    );
+
+    assertThat(exception.getMessage(), equalTo(expectedErrorMessage));
   }
 
   @Test
   public void configurationStreamIsNotYamlFormatThrowsException() throws Exception {
     String fileName = "src/test/resources/testFiles/helper-files/test.txt";
     String expectedErrorMessage = "Configuration from stream is not correctly formatted";
-    this.expectedException.expect(ConfigurationException.class);
-    this.expectedException.expectMessage(expectedErrorMessage);
-    try (InputStream inputStream = new FileInputStream(fileName)) {
-      this.configuration.loadConfiguration(inputStream);
-    }
+
+    ConfigurationException exception = assertThrows(ConfigurationException.class, () -> {
+      try (InputStream inputStream = new FileInputStream(fileName)) {
+        configuration.loadConfiguration(inputStream);
+      }
+    });
+
+    assertThat(exception.getMessage(), equalTo(expectedErrorMessage));
   }
 
   @Test
@@ -882,11 +954,15 @@ public class ConfigurationTest extends AbstractTest {
     assertEquals("file:conf/test_TSLKeyStore_location", configuration.getTslKeyStoreLocation());
   }
 
-  @Test(expected = LotlTrustStoreNotFoundException.class)
+  @Test
   public void exceptionIsThrownWhenLotlTruststoreIsNotFound() throws IOException {
-    this.configuration = Configuration.of(Configuration.Mode.PROD);
-    this.configuration.setLotlTruststorePath("not/existing/path");
-    this.configuration.getTSL().refresh();
+    configuration = Configuration.of(Configuration.Mode.PROD);
+    configuration.setLotlTruststorePath("not/existing/path");
+
+    assertThrows(
+            LotlTrustStoreNotFoundException.class,
+            () -> configuration.getTSL().refresh()
+    );
   }
 
   @Test
@@ -1027,9 +1103,14 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void getInvalidProxyConfigurationFromConfigurationFile() {
-    this.expectedException.expect(ConfigurationException.class);
-    this.expectedException.expectMessage("Configuration parameter HTTP_PROXY_PORT should have an integer value but the actual value is: notA_number.");
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_invalid_key_usage.yaml");
+    String expectedErrorMessage = "Configuration parameter HTTP_PROXY_PORT should have an integer value but the actual value is: notA_number.";
+
+    ConfigurationException exception = assertThrows(
+            ConfigurationException.class,
+            () -> configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_invalid_key_usage.yaml")
+    );
+
+    assertThat(exception.getMessage(), containsString(expectedErrorMessage));
   }
 
   @Test
@@ -1205,16 +1286,28 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void getInvalidZipCompressionRatioCheckThresholdInBytes() {
-    this.expectedException.expect(ConfigurationException.class);
-    this.expectedException.expectMessage("Configuration parameter ZIP_COMPRESSION_RATIO_CHECK_THRESHOLD_IN_BYTES should have a long integer value but the actual value is: invalidValue.");
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_invalid_zip_threshold.yaml");
+    String expectedErrorMessage = "Configuration parameter ZIP_COMPRESSION_RATIO_CHECK_THRESHOLD_IN_BYTES " +
+            "should have a long integer value but the actual value is: invalidValue.";
+
+    ConfigurationException exception = assertThrows(
+            ConfigurationException.class,
+            () -> configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_invalid_zip_threshold.yaml")
+    );
+
+    assertThat(exception.getMessage(), containsString(expectedErrorMessage));
   }
 
   @Test
   public void getInvalidMaxAllowedZipCompressionRatio() {
-    this.expectedException.expect(ConfigurationException.class);
-    this.expectedException.expectMessage("Configuration parameter MAX_ALLOWED_ZIP_COMPRESSION_RATIO should have an integer value but the actual value is: invalidValue.");
-    this.configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_invalid_zip_ratio.yaml");
+    String expectedErrorMessage = "Configuration parameter MAX_ALLOWED_ZIP_COMPRESSION_RATIO " +
+            "should have an integer value but the actual value is: invalidValue.";
+
+    ConfigurationException exception = assertThrows(
+            ConfigurationException.class,
+            () -> configuration.loadConfiguration("src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_invalid_zip_ratio.yaml")
+    );
+
+    assertThat(exception.getMessage(), containsString(expectedErrorMessage));
   }
 
   @Test
@@ -1250,10 +1343,14 @@ public class ConfigurationTest extends AbstractTest {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_no_ca.yaml";
     String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "Empty or no DIGIDOC_CAS entry";
-    this.expectedException.expect(ConfigurationException.class);
-    this.expectedException.expectMessage(expectedErrorMessage);
-    this.configuration.loadConfiguration(fileName);
-    this.configuration.getDDoc4JConfiguration();
+    configuration.loadConfiguration(fileName);
+
+    ConfigurationException exception = assertThrows(
+            ConfigurationException.class,
+            () -> configuration.getDDoc4JConfiguration()
+    );
+
+    assertThat(exception.getMessage(), equalTo(expectedErrorMessage));
   }
 
   @Test
@@ -1261,10 +1358,14 @@ public class ConfigurationTest extends AbstractTest {
     String fileName = "src/test/resources/testFiles/yaml-configurations/digidoc_test_conf_empty_ca.yaml";
     String expectedErrorMessage = "Configuration from " + fileName + " contains error(s):\n" +
         "Empty or no DIGIDOC_CA for entry 1";
-    this.expectedException.expect(ConfigurationException.class);
-    this.expectedException.expectMessage(expectedErrorMessage);
-    this.configuration.loadConfiguration(fileName);
-    this.configuration.getDDoc4JConfiguration();
+    configuration.loadConfiguration(fileName);
+
+    ConfigurationException exception = assertThrows(
+            ConfigurationException.class,
+            () -> configuration.getDDoc4JConfiguration()
+    );
+
+    assertThat(exception.getMessage(), equalTo(expectedErrorMessage));
   }
 
   @Test
@@ -1654,29 +1755,37 @@ public class ConfigurationTest extends AbstractTest {
 
   @Test
   public void testConfigureNewAiaOcspThroughYaml_missingIssuerCN() throws Exception {
-    expectedException.expect(ConfigurationException.class);
-    expectedException.expectMessage(Matchers.containsString("No value found for an entry <ISSUER_CN(1)>"));
-    loadConfigurationFromString(configuration, "AIA_OCSPS:",
-            "  - OCSP_SOURCE: scheme://host/path",
-            "    USE_NONCE: true");
+    ConfigurationException exception = assertThrows(
+            ConfigurationException.class,
+            () -> loadConfigurationFromString(configuration, "AIA_OCSPS:",
+              "  - OCSP_SOURCE: scheme://host/path",
+              "    USE_NONCE: true")
+    );
+
+    assertThat(exception.getMessage(), containsString("No value found for an entry <ISSUER_CN(1)>"));
   }
 
   @Test
   public void testConfigureNewAiaOcspThroughYaml_missingOcspSource() throws Exception {
-    expectedException.expect(ConfigurationException.class);
-    expectedException.expectMessage(Matchers.containsString("No value found for an entry <OCSP_SOURCE(1)>"));
-    loadConfigurationFromString(configuration, "AIA_OCSPS:",
-            "  - ISSUER_CN: OCSP NAME",
-            "    USE_NONCE: true");
+    ConfigurationException exception = assertThrows(
+            ConfigurationException.class,
+            () -> loadConfigurationFromString(configuration, "AIA_OCSPS:", 
+                    "  - ISSUER_CN: OCSP NAME", 
+                    "    USE_NONCE: true")
+    );
+
+    assertThat(exception.getMessage(), containsString("No value found for an entry <OCSP_SOURCE(1)>"));
   }
 
   @Test
   public void testConfigureNewAiaOcspThroughYaml_missingUseNonce() throws Exception {
-    expectedException.expect(ConfigurationException.class);
-    expectedException.expectMessage(Matchers.containsString("No value found for an entry <USE_NONCE(1)>"));
-    loadConfigurationFromString(configuration, "AIA_OCSPS:",
-            "  - ISSUER_CN: OCSP NAME",
-            "    OCSP_SOURCE: scheme://host/path");
+    ConfigurationException exception = assertThrows(ConfigurationException.class,
+            () -> loadConfigurationFromString(configuration, "AIA_OCSPS:",
+                    "  - ISSUER_CN: OCSP NAME",
+                    "    OCSP_SOURCE: scheme://host/path")
+    );
+
+    assertThat(exception.getMessage(), containsString("No value found for an entry <USE_NONCE(1)>"));
   }
 
   @Test

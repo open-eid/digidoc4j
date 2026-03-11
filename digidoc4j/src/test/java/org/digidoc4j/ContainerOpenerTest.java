@@ -179,31 +179,46 @@ public class ContainerOpenerTest extends AbstractTest {
 
   @Test
   public void containerOpener_fileWithZipBomb() {
-    this.expectedException.expect(TechnicalException.class);
-    this.expectedException.expectMessage("Zip Bomb detected in the ZIP container. Validation is interrupted.");
-    ContainerOpener.open("src/test/resources/testFiles/invalid-containers/zip-bomb-package-zip-1gb.bdoc");
+    TechnicalException exception = assertThrows(
+            TechnicalException.class,
+            () -> ContainerOpener.open("src/test/resources/testFiles/invalid-containers/zip-bomb-package-zip-1gb.bdoc")
+    );
+
+    assertThat(exception.getMessage(), equalTo("Zip Bomb detected in the ZIP container. Validation is interrupted."));
   }
 
   @Test
   public void containerOpener_fileWithZipBomb_fileCachedInMemory() {
-    this.expectedException.expect(TechnicalException.class);
-    this.expectedException.expectMessage("Zip Bomb detected in the ZIP container. Validation is interrupted.");
     configuration.setMaxFileSizeCachedInMemoryInMB(1);
-    ContainerOpener.open("src/test/resources/testFiles/invalid-containers/zip-bomb-package-zip-1gb.bdoc");
+
+    TechnicalException exception = assertThrows(
+            TechnicalException.class,
+            () -> ContainerOpener.open("src/test/resources/testFiles/invalid-containers/zip-bomb-package-zip-1gb.bdoc")
+    );
+
+    assertThat(exception.getMessage(), equalTo("Zip Bomb detected in the ZIP container. Validation is interrupted."));
   }
 
   @Test
   public void containerOpener_streamWithZipBomb() throws FileNotFoundException {
-    this.expectedException.expect(TechnicalException.class);
-    this.expectedException.expectMessage("Zip Bomb detected in the ZIP container. Validation is interrupted.");
-    ContainerOpener.open(new FileInputStream("src/test/resources/testFiles/invalid-containers/zip-bomb-package-zip-1gb.bdoc"), this.configuration);
+    TechnicalException exception = assertThrows(
+            TechnicalException.class,
+            () -> ContainerOpener.open(new FileInputStream("src/test/resources/testFiles/invalid-containers/zip-bomb-package-zip-1gb.bdoc"), configuration)
+    );
+
+    assertThat(exception.getMessage(), equalTo("Zip Bomb detected in the ZIP container. Validation is interrupted."));
   }
 
   @Test
   public void containerOpener_streamWithZipBomb_fileCachedInMemory() throws FileNotFoundException {
-    this.expectedException.expectMessage("Zip Bomb detected in the ZIP container. Validation is interrupted.");
     configuration.setMaxFileSizeCachedInMemoryInMB(1);
-    ContainerOpener.open(new FileInputStream("src/test/resources/testFiles/invalid-containers/zip-bomb-package-zip-1gb.bdoc"), this.configuration);
+
+    FileNotFoundException exception = assertThrows(
+            FileNotFoundException.class,
+            () -> ContainerOpener.open(new FileInputStream("src/test/resources/testFiles/invalid-containers/zip-bomb-package-zip-1gb.bdoc"), configuration)
+    );
+
+    assertThat(exception.getMessage(), equalTo("Zip Bomb detected in the ZIP container. Validation is interrupted."));
   }
 
   /*

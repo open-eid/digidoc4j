@@ -13,7 +13,7 @@ package org.digidoc4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.digidoc4j.exceptions.DigiDoc4JException;
-import org.junit.jupiter.api.Disabled;
+import org.digidoc4j.exceptions.InvalidDataFileException;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -171,14 +171,20 @@ public class DataFileTest extends AbstractTest {
     assertNotNull(dataFile.getMediaType());
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test
   public void testThrowsFileNotFoundExceptionIfFileDoesNotExists() {
-    new DataFile("NOT_EXISTS.TXT", TEST_FILE_MIMETYPE);
+    assertThrows(
+            DigiDoc4JException.class,
+            () ->  new DataFile("NOT_EXISTS.TXT", TEST_FILE_MIMETYPE)
+    );
   }
 
-  @Test(expected = Exception.class)
+  @Test
   public void testThrowsExceptionOnUnknownError() {
-    new DataFile(null, "none/none");
+    assertThrows(
+            InvalidDataFileException.class,
+            () -> new DataFile(null, "none/none")
+    );
   }
 
   @Test

@@ -60,6 +60,7 @@ import static org.digidoc4j.test.TestAssert.assertContainsExactSetOfErrors;
 import static org.digidoc4j.test.matcher.CommonMatchers.equalToSignatureUniqueIdList;
 import static org.digidoc4j.test.matcher.IsDigiDoc4JException.digiDoc4JExceptionMessageContainsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
@@ -159,29 +160,32 @@ public class ValidationTest extends AbstractTest {
     assertHasNoWarnings(result);
   }
 
-  @Test(expected = UnsupportedFormatException.class)
+  @Test
   public void notBDocThrowsException() {
-    TestDataBuilderUtil.open("src/test/resources/testFiles/invalid-containers/notABDoc.bdoc");
+    assertThrows(UnsupportedFormatException.class, () ->
+      TestDataBuilderUtil.open("src/test/resources/testFiles/invalid-containers/notABDoc.bdoc")
+    );
   }
 
-  @Test(expected = UnsupportedFormatException.class)
+  @Test
   public void incorrectMimetypeThrowsException() {
-    TestDataBuilderUtil.open("src/test/resources/testFiles/invalid-containers/incorrectMimetype.bdoc");
+    assertThrows(
+            UnsupportedFormatException.class,
+            () -> TestDataBuilderUtil.open("src/test/resources/testFiles/invalid-containers/incorrectMimetype.bdoc")
+    );
   }
 
-  @Test(expected = Exception.class)
+  @Test
   public void testExpiredCertSign() {
-    try {
-      DataToSign dataToSign = SignatureBuilder
-          .aSignature(this.createNonEmptyContainer())
-          .withSigningCertificate(TestSigningUtil.getSigningCertificate(
-              "src/test/resources/testFiles/p12/expired_signer.p12", "test"))
-          .buildDataToSign();
-      dataToSign.finalize(TestSigningUtil.sign(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm()));
-    } catch (Exception e) {
-      assertTrue(e.getMessage().contains("is expired at signing time"));
-      throw e;
-    }
+    SignatureBuilder signatureBuilder = SignatureBuilder
+            .aSignature(createNonEmptyContainer())
+            .withSigningCertificate(TestSigningUtil.getSigningCertificate("src/test/resources/testFiles/p12/expired_signer.p12", "test"));
+
+    Exception exception = assertThrows(
+            Exception.class,
+            signatureBuilder::buildDataToSign);
+
+    assertThat(exception.getMessage(), containsString("is expired at signing time"));
   }
 
   @Test
@@ -349,10 +353,12 @@ public class ValidationTest extends AbstractTest {
     );
   }
 
-  @Test(expected = DuplicateDataFileException.class)
+  @Test
   public void duplicateFileThrowsException() {
-    ContainerOpener
-        .open("src/test/resources/testFiles/invalid-containers/22902_data_files_with_same_names.bdoc").validate();
+    assertThrows(
+            DuplicateDataFileException.class,
+            () -> ContainerOpener.open("src/test/resources/testFiles/invalid-containers/22902_data_files_with_same_names.bdoc")
+    );
   }
 
   @Test
@@ -374,9 +380,12 @@ public class ValidationTest extends AbstractTest {
     );
   }
 
-  @Test(expected = DigiDoc4JException.class)
+  @Test
   public void missingMimeTypeFile() {
-    ContainerOpener.open("src/test/resources/testFiles/invalid-containers/missing_mimetype_file.asice");
+    assertThrows(
+            DigiDoc4JException.class,
+            () -> ContainerOpener.open("src/test/resources/testFiles/invalid-containers/missing_mimetype_file.asice")
+    );
   }
 
   @Test
@@ -414,9 +423,12 @@ public class ValidationTest extends AbstractTest {
   }
 
   @Disabled("This signature has two OCSP responses: one correct and one is technically corrupted. Opening a container should not throw an exception")
-  @Test(expected = DigiDoc4JException.class)
+  @Test
   public void corruptedOCSPDataThrowsException() {
-    ContainerOpener.open("src/test/resources/testFiles/invalid-containers/corrupted_ocsp_data.asice");
+    assertThrows(
+            DigiDoc4JException.class,
+            () -> ContainerOpener.open("src/test/resources/testFiles/invalid-containers/corrupted_ocsp_data.asice")
+    );
   }
 
   @Test
@@ -588,13 +600,13 @@ public class ValidationTest extends AbstractTest {
     );
   }
 
-  @Test(expected = TechnicalException.class)
+  @Test
   public void invalidTSRsa2047_whenASN1UnsafeIntegerNotAllowed() {
     PROD_CONFIGURATION.setAllowASN1UnsafeInteger(false);
     assertFalse(PROD_CONFIGURATION.isASN1UnsafeIntegerAllowed());
     Container container = ContainerOpener
             .open("src/test/resources/prodFiles/valid-containers/IB-4183_3.4kaart_RSA2047_TS.asice", PROD_CONFIGURATION);
-    container.validate();
+    assertThrows(TechnicalException.class, container::validate);
   }
 
   @Test

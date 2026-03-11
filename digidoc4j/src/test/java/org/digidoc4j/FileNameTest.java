@@ -19,20 +19,20 @@ import org.digidoc4j.utils.Helper;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FileNameTest extends AbstractTest {
 
-  @Test(expected = InvalidDataFileException.class)
+  @Test
   public void createContainerWithSpecialCharactersInFileName() throws Exception {
-    File folder = Files.createDirectory(testFolder.resolve("tmp")).toFile();
     try (FileInputStream stream = new FileInputStream("src/test/resources/testFiles/special-char-files/dds_acrobat.pdf")) {
-      Container container = ContainerBuilder.aContainer().withDataFile(stream,
-          "xxx,%2003:1737,%2031.08.2015.a.pdf", MimeTypeEnum.PDF.getMimeTypeString())
-          .usingTempDirectory(folder.getPath()).build();
-      String file = this.getFileBy("bdoc");
-      container.saveAsFile(file);
-      assertFalse(new File(file).exists());
+      ContainerBuilder containerBuilder = ContainerBuilder.aContainer();
+
+      assertThrows(
+              InvalidDataFileException.class,
+              () -> containerBuilder.withDataFile(stream, "xxx,%2003:1737,%2031.08.2015.a.pdf", MimeTypeEnum.PDF.getMimeTypeString())
+      );
     }
   }
 

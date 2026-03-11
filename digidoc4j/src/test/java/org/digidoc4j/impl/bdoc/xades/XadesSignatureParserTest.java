@@ -112,10 +112,10 @@ public class XadesSignatureParserTest extends AbstractTest {
     assertNotNull(dssSignature.getReferences());
   }
 
-  @Test(expected = InvalidSignatureException.class)
+  @Test
   public void parsingInvalidSignatureFile_shouldThrowException() {
-    XadesValidationReportGenerator xadesReportGenerator = this.createXadesReportGenerator("src/test/resources/testFiles/helper-files/test.txt");
-    new XadesSignatureParser().parse(xadesReportGenerator);
+    XadesValidationReportGenerator xadesReportGenerator = createXadesReportGenerator("src/test/resources/testFiles/helper-files/test.txt");
+    assertThrows(InvalidSignatureException.class, () -> new XadesSignatureParser().parse(xadesReportGenerator));
   }
 
   /*

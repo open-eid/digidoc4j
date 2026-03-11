@@ -45,7 +45,6 @@ import org.digidoc4j.test.util.TestTSLUtil;
 import org.digidoc4j.utils.Helper;
 import org.junit.Rule;
 import org.junit.internal.AssumptionViolatedException;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
@@ -120,9 +119,6 @@ public abstract class AbstractTest extends ConfigurationSingeltonHolder {
   protected static final PKCS12SignatureToken pkcs12Esteid2018SignatureToken = new PKCS12SignatureToken("src/test/resources/testFiles/p12/sign_ECC_from_TEST_of_ESTEID2018.p12", "1234".toCharArray());
   protected Configuration configuration;
 
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public TestWatcher watcher = new TestWatcher() {

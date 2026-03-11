@@ -47,6 +47,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StreamDocumentTest extends AbstractTest {
@@ -183,15 +184,19 @@ public class StreamDocumentTest extends AbstractTest {
   /*
     NB! If this test fails then ensure that directory testFiles/tmp/readonly is read-only!
    */
-  @Test(expected = FileNotFoundException.class)
+  @Test
   public void saveWhenNoAccessRights() throws Exception {
     File tmp = StreamDocumentTest.readOnlyPath.toFile();
     String dataFileName = tmp.getAbsolutePath() + File.separator + "no_access.txt";
+
     assertTrue(tmp.isDirectory() && tmp.exists(), "Invalid directory " + StreamDocumentTest.readOnlyPath);
-    this.document.save(dataFileName);
+    assertThrows(
+            FileNotFoundException.class,
+            () -> document.save(dataFileName)
+    );
   }
 
-  @Test(expected = DSSException.class)
+  @Test
   public void constructorThrowsException() throws Exception {
     InputStream stream = new InputStream() {
 
@@ -201,24 +206,27 @@ public class StreamDocumentTest extends AbstractTest {
       }
 
     };
-    this.document = new StreamDocument(stream, "suur_a.txt", MimeTypeEnum.TEXT);
+    document = new StreamDocument(stream, "suur_a.txt", MimeTypeEnum.TEXT);
     stream.close();
-    this.document.openStream();
+    assertThrows(
+            FileNotFoundException.class,
+            () -> document.openStream()
+    );
   }
 
-  @Test(expected = DSSException.class)
+  @Test
   public void testGetBytesThrowsException() throws Exception {
-    new MockStreamDocument().openStream();
+    assertThrows(DSSException.class, () -> new MockStreamDocument().openStream());
   }
 
-  @Test(expected = DSSException.class)
+  @Test
   public void testOpenStreamThrowsException() throws Exception {
-    new MockStreamDocument().openStream();
+    assertThrows(DSSException.class, () -> new MockStreamDocument().openStream());
   }
 
-  @Test(expected = DSSException.class)
+  @Test
   public void testGetDigestThrowsException() throws Exception {
-    new MockStreamDocument().getDigest(DigestAlgorithm.SHA1);
+    assertThrows(DSSException.class, () -> new MockStreamDocument().getDigest(DigestAlgorithm.SHA1));
   }
 
   /*
