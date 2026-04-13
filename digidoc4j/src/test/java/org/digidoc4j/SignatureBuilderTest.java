@@ -23,6 +23,8 @@ import org.digidoc4j.test.util.TestDataBuilderUtil;
 import org.digidoc4j.test.util.TestSigningUtil;
 import org.digidoc4j.utils.TokenAlgorithmSupport;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -40,6 +42,8 @@ import static org.digidoc4j.Configuration.Mode.TEST;
 import static org.digidoc4j.Container.DocumentType.ASICE;
 import static org.digidoc4j.Container.DocumentType.ASICS;
 import static org.digidoc4j.Container.DocumentType.BDOC;
+import static org.digidoc4j.test.util.TestSignatureUtil.assertSignatureContainsDigestMethod;
+import static org.digidoc4j.test.util.TestSignatureUtil.getEcdsaSignatureMethodUri;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInRelativeOrder;
 import static org.hamcrest.Matchers.containsString;
@@ -156,6 +160,83 @@ class SignatureBuilderTest extends AbstractTest {
     byte[] bytesToSign = dataToSign.getDataToSign();
     assertNotNull(bytesToSign);
     assertThat(bytesToSign.length, greaterThan(1));
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = DigestAlgorithm.class, names = {"SHA3_256", "SHA3_384", "SHA3_512"})
+  void buildDataToSign_WhenRsaWithSha3DigestIsUsed_ThrowsUnsupportedSignatureAlgorithm(
+          DigestAlgorithm signatureDigestAlgorithm
+  ) {
+    NotSupportedException exception = assertThrows(
+        NotSupportedException.class,
+        () -> SignatureBuilder
+            .aSignature(createNonEmptyContainerBy(ASICE))
+            .withSigningCertificate(pkcs12SignatureToken.getCertificate())
+            .withEncryptionAlgorithm(EncryptionAlgorithm.RSA)
+            .withSignatureDigestAlgorithm(signatureDigestAlgorithm)
+            .buildDataToSign()
+    );
+
+    assertThat(exception.getMessage(), containsString("RSA with SHA3 signature digest algorithms is not supported for XAdES signatures"));
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = DigestAlgorithm.class, names = {"SHA3_256", "SHA3_384", "SHA3_512"})
+  void invokeSigning_WhenRsaWithSha3DigestIsUsed_ThrowsUnsupportedSignatureAlgorithm(
+          DigestAlgorithm signatureDigestAlgorithm
+  ) {
+    NotSupportedException exception = assertThrows(
+        NotSupportedException.class,
+        () -> SignatureBuilder
+            .aSignature(createNonEmptyContainerBy(ASICE))
+            .withSignatureToken(pkcs12SignatureToken)
+            .withEncryptionAlgorithm(EncryptionAlgorithm.RSA)
+            .withSignatureDigestAlgorithm(signatureDigestAlgorithm)
+            .invokeSigning()
+    );
+
+    assertThat(exception.getMessage(), containsString("RSA with SHA3 signature digest algorithms is not supported for XAdES signatures"));
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = DigestAlgorithm.class, names = {"SHA3_256", "SHA3_384", "SHA3_512"})
+  void buildDataToSign_WhenEcdsaWithSha3DigestIsUsed_ReturnsValidSignature(
+          DigestAlgorithm signatureDigestAlgorithm
+  ) {
+    Container container = createNonEmptyContainerBy(ASICE);
+
+    DataToSign dataToSign = SignatureBuilder
+            .aSignature(container)
+            .withSigningCertificate(pkcs12Esteid2018SignatureToken.getCertificate())
+            .withEncryptionAlgorithm(EncryptionAlgorithm.ECDSA)
+            .withSignatureDigestAlgorithm(signatureDigestAlgorithm)
+            .buildDataToSign();
+    Signature signature = dataToSign.finalize(pkcs12Esteid2018SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+
+    assertThat(signature.getSignatureMethod(), equalTo(getEcdsaSignatureMethodUri(signatureDigestAlgorithm)));
+    assertValidSignature(signature);
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = DigestAlgorithm.class, names = {"SHA3_256", "SHA3_384", "SHA3_512"})
+  void buildDataToSign_WhenSha3DataFileDigestIsUsed_ReturnsValidSignature(
+          DigestAlgorithm dataFileDigestAlgorithm
+  ) {
+    Container container = createNonEmptyContainerBy(ASICE);
+
+    DataToSign dataToSign = SignatureBuilder
+            .aSignature(container)
+            .withSigningCertificate(pkcs12SignatureToken.getCertificate())
+            .withSignatureDigestAlgorithm(DigestAlgorithm.SHA384)
+            .withDataFileDigestAlgorithm(dataFileDigestAlgorithm)
+            .buildDataToSign();
+    Signature signature = dataToSign.finalize(pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+
+    assertEquals(DigestAlgorithm.SHA384, dataToSign.getSignatureParameters().getSignatureDigestAlgorithm());
+    assertEquals(dataFileDigestAlgorithm, dataToSign.getSignatureParameters().getDataFileDigestAlgorithm());
+    assertThat(signature.getSignatureMethod(), equalTo("http://www.w3.org/2001/04/xmldsig-more#rsa-sha384"));
+    assertSignatureContainsDigestMethod(signature, dataFileDigestAlgorithm);
+    assertTrue(container.validate().isValid());
   }
 
   @Test
@@ -1497,4 +1578,5 @@ class SignatureBuilderTest extends AbstractTest {
     assertThat(signature.getAdESSignature().length, greaterThan(1));
     assertTrue(signature.validateSignature().isValid());
   }
+
 }

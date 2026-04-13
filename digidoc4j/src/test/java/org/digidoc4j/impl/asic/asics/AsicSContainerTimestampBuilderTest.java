@@ -11,6 +11,7 @@
 package org.digidoc4j.impl.asic.asics;
 
 import eu.europa.esig.dss.enumerations.MimeTypeEnum;
+import eu.europa.esig.dss.spi.exception.DSSExternalResourceException;
 import org.digidoc4j.CompositeContainer;
 import org.digidoc4j.Configuration;
 import org.digidoc4j.Constant;
@@ -29,10 +30,16 @@ import org.digidoc4j.impl.asic.cades.AbstractAsicContainerTimestampBuilderTest;
 import org.digidoc4j.impl.ddoc.DDocContainer;
 import org.digidoc4j.test.TestConstants;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
 
 import static org.digidoc4j.test.TestAssert.assertTimeBetweenNotBeforeAndNow;
 import static org.digidoc4j.test.matcher.IsAsicArchiveManifestDataReference.isDataReferenceWithNameAndDigestAlgorithm;
@@ -41,6 +48,7 @@ import static org.digidoc4j.test.matcher.IsDssDocument.isDocumentWithMimeType;
 import static org.digidoc4j.test.matcher.IsDssDocument.isDocumentWithName;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
@@ -63,38 +71,9 @@ class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTimestampB
     verifyNoInteractions(container);
   }
 
-  @Test
-  void createInstance_WhenContainerIsGenericContainerType_ThrowsException() {
-    createInstance_WhenContainerIsNotAsicsContainer_ThrowsException(Container.class);
-  }
-
-  @Test
-  void createInstance_WhenContainerIsGenericCompositeContainerType_ThrowsException() {
-    createInstance_WhenContainerIsNotAsicsContainer_ThrowsException(CompositeContainer.class);
-  }
-
-  @Test
-  void createInstance_WhenContainerIsGenericAsicContainerType_ThrowsException() {
-    createInstance_WhenContainerIsNotAsicsContainer_ThrowsException(AsicContainer.class);
-  }
-
-  @Test
-  void createInstance_WhenContainerIsAsiceContainerType_ThrowsException() {
-    createInstance_WhenContainerIsNotAsicsContainer_ThrowsException(AsicEContainer.class);
-  }
-
-  @Test
-  void createInstance_WhenContainerIsBdocContainerType_ThrowsException() {
-    createInstance_WhenContainerIsNotAsicsContainer_ThrowsException(BDocContainer.class);
-  }
-
-  @Test
-  void createInstance_WhenContainerIsDdocContainerType_ThrowsException() {
-    createInstance_WhenContainerIsNotAsicsContainer_ThrowsException(DDocContainer.class);
-  }
-
-  // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
-  private void createInstance_WhenContainerIsNotAsicsContainer_ThrowsException(Class<? extends Container> containerType) {
+  @ParameterizedTest
+  @MethodSource("notAsicsContainerTypes")
+  void createInstance_WhenContainerIsNotAsicsContainer_ThrowsException(Class<? extends Container> containerType) {
     Container container = mock(containerType);
 
     IllegalArgumentException caughtException = assertThrows(
@@ -104,6 +83,17 @@ class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTimestampB
 
     assertThat(caughtException.getMessage(), equalTo("Not an ASiC-S container"));
     verifyNoInteractions(container);
+  }
+
+  private static Stream<Class<? extends Container>> notAsicsContainerTypes() {
+    return Stream.of(
+            Container.class,
+            CompositeContainer.class,
+            AsicContainer.class,
+            AsicEContainer.class,
+            BDocContainer.class,
+            DDocContainer.class
+    );
   }
 
   @Test
@@ -194,29 +184,12 @@ class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTimestampB
     ));
   }
 
-  @Test
-  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid1stTimestampWithSha256() {
-    invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid1stTimestampWithExpectedParameters(
-            DigestAlgorithm.SHA256
-    );
-  }
-
-  @Test
-  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid1stTimestampWithSha384() {
-    invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid1stTimestampWithExpectedParameters(
-            DigestAlgorithm.SHA384
-    );
-  }
-
-  @Test
-  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid1stTimestampWithSha512() {
-    invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid1stTimestampWithExpectedParameters(
-            DigestAlgorithm.SHA512
-    );
-  }
-
-  // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
-  private void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid1stTimestampWithExpectedParameters(
+  @ParameterizedTest
+  @EnumSource(
+          value = DigestAlgorithm.class,
+          names = {"SHA256", "SHA384", "SHA512"}
+  )
+  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid1stTimestampWithExpectedParameters(
           DigestAlgorithm timestampDigestAlgorithm
   ) {
     Configuration configuration = Configuration.of(Configuration.Mode.TEST);
@@ -240,80 +213,9 @@ class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTimestampB
     assertThat(asicsTimestamp.getArchiveManifest(), nullValue());
   }
 
-  @Test
-  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithBothSha256() {
-    invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithExpectedParameters(
-            DigestAlgorithm.SHA256,
-            DigestAlgorithm.SHA256
-    );
-  }
-
-  @Test
-  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithTstSha256AndRefSha384() {
-    invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithExpectedParameters(
-            DigestAlgorithm.SHA256,
-            DigestAlgorithm.SHA384
-    );
-  }
-
-  @Test
-  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithTstSha256AndRefSha512() {
-    invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithExpectedParameters(
-            DigestAlgorithm.SHA256,
-            DigestAlgorithm.SHA512
-    );
-  }
-
-  @Test
-  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithTstSha384AndRefSha256() {
-    invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithExpectedParameters(
-            DigestAlgorithm.SHA384,
-            DigestAlgorithm.SHA256
-    );
-  }
-
-  @Test
-  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithBothSha384() {
-    invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithExpectedParameters(
-            DigestAlgorithm.SHA384,
-            DigestAlgorithm.SHA384
-    );
-  }
-
-  @Test
-  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithTstSha384AndRefSha512() {
-    invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithExpectedParameters(
-            DigestAlgorithm.SHA384,
-            DigestAlgorithm.SHA512
-    );
-  }
-
-  @Test
-  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithTstSha512AndRefSha256() {
-    invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithExpectedParameters(
-            DigestAlgorithm.SHA512,
-            DigestAlgorithm.SHA256
-    );
-  }
-
-  @Test
-  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithTstSha512AndRefSha384() {
-    invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithExpectedParameters(
-            DigestAlgorithm.SHA512,
-            DigestAlgorithm.SHA384
-    );
-  }
-
-  @Test
-  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithBothSha512() {
-    invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithExpectedParameters(
-            DigestAlgorithm.SHA512,
-            DigestAlgorithm.SHA512
-    );
-  }
-
-  // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
-  private void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithExpectedParameters(
+  @ParameterizedTest
+  @MethodSource("supportedDigestAlgorithms")
+  void invokeTimestamping_WhenParametersAreConfiguredViaConfiguration_ReturnsValid2ndTimestampWithExpectedParameters(
           DigestAlgorithm timestampDigestAlgorithm,
           DigestAlgorithm referenceDigestAlgorithm
   ) {
@@ -347,29 +249,12 @@ class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTimestampB
     ));
   }
 
-  @Test
-  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid1stTimestampWithSha256() {
-    invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid1stTimestampWithExpectedParameters(
-            DigestAlgorithm.SHA256
-    );
-  }
-
-  @Test
-  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid1stTimestampWithSha384() {
-    invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid1stTimestampWithExpectedParameters(
-            DigestAlgorithm.SHA384
-    );
-  }
-
-  @Test
-  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid1stTimestampWithSha512() {
-    invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid1stTimestampWithExpectedParameters(
-            DigestAlgorithm.SHA512
-    );
-  }
-
-  // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
-  private void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid1stTimestampWithExpectedParameters(
+  @ParameterizedTest
+  @EnumSource(
+          value = DigestAlgorithm.class,
+          names = {"SHA256", "SHA384", "SHA512"}
+  )
+  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid1stTimestampWithExpectedParameters(
           DigestAlgorithm timestampDigestAlgorithm
   ) {
     Configuration configuration = Configuration.of(Configuration.Mode.TEST);
@@ -393,80 +278,9 @@ class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTimestampB
     assertThat(asicsTimestamp.getArchiveManifest(), nullValue());
   }
 
-  @Test
-  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithBothSha256() {
-    invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithExpectedParameters(
-            DigestAlgorithm.SHA256,
-            DigestAlgorithm.SHA256
-    );
-  }
-
-  @Test
-  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithTstSha256AndRefSha384() {
-    invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithExpectedParameters(
-            DigestAlgorithm.SHA256,
-            DigestAlgorithm.SHA384
-    );
-  }
-
-  @Test
-  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithTstSha256AndRefSha512() {
-    invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithExpectedParameters(
-            DigestAlgorithm.SHA256,
-            DigestAlgorithm.SHA512
-    );
-  }
-
-  @Test
-  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithTstSha384AndRefSha256() {
-    invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithExpectedParameters(
-            DigestAlgorithm.SHA384,
-            DigestAlgorithm.SHA256
-    );
-  }
-
-  @Test
-  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithBothSha384() {
-    invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithExpectedParameters(
-            DigestAlgorithm.SHA384,
-            DigestAlgorithm.SHA384
-    );
-  }
-
-  @Test
-  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithTstSha384AndRefSha512() {
-    invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithExpectedParameters(
-            DigestAlgorithm.SHA384,
-            DigestAlgorithm.SHA512
-    );
-  }
-
-  @Test
-  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithTstSha512AndRefSha256() {
-    invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithExpectedParameters(
-            DigestAlgorithm.SHA512,
-            DigestAlgorithm.SHA256
-    );
-  }
-
-  @Test
-  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithTstSha512AndRefSha384() {
-    invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithExpectedParameters(
-            DigestAlgorithm.SHA512,
-            DigestAlgorithm.SHA384
-    );
-  }
-
-  @Test
-  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithBothSha512() {
-    invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithExpectedParameters(
-            DigestAlgorithm.SHA512,
-            DigestAlgorithm.SHA512
-    );
-  }
-
-  // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
-  private void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithExpectedParameters(
+  @ParameterizedTest
+  @MethodSource("supportedDigestAlgorithms")
+  void invokeTimestamping_WhenParametersAreConfiguredViaTimestampBuilder_ReturnsValid2ndTimestampWithExpectedParameters(
           DigestAlgorithm timestampDigestAlgorithm,
           DigestAlgorithm referenceDigestAlgorithm
   ) {
@@ -498,6 +312,108 @@ class AsicSContainerTimestampBuilderTest extends AbstractAsicContainerTimestampB
             isDataReferenceWithNameAndDigestAlgorithm("META-INF/timestamp.tst", referenceDigestAlgorithm),
             isDataReferenceWithNameAndDigestAlgorithm("test.txt", referenceDigestAlgorithm)
     ));
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = DigestAlgorithm.class,
+              names = {"SHA3_256", "SHA3_384", "SHA3_512"})
+  void invokeTimestamping_WhenConfigurationUsesSha3TimestampDigestFor1stTimestamp_ThrowsTsaRejection(
+          DigestAlgorithm tsaRejectedTimestampDigest
+  ) {
+    Configuration configuration = Configuration.of(Configuration.Mode.TEST);
+    configuration.setTspSourceForArchiveTimestamps(TestConstants.DEMO_TSA_RSA_URL);
+    configuration.setArchiveTimestampDigestAlgorithm(tsaRejectedTimestampDigest);
+    configuration.setArchiveTimestampReferenceDigestAlgorithm(DigestAlgorithm.SHA256);
+
+    Container container = getDefaultContainerForTimestamping(configuration);
+    TimestampBuilder timestampBuilder = TimestampBuilder.aTimestamp(container);
+
+    assertTimestampDigestRejectedByConfiguredTsa(timestampBuilder);
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = DigestAlgorithm.class,
+              names = {"SHA3_256", "SHA3_384", "SHA3_512"})
+  void invokeTimestamping_WhenConfigurationUsesSha3TimestampDigestFor2ndTimestamp_ThrowsTsaRejection(
+          DigestAlgorithm tsaRejectedTimestampDigest
+  ) {
+    Configuration configuration = Configuration.of(Configuration.Mode.TEST);
+    Container container = getDefaultContainerForTimestamping(configuration);
+    container.addTimestamp(TimestampBuilder.aTimestamp(container).invokeTimestamping());
+
+    configuration.setTspSourceForArchiveTimestamps(TestConstants.DEMO_TSA_RSA_URL);
+    configuration.setArchiveTimestampDigestAlgorithm(tsaRejectedTimestampDigest);
+    configuration.setArchiveTimestampReferenceDigestAlgorithm(DigestAlgorithm.SHA256);
+
+    TimestampBuilder timestampBuilder = TimestampBuilder.aTimestamp(container);
+
+    assertTimestampDigestRejectedByConfiguredTsa(timestampBuilder);
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = DigestAlgorithm.class,
+              names = {"SHA3_256", "SHA3_384", "SHA3_512"})
+  void invokeTimestamping_WhenBuilderUsesSha3TimestampDigestFor1stTimestamp_ThrowsTsaRejection(
+          DigestAlgorithm tsaRejectedTimestampDigest
+  ) {
+    Configuration configuration = Configuration.of(Configuration.Mode.TEST);
+    Container container = getDefaultContainerForTimestamping(configuration);
+
+    TimestampBuilder timestampBuilder = TimestampBuilder.aTimestamp(container)
+            .withTimestampDigestAlgorithm(tsaRejectedTimestampDigest)
+            .withReferenceDigestAlgorithm(DigestAlgorithm.SHA256)
+            .withTspSource(TestConstants.DEMO_TSA_RSA_URL);
+
+    assertTimestampDigestRejectedByConfiguredTsa(timestampBuilder);
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = DigestAlgorithm.class,
+              names = {"SHA3_256", "SHA3_384", "SHA3_512"})
+  void invokeTimestamping_WhenBuilderUsesSha3TimestampDigestFor2ndTimestamp_ThrowsTsaRejection(
+          DigestAlgorithm tsaRejectedTimestampDigest
+  ) {
+    Configuration configuration = Configuration.of(Configuration.Mode.TEST);
+    Container container = getDefaultContainerForTimestamping(configuration);
+    container.addTimestamp(TimestampBuilder.aTimestamp(container).invokeTimestamping());
+
+    TimestampBuilder timestampBuilder = TimestampBuilder.aTimestamp(container)
+            .withTimestampDigestAlgorithm(tsaRejectedTimestampDigest)
+            .withReferenceDigestAlgorithm(DigestAlgorithm.SHA256)
+            .withTspSource(TestConstants.DEMO_TSA_RSA_URL);
+
+    assertTimestampDigestRejectedByConfiguredTsa(timestampBuilder);
+  }
+
+  private static void assertTimestampDigestRejectedByConfiguredTsa(TimestampBuilder timestampBuilder) {
+    DSSExternalResourceException caughtException = assertThrows(
+            DSSExternalResourceException.class,
+            timestampBuilder::invokeTimestamping
+    );
+
+    assertThat(caughtException.getMessage(),
+               containsString("No timestamp token has been retrieved (TSP Status : request contains unknown algorithm / PKIFailureInfo: 0x80)"));
+  }
+
+  private static Stream<Arguments> supportedDigestAlgorithms() {
+    List<DigestAlgorithm> supportedTimestampDigests = Arrays.asList(
+            DigestAlgorithm.SHA256,
+            DigestAlgorithm.SHA384,
+            DigestAlgorithm.SHA512
+    );
+
+    List<DigestAlgorithm> supportedReferenceDigests = Arrays.asList(
+            DigestAlgorithm.SHA256,
+            DigestAlgorithm.SHA384,
+            DigestAlgorithm.SHA512,
+            DigestAlgorithm.SHA3_256,
+            DigestAlgorithm.SHA3_384,
+            DigestAlgorithm.SHA3_512
+    );
+
+    return supportedTimestampDigests.stream()
+            .flatMap(timestampDigest -> supportedReferenceDigests.stream()
+                    .map(referenceDigest -> Arguments.of(timestampDigest, referenceDigest)));
   }
 
   @Override

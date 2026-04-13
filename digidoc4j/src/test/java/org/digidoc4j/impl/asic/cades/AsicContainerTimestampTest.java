@@ -17,6 +17,8 @@ import org.bouncycastle.tsp.TimeStampTokenInfo;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.X509Cert;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.util.Date;
 
@@ -134,33 +136,9 @@ public abstract class AsicContainerTimestampTest<T extends AsicContainerTimestam
     verifyNoInteractions(timeStampToken);
   }
 
-  @Test
-  void getDigestAlgorithm_WhenDigestAlgorithmIsSha1_ReturnsDigestAlgorithm() {
-    getDigestAlgorithm_WhenDigestAlgorithmIsSupported_ReturnsDigestAlgorithm(DigestAlgorithm.SHA1);
-  }
-
-  @Test
-  void getDigestAlgorithm_WhenDigestAlgorithmIsSha224_ReturnsDigestAlgorithm() {
-    getDigestAlgorithm_WhenDigestAlgorithmIsSupported_ReturnsDigestAlgorithm(DigestAlgorithm.SHA224);
-  }
-
-  @Test
-  void getDigestAlgorithm_WhenDigestAlgorithmIsSha256_ReturnsDigestAlgorithm() {
-    getDigestAlgorithm_WhenDigestAlgorithmIsSupported_ReturnsDigestAlgorithm(DigestAlgorithm.SHA256);
-  }
-
-  @Test
-  void getDigestAlgorithm_WhenDigestAlgorithmIsSha384_ReturnsDigestAlgorithm() {
-    getDigestAlgorithm_WhenDigestAlgorithmIsSupported_ReturnsDigestAlgorithm(DigestAlgorithm.SHA384);
-  }
-
-  @Test
-  void getDigestAlgorithm_WhenDigestAlgorithmIsSha512_ReturnsDigestAlgorithm() {
-    getDigestAlgorithm_WhenDigestAlgorithmIsSupported_ReturnsDigestAlgorithm(DigestAlgorithm.SHA512);
-  }
-
-  // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
-  private void getDigestAlgorithm_WhenDigestAlgorithmIsSupported_ReturnsDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
+  @ParameterizedTest
+  @EnumSource(DigestAlgorithm.class)
+  void getDigestAlgorithm_WhenDigestAlgorithmIsSupported_ReturnsDigestAlgorithm(DigestAlgorithm digestAlgorithm) {
     CadesTimestamp cadesTimestamp = mock(CadesTimestamp.class);
     TimeStampToken timeStampToken = mock(TimeStampToken.class);
     doReturn(timeStampToken).when(cadesTimestamp).getTimeStampToken();
@@ -179,50 +157,12 @@ public abstract class AsicContainerTimestampTest<T extends AsicContainerTimestam
     verifyNoMoreInteractions(cadesTimestamp, timeStampToken, timeStampTokenInfo);
   }
 
-  @Test
-  void getDigestAlgorithm_WhenDigestAlgorithmIsMd2_ThrowsIllegalStateException() {
-    getDigestAlgorithm_WhenDigestAlgorithmIsNotSupported_ThrowsIllegalStateException(
-            eu.europa.esig.dss.enumerations.DigestAlgorithm.MD2);
-  }
-
-  @Test
-  void getDigestAlgorithm_WhenDigestAlgorithmIsMd5_ThrowsIllegalStateException() {
-    getDigestAlgorithm_WhenDigestAlgorithmIsNotSupported_ThrowsIllegalStateException(
-            eu.europa.esig.dss.enumerations.DigestAlgorithm.MD5);
-  }
-
-  @Test
-  void getDigestAlgorithm_WhenDigestAlgorithmIsRipeMd160_ThrowsIllegalStateException() {
-    getDigestAlgorithm_WhenDigestAlgorithmIsNotSupported_ThrowsIllegalStateException(
-            eu.europa.esig.dss.enumerations.DigestAlgorithm.RIPEMD160);
-  }
-
-  @Test
-  void getDigestAlgorithm_WhenDigestAlgorithmIsShake128_ThrowsIllegalStateException() {
-    getDigestAlgorithm_WhenDigestAlgorithmIsNotSupported_ThrowsIllegalStateException(
-            eu.europa.esig.dss.enumerations.DigestAlgorithm.SHAKE128);
-  }
-
-  @Test
-  void getDigestAlgorithm_WhenDigestAlgorithmIsShake256_ThrowsIllegalStateException() {
-    getDigestAlgorithm_WhenDigestAlgorithmIsNotSupported_ThrowsIllegalStateException(
-            eu.europa.esig.dss.enumerations.DigestAlgorithm.SHAKE256);
-  }
-
-  @Test
-  void getDigestAlgorithm_WhenDigestAlgorithmIsShake256_512_ThrowsIllegalStateException() {
-    getDigestAlgorithm_WhenDigestAlgorithmIsNotSupported_ThrowsIllegalStateException(
-            eu.europa.esig.dss.enumerations.DigestAlgorithm.SHAKE256_512);
-  }
-
-  @Test
-  void getDigestAlgorithm_WhenDigestAlgorithmIsWhirlpool_ThrowsIllegalStateException() {
-    getDigestAlgorithm_WhenDigestAlgorithmIsNotSupported_ThrowsIllegalStateException(
-            eu.europa.esig.dss.enumerations.DigestAlgorithm.WHIRLPOOL);
-  }
-
-  // TODO: Replace with @ParameterizedTest when DD4J is migrated to JUnit 5
-  private void getDigestAlgorithm_WhenDigestAlgorithmIsNotSupported_ThrowsIllegalStateException(
+  @ParameterizedTest
+  @EnumSource(
+          value = eu.europa.esig.dss.enumerations.DigestAlgorithm.class,
+          names = {"MD2", "MD5", "RIPEMD160", "SHAKE128", "SHAKE256", "SHAKE256_512", "WHIRLPOOL"}
+  )
+  void getDigestAlgorithm_WhenDigestAlgorithmIsNotSupported_ThrowsIllegalStateException(
           eu.europa.esig.dss.enumerations.DigestAlgorithm digestAlgorithm
   ) {
     CadesTimestamp cadesTimestamp = mock(CadesTimestamp.class);

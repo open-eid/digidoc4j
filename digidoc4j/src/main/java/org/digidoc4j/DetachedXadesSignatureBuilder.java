@@ -309,6 +309,7 @@ public class DetachedXadesSignatureBuilder {
   private void populateSignatureParameters() {
     populateEncryptionAlgorithm();
     populateSignatureDigestAlgorithm();
+    validateSignatureAlgorithmCompatibility();
     populateDataFileDigestAlgorithm();
     populateSignatureProfile();
   }
@@ -340,6 +341,13 @@ public class DetachedXadesSignatureBuilder {
       signatureParameters.setEncryptionAlgorithm(EncryptionAlgorithm.ECDSA);
     } else {
       signatureParameters.setEncryptionAlgorithm(EncryptionAlgorithm.RSA);
+    }
+  }
+
+  private void validateSignatureAlgorithmCompatibility() {
+    if (signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.RSA
+            && DigestAlgorithm.isSha3(signatureParameters.getSignatureDigestAlgorithm())) {
+      throw new NotSupportedException("RSA with SHA3 signature digest algorithms is not supported for XAdES signatures");
     }
   }
 

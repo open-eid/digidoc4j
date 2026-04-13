@@ -21,6 +21,7 @@ import org.digidoc4j.SignatureBuilder;
 import org.digidoc4j.SignatureProfile;
 import org.digidoc4j.exceptions.ContainerWithoutFilesException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
+import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.exceptions.TechnicalException;
 import org.digidoc4j.impl.SignatureFinalizer;
@@ -92,6 +93,7 @@ public abstract class AsicSignatureBuilder extends SignatureBuilder {
   private void populateSignatureParameters() {
     populateEncryptionAlgorithm();
     populateSignatureDigestAlgorithm();
+    validateSignatureAlgorithmCompatibility();
     populateDataFileDigestAlgorithm();
     populateSignatureProfile();
   }
@@ -122,6 +124,13 @@ public abstract class AsicSignatureBuilder extends SignatureBuilder {
       signatureParameters.setEncryptionAlgorithm(EncryptionAlgorithm.ECDSA);
     } else {
       signatureParameters.setEncryptionAlgorithm(EncryptionAlgorithm.RSA);
+    }
+  }
+
+  private void validateSignatureAlgorithmCompatibility() {
+    if (signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.RSA
+            && DigestAlgorithm.isSha3(signatureParameters.getSignatureDigestAlgorithm())) {
+      throw new NotSupportedException("RSA with SHA3 signature digest algorithms is not supported for XAdES signatures");
     }
   }
 

@@ -18,10 +18,12 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DigestAlgorithmTest {
 
@@ -72,5 +74,38 @@ class DigestAlgorithmTest {
 
       assertNull(result);
     }
+
+  @Test
+  void isSha1_ReturnsTrueOnlyForSha1() {
+    Stream.of(DigestAlgorithm.values())
+            .forEach(digestAlgorithm -> assertEquals(
+                    digestAlgorithm == DigestAlgorithm.SHA1,
+                    DigestAlgorithm.isSha1(digestAlgorithm)
+            ));
+  }
+
+  @Test
+  void isSha2_ReturnsTrueOnlyForSha2Algorithms() {
+    assertFalse(DigestAlgorithm.isSha2(DigestAlgorithm.SHA1));
+    assertTrue(DigestAlgorithm.isSha2(DigestAlgorithm.SHA224));
+    assertTrue(DigestAlgorithm.isSha2(DigestAlgorithm.SHA256));
+    assertTrue(DigestAlgorithm.isSha2(DigestAlgorithm.SHA384));
+    assertTrue(DigestAlgorithm.isSha2(DigestAlgorithm.SHA512));
+    assertFalse(DigestAlgorithm.isSha2(DigestAlgorithm.SHA3_256));
+    assertFalse(DigestAlgorithm.isSha2(DigestAlgorithm.SHA3_384));
+    assertFalse(DigestAlgorithm.isSha2(DigestAlgorithm.SHA3_512));
+  }
+
+  @Test
+  void isSha3_ReturnsTrueOnlyForSha3Algorithms() {
+    assertFalse(DigestAlgorithm.isSha3(DigestAlgorithm.SHA1));
+    assertFalse(DigestAlgorithm.isSha3(DigestAlgorithm.SHA224));
+    assertFalse(DigestAlgorithm.isSha3(DigestAlgorithm.SHA256));
+    assertFalse(DigestAlgorithm.isSha3(DigestAlgorithm.SHA384));
+    assertFalse(DigestAlgorithm.isSha3(DigestAlgorithm.SHA512));
+    assertTrue(DigestAlgorithm.isSha3(DigestAlgorithm.SHA3_256));
+    assertTrue(DigestAlgorithm.isSha3(DigestAlgorithm.SHA3_384));
+    assertTrue(DigestAlgorithm.isSha3(DigestAlgorithm.SHA3_512));
+  }
 
 }

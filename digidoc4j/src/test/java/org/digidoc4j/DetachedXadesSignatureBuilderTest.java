@@ -19,11 +19,15 @@ import org.digidoc4j.exceptions.SignatureTokenMissingException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.test.TestAssert;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
+import static org.digidoc4j.test.util.TestSignatureUtil.assertSignatureContainsDigestMethod;
+import static org.digidoc4j.test.util.TestSignatureUtil.getEcdsaSignatureMethodUri;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -462,6 +466,91 @@ class DetachedXadesSignatureBuilderTest extends AbstractTest {
     assertValidSignature(signature);
   }
 
+  @ParameterizedTest
+  @EnumSource(value = DigestAlgorithm.class, names = {"SHA3_256", "SHA3_384", "SHA3_512"})
+  void buildDataToSign_WhenRsaWithSha3DigestIsUsed_ThrowsUnsupportedSignatureAlgorithm(
+          DigestAlgorithm signatureDigestAlgorithm
+  ) {
+    DataFile dataFile = createTextDataFile("filename", "test");
+
+    NotSupportedException exception = assertThrows(
+        NotSupportedException.class,
+        () -> DetachedXadesSignatureBuilder
+            .withConfiguration(new Configuration())
+            .withDataFile(dataFile)
+            .withSigningCertificate(pkcs12SignatureToken.getCertificate())
+            .withEncryptionAlgorithm(EncryptionAlgorithm.RSA)
+            .withSignatureDigestAlgorithm(signatureDigestAlgorithm)
+            .buildDataToSign()
+    );
+
+    assertThat(exception.getMessage(), containsString("RSA with SHA3 signature digest algorithms is not supported for XAdES signatures"));
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = DigestAlgorithm.class, names = {"SHA3_256", "SHA3_384", "SHA3_512"})
+  void invokeSigning_WhenRsaWithSha3DigestIsUsed_ThrowsUnsupportedSignatureAlgorithm(
+          DigestAlgorithm signatureDigestAlgorithm
+  ) {
+    DataFile dataFile = createTextDataFile("filename", "test");
+
+    NotSupportedException exception = assertThrows(
+        NotSupportedException.class,
+        () -> DetachedXadesSignatureBuilder
+            .withConfiguration(new Configuration())
+            .withDataFile(dataFile)
+            .withSignatureToken(pkcs12SignatureToken)
+            .withEncryptionAlgorithm(EncryptionAlgorithm.RSA)
+            .withSignatureDigestAlgorithm(signatureDigestAlgorithm)
+            .invokeSigning()
+    );
+
+    assertThat(exception.getMessage(), containsString("RSA with SHA3 signature digest algorithms is not supported for XAdES signatures"));
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = DigestAlgorithm.class, names = {"SHA3_256", "SHA3_384", "SHA3_512"})
+  void buildDataToSign_WhenEcdsaWithSha3DigestIsUsed_ReturnsValidSignature(
+          DigestAlgorithm signatureDigestAlgorithm
+  ) {
+    DataFile dataFile = createTextDataFile("filename", "test");
+
+    DataToSign dataToSign = DetachedXadesSignatureBuilder
+            .withConfiguration(new Configuration())
+            .withDataFile(dataFile)
+            .withSigningCertificate(pkcs12Esteid2018SignatureToken.getCertificate())
+            .withEncryptionAlgorithm(EncryptionAlgorithm.ECDSA)
+            .withSignatureDigestAlgorithm(signatureDigestAlgorithm)
+            .buildDataToSign();
+    Signature signature = dataToSign.finalize(pkcs12Esteid2018SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+
+    assertThat(signature.getSignatureMethod(), equalTo(getEcdsaSignatureMethodUri(signatureDigestAlgorithm)));
+    assertValidSignature(signature);
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = DigestAlgorithm.class, names = {"SHA3_256", "SHA3_384", "SHA3_512"})
+  void buildDataToSign_WhenSha3DataFileDigestIsUsed_ReturnsValidSignature(
+          DigestAlgorithm dataFileDigestAlgorithm
+  ) {
+    DataFile dataFile = createTextDataFile("filename", "test");
+
+    DataToSign dataToSign = DetachedXadesSignatureBuilder
+            .withConfiguration(new Configuration())
+            .withDataFile(dataFile)
+            .withSigningCertificate(pkcs12SignatureToken.getCertificate())
+            .withSignatureDigestAlgorithm(DigestAlgorithm.SHA384)
+            .withDataFileDigestAlgorithm(dataFileDigestAlgorithm)
+            .buildDataToSign();
+    Signature signature = dataToSign.finalize(pkcs12SignatureToken.sign(dataToSign.getDigestAlgorithm(), dataToSign.getDataToSign()));
+
+    assertEquals(DigestAlgorithm.SHA384, dataToSign.getSignatureParameters().getSignatureDigestAlgorithm());
+    assertEquals(dataFileDigestAlgorithm, dataToSign.getSignatureParameters().getDataFileDigestAlgorithm());
+    assertThat(signature.getSignatureMethod(), equalTo("http://www.w3.org/2001/04/xmldsig-more#rsa-sha384"));
+    assertSignatureContainsDigestMethod(signature, dataFileDigestAlgorithm);
+    assertValidSignature(signature);
+  }
+
   @Test
   void mimeTypeValueNotValidated() throws Exception {
     byte[] digest = MessageDigest.getInstance("SHA-256").digest("hello".getBytes());
@@ -525,4 +614,5 @@ class DetachedXadesSignatureBuilderTest extends AbstractTest {
     assertSame(1, validationResult.getContainerErrors().size());
     assertTrue(validationResult.getContainerErrors().get(0).getMessage().startsWith("Manifest file has an entry for file <test.txt> with mimetype <text/plain> but the signature file for signature "));
   }
+
 }

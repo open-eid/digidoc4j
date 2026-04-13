@@ -75,14 +75,19 @@ public final class TestSigningUtil {
 
   public static X509Certificate getSigningCertificate(String pkiContainer, String pkiContainerPassword, String alias) {
     try {
-      KeyStore keyStore = KeyStore.getInstance("PKCS12");
-      try (FileInputStream stream = new FileInputStream(pkiContainer)) {
-        keyStore.load(stream, pkiContainerPassword.toCharArray());
-      }
+      KeyStore keyStore = loadKeyStore(pkiContainer, pkiContainerPassword);
       return (X509Certificate) keyStore.getCertificate(alias);
     } catch (Exception e) {
       throw new DigiDoc4JException("Loading signer cert failed; " + e.getMessage());
     }
+  }
+
+  public static PrivateKey getSigningPrivateKey() {
+    return TestSigningUtil.getSigningPrivateKey(TEST_PKI_CONTAINER, TEST_PKI_CONTAINER_PASSWORD);
+  }
+
+  public static PrivateKey getSigningPrivateKey(String pkiContainer, String pkiContainerPassword) {
+    return TestSigningUtil.getSigningPrivateKey(pkiContainer, pkiContainerPassword, "1");
   }
 
   public static byte[] sign(byte[] dataToSign, DigestAlgorithm digestAlgorithm) {
@@ -214,6 +219,27 @@ public final class TestSigningUtil {
     CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
     synchronized (certificateFactory) {
       return (X509Certificate) certificateFactory.generateCertificate(new ByteArrayInputStream(cert));
+    }
+  }
+
+  private static KeyStore loadKeyStore(String pkiContainer, String pkiContainerPassword) {
+    try {
+      KeyStore keyStore = KeyStore.getInstance("PKCS12");
+      try (FileInputStream stream = new FileInputStream(pkiContainer)) {
+        keyStore.load(stream, pkiContainerPassword.toCharArray());
+      }
+      return keyStore;
+    } catch (Exception e) {
+      throw new IllegalStateException("Failed to load key store", e);
+    }
+  }
+
+  private static PrivateKey getSigningPrivateKey(String pkiContainer, String pkiContainerPassword, String alias) {
+    try {
+      KeyStore keyStore = loadKeyStore(pkiContainer, pkiContainerPassword);
+      return (PrivateKey) keyStore.getKey(alias, pkiContainerPassword.toCharArray());
+    } catch (Exception e) {
+      throw new IllegalStateException("Failed to load signing private key", e);
     }
   }
 
