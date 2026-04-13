@@ -29,29 +29,29 @@
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <dss.version>6.2.d4j.1</dss.version>
         <hamcrest.version>3.0</hamcrest.version>
-        <httpclient5.version>5.5.1</httpclient5.version>
-        <jackson.version>2.20.1</jackson.version>
-        <!-- TODO: There is currently no 2.20.1 version for jackson-annotations, temporarily use separate version declaration -->
-        <jackson-annotations.version>2.20</jackson-annotations.version>
+        <httpclient5.version>5.6</httpclient5.version>
+        <jackson.version>2.21.2</jackson.version>
+        <!-- TODO: There is currently no 2.21.2 version for jackson-annotations, temporarily use separate version declaration -->
+        <jackson-annotations.version>2.21</jackson-annotations.version>
         <jaxb.version>3.0.2</jaxb.version><!-- DSS depends on jaxb-runtime 3.0.X -->
         <jmh.version>1.37</jmh.version>
-        <junit.version>5.9.3</junit.version>
+        <junit.version>5.9.3</junit.version><!-- Java 8 is not supported since 5.10.x -->
         <logback-classic.version>1.3.16</logback-classic.version><!-- Java 8 is not supported since version 1.4.X -->
         <mockito.version>4.11.0</mockito.version><!-- Java 8 is not supported since version 5.X.X -->
-        <snakeyaml.version>2.5</snakeyaml.version>
-        <system-lambda.version>1.2.0</system-lambda.version>
+        <snakeyaml.version>2.6</snakeyaml.version>
+        <system-lambda.version>1.2.1</system-lambda.version>
         <wiremock.version>2.35.2</wiremock.version><!-- Java 8 is not supported since version 3.X.X -->
         <xmlsec.version>3.0.6</xmlsec.version><!-- DSS depends on xmlsec 3.0.X -->
         <xmlunit.version>2.11.0</xmlunit.version>
 
-        <buildnumber-maven-plugin.version>3.2.1</buildnumber-maven-plugin.version>
+        <buildnumber-maven-plugin.version>3.3.0</buildnumber-maven-plugin.version>
         <maven-antrun-plugin.version>3.2.0</maven-antrun-plugin.version>
         <maven-install-plugin.version>3.1.4</maven-install-plugin.version>
         <maven-jar-plugin.version>3.5.0</maven-jar-plugin.version>
         <maven-jaxb2-plugin.version>0.15.3</maven-jaxb2-plugin.version>
-        <maven-release-plugin.version>3.2.0</maven-release-plugin.version>
-        <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-        <maven-shade-plugin.version>3.6.1</maven-shade-plugin.version>
+        <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
+        <maven-resources-plugin.version>3.4.0</maven-resources-plugin.version>
+        <maven-shade-plugin.version>3.6.2</maven-shade-plugin.version>
 
         <dss.util.build>${project.build.directory}/build/util</dss.util.build>
         <dss.util.lib>${project.build.directory}/library/util</dss.util.lib>
