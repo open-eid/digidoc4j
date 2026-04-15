@@ -24,6 +24,8 @@ import org.digidoc4j.test.util.TestTSLUtil;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -120,8 +122,9 @@ class TslLoaderTest extends AbstractTest {
   }
 
   @Test
+  @Disabled("This test currently fails because of the recent pivot chain reset.")
   void loadProdTsl_withDefaultLotlTruststoreAndPivotSupportDisabled_shouldFail() {
-    // TODO: this test might be needed to be updated after the pivot chain is reset
+    // TODO: enable it after appropriate changes in the pivot chain have been made
     configuration = new Configuration(Configuration.Mode.PROD);
     configuration.setLotlPivotSupportEnabled(false);
     configuration.setTslRefreshCallback(new MockTSLRefreshCallback(true));
@@ -129,6 +132,16 @@ class TslLoaderTest extends AbstractTest {
     assertEquals(Indication.INDETERMINATE, tslRepository.getValidationCacheInfo().getIndication());
     assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, tslRepository.getValidationCacheInfo().getSubIndication());
     assertEquals(0, configuration.getTSL().getNumberOfCertificates());
+  }
+
+  @Test
+  void loadProdTsl_withDefaultLotlTruststoreAndPivotSupportDisabled_shouldPass() {
+    // TODO: this test might be needed to be updated after changes in the pivot chain
+    configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setLotlPivotSupportEnabled(false);
+    LOTLInfo tslRepository = initTSLAndGetRepository();
+    assertEquals(Indication.TOTAL_PASSED, tslRepository.getValidationCacheInfo().getIndication());
+    assertThat(configuration.getTSL().getNumberOfCertificates(), greaterThan(0));
   }
 
   @Test
