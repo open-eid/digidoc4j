@@ -37,4 +37,12 @@ public final class TestConstants {
                   "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
           ));
 
+  // CN of specific OCSP responders
+  public static final String DEMO_SK_ESTEID2015_OCSP_2026_CN = "DEMO of ESTEID-SK 2015 OCSP RESPONDER 2026";
+  public static final String DEMO_SK_ESTEID2018_OCSP_2026_CN = "DEMO of ESTEID2018 OCSP RESPONDER 2026";
+
+  // CN of currently active OCSP responders
+  public static final String DEMO_SK_ESTEID2015_OCSP_CN = DEMO_SK_ESTEID2015_OCSP_2026_CN;
+  public static final String DEMO_SK_ESTEID2018_OCSP_CN = DEMO_SK_ESTEID2018_OCSP_2026_CN;
+
 }

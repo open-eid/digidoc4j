@@ -42,8 +42,9 @@ import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 
+import static org.digidoc4j.test.TestConstants.DEMO_SK_ESTEID2015_OCSP_CN;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.matchesRegex;
+import static org.hamcrest.Matchers.equalTo;
 import static org.xmlunit.matchers.CompareMatcher.isIdenticalTo;
 
 public class SignatureTest extends AbstractTest {
@@ -175,7 +176,7 @@ public class SignatureTest extends AbstractTest {
     Signature signature = createSignatureBy(Container.DocumentType.BDOC, pkcs12SignatureToken, configuration);
     assertThat(
             signature.getOCSPCertificate().getSubjectName(X509Cert.SubjectName.CN),
-            matchesRegex("DEMO of ESTEID-SK 2015 AIA OCSP RESPONDER 20[1-2][0-9]")
+            equalTo(DEMO_SK_ESTEID2015_OCSP_CN)
     );
   }
 

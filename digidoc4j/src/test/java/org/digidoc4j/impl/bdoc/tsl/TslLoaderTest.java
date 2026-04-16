@@ -25,6 +25,9 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+
 public class TslLoaderTest extends AbstractTest {
 
   private TslLoader tslLoader;
@@ -117,6 +120,7 @@ public class TslLoaderTest extends AbstractTest {
   }
 
   @Test
+  @Ignore("This test currently fails because of the recent pivot chain reset.")
   public void loadProdTsl_withDefaultLotlTruststoreAndPivotSupportDisabled_shouldFail() {
     // TODO: this test might be needed to be updated after the pivot chain is reset
     configuration = new Configuration(Configuration.Mode.PROD);
@@ -126,6 +130,18 @@ public class TslLoaderTest extends AbstractTest {
     Assert.assertEquals(Indication.INDETERMINATE, tslRepository.getValidationCacheInfo().getIndication());
     Assert.assertEquals(SubIndication.NO_CERTIFICATE_CHAIN_FOUND, tslRepository.getValidationCacheInfo().getSubIndication());
     Assert.assertEquals(0, configuration.getTSL().getNumberOfCertificates());
+  }
+
+  @Test
+  public void loadProdTsl_withDefaultLotlTruststoreAndPivotSupportDisabled_shouldPass() {
+    // TODO: this test might be needed to be updated after changes in the pivot chain
+    evictTSLCache();
+    configuration = new Configuration(Configuration.Mode.PROD);
+    configuration.setLotlPivotSupportEnabled(false);
+    evictTSLCache();
+    LOTLInfo tslRepository = initTSLAndGetRepository();
+    Assert.assertEquals(Indication.TOTAL_PASSED, tslRepository.getValidationCacheInfo().getIndication());
+    assertThat(configuration.getTSL().getNumberOfCertificates(), greaterThan(0));
   }
 
   @Test
