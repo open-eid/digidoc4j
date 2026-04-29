@@ -29,7 +29,7 @@
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <dss.version>6.2.d4j.1</dss.version>
         <hamcrest.version>3.0</hamcrest.version>
-        <httpclient5.version>5.6</httpclient5.version>
+        <httpclient5.version>5.6.1</httpclient5.version>
         <jackson.version>2.21.2</jackson.version>
         <!-- TODO: There is currently no 2.21.2 version for jackson-annotations, temporarily use separate version declaration -->
         <jackson-annotations.version>2.21</jackson-annotations.version>
