@@ -351,8 +351,11 @@ public class CommandLineExecutor {
 
   private DataToSign createSigningData() {
     LOGGER.debug("Creating signing data ...");
-    return SignatureBuilder.aSignature(context.getContainer()).withSigningCertificate(context.getCertificate())
-        .withSignatureDigestAlgorithm(context.getDigestAlgorithm()).buildDataToSign();
+    SignatureBuilder signatureBuilder = SignatureBuilder.aSignature(context.getContainer())
+        .withSigningCertificate(context.getCertificate())
+        .withSignatureDigestAlgorithm(context.getDigestAlgorithm());
+    updateEncryptionAlgorithm(signatureBuilder);
+    return signatureBuilder.buildDataToSign();
   }
 
   private byte[] createSignature() {
@@ -492,8 +495,13 @@ public class CommandLineExecutor {
   private void updateEncryptionAlgorithm(SignatureBuilder signatureBuilder) {
     if (context.getCommandLine().hasOption(ExecutionOption.ENCRYPTION.getName())) {
       String encryption = context.getCommandLine().getOptionValue(ExecutionOption.ENCRYPTION.getName());
-      EncryptionAlgorithm encryptionAlgorithm = EncryptionAlgorithm.valueOf(encryption);
-      signatureBuilder.withEncryptionAlgorithm(encryptionAlgorithm);
+      try {
+        EncryptionAlgorithm encryptionAlgorithm = EncryptionAlgorithm.valueOf(encryption);
+        signatureBuilder.withEncryptionAlgorithm(encryptionAlgorithm);
+      } catch (IllegalArgumentException e) {
+        throw new DigiDoc4JException("Unknown encryption algorithm \"" + encryption
+            + "\". Supported values: " + Arrays.toString(EncryptionAlgorithm.values()));
+      }
     }
   }
 

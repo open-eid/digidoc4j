@@ -11,6 +11,7 @@
 package org.digidoc4j.test.util;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.digidoc4j.DigestAlgorithm;
 import org.digidoc4j.X509Cert;
 import org.digidoc4j.exceptions.DigiDoc4JException;
@@ -21,10 +22,13 @@ import java.io.FileInputStream;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.PrivateKey;
+import java.security.Security;
 import java.security.Signature;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.spec.MGF1ParameterSpec;
+import java.security.spec.PSSParameterSpec;
 
 public final class TestSigningUtil {
 
@@ -100,6 +104,20 @@ public final class TestSigningUtil {
     PKCS12SignatureToken token = new PKCS12SignatureToken(TEST_ECC_PKI_CONTAINER, TEST_ECC_PKI_CONTAINER_PASSWORD,
         X509Cert.KeyUsage.NON_REPUDIATION);
     return token.sign(digestAlgorithm, dataToSign);
+  }
+
+  public static byte[] signRsassaPss(byte[] dataToSign, DigestAlgorithm digestAlgorithm) {
+    try {
+      PrivateKey privateKey = getSigningPrivateKey(TEST_PKI_CONTAINER, TEST_PKI_CONTAINER_PASSWORD);
+      Security.addProvider(new BouncyCastleProvider());
+      Signature signature = Signature.getInstance("RSASSA-PSS", BouncyCastleProvider.PROVIDER_NAME);
+      signature.setParameter(toPssParameterSpec(digestAlgorithm));
+      signature.initSign(privateKey);
+      signature.update(dataToSign);
+      return signature.sign();
+    } catch (GeneralSecurityException e) {
+      throw new IllegalStateException("Failed to create RSASSA-PSS signature", e);
+    }
   }
 
   public static X509Certificate toX509Certificate(String certificate) {
@@ -240,6 +258,29 @@ public final class TestSigningUtil {
       return (PrivateKey) keyStore.getKey(alias, pkiContainerPassword.toCharArray());
     } catch (Exception e) {
       throw new IllegalStateException("Failed to load signing private key", e);
+    }
+  }
+
+  private static PSSParameterSpec toPssParameterSpec(DigestAlgorithm digestAlgorithm) {
+    switch (digestAlgorithm) {
+      case SHA1:
+        return new PSSParameterSpec("SHA-1", "MGF1", MGF1ParameterSpec.SHA1, 20, 1);
+      case SHA224:
+        return new PSSParameterSpec("SHA-224", "MGF1", new MGF1ParameterSpec("SHA-224"), 28, 1);
+      case SHA256:
+        return new PSSParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, 32, 1);
+      case SHA384:
+        return new PSSParameterSpec("SHA-384", "MGF1", MGF1ParameterSpec.SHA384, 48, 1);
+      case SHA512:
+        return new PSSParameterSpec("SHA-512", "MGF1", MGF1ParameterSpec.SHA512, 64, 1);
+      case SHA3_256:
+        return new PSSParameterSpec("SHA3-256", "MGF1", new MGF1ParameterSpec("SHA3-256"), 32, 1);
+      case SHA3_384:
+        return new PSSParameterSpec("SHA3-384", "MGF1", new MGF1ParameterSpec("SHA3-384"), 48, 1);
+      case SHA3_512:
+        return new PSSParameterSpec("SHA3-512", "MGF1", new MGF1ParameterSpec("SHA3-512"), 64, 1);
+      default:
+        throw new IllegalArgumentException("Unsupported RSASSA-PSS digest algorithm: " + digestAlgorithm);
     }
   }
 

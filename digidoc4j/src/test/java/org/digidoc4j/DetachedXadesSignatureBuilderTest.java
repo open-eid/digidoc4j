@@ -13,11 +13,13 @@ package org.digidoc4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.digidoc4j.exceptions.InvalidDataFileException;
+import org.digidoc4j.exceptions.IllegalEncryptionAlgorithmException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.SignatureTokenMissingException;
 import org.digidoc4j.exceptions.SignerCertificateRequiredException;
 import org.digidoc4j.test.TestAssert;
+import org.digidoc4j.test.util.TestSigningUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -28,6 +30,7 @@ import java.security.MessageDigest;
 
 import static org.digidoc4j.test.util.TestSignatureUtil.assertSignatureContainsDigestMethod;
 import static org.digidoc4j.test.util.TestSignatureUtil.getEcdsaSignatureMethodUri;
+import static org.digidoc4j.test.util.TestSignatureUtil.getRsassaPssSignatureMethodUri;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -485,6 +488,79 @@ class DetachedXadesSignatureBuilderTest extends AbstractTest {
     );
 
     assertThat(exception.getMessage(), containsString("RSA with SHA3 signature digest algorithms is not supported for XAdES signatures"));
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = DigestAlgorithm.class, mode = EnumSource.Mode.EXCLUDE, names = {"SHA224"})
+  void buildDataToSign_WhenRsassaPssWithSupportedDigestIsUsed_ReturnsValidSignature(
+          DigestAlgorithm signatureDigestAlgorithm
+  ) {
+    DataFile dataFile = createTextDataFile("filename", "test");
+
+    DataToSign dataToSign = DetachedXadesSignatureBuilder
+            .withConfiguration(new Configuration())
+            .withDataFile(dataFile)
+            .withSigningCertificate(pkcs12SignatureToken.getCertificate())
+            .withEncryptionAlgorithm(EncryptionAlgorithm.RSASSA_PSS)
+            .withSignatureDigestAlgorithm(signatureDigestAlgorithm)
+            .buildDataToSign();
+    Signature signature = dataToSign.finalize(TestSigningUtil.signRsassaPss(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm()));
+
+    assertEquals(EncryptionAlgorithm.RSASSA_PSS, dataToSign.getSignatureParameters().getEncryptionAlgorithm());
+    assertThat(signature.getSignatureMethod(), equalTo(getRsassaPssSignatureMethodUri(signatureDigestAlgorithm)));
+    assertValidSignature(signature);
+  }
+
+  @Test
+  void buildDataToSign_WhenRsassaPssWithSha224DigestIsUsed_ReturnsValidSignatureWithWarnings() {
+    DataFile dataFile = createTextDataFile("filename", "test");
+
+    DataToSign dataToSign = DetachedXadesSignatureBuilder
+            .withConfiguration(new Configuration())
+            .withDataFile(dataFile)
+            .withSigningCertificate(pkcs12SignatureToken.getCertificate())
+            .withEncryptionAlgorithm(EncryptionAlgorithm.RSASSA_PSS)
+            .withSignatureDigestAlgorithm(DigestAlgorithm.SHA224)
+            .buildDataToSign();
+    Signature signature = dataToSign.finalize(TestSigningUtil.signRsassaPss(dataToSign.getDataToSign(), dataToSign.getDigestAlgorithm()));
+
+    assertEquals(EncryptionAlgorithm.RSASSA_PSS, dataToSign.getSignatureParameters().getEncryptionAlgorithm());
+    assertThat(signature.getSignatureMethod(), equalTo(getRsassaPssSignatureMethodUri(DigestAlgorithm.SHA224)));
+    assertValidSignatureWithWarnings(signature);
+  }
+
+  @Test
+  void buildDataToSign_WhenRsassaPssWithEcdsaCertificateIsUsed_ThrowsUnsupportedSignatureAlgorithm() {
+    DataFile dataFile = createTextDataFile("filename", "test");
+
+    IllegalEncryptionAlgorithmException exception = assertThrows(
+        IllegalEncryptionAlgorithmException.class,
+        () -> DetachedXadesSignatureBuilder
+            .withConfiguration(new Configuration())
+            .withDataFile(dataFile)
+            .withSigningCertificate(pkcs12EccSignatureToken.getCertificate())
+            .withEncryptionAlgorithm(EncryptionAlgorithm.RSASSA_PSS)
+            .buildDataToSign()
+    );
+
+    assertThat(exception.getMessage(), containsString("RSASSA-PSS requires an RSA signing certificate"));
+  }
+
+  @Test
+  void invokeSigning_WhenRsassaPssIsUsed_ThrowsUnsupportedSignatureAlgorithm() {
+    DataFile dataFile = createTextDataFile("filename", "test");
+
+    NotSupportedException exception = assertThrows(
+        NotSupportedException.class,
+        () -> DetachedXadesSignatureBuilder
+            .withConfiguration(new Configuration())
+            .withDataFile(dataFile)
+            .withSignatureToken(pkcs12SignatureToken)
+            .withEncryptionAlgorithm(EncryptionAlgorithm.RSASSA_PSS)
+            .invokeSigning()
+    );
+
+    assertThat(exception.getMessage(), containsString("RSASSA-PSS signing with SignatureToken is not supported"));
   }
 
   @ParameterizedTest

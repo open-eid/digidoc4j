@@ -12,5 +12,22 @@ package org.digidoc4j;
 
 public enum EncryptionAlgorithm {
   RSA,
-  ECDSA
+  RSASSA_PSS,
+  ECDSA;
+
+  public static boolean isRsa(EncryptionAlgorithm encryptionAlgorithm) {
+    return encryptionAlgorithm == RSA || encryptionAlgorithm == RSASSA_PSS;
+  }
+
+  public static boolean isRsaPkcs1(EncryptionAlgorithm encryptionAlgorithm) {
+    return encryptionAlgorithm == RSA;
+  }
+
+  public static boolean isRsassaPss(EncryptionAlgorithm encryptionAlgorithm) {
+    return encryptionAlgorithm == RSASSA_PSS;
+  }
+
+  public static boolean isEcdsa(EncryptionAlgorithm encryptionAlgorithm) {
+    return encryptionAlgorithm == ECDSA;
+  }
 }

@@ -327,7 +327,7 @@ public final class DigiDoc4J {
     return Option.builder("e")
         .argName("encryptionAlgorithm")
         .hasArg()
-        .desc("sets the encryption algorithm (RSA/ECDSA).")
+        .desc("sets the encryption algorithm (RSA/RSASSA_PSS/ECDSA).")
         .longOpt("encryption")
         .build();
   }

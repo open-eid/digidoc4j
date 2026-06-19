@@ -26,6 +26,12 @@ public final class TestSignatureUtil {
             .getUri();
   }
 
+  public static String getRsassaPssSignatureMethodUri(DigestAlgorithm digestAlgorithm) {
+    return eu.europa.esig.dss.enumerations.SignatureAlgorithm
+            .getAlgorithm(eu.europa.esig.dss.enumerations.EncryptionAlgorithm.RSASSA_PSS, digestAlgorithm.getDssDigestAlgorithm())
+            .getUri();
+  }
+
   public static void assertSignatureContainsDigestMethod(Signature signature, DigestAlgorithm digestAlgorithm) {
     assertThat(new String(signature.getAdESSignature(), StandardCharsets.UTF_8), containsString("Algorithm=\"" + digestAlgorithm + "\""));
   }

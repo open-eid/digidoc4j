@@ -13,6 +13,7 @@ package org.digidoc4j;
 import eu.europa.esig.dss.model.InMemoryDocument;
 import eu.europa.esig.dss.model.Policy;
 import org.digidoc4j.exceptions.DataFileMissingException;
+import org.digidoc4j.exceptions.IllegalEncryptionAlgorithmException;
 import org.digidoc4j.exceptions.InvalidSignatureException;
 import org.digidoc4j.exceptions.NotSupportedException;
 import org.digidoc4j.exceptions.SignatureTokenMissingException;
@@ -280,6 +281,7 @@ public class DetachedXadesSignatureBuilder {
   protected Signature invokeSigningProcess() {
     logger.info("Creating Xades Signature");
     signatureParameters.setSigningCertificate(signatureToken.getCertificate());
+    validateEncryptionAlgorithmForSignatureTokenBasedSigning();
     byte[] dataToSign = getSignatureFinalizer().getDataToBeSigned();
     Signature result = null;
     byte[] signatureValue = null;
@@ -329,25 +331,41 @@ public class DetachedXadesSignatureBuilder {
   }
 
   private DigestAlgorithm getDefaultSignatureDigestAlgorithm() {
-    if (signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA) {
+    if (EncryptionAlgorithm.isEcdsa(signatureParameters.getEncryptionAlgorithm())) {
       return DigestUtils.getRecommendedSignatureDigestAlgorithm((ECPublicKey) signatureParameters.getSigningCertificate().getPublicKey());
     }
     return Constant.Default.SIGNATURE_DIGEST_ALGORITHM;
   }
 
   private void populateEncryptionAlgorithm() {
-    if (signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA || CertificateUtils.isEcdsaCertificate(signatureParameters.getSigningCertificate())) {
+    EncryptionAlgorithm encryptionAlgorithm = signatureParameters.getEncryptionAlgorithm();
+    if (EncryptionAlgorithm.isRsassaPss(encryptionAlgorithm)) {
+      return;
+    }
+    if (EncryptionAlgorithm.isEcdsa(encryptionAlgorithm) || CertificateUtils.isEcdsaCertificate(signatureParameters.getSigningCertificate())) {
       logger.debug("Using ECDSA encryption algorithm");
       signatureParameters.setEncryptionAlgorithm(EncryptionAlgorithm.ECDSA);
-    } else {
+    } else if (encryptionAlgorithm == null) {
       signatureParameters.setEncryptionAlgorithm(EncryptionAlgorithm.RSA);
     }
   }
 
   private void validateSignatureAlgorithmCompatibility() {
-    if (signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.RSA
+    EncryptionAlgorithm encryptionAlgorithm = signatureParameters.getEncryptionAlgorithm();
+    if (EncryptionAlgorithm.isRsassaPss(encryptionAlgorithm)
+            && CertificateUtils.isEcdsaCertificate(signatureParameters.getSigningCertificate())) {
+      throw new IllegalEncryptionAlgorithmException("RSASSA-PSS requires an RSA signing certificate");
+    }
+    if (EncryptionAlgorithm.isRsaPkcs1(encryptionAlgorithm)
             && DigestAlgorithm.isSha3(signatureParameters.getSignatureDigestAlgorithm())) {
       throw new NotSupportedException("RSA with SHA3 signature digest algorithms is not supported for XAdES signatures");
+    }
+  }
+
+  private void validateEncryptionAlgorithmForSignatureTokenBasedSigning() {
+    EncryptionAlgorithm encryptionAlgorithm = signatureParameters.getEncryptionAlgorithm();
+    if (EncryptionAlgorithm.isRsassaPss(encryptionAlgorithm)) {
+      throw new NotSupportedException("RSASSA-PSS signing with SignatureToken is not supported. Use buildDataToSign() and finalizeSignature(...) instead");
     }
   }
 

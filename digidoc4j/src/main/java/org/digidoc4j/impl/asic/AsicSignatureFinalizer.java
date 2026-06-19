@@ -71,7 +71,7 @@ public abstract class AsicSignatureFinalizer extends SignatureFinalizer {
 
   @Override
   public Signature finalizeSignature(byte[] signatureValue) {
-    if ((signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA || CertificateUtils.isEcdsaCertificate(signatureParameters.getSigningCertificate()))
+    if ((EncryptionAlgorithm.isEcdsa(signatureParameters.getEncryptionAlgorithm()) || CertificateUtils.isEcdsaCertificate(signatureParameters.getSigningCertificate()))
             && DSSASN1Utils.isAsn1Encoded(signatureValue)) {
       LOGGER.debug("Finalizing signature ASN1: {} [{}]", Helper.bytesToHex(signatureValue, HEX_MAX_LENGTH), signatureValue.length);
       signatureValue = DSSASN1Utils.ensurePlainSignatureValue(eu.europa.esig.dss.enumerations.EncryptionAlgorithm.ECDSA,
@@ -239,9 +239,12 @@ public abstract class AsicSignatureFinalizer extends SignatureFinalizer {
   }
 
   private void setEncryptionAlgorithm() {
-    if (signatureParameters.getEncryptionAlgorithm() == EncryptionAlgorithm.ECDSA) {
+    if (EncryptionAlgorithm.isEcdsa(signatureParameters.getEncryptionAlgorithm())) {
       LOGGER.debug("Using ECDSA encryption algorithm");
       facade.setEncryptionAlgorithm(eu.europa.esig.dss.enumerations.EncryptionAlgorithm.ECDSA);
+    } else if (EncryptionAlgorithm.isRsassaPss(signatureParameters.getEncryptionAlgorithm())) {
+      LOGGER.debug("Using RSASSA-PSS encryption algorithm");
+      facade.setEncryptionAlgorithm(eu.europa.esig.dss.enumerations.EncryptionAlgorithm.RSASSA_PSS);
     } else {
       LOGGER.debug("Using RSA encryption algorithm");
       facade.setEncryptionAlgorithm(eu.europa.esig.dss.enumerations.EncryptionAlgorithm.RSA);
