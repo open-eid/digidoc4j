@@ -34,10 +34,10 @@ import java.io.Serializable;
  */
 public class SKCommonCertificateVerifier implements Serializable, CertificateVerifier {
 
-  private transient CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
+  private transient CommonCertificateVerifier commonCertificateVerifier;
 
   public SKCommonCertificateVerifier() {
-    this.commonCertificateVerifier.setAlertOnMissingRevocationData(new SilentOnStatusAlert());
+    this.commonCertificateVerifier = createCommonCertificateVerifier();
   }
 
   @Override
@@ -285,9 +285,15 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
    * RESTRICTED METHODS
    */
 
-  private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
-    stream.defaultReadObject();
-    this.commonCertificateVerifier = new CommonCertificateVerifier();
+  private static CommonCertificateVerifier createCommonCertificateVerifier() {
+    CommonCertificateVerifier verifier = new CommonCertificateVerifier();
+    verifier.setAlertOnMissingRevocationData(new SilentOnStatusAlert());
+    verifier.setAlertOnNoRevocationAfterBestSignatureTime(new SilentOnStatusAlert());
+    return verifier;
   }
 
+  private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+    stream.defaultReadObject();
+    this.commonCertificateVerifier = createCommonCertificateVerifier();
+  }
 }
