@@ -19,7 +19,7 @@ import java.io.File;
 import static org.digidoc4j.test.TestAssert.assertContainerIsValid;
 import static org.digidoc4j.test.TestConstants.DEMO_SK_ESTEID2015_OCSP_CN;
 import static org.digidoc4j.test.TestConstants.DEMO_SK_ESTEID2018_OCSP_CN;
-import static org.digidoc4j.test.TestConstants.TEST_ESTEID2018_OCSP_CN;
+import static org.digidoc4j.test.TestConstants.TEST_ESTEID2018_OCSP_CN_REGEX;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.matchesRegex;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,7 +42,7 @@ class AiaOcspTest extends AbstractTest {
         assertContainerIsValid(container);
         assertThat(
                 container.getSignatures().get(0).getOCSPCertificate().getSubjectName(X509Cert.SubjectName.CN),
-                matchesRegex(TEST_ESTEID2018_OCSP_CN)
+                matchesRegex(TEST_ESTEID2018_OCSP_CN_REGEX)
         );
     }
 

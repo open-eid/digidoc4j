@@ -60,12 +60,12 @@ public final class TestConstants {
   public static final String DEMO_SK_ESTEID2015_OCSP_2026_CN = "DEMO of ESTEID-SK 2015 OCSP RESPONDER 2026";
   public static final String DEMO_SK_ESTEID2018_OCSP_2018_CN = "DEMO of ESTEID-SK 2018 AIA OCSP RESPONDER 2018";
   public static final String DEMO_SK_ESTEID2018_OCSP_2026_CN = "DEMO of ESTEID2018 OCSP RESPONDER 2026";
-  public static final String TEST_ESTEID2018_OCSP_2026_04_CN = "TEST of ESTEID2018 OCSP RESPONDER 202604";
+  public static final String TEST_ESTEID2018_OCSP_2026_CN_REGEX = "TEST of ESTEID2018 OCSP RESPONDER 2026[0-1][0-9]";
 
   // CN of currently active OCSP responders
   public static final String DEMO_SK_ESTEID2015_OCSP_CN = DEMO_SK_ESTEID2015_OCSP_2026_CN;
   public static final String DEMO_SK_ESTEID2018_OCSP_CN = DEMO_SK_ESTEID2018_OCSP_2026_CN;
-  public static final String TEST_ESTEID2018_OCSP_CN = TEST_ESTEID2018_OCSP_2026_04_CN;
+  public static final String TEST_ESTEID2018_OCSP_CN_REGEX = TEST_ESTEID2018_OCSP_2026_CN_REGEX;
 
   private TestConstants() {
   }
