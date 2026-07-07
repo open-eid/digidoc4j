@@ -288,7 +288,6 @@ public class SKCommonCertificateVerifier implements Serializable, CertificateVer
   private static CommonCertificateVerifier createCommonCertificateVerifier() {
     CommonCertificateVerifier verifier = new CommonCertificateVerifier();
     verifier.setAlertOnMissingRevocationData(new SilentOnStatusAlert());
-    verifier.setAlertOnNoRevocationAfterBestSignatureTime(new SilentOnStatusAlert());
     return verifier;
   }
 
