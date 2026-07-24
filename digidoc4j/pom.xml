@@ -30,7 +30,7 @@
         <dss.version>6.2.d4j.1</dss.version>
         <hamcrest.version>3.0</hamcrest.version>
         <httpclient5.version>5.6.2</httpclient5.version>
-        <jackson.version>2.22.0</jackson.version>
+        <jackson.version>2.22.1</jackson.version>
         <!-- TODO: There is currently no 2.22.0 version for jackson-annotations, temporarily use separate version declaration -->
         <jackson-annotations.version>2.22</jackson-annotations.version>
         <jaxb.version>3.0.2</jaxb.version><!-- DSS depends on jaxb-runtime 3.0.X -->
