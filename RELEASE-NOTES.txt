@@ -1,6 +1,23 @@
 DigiDoc4J Java library release notes
 ------------------------------------
 
+Release 6.2.0
+-------------
+Summary of the major changes since 6.1.1
+----------------------------------------
+* Added support for creating RSA signatures using RSASSA-PSS signature scheme
+* Added support for SHA3 digest algorithms: SHA3-256, SHA3-384, SHA3-512
+* Fixes and improvements to unit tests
+* Updated dependencies
+
+Known issues
+------------
+* Currently used version of the underlying DSS library is not compatible with BouncyCastle version 1.85:
+  the changes introduced in BouncyCastle 1.85 break PAdES validation (the immediate symptom is false positives in case of validating invalid PAdES containers)
+* We have noticed a slight increase in TSL loading times due to pivot LOTL support
+* We have noticed a decrease in performance with the introduction of properly accessing AIA certificate resources
+* Opening a container that contains signatures, triggers TSL loading (TSL lazy loading does not work as expected)
+
 Release 6.1.1
 -------------
 A new notice has been published in the Official Journal of the European Union on April 15, 2026, updating the set of signer certificates for the chain of pivot LOTLs.
