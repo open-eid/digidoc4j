@@ -24,12 +24,12 @@
         <dss.groupId>org.digidoc4j.dss</dss.groupId>
 
         <commons-cli.version>1.11.0</commons-cli.version>
-        <commons-collections4.version>4.5.0</commons-collections4.version>
+        <commons-collections4.version>4.6.0</commons-collections4.version>
         <commons-io.version>2.22.0</commons-io.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <dss.version>6.2.d4j.1</dss.version>
         <hamcrest.version>3.0</hamcrest.version>
-        <httpclient5.version>5.6.2</httpclient5.version>
+        <httpclient5.version>5.6.4</httpclient5.version>
         <jackson.version>2.22.1</jackson.version>
         <!-- TODO: There is currently no 2.22.0 version for jackson-annotations, temporarily use separate version declaration -->
         <jackson-annotations.version>2.22</jackson-annotations.version>
@@ -42,12 +42,12 @@
         <system-lambda.version>1.2.1</system-lambda.version>
         <wiremock.version>2.35.2</wiremock.version><!-- Java 8 is not supported since version 3.X.X -->
         <xmlsec.version>3.0.6</xmlsec.version><!-- DSS depends on xmlsec 3.0.X -->
-        <xmlunit.version>2.12.0</xmlunit.version>
+        <xmlunit.version>2.13.0</xmlunit.version>
 
         <buildnumber-maven-plugin.version>3.3.0</buildnumber-maven-plugin.version>
         <maven-antrun-plugin.version>3.2.0</maven-antrun-plugin.version>
         <maven-install-plugin.version>3.1.4</maven-install-plugin.version>
-        <maven-jar-plugin.version>3.5.0</maven-jar-plugin.version>
+        <maven-jar-plugin.version>3.5.1</maven-jar-plugin.version>
         <maven-jaxb2-plugin.version>0.15.3</maven-jaxb2-plugin.version>
         <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
         <maven-resources-plugin.version>3.5.0</maven-resources-plugin.version>
