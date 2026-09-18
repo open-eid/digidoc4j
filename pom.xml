@@ -133,7 +133,7 @@
         <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
 
         <!--BouncyCastle 1.85 causes false positives in PAdES validation with current DSS; update when DSS is updated -->
-        <bouncycastle.version>1.84</bouncycastle.version>
+        <bouncycastle.version>1.85</bouncycastle.version>
         <commons-codec.version>1.22.1</commons-codec.version>
         <slf4j.version>2.0.18</slf4j.version>
 
